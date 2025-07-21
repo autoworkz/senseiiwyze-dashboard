@@ -1,5 +1,8 @@
 import '@testing-library/jest-dom'
 
+// Use legacy fake timers to avoid timer conflicts
+jest.useFakeTimers('legacy')
+
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
   useRouter() {

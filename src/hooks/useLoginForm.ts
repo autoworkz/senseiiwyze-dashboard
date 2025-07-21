@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { validateForm, FormData, FormErrors } from '../utils/validation'
+import { validateForm, FormData, FormErrors } from '@/utils/validation'
 
 export interface UseLoginFormReturn {
   formData: FormData
