@@ -1,62 +1,166 @@
-# Next.js Framework Starter
+# SenseiIWyze Dashboard
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/cloudflare/templates/tree/main/next-starter-template)
+A modern, responsive login dashboard built with Next.js, TypeScript, and Tailwind CSS.
 
-<!-- dash-content-start -->
+## Features
 
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app). It's deployed on Cloudflare Workers as a [static website](https://developers.cloudflare.com/workers/static-assets/).
+- 🔐 **Secure Authentication**: Email/password login with form validation
+- 🌐 **Social Login**: Google, Facebook, and GitHub integration
+- 📱 **Responsive Design**: Works seamlessly across all devices
+- ♿ **Accessible**: WCAG compliant with proper ARIA attributes
+- 🧪 **Test-Driven Development**: Comprehensive test coverage with Jest and React Testing Library
+- 🎨 **Modern UI**: Clean, professional design with Tailwind CSS
+- ⚡ **Performance**: Optimized with Next.js and TypeScript
 
-This template uses [OpenNext](https://opennext.js.org/) via the [OpenNext Cloudflare adapter](https://opennext.js.org/cloudflare), which works by taking the Next.js build output and transforming it, so that it can run in Cloudflare Workers.
+## Tech Stack
 
-<!-- dash-content-end -->
+- **Framework**: Next.js 15
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **UI Components**: Radix UI
+- **Testing**: Jest + React Testing Library
+- **Icons**: Lucide React
+- **Deployment**: Cloudflare Workers
 
-Outside of this repo, you can start a new project with this template using [C3](https://developers.cloudflare.com/pages/get-started/c3/) (the `create-cloudflare` CLI):
+## Project Structure
 
-```bash
-npm create cloudflare@latest -- --template=cloudflare/templates/next-starter-template
 ```
-
-A live public deployment of this template is available at [https://next-starter-template.templates.workers.dev](https://next-starter-template.templates.workers.dev)
+src/
+├── app/                    # Next.js app directory
+├── components/             # React components
+│   ├── ui/                # Reusable UI components
+│   └── __tests__/         # Component tests
+├── hooks/                 # Custom React hooks
+│   └── __tests__/         # Hook tests
+├── services/              # API services
+│   └── __tests__/         # Service tests
+├── utils/                 # Utility functions
+│   └── __tests__/         # Utility tests
+└── lib/                   # Library configurations
+```
 
 ## Getting Started
 
-First, run:
+1. **Install dependencies**:
 
 ```bash
 npm install
-# or
-yarn install
-# or
-pnpm install
-# or
-bun install
 ```
 
-Then run the development server (using the package manager of your choice):
+2. **Run the development server**:
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. **Open your browser** and navigate to [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Testing
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+Run the test suite:
 
-## Deploying To Production
+```bash
+# Run all tests
+npm test
 
-| Command                           | Action                                       |
-| :-------------------------------- | :------------------------------------------- |
-| `npm run build`                   | Build your production site                   |
-| `npm run preview`                 | Preview your build locally, before deploying |
-| `npm run build && npm run deploy` | Deploy your production site to Cloudflare    |
+# Run tests in watch mode
+npm run test:watch
 
-## Learn More
+# Run tests with coverage
+npm run test:coverage
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Development Approach
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This project was built using **Test-Driven Development (TDD)**:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+1. **Red**: Write failing tests that define expected behavior
+2. **Green**: Write minimal code to make tests pass
+3. **Refactor**: Improve code quality while keeping tests green
+
+### Test Coverage
+
+- ✅ **Unit Tests**: All utility functions and hooks
+- ✅ **Integration Tests**: Component interactions and form handling
+- ✅ **Edge Cases**: Error scenarios, network failures, and validation
+- ✅ **Accessibility**: ARIA attributes and keyboard navigation
+
+## Component Features
+
+### LoginPage Component
+
+- **Form Validation**: Real-time email and password validation
+- **Loading States**: Visual feedback during authentication
+- **Error Handling**: User-friendly error messages
+- **Social Authentication**: Google, Facebook, and GitHub login
+- **Accessibility**: Full keyboard navigation and screen reader support
+- **Responsive**: Mobile-first design approach
+
+### Custom Hooks
+
+- **useLoginForm**: Manages form state, validation, and submission
+
+### Services
+
+- **authService**: Handles authentication API calls with proper error handling
+
+### Utilities
+
+- **validation**: Email and password validation functions
+
+## Customization
+
+The LoginPage component accepts various props for customization:
+
+```typescript
+<LoginPage
+  heading="Welcome Back"
+  logo={{
+    url: "https://yoursite.com",
+    src: "/your-logo.svg",
+    alt: "Your Logo"
+  }}
+  onLogin={handleLogin}
+  onSocialLogin={handleSocialLogin}
+/>
+```
+
+## Deployment
+
+### Cloudflare Workers
+
+```bash
+npm run build && npm run deploy
+```
+
+### Other Platforms
+
+The application can be deployed to any platform that supports Next.js:
+
+- Vercel
+- Netlify
+- AWS Amplify
+- Railway
+- Render
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Write tests for your changes
+4. Implement your feature
+5. Ensure all tests pass: `npm test`
+6. Commit your changes: `git commit -m 'Add amazing feature'`
+7. Push to the branch: `git push origin feature/amazing-feature`
+8. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- [Next.js](https://nextjs.org/) for the amazing React framework
+- [Tailwind CSS](https://tailwindcss.com/) for the utility-first CSS framework
+- [Radix UI](https://www.radix-ui.com/) for accessible UI components
+- [shadcn/ui](https://ui.shadcn.com/) for the component design system
