@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { validateForm, FormData, FormErrors } from '@/utils/validation'
+import { validateForm as validateFormUtil, FormData, FormErrors } from '@/utils/validation'
 
 export interface UseLoginFormReturn {
   formData: FormData
@@ -54,7 +54,7 @@ export const useLoginForm = (): UseLoginFormReturn => {
    * @returns boolean indicating if form is valid
    */
   const validateFormData = useCallback((): boolean => {
-    const validationErrors = validateForm(formData)
+    const validationErrors = validateFormUtil(formData)
     setErrors(validationErrors)
     return Object.keys(validationErrors).length === 0
   }, [formData])
