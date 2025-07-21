@@ -42,13 +42,10 @@
     "build": "next build",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv env.d.ts",
     "check": "npm run build && tsc",
-    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "deploy": "pnpm opennextjs-cloudflare build && pnpm opennextjs-cloudflare deploy",
     "dev": "next dev",
     "lint": "next lint",
-    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
-    "start": "next start",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "preview": "pnpm opennextjs-cloudflare build && pnpm opennextjs-cloudflare preview",
+    "start": "next start"
   }
 }
