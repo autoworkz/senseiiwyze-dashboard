@@ -28,17 +28,11 @@
   "devDependencies": {
     "@eslint/eslintrc": "3",
     "@tailwindcss/postcss": "4.1.4",
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.3.0",
-    "@testing-library/user-event": "^14.6.1",
-    "@types/jest": "^30.0.0",
     "@types/node": "24.0.4",
     "@types/react": "19.0.10",
     "@types/react-dom": "19.0.4",
     "eslint": "9.27.0",
     "eslint-config-next": "15.3.3",
-    "jest": "^30.0.4",
-    "jest-environment-jsdom": "^30.0.4",
     "tailwindcss": "4.1.1",
     "typescript": "5.8.3",
     "wrangler": "4.21.x"
@@ -52,6 +46,9 @@
     "dev": "next dev",
     "lint": "next lint",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
-    "start": "next start"
+    "start": "next start",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   }
 }

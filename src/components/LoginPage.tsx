@@ -1,10 +1,10 @@
-'use client';
-
-import React, { useState, FormEvent } from 'react';
+import React, { FormEvent } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
+import { useLoginForm } from '../hooks/useLoginForm';
+import { authService, SocialProvider } from '../services/authService';
 
 // TypeScript interfaces for component props and form data
 interface LoginPageProps {
@@ -25,24 +25,6 @@ interface LoginPageProps {
   onSocialLogin?: (provider: 'google' | 'facebook' | 'github') => Promise<void>;
 }
 
-interface FormData {
-  email: string;
-  password: string;
-}
-
-interface FormErrors {
-  email?: string;
-  password?: string;
-  general?: string;
-}
-
-interface FormState {
-  data: FormData;
-  errors: FormErrors;
-  isLoading: boolean;
-  isSubmitting: boolean;
-}
-
 const LoginPage: React.FC<LoginPageProps> = ({
   heading = "Login",
   logo = {
@@ -60,69 +42,24 @@ const LoginPage: React.FC<LoginPageProps> = ({
   onLogin,
   onSocialLogin,
 }) => {
-  // State management for form data, errors, and loading states
-  const [formState, setFormState] = useState<FormState>({
-    data: {
-      email: '',
-      password: '',
-    },
-    errors: {},
-    isLoading: false,
-    isSubmitting: false,
-  });
-
-  // Email validation using regex pattern
-  const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  // Password validation - minimum 8 characters
-  const validatePassword = (password: string): boolean => {
-    return password.length >= 8;
-  };
-
-  // Form validation function
-  const validateForm = (): boolean => {
-    const errors: FormErrors = {};
-    
-    // Email validation
-    if (!formState.data.email) {
-      errors.email = 'Email is required';
-    } else if (!validateEmail(formState.data.email)) {
-      errors.email = 'Please enter a valid email address';
-    }
-
-    // Password validation
-    if (!formState.data.password) {
-      errors.password = 'Password is required';
-    } else if (!validatePassword(formState.data.password)) {
-      errors.password = 'Password must be at least 8 characters long';
-    }
-
-    setFormState(prev => ({ ...prev, errors }));
-    return Object.keys(errors).length === 0;
-  };
+  // Use custom hook for form state management
+  const {
+    formData,
+    errors,
+    isSubmitting,
+    isLoading,
+    updateField,
+    setErrors,
+    setIsSubmitting,
+    setIsLoading,
+    validateForm,
+  } = useLoginForm();
 
   // Handle input field changes
-  const handleInputChange = (field: keyof FormData) => (
+  const handleInputChange = (field: 'email' | 'password') => (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const value = event.target.value;
-    
-    setFormState(prev => ({
-      ...prev,
-      data: {
-        ...prev.data,
-        [field]: value,
-      },
-      // Clear field-specific error when user starts typing
-      errors: {
-        ...prev.errors,
-        [field]: undefined,
-        general: undefined,
-      },
-    }));
+    updateField(field, event.target.value);
   };
 
   // Handle form submission
@@ -134,52 +71,48 @@ const LoginPage: React.FC<LoginPageProps> = ({
       return;
     }
 
-    setFormState(prev => ({ ...prev, isSubmitting: true, errors: {} }));
+    setIsSubmitting(true);
+    setErrors({});
 
     try {
       // Call the onLogin prop if provided, otherwise simulate login
       if (onLogin) {
-        await onLogin(formState.data.email, formState.data.password);
+        await onLogin(formData.email, formData.password);
       } else {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        console.log('Login successful:', formState.data.email);
+        // Use auth service for login
+        const result = await authService.login(formData.email, formData.password);
+        console.log('Login successful:', result);
         alert('Login successful! (This is a demo)');
       }
     } catch (error) {
       // Handle login errors
       const errorMessage = error instanceof Error ? error.message : 'Login failed. Please try again.';
-      setFormState(prev => ({
-        ...prev,
-        errors: { general: errorMessage },
-      }));
+      setErrors({ general: errorMessage });
     } finally {
-      setFormState(prev => ({ ...prev, isSubmitting: false }));
+      setIsSubmitting(false);
     }
   };
 
   // Handle social login buttons
-  const handleSocialLogin = async (provider: 'google' | 'facebook' | 'github') => {
-    setFormState(prev => ({ ...prev, isLoading: true, errors: {} }));
+  const handleSocialLogin = async (provider: SocialProvider) => {
+    setIsLoading(true);
+    setErrors({});
 
     try {
       // Call the onSocialLogin prop if provided, otherwise log to console
       if (onSocialLogin) {
         await onSocialLogin(provider);
       } else {
-        // Simulate social login
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        console.log(`${provider} login clicked`);
+        // Use auth service for social login
+        const result = await authService.socialLogin(provider);
+        console.log(`${provider} login successful:`, result);
         alert(`${provider} login clicked! (This is a demo)`);
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : `${provider} login failed. Please try again.`;
-      setFormState(prev => ({
-        ...prev,
-        errors: { general: errorMessage },
-      }));
+      setErrors({ general: errorMessage });
     } finally {
-      setFormState(prev => ({ ...prev, isLoading: false }));
+      setIsLoading(false);
     }
   };
 
@@ -210,9 +143,9 @@ const LoginPage: React.FC<LoginPageProps> = ({
             )}
 
             {/* General error message */}
-            {formState.errors.general && (
+            {errors.general && (
               <div className="w-full p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
-                {formState.errors.general}
+                {errors.general}
               </div>
             )}
 
@@ -223,16 +156,16 @@ const LoginPage: React.FC<LoginPageProps> = ({
                 id="email"
                 type="email"
                 placeholder="Enter your email"
-                className={`text-sm ${formState.errors.email ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
-                value={formState.data.email}
+                className={`text-sm ${errors.email ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+                value={formData.email}
                 onChange={handleInputChange('email')}
-                disabled={formState.isSubmitting || formState.isLoading}
+                disabled={isSubmitting || isLoading}
                 required
-                aria-describedby={formState.errors.email ? "email-error" : undefined}
+                aria-describedby={errors.email ? "email-error" : undefined}
               />
-              {formState.errors.email && (
+              {errors.email && (
                 <span id="email-error" className="text-sm text-red-600" role="alert">
-                  {formState.errors.email}
+                  {errors.email}
                 </span>
               )}
             </div>
@@ -244,16 +177,16 @@ const LoginPage: React.FC<LoginPageProps> = ({
                 id="password"
                 type="password"
                 placeholder="Enter your password"
-                className={`text-sm ${formState.errors.password ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
-                value={formState.data.password}
+                className={`text-sm ${errors.password ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+                value={formData.password}
                 onChange={handleInputChange('password')}
-                disabled={formState.isSubmitting || formState.isLoading}
+                disabled={isSubmitting || isLoading}
                 required
-                aria-describedby={formState.errors.password ? "password-error" : undefined}
+                aria-describedby={errors.password ? "password-error" : undefined}
               />
-              {formState.errors.password && (
+              {errors.password && (
                 <span id="password-error" className="text-sm text-red-600" role="alert">
-                  {formState.errors.password}
+                  {errors.password}
                 </span>
               )}
             </div>
@@ -262,9 +195,9 @@ const LoginPage: React.FC<LoginPageProps> = ({
             <Button 
               type="submit" 
               className="w-full" 
-              disabled={formState.isSubmitting || formState.isLoading}
+              disabled={isSubmitting || isLoading}
             >
-              {formState.isSubmitting ? (
+              {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Signing in...
@@ -281,9 +214,9 @@ const LoginPage: React.FC<LoginPageProps> = ({
                 className="w-full" 
                 variant="outline"
                 onClick={() => handleSocialLogin('google')}
-                disabled={formState.isSubmitting || formState.isLoading}
+                disabled={isSubmitting || isLoading}
               >
-                {formState.isLoading ? (
+                {isLoading ? (
                   <Loader2 className="size-5 animate-spin" />
                 ) : (
                   <img
@@ -300,9 +233,9 @@ const LoginPage: React.FC<LoginPageProps> = ({
                 className="w-full" 
                 variant="outline"
                 onClick={() => handleSocialLogin('facebook')}
-                disabled={formState.isSubmitting || formState.isLoading}
+                disabled={isSubmitting || isLoading}
               >
-                {formState.isLoading ? (
+                {isLoading ? (
                   <Loader2 className="size-5 animate-spin" />
                 ) : (
                   <img
@@ -319,9 +252,9 @@ const LoginPage: React.FC<LoginPageProps> = ({
                 className="w-full" 
                 variant="outline"
                 onClick={() => handleSocialLogin('github')}
-                disabled={formState.isSubmitting || formState.isLoading}
+                disabled={isSubmitting || isLoading}
               >
-                {formState.isLoading ? (
+                {isLoading ? (
                   <Loader2 className="size-5 animate-spin" />
                 ) : (
                   <img
