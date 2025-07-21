@@ -39,16 +39,16 @@
   },
   "private": true,
   "scripts": {
-    "build": "pnpm exec next build",
+    "build": "next build",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv env.d.ts",
-    "check": "pnpm run build && tsc",
-    "deploy": "pnpm exec opennextjs-cloudflare build && pnpm exec opennextjs-cloudflare deploy",
-    "dev": "pnpm exec next dev",
-    "lint": "pnpm exec next lint",
+    "check": "npm run build && tsc",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "dev": "next dev",
+    "lint": "next lint",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
-    "start": "pnpm exec next start",
-    "test": "pnpm exec jest",
-    "test:watch": "pnpm exec jest --watch",
-    "test:coverage": "pnpm exec jest --coverage"
+    "start": "next start",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   }
 }
