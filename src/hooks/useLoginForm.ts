@@ -53,7 +53,7 @@ export const useLoginForm = (): UseLoginFormReturn => {
    * Validates the current form data
    * @returns boolean indicating if form is valid
    */
-  const validateFormData = useCallback((): boolean => {
+  const validateForm = useCallback((): boolean => {
     const validationErrors = validateFormUtil(formData)
     setErrors(validationErrors)
     return Object.keys(validationErrors).length === 0
@@ -78,7 +78,7 @@ export const useLoginForm = (): UseLoginFormReturn => {
     setErrors,
     setIsSubmitting,
     setIsLoading,
-    validateForm: validateFormData,
+    validateForm,
     resetForm,
   }
 }
