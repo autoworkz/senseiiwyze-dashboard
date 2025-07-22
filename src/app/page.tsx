@@ -1,7 +1,9 @@
-import LoginPage from "@/components/LoginPage";
+import { Navbar7 as Navbar } from "@/components/Navbar";
 
 export default function Home() {
   return (
-    <LoginPage />
+    <main>
+      <Navbar />
+    </main>
   );
 }

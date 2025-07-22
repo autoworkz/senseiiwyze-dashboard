@@ -1,31 +1,36 @@
-export interface FormData {
-  email: string;
-  password: string;
-}
+import { ZodError } from 'zod';
+import { loginFormSchema, LoginFormData, LoginFormErrors } from './validationSchema';
 
-export interface FormErrors {
-  email?: string;
-  password?: string;
-  general?: string;
-}
+// Re-export types for backward compatibility
+export type FormData = LoginFormData;
+export type FormErrors = LoginFormErrors;
 
 /**
- * Validates email format using regex pattern
+ * Validates email format using Zod schema
  * @param email - Email string to validate
  * @returns boolean indicating if email is valid
  */
 export const validateEmail = (email: string): boolean => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
+  try {
+    loginFormSchema.shape.email.parse(email);
+    return true;
+  } catch {
+    return false;
+  }
 };
 
 /**
- * Validates password meets minimum length requirement
+ * Validates password meets all requirements using Zod schema
  * @param password - Password string to validate
  * @returns boolean indicating if password is valid
  */
 export const validatePassword = (password: string): boolean => {
-  return password.length >= 8;
+  try {
+    loginFormSchema.shape.password.parse(password);
+    return true;
+  } catch {
+    return false;
+  }
 };
 
 /**
@@ -34,21 +39,24 @@ export const validatePassword = (password: string): boolean => {
  * @returns Object containing validation errors
  */
 export const validateForm = (formData: FormData): FormErrors => {
-  const errors: FormErrors = {};
-  
-  // Email validation
-  if (!formData.email) {
-    errors.email = 'Email is required';
-  } else if (!validateEmail(formData.email)) {
-    errors.email = 'Please enter a valid email address';
+  try {
+    loginFormSchema.parse(formData);
+    return {};
+  } catch (error) {
+    if (error instanceof ZodError) {
+      const errors: FormErrors = {};
+      
+      error.issues.forEach((err) => {
+        if (err.path[0] === 'email' && !errors.email) {
+          errors.email = err.message;
+        } else if (err.path[0] === 'password' && !errors.password) {
+          errors.password = err.message;
+        }
+      });
+      
+      return errors;
+    }
+    
+    return { general: 'Validation failed' };
   }
-
-  // Password validation
-  if (!formData.password) {
-    errors.password = 'Password is required';
-  } else if (!validatePassword(formData.password)) {
-    errors.password = 'Password must be at least 8 characters long';
-  }
-
-  return errors;
 };
