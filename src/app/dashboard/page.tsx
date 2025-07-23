@@ -1,83 +1,15 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { BarChart, Bell, Calendar, CreditCard, DollarSign, Download, LineChart, LogOut, PieChart, Settings, Users } from "lucide-react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { useDebouncedSettingsStore } from "@/stores/debounced-settings-store"
-import { authService } from "@/services/authService"
-import { useRouter } from "next/navigation"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { BarChart, Bell, CreditCard, DollarSign, Download, LineChart, PieChart, Users } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import DashboardLayout from "@/components/DashboardLayout";
 
 export default function DashboardPage() {
-  const { profile } = useDebouncedSettingsStore()
-  const [isClient, setIsClient] = useState(false)
-  const [isLoggingOut, setIsLoggingOut] = useState(false)
-  const router = useRouter()
-
-  // This ensures hydration issues are avoided
-  useEffect(() => {
-    setIsClient(true)
-  }, [])
-
-  const handleLogout = async () => {
-    setIsLoggingOut(true)
-    try {
-      await authService.logout()
-      router.push('/auth/login')
-    } catch (error) {
-      console.error('Logout failed:', error)
-    } finally {
-      setIsLoggingOut(false)
-    }
-  }
-
-  if (!isClient) {
-    return null
-  }
-
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b bg-background px-4 md:px-6">
-        <div className="flex items-center gap-2">
-          <Link href="/" className="flex items-center gap-2">
-            <img
-              src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/shadcnblockscom-icon.svg"
-              className="h-8 w-8"
-              alt="SenseiiWyze Logo"
-            />
-            <span className="text-lg font-semibold tracking-tight">SenseiiWyze</span>
-          </Link>
-        </div>
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon" className="rounded-full">
-            <Bell className="h-4 w-4" />
-            <span className="sr-only">Notifications</span>
-          </Button>
-          <Link href="/settings">
-            <Button variant="outline" size="icon" className="rounded-full">
-              <Settings className="h-4 w-4" />
-              <span className="sr-only">Settings</span>
-            </Button>
-          </Link>
-          <Button 
-            variant="outline" 
-            size="icon" 
-            className="rounded-full"
-            onClick={handleLogout}
-            disabled={isLoggingOut}
-          >
-            <LogOut className="h-4 w-4" />
-            <span className="sr-only">Log out</span>
-          </Button>
-          <Avatar>
-            <AvatarImage src="https://github.com/shadcn.png" alt={profile.name} />
-            <AvatarFallback>{profile.name.substring(0, 2).toUpperCase()}</AvatarFallback>
-          </Avatar>
-        </div>
-      </header>
+    <DashboardLayout>
       <div className="grid flex-1 items-start gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:gap-6 lg:gap-8 md:p-6">
         <div className="col-span-full">
           <Tabs defaultValue="overview" className="w-full">
@@ -294,6 +226,6 @@ export default function DashboardPage() {
           </Tabs>
         </div>
       </div>
-    </div>
-  )
+    </DashboardLayout>
+  );
 }
