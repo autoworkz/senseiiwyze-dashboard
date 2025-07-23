@@ -1,0 +1,61 @@
+---
+description: Package Manager Rules for senseiiwyze-dashboard
+globs: ["package.json", "pnpm-lock.yaml", "**/*.json"]
+alwaysApply: true
+---
+
+# Package Manager Rules
+
+## ⚠️ CRITICAL: pnpm Required
+
+**This project REQUIRES pnpm as the package manager. DO NOT use npm or yarn.**
+
+### Requirements
+- **Package Manager**: pnpm >= 9.0.0
+- **Node.js**: >= 18.0.0
+- **Lock File**: pnpm-lock.yaml (DO NOT use package-lock.json or yarn.lock)
+
+### Commands to Use
+
+#### Development
+```bash
+pnpm dev          # Start development server at localhost:3000
+pnpm build        # Build for production
+pnpm deploy       # Deploy to Cloudflare Workers
+pnpm lint         # Run ESLint checks
+```
+
+#### Package Management
+```bash
+pnpm install      # Install dependencies
+pnpm add <pkg>    # Add a dependency
+pnpm remove <pkg> # Remove a dependency
+pnpm update       # Update dependencies
+pnpm audit        # Security audit
+```
+
+#### Testing
+```bash
+pnpm test             # Run all tests once
+pnpm test:watch       # Run tests in watch mode (use for TDD)
+pnpm test:coverage    # Generate test coverage report
+```
+
+#### Running Specific Tests
+```bash
+# Run tests matching a pattern
+pnpm test -- LoginPage
+pnpm test -- useLoginForm
+
+# Run tests in a specific file
+pnpm test -- src/components/__tests__/LoginPage.test.tsx
+
+# Run tests with debugging
+pnpm test -- --detectOpenHandles
+```
+
+### Enforcement
+- Always use `pnpm` instead of `npm` or `yarn`
+- Never delete `pnpm-lock.yaml`
+- If you see `package-lock.json` or `yarn.lock`, remove them
+- Use the exact commands listed above

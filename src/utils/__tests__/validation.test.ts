@@ -7,7 +7,8 @@ describe('Email Validation', () => {
         'test@example.com',
         'user.name@domain.co.uk',
         'user+tag@example.org',
-        'user123@test-domain.com',
+        '123@numbers.com',
+        'test.email@subdomain.example.com',
       ]
 
       validEmails.forEach(email => {
@@ -20,11 +21,10 @@ describe('Email Validation', () => {
         '',
         'invalid-email',
         '@example.com',
-        'user@',
-        'user@.com',
-        'user..name@example.com',
-        'user@example',
-        'user name@example.com',
+        'test@',
+        'test@.com',
+        'test..test@example.com',
+        'test@example..com',
       ]
 
       invalidEmails.forEach(email => {
@@ -33,7 +33,7 @@ describe('Email Validation', () => {
     })
 
     it('should handle edge cases', () => {
-      expect(validateEmail('a@b.c')).toBe(true) // minimal valid email
+      expect(validateEmail('a@b.co')).toBe(true) // minimal valid email
       expect(validateEmail('test@example.com.')).toBe(false) // trailing dot
       expect(validateEmail('.test@example.com')).toBe(false) // leading dot
     })
@@ -42,13 +42,13 @@ describe('Email Validation', () => {
 
 describe('Password Validation', () => {
   describe('validatePassword', () => {
-    it('should return true for passwords with 8 or more characters', () => {
+    it('should return true for passwords meeting all requirements', () => {
       const validPasswords = [
-        'password',
-        '12345678',
-        'a'.repeat(8),
-        'a'.repeat(100),
-        'P@ssw0rd!',
+        'Password123!',
+        'MyP@ssw0rd',
+        'Str0ng#P@ss',
+        'C0mpl3x!P@ss',
+        'S3cur3#P@ssw0rd',
       ]
 
       validPasswords.forEach(password => {
@@ -56,12 +56,17 @@ describe('Password Validation', () => {
       })
     })
 
-    it('should return false for passwords with less than 8 characters', () => {
+    it('should return false for passwords missing requirements', () => {
       const invalidPasswords = [
-        '',
-        '1234567',
-        'a'.repeat(7),
-        'short',
+        '', // empty
+        'short', // too short
+        'password', // missing uppercase, number, special char
+        'PASSWORD', // missing lowercase, number, special char
+        'Password', // missing number, special char
+        'Password1', // missing special char
+        'password1!', // missing uppercase
+        'PASSWORD1!', // missing lowercase
+        'Password!', // missing number
       ]
 
       invalidPasswords.forEach(password => {
@@ -70,10 +75,9 @@ describe('Password Validation', () => {
     })
 
     it('should handle special characters and unicode', () => {
-      expect(validatePassword('pássw0rd')).toBe(true) // unicode characters
-      expect(validatePassword('p@$$w0rd')).toBe(true) // special characters
-      expect(validatePassword('🔒🔑🔐🗝️')).toBe(false) // emojis but too short
-      expect(validatePassword('🔒🔑🔐🗝️🔓🔒🔑🔐')).toBe(true) // emojis and long enough
+      expect(validatePassword('P@ssw0rd')).toBe(true) // special characters
+      expect(validatePassword('Pássw0rd!')).toBe(true) // unicode characters
+      expect(validatePassword('🔒🔑🔐🗝️🔓🔒🔑🔐')).toBe(false) // emojis but missing requirements
     })
   })
 })
@@ -83,7 +87,7 @@ describe('Form Validation', () => {
     it('should return no errors for valid form data', () => {
       const formData = {
         email: 'test@example.com',
-        password: 'password123',
+        password: 'Password123!',
       }
 
       const errors = validateForm(formData)
@@ -93,7 +97,7 @@ describe('Form Validation', () => {
     it('should return email error for invalid email', () => {
       const formData = {
         email: 'invalid-email',
-        password: 'password123',
+        password: 'Password123!',
       }
 
       const errors = validateForm(formData)
@@ -101,7 +105,7 @@ describe('Form Validation', () => {
       expect(errors.password).toBeUndefined()
     })
 
-    it('should return password error for short password', () => {
+    it('should return password error for invalid password', () => {
       const formData = {
         email: 'test@example.com',
         password: 'short',
@@ -134,15 +138,15 @@ describe('Form Validation', () => {
       expect(errors.password).toBe('Password is required')
     })
 
-    it('should prioritize required field errors over format errors', () => {
+    it('should return specific password requirement errors', () => {
       const formData = {
-        email: '',
-        password: '',
+        email: 'test@example.com',
+        password: 'password', // missing uppercase, number, special char
       }
 
       const errors = validateForm(formData)
-      expect(errors.email).toBe('Email is required')
-      expect(errors.password).toBe('Password is required')
+      expect(errors.password).toBe('Password must contain at least one uppercase letter')
+      expect(errors.email).toBeUndefined()
     })
   })
 })

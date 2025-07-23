@@ -1,0 +1,96 @@
+# shadcn CLI Rules
+
+## ⚠️ CRITICAL: Use shadcn CLI First
+
+**ALWAYS use the shadcn CLI before manually creating components. This ensures consistency and follows best practices.**
+
+### Default Approach
+
+1. **Check Available Components First**
+   ```bash
+   pnpm dlx shadcn@latest add --help
+   ```
+
+2. **Add Components via CLI**
+   ```bash
+   # Add common components
+   pnpm dlx shadcn@latest add button
+   pnpm dlx shadcn@latest add input
+   pnpm dlx shadcn@latest add card
+   pnpm dlx shadcn@latest add dialog
+   pnpm dlx shadcn@latest add form
+   pnpm dlx shadcn@latest add select
+   pnpm dlx shadcn@latest add tabs
+   pnpm dlx shadcn@latest add navigation-menu
+   ```
+
+3. **Customize After Adding**
+   - Only modify components after they're added via CLI
+   - Use the `cn()` utility for class merging
+   - Follow semantic color conventions
+
+### When to Create Custom Components
+
+Only create custom components when:
+- shadcn doesn't have the component you need
+- You need a highly specialized component
+- The component is project-specific and won't be reused
+
+### Custom Component Guidelines
+
+If you must create a custom component:
+
+1. **Check shadcn first** - Always verify shadcn doesn't have what you need
+2. **Follow shadcn patterns** - Use the same structure and conventions
+3. **Place in appropriate location**:
+   - `src/components/ui/` for reusable UI components
+   - `src/components/` for feature-specific components
+4. **Use semantic colors** - Follow the theming rules
+5. **Include proper TypeScript types**
+
+### Examples
+
+```bash
+# ✅ CORRECT - Use shadcn CLI first
+pnpm dlx shadcn@latest add button
+pnpm dlx shadcn@latest add input
+pnpm dlx shadcn@latest add card
+
+# Then customize if needed
+```
+
+```tsx
+// ✅ CORRECT - Use shadcn components as base
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+
+export function CustomButton({ className, ...props }) {
+  return (
+    <Button 
+      className={cn("bg-primary text-primary-foreground", className)} 
+      {...props} 
+    />
+  )
+}
+```
+
+### Available shadcn Components
+
+Common components available via shadcn CLI:
+- `accordion`, `alert`, `alert-dialog`, `avatar`
+- `badge`, `button`, `calendar`, `card`
+- `checkbox`, `collapsible`, `command`, `context-menu`
+- `dialog`, `drawer`, `dropdown-menu`
+- `form`, `hover-card`, `input`, `label`
+- `menubar`, `navigation-menu`, `popover`
+- `progress`, `radio-group`, `scroll-area`
+- `select`, `separator`, `sheet`, `skeleton`
+- `slider`, `switch`, `table`, `tabs`
+- `textarea`, `toast`, `toggle`, `tooltip`
+
+### Enforcement
+
+- **ALWAYS** check shadcn CLI first before creating components
+- **NEVER** manually create components that shadcn provides
+- **ALWAYS** use semantic colors and theming
+- **ALWAYS** follow shadcn patterns and conventions

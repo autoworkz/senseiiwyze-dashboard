@@ -13,10 +13,12 @@ export type SocialProvider = 'google' | 'facebook' | 'github'
 
 /**
  * Authentication service for handling login, logout, and social authentication
+ * NOTE: API endpoints are currently disabled - using mock implementations
  */
 class AuthService {
   private readonly baseUrl = '/api/auth'
   private readonly timeout = 5000 // 5 seconds
+  private readonly apiDisabled = true // Flag to disable actual API calls
 
   /**
    * Creates a fetch request with timeout
@@ -46,10 +48,52 @@ class AuthService {
    */
   private async handleResponse<T>(response: Response): Promise<T> {
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'Unknown error' }))
+      const errorData = await response.json().catch(() => ({ message: 'Unknown error' })) as { message?: string }
       throw new Error(errorData.message || `HTTP ${response.status}`)
     }
     return response.json()
+  }
+
+  /**
+   * Mock login implementation
+   */
+  private async mockLogin(email: string, password: string): Promise<LoginResponse> {
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    
+    // Mock validation
+    if (!email || !password) {
+      throw new Error('Email and password are required')
+    }
+    
+    if (email === 'demo@example.com' && password === 'demo123') {
+      return {
+        token: 'mock-jwt-token-' + Date.now(),
+        user: {
+          id: 1,
+          email: email,
+        }
+      }
+    }
+    
+    throw new Error('Invalid credentials. Try demo@example.com / demo123')
+  }
+
+  /**
+   * Mock social login implementation
+   */
+  private async mockSocialLogin(provider: SocialProvider): Promise<LoginResponse> {
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 1500))
+    
+    return {
+      token: `mock-${provider}-token-${Date.now()}`,
+      user: {
+        id: Math.floor(Math.random() * 1000) + 1,
+        email: `user@${provider}.com`,
+        provider: provider,
+      }
+    }
   }
 
   /**
@@ -59,6 +103,10 @@ class AuthService {
    * @returns Promise resolving to login response
    */
   async login(email: string, password: string): Promise<LoginResponse> {
+    if (this.apiDisabled) {
+      return this.mockLogin(email, password)
+    }
+
     const response = await this.fetchWithTimeout(`${this.baseUrl}/login`, {
       method: 'POST',
       headers: {
@@ -82,6 +130,10 @@ class AuthService {
       throw new Error(`Unsupported social login provider: ${provider}`)
     }
 
+    if (this.apiDisabled) {
+      return this.mockSocialLogin(provider)
+    }
+
     const response = await this.fetchWithTimeout(`${this.baseUrl}/social/${provider}`, {
       method: 'POST',
       headers: {
@@ -97,6 +149,12 @@ class AuthService {
    * @returns Promise that resolves when logout is complete
    */
   async logout(): Promise<void> {
+    if (this.apiDisabled) {
+      // Mock logout - just simulate a delay
+      await new Promise(resolve => setTimeout(resolve, 500))
+      return
+    }
+
     const response = await this.fetchWithTimeout(`${this.baseUrl}/logout`, {
       method: 'POST',
       headers: {
