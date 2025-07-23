@@ -37,18 +37,18 @@ if ! command -v litellm &> /dev/null; then
 fi
 
 # Check if config file exists
-if [ ! -f "litellm.config.yaml" ]; then
-    echo "❌ Configuration file 'litellm.config.yaml' not found"
+if [ ! -f "/app/litellm.config.yaml" ]; then
+    echo "❌ Configuration file '/app/litellm.config.yaml' not found"
     echo "Please create the configuration file first."
     exit 1
 fi
 
 echo "🔧 Starting LiteLLM with configuration..."
-echo "   Config: litellm.config.yaml"
+echo "   Config: /app/litellm.config.yaml"
 echo "   Host: 0.0.0.0"
 echo "   Port: 4000"
 echo "   Debug: enabled"
 echo ""
 
 # Start LiteLLM server
-exec litellm --config litellm.config.yaml --host 0.0.0.0 --port 4000 --debug
+exec litellm --config /app/litellm.config.yaml --host 0.0.0.0 --port 4000 --debug
