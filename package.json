@@ -72,7 +72,6 @@
     "start": "pnpm next start",
     "test": "pnpm jest",
     "test:watch": "pnpm jest --watch",
-    "test:coverage": "pnpm jest --coverage",
-    "postinstall": "echo 'Dependencies installed with pnpm'"
+    "test:coverage": "pnpm jest --coverage"
   }
 }
