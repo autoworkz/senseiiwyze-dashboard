@@ -65,6 +65,8 @@ const LoginPage: React.FC<LoginPageProps> = ({
     updateField(field, event.target.value);
   };
 
+  const router = useRouter();
+
   // Handle form submission
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -78,14 +80,16 @@ const LoginPage: React.FC<LoginPageProps> = ({
     setErrors({});
 
     try {
-      // Call the onLogin prop if provided, otherwise simulate login
+      // Call the onLogin prop if provided, otherwise use auth service
       if (onLogin) {
         await onLogin(formData.email, formData.password);
       } else {
         // Use auth service for login
         const result = await authService.login(formData.email, formData.password);
         console.log('Login successful:', result);
-        alert('Login successful! (This is a demo)');
+        
+        // Redirect to dashboard after successful login
+        router.push('/dashboard');
       }
     } catch (error) {
       // Handle login errors
@@ -102,14 +106,16 @@ const LoginPage: React.FC<LoginPageProps> = ({
     setErrors({});
 
     try {
-      // Call the onSocialLogin prop if provided, otherwise log to console
+      // Call the onSocialLogin prop if provided, otherwise use auth service
       if (onSocialLogin) {
         await onSocialLogin(provider);
       } else {
         // Use auth service for social login
         const result = await authService.socialLogin(provider);
         console.log(`${provider} login successful:`, result);
-        alert(`${provider} login clicked! (This is a demo)`);
+        
+        // Redirect to dashboard after successful login
+        router.push('/dashboard');
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : `${provider} login failed. Please try again.`;

@@ -15,8 +15,8 @@ export interface UseLoginFormReturn {
 }
 
 const initialFormData: FormData = {
-  email: '',
-  password: '',
+  email: 'demo@example.com',
+  password: 'Demo@123456',
 }
 
 const initialErrors: FormErrors = {}

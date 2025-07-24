@@ -1,27 +1,113 @@
 import { Navbar7 as Navbar } from "@/components/Navbar";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { ExternalLink } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function Home() {
   return (
-    <main>
+    <main className="bg-background text-foreground">
       <Navbar />
       
-      {/* Intro Section */}
-      <section className="container mx-auto px-4 py-16 text-center">
-        <div className="max-w-3xl mx-auto">
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl mb-6">
-            Welcome to <span className="text-blue-600">SenseiiWyze</span>
-          </h1>
-          <p className="text-xl text-gray-600 leading-relaxed mb-8">
-            Your intelligent dashboard for managing heritage collections and vintage portfolios. 
-            We help you preserve, organize, and showcase your most valuable assets with cutting-edge AI technology.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="/auth/signup" className="bg-blue-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors text-center">
-              Get Started
-            </a>
-            <a href="/auth/login" className="border border-gray-300 text-gray-700 px-8 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors text-center">
-              Sign In
-            </a>
+      <section className="relative overflow-hidden py-32">
+        <div className="absolute inset-x-0 top-0 flex h-full w-full items-center justify-center opacity-100">
+          <img
+            alt="background"
+            src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/patterns/square-alt-grid.svg"
+            className="[mask-image:radial-gradient(75%_75%_at_center,white,transparent)] opacity-90"
+          />
+        </div>
+        <div className="relative z-10 container">
+          <div className="mx-auto flex max-w-5xl flex-col items-center">
+            <div className="flex flex-col items-center gap-6 text-center">
+              <div className="rounded-xl bg-background/30 p-4 shadow-sm backdrop-blur-sm">
+                <img
+                  src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/block-1.svg"
+                  alt="logo"
+                  className="h-16"
+                />
+              </div>
+              <div>
+                <h1 className="mb-6 text-2xl font-bold tracking-tight text-pretty lg:text-5xl">
+                  Welcome to{" "}
+                  <span className="text-primary">SenseiiWyze</span>
+                </h1>
+                <p className="mx-auto max-w-3xl text-muted-foreground lg:text-xl">
+                  Your intelligent dashboard for managing heritage collections and vintage portfolios.
+                  We help you preserve, organize, and showcase your most valuable assets with cutting-edge AI technology.
+                </p>
+              </div>
+              <div className="mt-6 flex justify-center gap-3">
+                <Button className="shadow-sm transition-shadow hover:shadow" asChild>
+                  <Link href="/auth/signup">Get Started</Link>
+                </Button>
+                <Button variant="outline" className="group" asChild>
+                  <Link href="/auth/login">
+                    Sign In{" "}
+                    <ExternalLink className="ml-2 h-4 transition-transform group-hover:translate-x-0.5" />
+                  </Link>
+                </Button>
+              </div>
+              <div className="mt-20 flex flex-col items-center gap-5">
+                <p className="font-medium text-muted-foreground lg:text-left">
+                  Built with open-source technologies
+                </p>
+                <div className="flex flex-wrap items-center justify-center gap-4">
+                  <a
+                    href="#"
+                    className={cn(
+                      "inline-flex h-12 w-12 items-center justify-center rounded-md border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
+                      "group flex aspect-square h-12 items-center justify-center p-0",
+                    )}
+                  >
+                    <img
+                      src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/shadcn-ui-icon.svg"
+                      alt="shadcn/ui logo"
+                      className="h-6 saturate-0 transition-all group-hover:saturate-100"
+                    />
+                  </a>
+                  <a
+                    href="#"
+                    className={cn(
+                      "inline-flex h-12 w-12 items-center justify-center rounded-md border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
+                      "group flex aspect-square h-12 items-center justify-center p-0",
+                    )}
+                  >
+                    <img
+                      src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/typescript-icon.svg"
+                      alt="TypeScript logo"
+                      className="h-6 saturate-0 transition-all group-hover:saturate-100"
+                    />
+                  </a>
+                  <a
+                    href="#"
+                    className={cn(
+                      "inline-flex h-12 w-12 items-center justify-center rounded-md border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
+                      "group flex aspect-square h-12 items-center justify-center p-0",
+                    )}
+                  >
+                    <img
+                      src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/react-icon.svg"
+                      alt="React logo"
+                      className="h-6 saturate-0 transition-all group-hover:saturate-100"
+                    />
+                  </a>
+                  <a
+                    href="#"
+                    className={cn(
+                      "inline-flex h-12 w-12 items-center justify-center rounded-md border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
+                      "group flex aspect-square h-12 items-center justify-center p-0",
+                    )}
+                  >
+                    <img
+                      src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/tailwind-icon.svg"
+                      alt="Tailwind CSS logo"
+                      className="h-6 saturate-0 transition-all group-hover:saturate-100"
+                    />
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

@@ -2,9 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
-interface Step1Props {
-  // Add props interface as needed
-}
+type Step1Props = Record<string, never>;
 
 const Step1: React.FC<Step1Props> = () => {
   return (
