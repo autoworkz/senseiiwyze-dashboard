@@ -199,7 +199,7 @@ export const useDebouncedSettingsStore = create<DebouncedSettingsStore>()(
           setTimeout(() => {
             set({ lastSaveMessage: null })
           }, 3000)
-        } catch (error) {
+        } catch {
           set({
             isSaving: false,
             isDebouncing: false,

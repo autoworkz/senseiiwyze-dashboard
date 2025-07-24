@@ -2,9 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
-interface Step2Props {
-  // Add props interface as needed
-}
+type Step2Props = Record<string, never>;
 
 const Step2: React.FC<Step2Props> = () => {
   return (
@@ -20,7 +18,7 @@ const Step2: React.FC<Step2Props> = () => {
         {/* Add your Step 2 content here */}
         <div className="bg-card p-6 rounded-lg shadow-sm border">
           <p className="text-card-foreground mb-4">
-            You're now in the second step of our multi-step process. Here you can add any content specific to Step 2.
+            You&apos;re now in the second step of our multi-step process. Here you can add any content specific to Step 2.
           </p>
         </div>
         

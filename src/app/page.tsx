@@ -1,5 +1,4 @@
 import { Navbar7 as Navbar } from "@/components/Navbar";
-import { Hero12 } from "@/components/hero12";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ExternalLink } from "lucide-react";

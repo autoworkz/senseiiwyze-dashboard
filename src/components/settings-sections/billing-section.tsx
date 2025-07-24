@@ -230,7 +230,7 @@ export function BillingSection() {
             <div>
               <h4 className="font-medium text-orange-900 dark:text-orange-100">Approaching Team Limit</h4>
               <p className="text-sm text-orange-700 dark:text-orange-200 mt-1">
-                You're using 7 of 10 team member slots. Consider upgrading to Enterprise for unlimited members.
+                You&apos;re using 7 of 10 team member slots. Consider upgrading to Enterprise for unlimited members.
               </p>
               <Button size="sm" className="mt-3">
                 Upgrade Now

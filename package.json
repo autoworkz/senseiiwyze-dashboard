@@ -73,7 +73,6 @@
     "test": "pnpm jest",
     "test:watch": "pnpm jest --watch",
     "test:coverage": "pnpm jest --coverage",
-    "install": "echo 'Please use pnpm install instead of npm install' && exit 1",
     "postinstall": "echo 'Dependencies installed with pnpm'"
   }
 }

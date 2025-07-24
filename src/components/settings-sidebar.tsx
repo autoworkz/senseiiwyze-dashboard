@@ -24,7 +24,7 @@ const navigationItems: NavigationItem[] = [
     features: ["Profile Information", "Notification Settings", "Theme & Appearance"],
   },
   {
-    id: "team-workspace",
+    id: "team",
     label: "Teams & Workspaces",
     icon: Users,
     description: "Manage teams, members, and workspaces",

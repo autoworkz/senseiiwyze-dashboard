@@ -33,7 +33,7 @@ export default function SettingsPage() {
     switch (activeSection) {
       case "account":
         return <AccountSection />
-      case "team-workspace":
+      case "team":
         return <TeamWorkspaceSection />
       case "billing":
         return <BillingSection />
