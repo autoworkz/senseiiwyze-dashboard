@@ -1,582 +1,326 @@
-'use client';
+"use client"
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { 
-  Download, 
-  MessageCircle, 
-  Database,
-  ChevronDown
-} from 'lucide-react';
+import { useState } from "react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Progress } from "@/components/ui/progress"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+  BarChart3,
+  TrendingUp,
+  Target,
+  Download,
+  MessageSquare,
+  Database
+} from "lucide-react"
 
-// Mock data
+// Mock data for individual user
 const userData = {
-  name: 'testuser',
-  level: 5,
-  avatar: 'https://ui-avatars.com/api/?name=testuser&background=e2e8f0&color=64748b&size=128',
-  metrics: {
-    vision: 59,
-    grit: 59,
-    logic: 59,
-    algorithm: 59
+  name: "Alex Johnson",
+  level: "Advanced",
+  avatar: "https://github.com/shadcn.png",
+  coreMetrics: {
+    vision: 85,
+    grit: 92,
+    logic: 78,
+    algorithm: 88
   },
-  recommended: {
-    program: 'Maze',
-    score: 68
-  }
-};
+  overallReadiness: 86,
+  programsCompleted: 3,
+  skillsAcquired: 12
+}
 
 const skillsData = [
-  { name: 'Technical', score: 59, color: 'bg-blue-500' },
-  { name: 'Problem Solving', score: 59, color: 'bg-red-500' },
-  { name: 'Creativity', score: 59, color: 'bg-orange-500' },
-  { name: 'Emotional Intelligence', score: 59, color: 'bg-purple-500' }
-];
+  { name: "Problem Solving", score: 89, color: "bg-primary" },
+  { name: "Critical Thinking", score: 85, color: "bg-secondary" },
+  { name: "Data Analysis", score: 78, color: "bg-accent" },
+  { name: "Communication", score: 92, color: "bg-muted" }
+]
 
-const programsData = [
-  { 
-    name: 'Turtle', 
-    score: 59, 
-    status: 'Not Ready', 
-    image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    metrics: { vision: 59, grit: 59, logic: 59, algorithm: 59 }
+const programData = [
+  {
+    id: 1,
+    name: "AI/ML Fundamentals",
+    image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=200&fit=crop",
+    score: 88,
+    status: "Ready",
+    progress: 95
   },
-  { 
-    name: 'Pond', 
-    score: 51, 
-    status: 'Not Ready', 
-    image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    metrics: { vision: 51, grit: 51, logic: 51, algorithm: 51 }
+  {
+    id: 2,
+    name: "Data Analytics",
+    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=200&fit=crop",
+    score: 92,
+    status: "Ready",
+    progress: 100
   },
-  { 
-    name: 'Plane', 
-    score: 62, 
-    status: 'Almost', 
-    image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    metrics: { vision: 62, grit: 62, logic: 62, algorithm: 62 }
+  {
+    id: 3,
+    name: "IoT Tech Support",
+    image: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=200&fit=crop",
+    score: 75,
+    status: "Almost",
+    progress: 80
   },
-  { 
-    name: 'Maze', 
-    score: 68, 
-    status: 'Almost', 
-    image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    metrics: { vision: 68, grit: 68, logic: 68, algorithm: 68 }
-  },
-  { 
-    name: 'Movie', 
-    score: 57, 
-    status: 'Not Ready', 
-    image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    metrics: { vision: 57, grit: 57, logic: 57, algorithm: 57 }
-  },
-  { 
-    name: 'Music', 
-    score: 58, 
-    status: 'Not Ready', 
-    image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    metrics: { vision: 58, grit: 58, logic: 58, algorithm: 58 }
+  {
+    id: 4,
+    name: "Cyber Security",
+    image: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=400&h=200&fit=crop",
+    score: 68,
+    status: "Not Ready",
+    progress: 65
   }
-];
+]
 
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'Ready': return 'bg-green-500';
-    case 'Almost': return 'bg-yellow-500';
-    case 'Not Ready': return 'bg-red-500';
-    default: return 'bg-gray-500';
-  }
-};
+const tableData = [
+  { skill: "Python Programming", current: 85, target: 90, progress: 94 },
+  { skill: "Machine Learning", current: 78, target: 85, progress: 92 },
+  { skill: "Data Visualization", current: 92, target: 80, progress: 100 },
+  { skill: "Statistical Analysis", current: 75, target: 85, progress: 88 },
+  { skill: "Database Management", current: 68, target: 75, progress: 91 },
+  { skill: "Cloud Computing", current: 82, target: 80, progress: 100 }
+]
 
 const getStatusTextColor = (status: string) => {
   switch (status) {
-    case 'Ready': return 'text-green-700 bg-green-100';
-    case 'Almost': return 'text-yellow-700 bg-yellow-100';
-    case 'Not Ready': return 'text-red-700 bg-red-100';
-    default: return 'text-gray-700 bg-gray-100';
+    case 'Ready': return 'bg-primary text-primary-foreground'
+    case 'Almost': return 'bg-secondary text-secondary-foreground'
+    case 'Not Ready': return 'bg-destructive text-destructive-foreground'
+    default: return 'bg-muted text-muted-foreground'
   }
-};
-  averageReadiness: 82,
-  readyForDeployment: 32,
-  needsCoaching: 4,
-  readinessDistribution: [
-    { range: "0-50%", count: 2, percentage: 6 },
-    { range: "51-65%", count: 2, percentage: 6 },
-    { range: "66-75%", count: 4, percentage: 11 },
-    { range: "76-85%", count: 10, percentage: 28 },
-    { range: "86-100%", count: 18, percentage: 50 },
-  ],
-  averageSkills: {
-    vision: 78,
-    grit: 85,
-    logic: 80,
-    algorithm: 76,
-    problemSolving: 89,
-  },
-  programReadiness: [
-    { name: "AI/ML Fundamentals", average: 84, required: 75 },
-    { name: "IoT Tech Support", average: 79, required: 70 },
-    { name: "Data Analytics", average: 88, required: 80 },
-    { name: "Computer Networking", average: 76, required: 75 },
-    { name: "Cyber Security", average: 81, required: 85 },
-  ],
-  users: [
-    {
-      id: 1,
-      name: "Alex Johnson",
-      email: "alex.j@example.com",
-      bestProgram: "Data Analytics",
-      overallReadiness: 92,
-      programReadiness: {
-        "AI/ML Fundamentals": 88,
-        "IoT Tech Support": 75,
-        "Data Analytics": 95,
-        "Computer Networking": 82,
-        "Cyber Security": 86,
-      },
-    },
-    {
-      id: 2,
-      name: "Jamie Smith",
-      email: "jamie.s@example.com",
-      bestProgram: "Cyber Security",
-      overallReadiness: 88,
-      programReadiness: {
-        "AI/ML Fundamentals": 82,
-        "IoT Tech Support": 70,
-        "Data Analytics": 85,
-        "Computer Networking": 79,
-        "Cyber Security": 94,
-      },
-    },
-    {
-      id: 3,
-      name: "Taylor Wilson",
-      email: "taylor.w@example.com",
-      bestProgram: "AI/ML Fundamentals",
-      overallReadiness: 85,
-      programReadiness: {
-        "AI/ML Fundamentals": 91,
-        "IoT Tech Support": 78,
-        "Data Analytics": 83,
-        "Computer Networking": 75,
-        "Cyber Security": 80,
-      },
-    },
-    {
-      id: 4,
-      name: "Morgan Lee",
-      email: "morgan.l@example.com",
-      bestProgram: "IoT Tech Support",
-      overallReadiness: 79,
-      programReadiness: {
-        "AI/ML Fundamentals": 72,
-        "IoT Tech Support": 88,
-        "Data Analytics": 76,
-        "Computer Networking": 81,
-        "Cyber Security": 74,
-      },
-    },
-    {
-      id: 5,
-      name: "Casey Brown",
-      email: "casey.b@example.com",
-      bestProgram: "Computer Networking",
-      overallReadiness: 83,
-      programReadiness: {
-        "AI/ML Fundamentals": 78,
-        "IoT Tech Support": 82,
-        "Data Analytics": 80,
-        "Computer Networking": 90,
-        "Cyber Security": 79,
-      },
-    },
-    {
-      id: 6,
-      name: "Jordan Rivera",
-      email: "jordan.r@example.com",
-      bestProgram: "Data Analytics",
-      overallReadiness: 62,
-      programReadiness: {
-        "AI/ML Fundamentals": 58,
-        "IoT Tech Support": 60,
-        "Data Analytics": 72,
-        "Computer Networking": 65,
-        "Cyber Security": 55,
-      },
-    },
-  ],
 }
 
 export default function ProgramReadinessDashboard() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedUsers, setSelectedUsers] = useState<number[]>([])
-
-  const filteredUsers = mockData.users.filter(
-    (user) =>
-      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.bestProgram.toLowerCase().includes(searchQuery.toLowerCase())
-  )
-
-  const toggleUserSelection = (userId: number) => {
-    setSelectedUsers((prev) =>
-      prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]
-    )
-  }
-
-  const getProgressColor = (value: number, threshold: number) => {
-    if (value >= threshold) return "bg-green-500"
-    if (value >= threshold - 10) return "bg-yellow-500"
-    return "bg-red-500"
-  }
+  const [selectedSkill, setSelectedSkill] = useState<string | null>(null)
 
   return (
-    <div className="flex flex-col space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Executive Dashboard</h1>
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" size="sm">
-            <Download className="mr-2 h-4 w-4" />
-            Export Report
-          </Button>
+    <div className="min-h-screen bg-background p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Program Readiness Dashboard</h1>
+            <p className="text-muted-foreground mt-1">Track your learning progress and program readiness</p>
+          </div>
+          <div className="flex gap-3">
+            <Button variant="outline" className="flex items-center gap-2">
+              <Download className="h-4 w-4" />
+              Export
+            </Button>
+            <Button variant="outline" className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4" />
+              Coach
+            </Button>
+            <Button className="flex items-center gap-2">
+              <Database className="h-4 w-4" />
+              Raw Data
+            </Button>
+          </div>
         </div>
-      </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {/* User Profile Section */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{mockData.totalUsers}</div>
-            <p className="text-xs text-muted-foreground">
-              Enrolled in skills assessment
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Average Readiness</CardTitle>
-            <BarChart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{mockData.averageReadiness}%</div>
-            <Progress value={mockData.averageReadiness} className="mt-2" />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Ready for Deployment</CardTitle>
-            <UserCheck className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{mockData.readyForDeployment}</div>
-            <p className="text-xs text-muted-foreground">
-              {Math.round((mockData.readyForDeployment / mockData.totalUsers) * 100)}% of total users
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Needs Coaching</CardTitle>
-            <UserX className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{mockData.needsCoaching}</div>
-            <p className="text-xs text-muted-foreground">
-              {Math.round((mockData.needsCoaching / mockData.totalUsers) * 100)}% of total users
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Readiness Distribution</CardTitle>
-            <CardDescription>User readiness percentage ranges</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {mockData.readinessDistribution.map((item) => (
-                <div key={item.range} className="flex items-center">
-                  <div className="w-16 text-sm">{item.range}</div>
-                  <div className="flex-1 mx-2">
-                    <Progress value={item.percentage} className="h-2" />
+          <CardContent className="p-6">
+            <div className="flex items-center gap-6">
+              <Avatar className="h-20 w-20">
+                <AvatarImage src={userData.avatar} alt={userData.name} />
+                <AvatarFallback>{userData.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold text-foreground">{userData.name}</h2>
+                <p className="text-muted-foreground">{userData.level} Level</p>
+                <div className="flex gap-6 mt-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-primary">{userData.coreMetrics.vision}%</div>
+                    <div className="text-sm text-muted-foreground">Vision</div>
                   </div>
-                  <div className="w-12 text-right text-sm">{item.count} users</div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Average Skills</CardTitle>
-            <CardDescription>Across all assessed users</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {Object.entries(mockData.averageSkills).map(([skill, value]) => (
-                <div key={skill} className="flex items-center">
-                  <div className="w-28 text-sm capitalize">{skill.replace(/([A-Z])/g, ' $1').trim()}</div>
-                  <div className="flex-1 mx-2">
-                    <Progress value={value} className="h-2" />
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-primary">{userData.coreMetrics.grit}%</div>
+                    <div className="text-sm text-muted-foreground">Grit</div>
                   </div>
-                  <div className="w-12 text-right text-sm">{value}%</div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Program Readiness</CardTitle>
-          <CardDescription>Average user readiness vs. required levels</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
-            {mockData.programReadiness.map((program) => (
-              <div key={program.name} className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="font-medium">{program.name}</div>
-                  <div className="text-sm text-muted-foreground">
-                    Required: {program.required}%
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-primary">{userData.coreMetrics.logic}%</div>
+                    <div className="text-sm text-muted-foreground">Logic</div>
                   </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Progress 
-                    value={program.average} 
-                    className={`h-2 flex-1 ${getProgressColor(program.average, program.required)}`} 
-                  />
-                  <span className="text-sm font-medium">{program.average}%</span>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-primary">{userData.coreMetrics.algorithm}%</div>
+                    <div className="text-sm text-muted-foreground">Algorithm</div>
+                  </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="col-span-full">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Individual Program Readiness</CardTitle>
-              <CardDescription>Detailed view of user readiness for each program</CardDescription>
+              <div className="text-right">
+                <div className="text-3xl font-bold text-primary">{userData.overallReadiness}%</div>
+                <div className="text-sm text-muted-foreground">Overall Readiness</div>
+                <div className="flex gap-4 mt-2 text-sm text-muted-foreground">
+                  <span>{userData.programsCompleted} Programs</span>
+                  <span>{userData.skillsAcquired} Skills</span>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="Search users..."
-                  className="pl-8 w-[250px]"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+          </CardContent>
+        </Card>
+
+        {/* Skills Visualization */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Target className="h-5 w-5" />
+              Skills Overview
+            </CardTitle>
+            <CardDescription>Your current skill levels and performance</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="relative h-64 bg-muted rounded-lg">
+              {/* Bubble Chart Placeholder */}
+              <div className="absolute inset-4 flex items-center justify-center">
+                <div className="grid grid-cols-2 gap-4">
+                  {skillsData.map((skill) => (
+                    <div
+                      key={skill.name}
+                      className={`w-20 h-20 rounded-full ${skill.color} flex items-center justify-center text-primary-foreground text-xs font-medium cursor-pointer hover:scale-110 transition-transform`}
+                      onClick={() => setSelectedSkill(skill.name)}
+                    >
+                      <div className="text-center">
+                        <div className="text-xs">{skill.name.split(' ')[0]}</div>
+                        <div className="text-xs">{skill.score}%</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            {selectedSkill && (
+              <div className="mt-4 p-4 bg-accent rounded-lg">
+                <p className="text-sm text-accent-foreground">
+                  <strong>{selectedSkill}:</strong> {skillsData.find(s => s.name === selectedSkill)?.score}% proficiency
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Program Readiness Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {programData.map((program) => (
+            <Card key={program.id} className="overflow-hidden">
+              <div className="h-32 overflow-hidden">
+                <img 
+                  src={program.image} 
+                  alt={program.name}
+                  className="w-full h-full object-cover"
                 />
               </div>
-              <Button variant="outline" size="sm">
-                <Filter className="mr-2 h-4 w-4" />
-                Filter
-              </Button>
+              <CardContent className="p-4">
+                <h3 className="font-semibold text-sm mb-2 text-foreground">{program.name}</h3>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-2xl font-bold text-foreground">{program.score}%</span>
+                  <Badge className={getStatusTextColor(program.status)}>
+                    {program.status}
+                  </Badge>
+                </div>
+                <Progress value={program.progress} className="h-2" />
+                <p className="text-xs text-muted-foreground mt-1">{program.progress}% Complete</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Data Table */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="h-5 w-5" />
+              Detailed Progress
+            </CardTitle>
+            <CardDescription>Skill-by-skill breakdown of your progress</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-3 px-4 text-foreground">Skill</th>
+                    <th className="text-left py-3 px-4 text-foreground">Current</th>
+                    <th className="text-left py-3 px-4 text-foreground">Target</th>
+                    <th className="text-left py-3 px-4 text-foreground">Progress</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tableData.map((row, index) => (
+                    <tr key={index} className="border-b border-border hover:bg-muted/50">
+                      <td className="py-3 px-4 font-medium text-foreground">{row.skill}</td>
+                      <td className="py-3 px-4 text-foreground">{row.current}%</td>
+                      <td className="py-3 px-4 text-foreground">{row.target}%</td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-2">
+                          <Progress value={row.progress} className="h-2 flex-1" />
+                          <span className="text-sm text-muted-foreground w-12">{row.progress}%</span>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="all">
-            <TabsList className="mb-4">
-              <TabsTrigger value="all">All Users</TabsTrigger>
-              <TabsTrigger value="ready">Ready for Deployment</TabsTrigger>
-              <TabsTrigger value="program">Program Readiness</TabsTrigger>
-            </TabsList>
-            <TabsContent value="all" className="space-y-4">
-              <div className="rounded-md border">
-                <div className="grid grid-cols-[25px_1fr_1fr_1fr_120px] gap-4 p-4 font-medium border-b">
-                  <div className="flex items-center">
-                    <Checkbox
-                      checked={selectedUsers.length === filteredUsers.length && filteredUsers.length > 0}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setSelectedUsers(filteredUsers.map((user) => user.id))
-                        } else {
-                          setSelectedUsers([])
-                        }
-                      }}
-                    />
-                  </div>
-                  <div>User</div>
-                  <div>Best Program Match</div>
-                  <div>Overall Readiness</div>
-                  <div className="text-right">Actions</div>
-                </div>
-                {filteredUsers.length === 0 ? (
-                  <div className="p-4 text-center text-muted-foreground">No users found</div>
-                ) : (
-                  filteredUsers.map((user) => (
-                    <div
-                      key={user.id}
-                      className="grid grid-cols-[25px_1fr_1fr_1fr_120px] gap-4 p-4 items-center border-b last:border-0"
-                    >
-                      <div>
-                        <Checkbox
-                          checked={selectedUsers.includes(user.id)}
-                          onCheckedChange={() => toggleUserSelection(user.id)}
-                        />
+          </CardContent>
+        </Card>
+
+        {/* Performance Analytics */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5" />
+              Performance Analytics
+            </CardTitle>
+            <CardDescription>Detailed analysis of your learning journey</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="skills" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="skills">Skills</TabsTrigger>
+                <TabsTrigger value="programs">Programs</TabsTrigger>
+              </TabsList>
+              <TabsContent value="skills" className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {skillsData.map((skill) => (
+                    <div key={skill.name} className="p-4 border border-border rounded-lg">
+                      <div className="flex justify-between items-center mb-2">
+                        <h4 className="font-medium text-foreground">{skill.name}</h4>
+                        <Badge variant="outline">{skill.score}%</Badge>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={`https://avatar.vercel.sh/${user.id}.png`} alt={user.name} />
-                          <AvatarFallback>{user.name.substring(0, 2).toUpperCase()}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="font-medium">{user.name}</div>
-                          <div className="text-xs text-muted-foreground">{user.email}</div>
-                        </div>
-                      </div>
-                      <div>{user.bestProgram}</div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <Progress
-                            value={user.overallReadiness}
-                            className={`h-2 w-[100px] ${
-                              user.overallReadiness >= 80
-                                ? "bg-green-500"
-                                : user.overallReadiness >= 70
-                                ? "bg-yellow-500"
-                                : "bg-red-500"
-                            }`}
-                          />
-                          <span>{user.overallReadiness}%</span>
-                        </div>
-                      </div>
-                      <div className="flex justify-end">
-                        <Button variant="ghost" size="sm">
-                          View Details
-                        </Button>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </TabsContent>
-            <TabsContent value="ready" className="space-y-4">
-              <div className="rounded-md border">
-                <div className="grid grid-cols-[25px_1fr_1fr_1fr_120px] gap-4 p-4 font-medium border-b">
-                  <div className="flex items-center">
-                    <Checkbox />
-                  </div>
-                  <div>User</div>
-                  <div>Best Program Match</div>
-                  <div>Overall Readiness</div>
-                  <div className="text-right">Actions</div>
-                </div>
-                {filteredUsers
-                  .filter((user) => user.overallReadiness >= 80)
-                  .map((user) => (
-                    <div
-                      key={user.id}
-                      className="grid grid-cols-[25px_1fr_1fr_1fr_120px] gap-4 p-4 items-center border-b last:border-0"
-                    >
-                      <div>
-                        <Checkbox
-                          checked={selectedUsers.includes(user.id)}
-                          onCheckedChange={() => toggleUserSelection(user.id)}
-                        />
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={`https://avatar.vercel.sh/${user.id}.png`} alt={user.name} />
-                          <AvatarFallback>{user.name.substring(0, 2).toUpperCase()}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="font-medium">{user.name}</div>
-                          <div className="text-xs text-muted-foreground">{user.email}</div>
-                        </div>
-                      </div>
-                      <div>{user.bestProgram}</div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <Progress
-                            value={user.overallReadiness}
-                            className="h-2 w-[100px] bg-green-500"
-                          />
-                          <span>{user.overallReadiness}%</span>
-                        </div>
-                      </div>
-                      <div className="flex justify-end">
-                        <Button variant="ghost" size="sm">
-                          View Details
-                        </Button>
-                      </div>
+                      <Progress value={skill.score} className="h-2" />
                     </div>
                   ))}
-              </div>
-            </TabsContent>
-            <TabsContent value="program" className="space-y-4">
-              <div className="rounded-md border">
-                <div className="grid grid-cols-[1fr_repeat(5,_80px)_120px] gap-4 p-4 font-medium border-b">
-                  <div>User</div>
-                  {mockData.programReadiness.map((program) => (
-                    <div key={program.name} className="text-center text-xs">
-                      {program.name.split(' ')[0]}
-                    </div>
-                  ))}
-                  <div className="text-right">Actions</div>
                 </div>
-                {filteredUsers.map((user) => (
-                  <div
-                    key={user.id}
-                    className="grid grid-cols-[1fr_repeat(5,_80px)_120px] gap-4 p-4 items-center border-b last:border-0"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={`https://avatar.vercel.sh/${user.id}.png`} alt={user.name} />
-                        <AvatarFallback>{user.name.substring(0, 2).toUpperCase()}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="font-medium">{user.name}</div>
-                        <div className="text-xs text-muted-foreground">{user.email}</div>
-                      </div>
-                    </div>
-                    {mockData.programReadiness.map((program) => {
-                      const readiness = user.programReadiness[program.name]
-                      return (
-                        <div key={program.name} className="flex flex-col items-center justify-center">
-                          <Badge
-                            className={
-                              readiness >= program.required
-                                ? "bg-green-500"
-                                : readiness >= program.required - 10
-                                ? "bg-yellow-500"
-                                : "bg-red-500"
-                            }
-                          >
-                            {readiness}%
+              </TabsContent>
+              <TabsContent value="programs" className="space-y-4">
+                <div className="space-y-4">
+                  {programData.map((program) => (
+                    <div key={program.id} className="p-4 border border-border rounded-lg">
+                      <div className="flex justify-between items-center mb-2">
+                        <h4 className="font-medium text-foreground">{program.name}</h4>
+                        <div className="flex gap-2">
+                          <Badge variant="outline">{program.score}%</Badge>
+                          <Badge className={getStatusTextColor(program.status)}>
+                            {program.status}
                           </Badge>
                         </div>
-                      )
-                    })}
-                    <div className="flex justify-end">
-                      <Button variant="ghost" size="sm">
-                        View Details
-                      </Button>
+                      </div>
+                      <Progress value={program.progress} className="h-2 mb-2" />
+                      <div className="flex justify-between text-sm text-muted-foreground">
+                        <span>Progress: {program.progress}%</span>
+                        <span>Readiness: {program.score}%</span>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+                  ))}
+                </div>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

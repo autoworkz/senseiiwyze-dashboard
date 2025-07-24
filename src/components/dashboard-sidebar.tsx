@@ -8,8 +8,6 @@ import {
   Users,
   Settings,
   Home,
-  LineChart,
-  PieChart,
   Award,
   Briefcase,
   Layers,
