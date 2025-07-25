@@ -28,10 +28,8 @@ import {
   X,
   UserCheck,
   LineChart,
-  UserCog,
 } from "lucide-react";
 import { useState } from "react";
-import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -43,7 +41,6 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
-import { cn } from "@/lib/utils";
 
 interface Solution {
   title: string;

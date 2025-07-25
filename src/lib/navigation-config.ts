@@ -6,7 +6,6 @@ import {
   LineChart,
   Settings,
   Shield,
-  FileText,
   BarChart3,
   Globe,
   Code,

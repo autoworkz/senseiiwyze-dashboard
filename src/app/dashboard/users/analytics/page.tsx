@@ -5,28 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import { CalendarDateRangePicker } from "@/components/ui/date-range-picker"
-import { Download, TrendingUp, TrendingDown, Users, UserCheck, UserX, Calendar } from "lucide-react"
+import { Download, TrendingUp, Users, UserCheck, UserX, Calendar } from "lucide-react"
 
 // Mock data for charts
-const userGrowthData = [
-  { month: "Jan", users: 10200, active: 7140 },
-  { month: "Feb", users: 10800, active: 7560 },
-  { month: "Mar", users: 11300, active: 7910 },
-  { month: "Apr", users: 11900, active: 8330 },
-  { month: "May", users: 12400, active: 8680 },
-  { month: "Jun", users: 12847, active: 8993 }
-]
-
-const engagementData = [
-  { day: "Mon", sessions: 3200, duration: 45 },
-  { day: "Tue", sessions: 3400, duration: 48 },
-  { day: "Wed", sessions: 3100, duration: 42 },
-  { day: "Thu", sessions: 3600, duration: 52 },
-  { day: "Fri", sessions: 3800, duration: 55 },
-  { day: "Sat", sessions: 2800, duration: 38 },
-  { day: "Sun", sessions: 2600, duration: 35 }
-]
 
 const cohortRetention = [
   { cohort: "Week 1", week1: 100, week2: 82, week3: 75, week4: 68 },
