@@ -84,13 +84,16 @@ const generateMockUser = (id: string): UserDetails => {
 
 export default function UserDetailPage() {
   const params = useParams()
-  const userId = params.id as string
+  const userId = params?.id as string
+  
   const [user, setUser] = useState<UserDetails | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
   const [editedUser, setEditedUser] = useState<Partial<UserDetails>>({})
 
   useEffect(() => {
+    if (!userId) return;
+    
     // Simulate loading user data
     setTimeout(() => {
       const userData = generateMockUser(userId)
@@ -99,6 +102,20 @@ export default function UserDetailPage() {
       setIsLoading(false)
     }, 1000)
   }, [userId])
+  
+  if (!userId) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold">Invalid User ID</h2>
+          <p className="text-muted-foreground mt-2">No user ID provided.</p>
+          <Button asChild className="mt-4">
+            <Link href="/dashboard/users/list">Back to Users</Link>
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   const handleEdit = () => {
     setIsEditing(true)

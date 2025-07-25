@@ -1,3 +1,9 @@
+---
+description: Cursor Rules Overview for senseiiwyze-dashboard
+globs: ["**/*"]
+alwaysApply: true
+---
+
 # Cursor Rules for senseiiwyze-dashboard
 
 This directory contains cursor rules for the senseiiwyze-dashboard project, extracted from CLAUDE.md.
@@ -45,12 +51,6 @@ This directory contains cursor rules for the senseiiwyze-dashboard project, extr
 - Available shadcn components list
 - Custom component best practices
 
-### 8. [Better Auth Schema Rules](./07-better-auth-schema.md)
-- Custom PostgreSQL schema namespace
-- Automated generation workflow
-- Schema transformation process
-- Migration guidelines
-
 ## Quick Reference
 
 ### Essential Commands
@@ -60,7 +60,6 @@ pnpm test         # Run tests
 pnpm build        # Build for production
 pnpm lint         # Run linting
 pnpm dlx shadcn@latest add <component>  # Add shadcn components
-pnpm auth:generate  # Generate and transform Better Auth schema
 ```
 
 ### Key Patterns
@@ -69,7 +68,6 @@ pnpm auth:generate  # Generate and transform Better Auth schema
 - Write tests before implementation
 - Use `'use client'` for interactive components
 - Follow TDD approach
-- Use `better_auth` PostgreSQL schema for auth tables
 
 ### Critical Rules
 1. **ALWAYS use pnpm** - never npm or yarn
@@ -78,7 +76,6 @@ pnpm auth:generate  # Generate and transform Better Auth schema
 4. **ALWAYS write tests first** - follow TDD
 5. **ALWAYS use proper TypeScript types** - avoid `any`
 6. **ALWAYS use @/ import alias** - for src directory imports
-7. **ALWAYS use pnpm auth:generate** - for Better Auth schema generation
 
 ## Usage
 
@@ -88,6 +85,5 @@ These rules should be referenced when:
 - Implementing features
 - Reviewing code
 - Onboarding new developers
-- Generating authentication schemas
 
-For detailed information, refer to the individual rule files above. 
+For detailed information, refer to the individual rule files above.

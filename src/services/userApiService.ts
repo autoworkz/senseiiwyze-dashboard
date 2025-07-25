@@ -1,4 +1,4 @@
-import { User, UserFilters, UserSorting, PaginationState, UserActivity } from '@/stores/users-store'
+import { User, UserFilters, UserSorting, PaginationState, UserActivity } from '@/types/user'
 
 // API Response types
 interface ApiResponse<T> {

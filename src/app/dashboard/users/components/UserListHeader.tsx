@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button"
 import { UserPlus } from "lucide-react"
 import Link from "next/link"
 
-interface UserListHeaderProps {
-  title?: string
-  description?: string
-  showAddButton?: boolean
+export interface UserListHeaderProps {
+  title: string
+  description: string
+  showAddButton: boolean
 }
 
 export function UserListHeader({ 
@@ -31,4 +31,4 @@ export function UserListHeader({
       )}
     </div>
   )
-} 
+}

@@ -10,7 +10,8 @@
  * deleting existing users, maintaining mobile app functionality.
  */
 
-import { supabase, sql } from './db';
+import { supabase, db } from './db';
+import { sql } from 'drizzle-orm';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 
 export interface WorkplaceData {
@@ -50,24 +51,24 @@ export interface BetterAuthOrganization {
 export async function syncUserToBetterAuth(supabaseUser: SupabaseUser): Promise<string | null> {
   try {
     // Check if user already exists in Better Auth
-    const existingUser = await sql`
-      SELECT id FROM "user" WHERE email = ${supabaseUser.email}
-    `;
+    const existingUser = await db.execute(sql`
+      SELECT id FROM "user" WHERE email = ${supabaseUser.email || ''}
+    `);
 
     if (existingUser.length > 0) {
       // Update existing user
-      await sql`
+      await db.execute(sql`
         UPDATE "user" 
         SET 
           name = ${supabaseUser.user_metadata?.full_name || supabaseUser.email?.split('@')[0] || 'User'},
           image = ${supabaseUser.user_metadata?.avatar_url || null},
           "updatedAt" = NOW()
-        WHERE email = ${supabaseUser.email}
-      `;
-      return existingUser[0].id;
+        WHERE email = ${supabaseUser.email || ''}
+      `);
+      return existingUser[0].id as string;
     } else {
       // Create new user in Better Auth
-      const newUser = await sql`
+      const newUser = await db.execute(sql`
         INSERT INTO "user" (
           id,
           name,
@@ -79,15 +80,15 @@ export async function syncUserToBetterAuth(supabaseUser: SupabaseUser): Promise<
         ) VALUES (
           gen_random_uuid()::text,
           ${supabaseUser.user_metadata?.full_name || supabaseUser.email?.split('@')[0] || 'User'},
-          ${supabaseUser.email},
+          ${supabaseUser.email || ''},
           ${!!supabaseUser.email_confirmed_at},
           ${supabaseUser.user_metadata?.avatar_url || null},
           ${new Date(supabaseUser.created_at)},
           NOW()
         )
         RETURNING id
-      `;
-      return newUser[0].id;
+      `);
+      return newUser[0].id as string;
     }
   } catch (error) {
     console.error('Error syncing user to Better Auth:', error);
@@ -115,13 +116,13 @@ export async function syncWorkplaceToBetterAuth(workplace: WorkplaceData): Promi
     }
 
     // Check if organization already exists
-    const existingOrg = await sql`
+    const existingOrg = await db.execute(sql`
       SELECT id FROM organization WHERE metadata->>'supabase_workplace_id' = ${workplace.id}
-    `;
+    `);
 
     if (existingOrg.length > 0) {
       // Update existing organization
-      await sql`
+      await db.execute(sql`
         UPDATE organization 
         SET 
           name = ${workplace.name},
@@ -134,11 +135,11 @@ export async function syncWorkplaceToBetterAuth(workplace: WorkplaceData): Promi
             ${JSON.stringify(workplace.id)}
           )
         WHERE id = ${existingOrg[0].id}
-      `;
-      return existingOrg[0].id;
+      `);
+      return existingOrg[0].id as string;
     } else {
       // Create new organization in Better Auth
-      const newOrg = await sql`
+      const newOrg = await db.execute(sql`
         INSERT INTO organization (
           id,
           name,
@@ -154,33 +155,31 @@ export async function syncWorkplaceToBetterAuth(workplace: WorkplaceData): Promi
           ${workplace.logo_url || null},
           ${new Date(workplace.created_at)},
           NOW(),
-          ${JSON.stringify({
-            supabase_workplace_id: workplace.id,
-            sync_source: 'supabase',
-            ...workplace.metadata
-          })}
+          jsonb_build_object('supabase_workplace_id', ${workplace.id})
         )
         RETURNING id
-      `;
+      `);
 
-      const orgId = newOrg[0].id;
+      const orgId = newOrg[0].id as string;
 
       // Create owner membership
-      await sql`
+      await db.execute(sql`
         INSERT INTO member (
           id,
-          "organizationId",
           "userId",
+          "organizationId",
           role,
-          "createdAt"
+          "createdAt",
+          "updatedAt"
         ) VALUES (
           gen_random_uuid()::text,
-          ${orgId},
           ${betterAuthUserId},
+          ${orgId},
           'owner',
+          NOW(),
           NOW()
         )
-      `;
+      `);
 
       return orgId;
     }
@@ -194,54 +193,77 @@ export async function syncWorkplaceToBetterAuth(workplace: WorkplaceData): Promi
  * Sync all workplaces from Supabase to Better Auth
  */
 export async function syncAllWorkplaces(): Promise<{ success: number; failed: number }> {
-  const stats = { success: 0, failed: 0 };
-
   try {
     // Get all workplaces from the database
-    const workplaces = await sql`
+    const workplaces = await db.execute(sql`
       SELECT id, name, slug, logo_url, primary_owner_user_id, created_at, updated_at, metadata
       FROM workplaces
       ORDER BY created_at ASC
-    `;
+    `);
+
+    let success = 0;
+    let failed = 0;
 
     for (const workplace of workplaces) {
-      const result = await syncWorkplaceToBetterAuth(workplace as WorkplaceData);
-      if (result) {
-        stats.success++;
-      } else {
-        stats.failed++;
+      try {
+        const workplaceData: WorkplaceData = {
+          id: workplace.id as string,
+          name: workplace.name as string,
+          slug: workplace.slug as string | undefined,
+          logo_url: workplace.logo_url as string | undefined,
+          primary_owner_user_id: workplace.primary_owner_user_id as string,
+          created_at: workplace.created_at as string,
+          updated_at: workplace.updated_at as string,
+          metadata: workplace.metadata as any
+        };
+
+        const result = await syncWorkplaceToBetterAuth(workplaceData);
+        if (result) {
+          success++;
+        } else {
+          failed++;
+        }
+      } catch (error) {
+        console.error('Error syncing workplace:', workplace.id, error);
+        failed++;
       }
     }
-  } catch (error) {
-    console.error('Error syncing all workplaces:', error);
-    throw error;
-  }
 
-  return stats;
+    return { success, failed };
+  } catch (error) {
+    console.error('Error in syncAllWorkplaces:', error);
+    return { success: 0, failed: 0 };
+  }
 }
 
 /**
- * Get synchronization status
+ * Get sync status
  */
 export async function getSyncStatus() {
   try {
     const [workplaceCount, betterAuthOrgCount, syncedOrgCount] = await Promise.all([
-      sql`SELECT COUNT(*) as count FROM workplaces`,
-      sql`SELECT COUNT(*) as count FROM organization`,
-      sql`SELECT COUNT(*) as count FROM organization WHERE metadata->>'supabase_workplace_id' IS NOT NULL`
+      db.execute(sql`SELECT COUNT(*) as count FROM workplaces`),
+      db.execute(sql`SELECT COUNT(*) as count FROM organization`),
+      db.execute(sql`SELECT COUNT(*) as count FROM organization WHERE metadata->>'supabase_workplace_id' IS NOT NULL`)
     ]);
 
     return {
-      workplaces: parseInt(workplaceCount[0].count),
-      betterAuthOrganizations: parseInt(betterAuthOrgCount[0].count),
-      syncedOrganizations: parseInt(syncedOrgCount[0].count),
-      syncPercentage: workplaceCount[0].count > 0 
-        ? Math.round((syncedOrgCount[0].count / workplaceCount[0].count) * 100)
+      totalWorkplaces: (workplaceCount[0] as any).count,
+      totalBetterAuthOrgs: (betterAuthOrgCount[0] as any).count,
+      syncedOrgs: (syncedOrgCount[0] as any).count,
+      syncPercentage: (workplaceCount[0] as any).count > 0 
+        ? Math.round(((syncedOrgCount[0] as any).count / (workplaceCount[0] as any).count) * 100)
         : 0
     };
   } catch (error) {
     console.error('Error getting sync status:', error);
-    throw error;
+    return {
+      totalWorkplaces: 0,
+      totalBetterAuthOrgs: 0,
+      syncedOrgs: 0,
+      syncPercentage: 0,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
   }
 }
 

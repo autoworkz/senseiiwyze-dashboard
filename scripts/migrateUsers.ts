@@ -131,7 +131,7 @@ class UserMigration {
     
     await newDbClient`
       INSERT INTO migration_states (id, status, last_processed_id, processed_count, error_count, created_at, updated_at)
-      VALUES (${this.state.id}, ${this.state.status}, ${this.state.last_processed_id}, ${this.state.processed_count}, ${this.state.error_count}, ${this.state.created_at}, ${this.state.updated_at})
+      VALUES (${this.state.id}, ${this.state.status}, ${this.state.last_processed_id || null}, ${this.state.processed_count}, ${this.state.error_count}, ${this.state.created_at}, ${this.state.updated_at})
       ON CONFLICT (id) 
       DO UPDATE SET 
         status = EXCLUDED.status,
@@ -146,9 +146,9 @@ class UserMigration {
    * Check if user has already been migrated (idempotency check)
    */
   async isUserMigrated(userId: string): Promise<boolean> {
-    const result = await newDb.execute(`
-      SELECT 1 FROM migrated_users WHERE original_id = $1
-    `, [userId]);
+    const result = await newDbClient`
+      SELECT 1 FROM migrated_users WHERE original_id = ${userId}
+    `;
     
     return result.length > 0;
   }
@@ -173,8 +173,8 @@ class UserMigration {
     query += ` ORDER BY id LIMIT $${params.length + 1}`;
     params.push(limit);
 
-    const result = await oldDb.execute(query, params);
-    return result.rows as OldUser[];
+    const result = await oldDbClient.unsafe(query, params);
+    return result as unknown as OldUser[];
   }
 
   /**
@@ -265,15 +265,10 @@ class UserMigration {
    * Log migration error
    */
   async logError(userId: string, error: any): Promise<void> {
-    await newDb.execute(`
+    await newDbClient`
       INSERT INTO migration_errors (migration_id, user_id, error_message, error_details)
-      VALUES ($1, $2, $3, $4)
-    `, [
-      this.migrationId,
-      userId,
-      error.message || 'Unknown error',
-      JSON.stringify({ stack: error.stack, ...error })
-    ]);
+      VALUES (${this.migrationId}, ${userId}, ${error.message || 'Unknown error'}, ${JSON.stringify({ stack: error.stack, ...error })})
+    `;
   }
 
   /**
@@ -351,15 +346,15 @@ class UserMigration {
    * Resume a failed migration
    */
   async resumeMigration(migrationId: string): Promise<void> {
-    const result = await newDb.execute(`
-      SELECT * FROM migration_states WHERE id = $1
-    `, [migrationId]);
+    const result = await newDbClient`
+      SELECT * FROM migration_states WHERE id = ${migrationId}
+    `;
 
-    if (result.rows.length === 0) {
+    if (result.length === 0) {
       throw new Error(`Migration ${migrationId} not found`);
     }
 
-    const savedState = result.rows[0] as any;
+    const savedState = result[0];
     this.migrationId = savedState.id;
     this.state = {
       id: savedState.id,
@@ -387,11 +382,11 @@ class UserMigration {
     }
 
     // Get all migrated users for this migration
-    const result = await newDb.execute(`
-      SELECT new_auth_id, email FROM migrated_users WHERE migration_id = $1
-    `, [this.migrationId]);
+    const result = await newDbClient`
+      SELECT new_auth_id, email FROM migrated_users WHERE migration_id = ${this.migrationId}
+    `;
 
-    for (const row of result.rows) {
+    for (const row of result) {
       try {
         await supabase.auth.admin.deleteUser(row.new_auth_id as string);
         console.log(`Deleted user: ${row.email}`);
@@ -401,9 +396,9 @@ class UserMigration {
     }
 
     // Clean up tracking data
-    await newDb.execute(`DELETE FROM migrated_users WHERE migration_id = $1`, [this.migrationId]);
-    await newDb.execute(`DELETE FROM migration_errors WHERE migration_id = $1`, [this.migrationId]);
-    await newDb.execute(`DELETE FROM migration_states WHERE id = $1`, [this.migrationId]);
+    await newDbClient`DELETE FROM migrated_users WHERE migration_id = ${this.migrationId}`;
+    await newDbClient`DELETE FROM migration_errors WHERE migration_id = ${this.migrationId}`;
+    await newDbClient`DELETE FROM migration_states WHERE id = ${this.migrationId}`;
 
     console.log('✅ Rollback completed');
   }

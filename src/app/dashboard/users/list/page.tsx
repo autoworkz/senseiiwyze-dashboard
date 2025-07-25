@@ -222,7 +222,11 @@ export default function UserListPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <UserListHeader />
+      <UserListHeader 
+        title="Users"
+        description="Manage and monitor user accounts and their activities"
+        showAddButton={true}
+      />
 
       {/* Error Alert */}
       {error && (

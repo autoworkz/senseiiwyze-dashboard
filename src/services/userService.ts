@@ -1,4 +1,4 @@
-import { User, UserRole, UserStatus, UserActivity } from '@/stores/users-store';
+import { User, UserRole, UserStatus, UserActivity } from '@/types/user';
 
 // User service for handling user-related API calls
 class UserService {

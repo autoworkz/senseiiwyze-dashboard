@@ -272,6 +272,15 @@
             ]
         },
         {
+            "name": "better-auth",
+            "tags": [
+                "authentication",
+                "security",
+                "identity",
+                "saas"
+            ]
+        },
+        {
             "name": "boto3",
             "tags": [
                 "cloud",
