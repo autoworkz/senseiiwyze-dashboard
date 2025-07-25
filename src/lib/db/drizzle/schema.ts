@@ -224,7 +224,7 @@ export const activities = pgTable("activities", {
 	id: uuid().default(sql`uuid_generate_v4()`).primaryKey().notNull(),
 	name: varchar({ length: 255 }).notNull(),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	categoryId: bigint("category_id", { mode: "number" }),
+	categoryId: bigint("category_id", { mode: "bigint" }),
 	subcategory: varchar({ length: 255 }),
 	description: text(),
 	imageUrl: varchar("image_url", { length: 255 }),
@@ -306,7 +306,7 @@ export const creditsUsage = pgTable("credits_usage", {
 
 export const categories = pgTable("categories", {
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	id: bigint({ mode: "number" }).primaryKey().generatedByDefaultAsIdentity({ name: "categories_id_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 9223372036854775807, cache: 1 }),
+	id: bigint({ mode: "bigint" }).primaryKey().generatedByDefaultAsIdentity({ name: "categories_id_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 9223372036854775807, cache: 1 }),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 	name: varchar(),
 });
@@ -333,7 +333,7 @@ export const chats = pgTable("chats", {
 ]);
 
 export const goals = pgTable("goals", {
-	id: text().default(schemaUtils.gen_random_uuid()).primaryKey().notNull(),
+	id: text().default(sql`gen_random_uuid()`).primaryKey().notNull(),
 	name: text().notNull(),
 	description: text().notNull(),
 	url: text().notNull(),
@@ -408,7 +408,7 @@ export const config = pgTable("config", {
 ]);
 
 export const obstacles = pgTable("obstacles", {
-	id: text().default(schemaUtils.gen_random_uuid()).primaryKey().notNull(),
+	id: text().default(sql`gen_random_uuid()`).primaryKey().notNull(),
 	name: text(),
 	visionId: text("vision_id"),
 	goalId: text("goal_id"),
@@ -556,7 +556,7 @@ export const nonces = pgTable("nonces", {
 ]);
 
 export const sizes = pgTable("sizes", {
-	id: text().default(schemaUtils.gen_random_uuid()).primaryKey().notNull(),
+	id: text().default(sql`gen_random_uuid()`).primaryKey().notNull(),
 	height: doublePrecision().default(200).notNull(),
 	width: doublePrecision().default(200).notNull(),
 });
@@ -571,7 +571,7 @@ export const lcaInvitations = pgTable("lca_invitations", {
 	id: uuid().default(sql`uuid_generate_v4()`).primaryKey().notNull(),
 	accountRole: accountRole("account_role").notNull(),
 	accountId: uuid("account_id").notNull(),
-	token: text().default(schemaUtils.generate_token(32)).notNull(),
+	token: text().default(schemaUtils.generateToken32).notNull(),
 	invitedByUserId: uuid("invited_by_user_id").notNull(),
 	accountTeamName: text("account_team_name"),
 	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow(),
@@ -595,7 +595,7 @@ export const lcaInvitations = pgTable("lca_invitations", {
 
 export const rolePermissions = pgTable("role_permissions", {
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	id: bigint({ mode: "number" }).primaryKey().generatedByDefaultAsIdentity({ name: "role_permissions_id_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 9223372036854775807, cache: 1 }),
+	id: bigint({ mode: "bigint" }).primaryKey().generatedByDefaultAsIdentity({ name: "role_permissions_id_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 9223372036854775807, cache: 1 }),
 	role: varchar({ length: 50 }).notNull(),
 	permission: appPermissions().notNull(),
 }, (table) => [
@@ -660,7 +660,7 @@ export const tasks = pgTable("tasks", {
 
 export const vendorRatings = pgTable("vendor_ratings", {
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	id: bigint({ mode: "number" }).primaryKey().generatedByDefaultAsIdentity({ name: "vendor_ratings_id_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 9223372036854775807, cache: 1 }),
+	id: bigint({ mode: "bigint" }).primaryKey().generatedByDefaultAsIdentity({ name: "vendor_ratings_id_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 9223372036854775807, cache: 1 }),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow(),
 	rating: doublePrecision().default(sql`'0'`),
 });
@@ -729,7 +729,7 @@ export const visionLog = pgTable("vision_log", {
 ]);
 
 export const visionBoards = pgTable("vision_boards", {
-	id: text().default(schemaUtils.gen_random_uuid()).primaryKey().notNull(),
+	id: text().default(sql`gen_random_uuid()`).primaryKey().notNull(),
 	name: text().notNull(),
 	description: text().notNull(),
 	imgUrl: text("img_url"),
@@ -845,7 +845,7 @@ export const assessments = pgTable("assessments", {
 
 export const notifications = pgTable("notifications", {
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	id: bigint({ mode: "number" }).primaryKey().generatedAlwaysAsIdentity({ name: "notifications_id_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 9223372036854775807, cache: 1 }),
+	id: bigint({ mode: "bigint" }).primaryKey().generatedAlwaysAsIdentity({ name: "notifications_id_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 9223372036854775807, cache: 1 }),
 	accountId: uuid("account_id").notNull(),
 	type: notificationType().default('info').notNull(),
 	body: varchar({ length: 5000 }).notNull(),

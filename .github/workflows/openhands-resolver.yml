@@ -2,9 +2,9 @@ name: Resolve Issue with OpenHands
 
 on:
   issues:
-    types: [labeled]
+    types: [opened, labeled, edited]
   pull_request:
-    types: [labeled]
+    types: [labeled, opened, synchronize]
   issue_comment:
     types: [created]
   pull_request_review_comment:
@@ -19,6 +19,12 @@ permissions:
 
 jobs:
   call-openhands-resolver:
+    # Only run for issues with specific labels or auto-generated issues
+    if: |
+      github.event_name == 'issues' && 
+      (contains(github.event.issue.labels.*.name, 'openhands-trigger') || 
+       contains(github.event.issue.labels.*.name, 'auto-generated') ||
+       contains(github.event.issue.labels.*.name, 'pr-'))
     uses: All-Hands-AI/OpenHands/.github/workflows/openhands-resolver.yml@main
     with:
       macro: ${{ vars.OPENHANDS_MACRO || '@openhands-agent' }}

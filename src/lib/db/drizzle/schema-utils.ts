@@ -1,10 +1,14 @@
 import { sql } from "drizzle-orm";
 import { pgSchema, text, timestamp } from "drizzle-orm/pg-core";
 
-// Utility functions for the schema
-export const gen_random_uuid = () => sql`gen_random_uuid()`;
+// SQL template literals (not functions) - following Drizzle documentation patterns
+export const genRandomUuidSql = sql`gen_random_uuid()`;
 
-export const generate_token = (length: number) => sql`encode(gen_random_bytes(${length}), 'hex')`;
+// Common token generation SQL (32 bytes = 64 hex chars)
+export const generateToken32Sql = sql`encode(gen_random_bytes(32), 'hex')`;
+
+// For dynamic token lengths, provide a function (but use sparingly in defaults)
+export const generateTokenSql = (length: number) => sql`encode(gen_random_bytes(${length}), 'hex')`;
 
 // Utility to create a table with at least an id field in a given schema
 export const createIdTable = (schemaName: string, tableName: string) => {
@@ -16,12 +20,18 @@ export const createIdTable = (schemaName: string, tableName: string) => {
     });
 };
 
-// Example usage for a users table in the 'better_auth' schema:
+// Example usage for a users table in the 'auth' schema:
 export const users = createIdTable("auth", "users");
 
-// Export all utilities for easy importing
+// Export utilities following Drizzle patterns
 export const schemaUtils = {
-    gen_random_uuid,
-    generate_token,
+    // Export SQL template literals directly (not functions)
+    genRandomUuid: genRandomUuidSql,
+    generateToken32: generateToken32Sql,
+
+    // For dynamic use (avoid in .default() calls)
+    generateTokenSql,
+
+    // Table reference
     users
 }; 

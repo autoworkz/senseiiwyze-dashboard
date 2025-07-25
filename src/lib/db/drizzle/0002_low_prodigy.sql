@@ -1,0 +1,1 @@
+ALTER TABLE "lca_invitations" ALTER COLUMN "token" SET DEFAULT encode(gen_random_bytes(32), 'hex');

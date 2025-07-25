@@ -11,4 +11,5 @@ export default defineConfig({
   schemaFilter: ['public'],
   verbose: true,
   strict: true,
+  // Note: Use 'generate' for migration files, avoid 'push' - migrations will be handled by Bytebase
 }); 
