@@ -18,7 +18,6 @@ import {
   Shield, 
   Activity, 
   Settings, 
-  BarChart3, 
   Clock,
   ChevronLeft,
   Edit2,
@@ -84,7 +83,7 @@ const generateMockUser = (id: string): UserDetails => {
 
 export default function UserDetailPage() {
   const params = useParams()
-  const userId = params.id as string
+  const userId = params?.id as string
   const [user, setUser] = useState<UserDetails | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
