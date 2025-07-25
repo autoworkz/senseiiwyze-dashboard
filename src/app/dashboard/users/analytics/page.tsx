@@ -5,8 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import { CalendarDateRangePicker } from "@/components/ui/date-range-picker"
+import { DateRangePicker } from "@/components/ui/date-range-picker"
 import { Download, TrendingUp, TrendingDown, Users, UserCheck, UserX, Calendar } from "lucide-react"
+import { UserGrowthChart, UserEngagementChart, UserRetentionChart } from "../components"
 
 // Mock data for charts
 const userGrowthData = [
@@ -138,15 +139,7 @@ export default function UserAnalyticsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="h-[400px] flex items-center justify-center rounded-md border border-dashed">
-                <div className="text-center">
-                  <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">User Growth Chart</h3>
-                  <p className="text-sm text-muted-foreground max-w-sm">
-                    Line chart showing total user growth and active user trends would be displayed here
-                  </p>
-                </div>
-              </div>
+              <UserGrowthChart data={userGrowthData} />
             </CardContent>
           </Card>
 
@@ -239,15 +232,7 @@ export default function UserAnalyticsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="h-[400px] flex items-center justify-center rounded-md border border-dashed">
-                <div className="text-center">
-                  <TrendingUp className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">Engagement Chart</h3>
-                  <p className="text-sm text-muted-foreground max-w-sm">
-                    Bar chart showing daily sessions and average session duration would be displayed here
-                  </p>
-                </div>
-              </div>
+              <UserEngagementChart data={engagementData} />
             </CardContent>
           </Card>
         </TabsContent>
@@ -261,50 +246,7 @@ export default function UserAnalyticsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-2">Cohort</th>
-                      <th className="text-center py-2">Week 1</th>
-                      <th className="text-center py-2">Week 2</th>
-                      <th className="text-center py-2">Week 3</th>
-                      <th className="text-center py-2">Week 4</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {cohortRetention.map((cohort, index) => (
-                      <tr key={index} className="border-b">
-                        <td className="py-2">{cohort.cohort}</td>
-                        <td className="text-center py-2">
-                          <div className="inline-flex items-center justify-center w-16 h-8 rounded"
-                               style={{ backgroundColor: `rgba(34, 197, 94, ${cohort.week1 / 100})` }}>
-                            {cohort.week1}%
-                          </div>
-                        </td>
-                        <td className="text-center py-2">
-                          <div className="inline-flex items-center justify-center w-16 h-8 rounded"
-                               style={{ backgroundColor: `rgba(34, 197, 94, ${cohort.week2 / 100})` }}>
-                            {cohort.week2}%
-                          </div>
-                        </td>
-                        <td className="text-center py-2">
-                          <div className="inline-flex items-center justify-center w-16 h-8 rounded"
-                               style={{ backgroundColor: `rgba(34, 197, 94, ${cohort.week3 / 100})` }}>
-                            {cohort.week3}%
-                          </div>
-                        </td>
-                        <td className="text-center py-2">
-                          <div className="inline-flex items-center justify-center w-16 h-8 rounded"
-                               style={{ backgroundColor: `rgba(34, 197, 94, ${cohort.week4 / 100})` }}>
-                            {cohort.week4}%
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <UserRetentionChart data={cohortRetention} />
             </CardContent>
           </Card>
         </TabsContent>

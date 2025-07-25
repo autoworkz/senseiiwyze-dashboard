@@ -1,0 +1,464 @@
+# Cline User Memory System
+
+## System Philosophy
+
+Cline maintains context within sessions but loses it between sessions. This unified system optimizes for **quick context recovery**, **strategic alignment**, and **intelligent handoffs** while leveraging Cline's ability to explore your codebase directly.
+
+The system combines two complementary approaches:
+- **Memory Bank**: Persistent context preservation between sessions
+- **Planning Mode**: Strategic reflection points to prevent "building the wrong thing efficiently"
+
+## Workflow Overview
+
+```mermaid
+graph TD
+    Start[Session Start] --> ReadContext[Read activeContext.md]
+    ReadContext --> CheckTriggers{Check Planning Triggers}
+    
+    CheckTriggers -->|Triggers Met| PlanMode[Enter Plan Mode]
+    CheckTriggers -->|No Triggers| ActMode[Enter Act Mode]
+    
+    PlanMode --> Strategic[Strategic Thinking]
+    Strategic --> UpdateStrategy[Update Strategy Docs]
+    UpdateStrategy --> ActMode
+    
+    ActMode --> Implementation[Implementation Work]
+    Implementation --> CheckContextWindow{Check Context Window}
+    CheckContextWindow -->|>75% Usage| Handoff[Initiate Task Handoff]
+    CheckContextWindow -->|Normal Usage| UpdateContext[Update activeContext.md]
+    
+    UpdateContext --> CheckProgress{Significant Progress?}
+    CheckProgress -->|Yes| UpdateDocs[Update Other Memory Files]
+    CheckProgress -->|No| Continue[Continue Work]
+    
+    UpdateDocs --> Continue
+    Continue --> SessionEnd{End Session?}
+    SessionEnd -->|No| CheckTriggers
+    SessionEnd -->|Yes| FinalUpdate[Final Context Update]
+    Handoff --> HandoffProcess[Handoff Process]
+    HandoffProcess --> NewTask[Create New Task]
+    NewTask --> Continue
+```
+
+## Planning Mode Triggers
+
+```mermaid
+graph LR
+    Time[">8 hours since last session"] --> Trigger[Plan Mode]
+    Commits["Every 5 commits"] --> Trigger
+    Stuck[">30 min stuck"] --> Trigger
+    Feature["New feature start"] --> Trigger
+    Manual["Manual trigger"] --> Trigger
+```
+
+## Memory Bank Update Flow
+
+```mermaid
+graph TD
+    Work[Implementation Work] --> Type{Update Type?}
+    
+    Type -->|Session End| Active[activeContext.md]
+    Type -->|New Pattern| System[systemPatterns.md]
+    Type -->|Milestone| Progress[progress.md]
+    Type -->|Scope Change| Brief[projectbrief.md]
+    
+    Active --> Frequency1[Every Session]
+    System --> Frequency2[When Patterns Emerge]
+    Progress --> Frequency3[Feature Complete]
+    Brief --> Frequency4[Rarely]
+```
+
+## File Structure
+
+```
+.memory-bank/
+├── projectbrief.md       # Core: What & Why (rarely changes)
+├── activeContext.md      # Core: Current state (changes frequently) 
+├── systemPatterns.md     # Core: How it's built (evolves slowly)
+├── progress.md           # Core: Status tracking (updated often)
+├── planning-log.md       # Planning session history
+├── planning-prompts.md   # Planning prompts
+├── ux.md                 # User Experience: Journey maps and design decisions
+├── implementation-guide.md # Implementation: Step-by-step conversion guides
+└── features/             # Optional: Complex feature docs
+```
+
+---
+
+# Part 1: Memory Bank System
+
+## Core Memory Files
+
+### 1. projectbrief.md
+**Purpose**: Project foundation - the "why" and high-level "what"  
+**Update Frequency**: Rarely (only when scope changes)
+
+This file should contain:
+- Project vision and purpose
+- Core problems being solved
+- Success metrics and quality targets
+- Scope boundaries (in/out)
+- Key constraints and limitations
+
+### 2. activeContext.md
+**Purpose**: Current session state and immediate focus  
+**Update Frequency**: Every session end, sometimes during long sessions
+
+This file should contain:
+- What you're currently working on
+- Summary of last session's work
+- Immediate next steps
+- Current mental model and insights
+- Context for the next session
+
+### 3. systemPatterns.md
+**Purpose**: How the system is architected and key patterns  
+**Update Frequency**: When new patterns emerge or architecture changes
+
+This file should contain:
+- Architecture overview
+- Key technologies and their considerations
+- Established development patterns
+- Critical paths and key dependencies
+- Architecture decisions and future considerations
+
+### 4. progress.md
+**Purpose**: Project status and evolution tracking  
+**Update Frequency**: After completing features or major milestones
+
+This file should contain:
+- Current project status and health
+- What's working and what's broken
+- Recent milestones and achievements
+- Lessons learned and roadmap
+- Planning integration notes
+
+### 5. ux.md
+**Purpose**: User experience journey maps and design decisions  
+**Update Frequency**: When user journeys or design patterns change
+
+This file should contain:
+- User journey maps and personas
+- Key user flows and touchpoints
+- Design system decisions and patterns
+- Accessibility and usability considerations
+- Prototype and design evolution
+
+### 6. implementation-guide.md
+**Purpose**: Step-by-step implementation and conversion guides  
+**Update Frequency**: When implementation patterns or conversion processes change
+
+This file should contain:
+- Implementation step-by-step guides
+- Conversion guides between different ecosystems
+- Animation and interaction patterns
+- Theme and styling implementation
+- Best practices for specific technologies
+
+---
+
+# Part 2: Planning Mode System
+
+## Planning Mode Philosophy
+
+Planning Mode is a deliberate pause from implementation to ensure strategic alignment. It prevents the common problem of "building the wrong thing efficiently" by creating structured reflection points.
+
+## Planning Mode Triggers
+
+### Automatic Triggers
+Planning mode should be triggered automatically when:
+- More than 8 hours have passed since the last session
+- Every 5 commits are made
+- You've been stuck for more than 30 minutes
+- Starting a new feature
+- Manual trigger (user requests it)
+
+### Manual Triggers
+- When stuck for >30 minutes
+- Before starting a new feature
+- After completing a significant milestone
+- When feeling disconnected from project goals
+- When Memory Bank files haven't been updated in >1 week
+
+### App Planning Triggers
+- When starting a new application or major feature
+- When user experience needs to be redesigned
+- When converting between different technology ecosystems
+- When theming or styling systems need updates
+- When implementation patterns need documentation
+
+### Handoff Triggers
+- When context window usage exceeds 75%
+- When reaching natural completion points in complex tasks
+- When switching between different expertise areas
+
+## Planning Mode Workflows
+
+### Quick Planning Session (5-10 minutes)
+Use when you need rapid course correction or focus check:
+
+**Focus Areas:**
+- Review current activeContext.md
+- Validate current task alignment with project goals
+- Identify immediate next steps
+- Check if Memory Bank needs updates
+
+### Deep Planning Session (30+ minutes)
+Use for comprehensive strategic review and major decision making:
+
+**Focus Areas:**
+- Complete Memory Bank review
+- Strategic alignment assessment
+- Technical direction validation
+- Resource optimization analysis
+- Update Memory Bank with new insights
+
+### App Planning Session (15-30 minutes)
+Use when planning new applications or major features:
+
+**Focus Areas:**
+1. **User Journey Analysis**
+   - Map current user journey in ux.md
+   - Identify pain points and opportunities
+   - Define success metrics for user experience
+
+2. **Prototype Planning**
+   - Determine prototyping approach (HTML, Figma, etc.)
+   - Plan structure and component breakdown
+   - Define monochrome/base theme approach
+
+3. **Implementation Strategy**
+   - Create step-by-step implementation guide
+   - Plan conversion between ecosystems if needed
+   - Document animation and interaction patterns
+
+4. **Theme and Styling**
+   - Define theme system and file structure
+   - Plan default styling approach
+   - Document component styling patterns
+
+---
+
+# Part 3: Task Handoff System
+
+## Context Window Management
+
+**⚠️ CRITICAL INSTRUCTION ⚠️**: Monitor context window usage displayed in environment details. When usage exceeds 75% of available context window, you **MUST** initiate a task handoff.
+
+Example trigger: `105,000 / 200,000 tokens (53%)`
+
+**Mandatory Handoff Process**:
+1. Complete current logical step
+2. Use `ask_followup_question` to offer creating a new task
+3. If approved, use `new_task` with comprehensive handoff context
+
+## Task Breakdown Requirements
+
+When in Plan Mode, you **MUST** follow this process for complex tasks:
+
+### 1. Initial Task Analysis
+- **MUST** understand full scope of user's request
+- **MUST** identify all major components and dependencies
+- **MUST** consider potential challenges and prerequisites
+
+### 2. Strategic Task Decomposition
+- **MUST** break task into logical, discrete subtasks
+- **MUST** prioritize based on dependencies
+- **MUST** aim for subtasks completable in 15-30 minutes
+- **MUST** identify natural breaking points
+
+### 3. Task Roadmap Creation
+- **MUST** present clear, numbered list of subtasks
+- **MUST** explain dependencies between subtasks
+- **MUST** provide time estimates when possible
+
+### 4. User Approval Process
+- **MUST** ask for user feedback on task breakdown
+- **MUST** adjust plan based on user priorities
+- **MUST** confirm which subtask to begin with
+- **MUST** request the user to toggle to Act Mode when ready to implement
+
+## Task Implementation and Handoff Process - MANDATORY PROCEDURES
+
+When implementing tasks in Act Mode, you **MUST** follow these guidelines for effective task handoff:
+
+### 1. Focused Implementation - REQUIRED
+- **MUST** focus on completing the current subtask fully
+- **MUST** document progress clearly through comments and commit messages
+- **MUST** create checkpoints at logical completion points
+
+### 2. Recognizing Completion Points - CRITICAL
+You **MUST** identify natural handoff points when:
+- The current subtask is fully completed
+- You've reached a logical stopping point in a larger subtask
+- The implementation is taking longer than expected and can be continued later
+- The task scope has expanded beyond the original plan
+- **CRITICAL**: The context window usage exceeds 75% (e.g., 100,000+ tokens for a 200K context window)
+
+### 3. Initiating the Handoff Process - MANDATORY ACTION
+When you've reached a completion point, you **MUST**:
+
+1. Summarize what has been accomplished so far
+2. Clearly state what remains to be done
+3. **MANDATORY**: Use the `ask_followup_question` tool to offer creating a new task:
+
+```xml
+<ask_followup_question>
+<question>I've completed [specific accomplishment]. Would you like me to create a new task to continue with [remaining work]?</question>
+<options>["Yes, create new task", "No, continue in this session", "Let me think about it"]</options>
+</ask_followup_question>
+```
+
+### 4. Creating a New Task with Context - REQUIRED ACTION
+If the user agrees to create a new task, you **MUST** use the `new_task` tool with comprehensive handoff instructions:
+
+```xml
+<new_task>
+<context>
+
+# Task Continuation: [Brief Task Title]
+
+## Completed Work
+- [Detailed list of completed items]
+- [Include specific files modified/created]
+- [Note any important decisions made]
+
+## Current State
+- [Description of the current state of the project]
+- [Any running processes or environment setup]
+- [Key files and their current state]
+
+## Next Steps
+- [Detailed list of remaining tasks]
+- [Specific implementation details to address]
+- [Any known challenges to be aware of]
+
+## Reference Information
+- [Links to relevant documentation]
+- [Important code snippets or patterns to follow]
+- [Any user preferences noted during the current session]
+
+Please continue the implementation by [specific next action].
+</context>
+</new_task>
+```
+
+### 5. Detailed Context Transfer - MANDATORY COMPONENTS
+When creating a new task, you **MUST** always include:
+
+#### Project Context - REQUIRED
+- **MUST** include the overall goal and purpose of the project
+- **MUST** include key architectural decisions and patterns
+- **MUST** include technology stack and dependencies
+
+#### Implementation Details - REQUIRED
+- **MUST** list files created or modified in the current session
+- **MUST** describe specific functions, classes, or components implemented
+- **MUST** explain design patterns being followed
+- **MUST** outline testing approach
+
+#### Progress Tracking - REQUIRED
+- **MUST** provide checklist of completed items
+- **MUST** provide checklist of remaining items
+- **MUST** note any blockers or challenges encountered
+
+#### User Preferences - REQUIRED
+- **MUST** note coding style preferences mentioned by the user
+- **MUST** document specific approaches requested by the user
+- **MUST** highlight priority areas identified by the user
+
+## Best Practices for Effective Handoffs - MANDATORY GUIDELINES
+
+### 1. Maintain Continuity - REQUIRED
+- **MUST** use consistent terminology between tasks
+- **MUST** reference previous decisions and their rationale
+- **MUST** maintain the same architectural approach unless explicitly changing direction
+
+### 2. Preserve Context - REQUIRED
+- **MUST** include relevant code snippets in the handoff
+- **MUST** summarize key discussions from the previous session
+- **MUST** reference specific files and line numbers when applicable
+
+### 3. Set Clear Next Actions - REQUIRED
+- **MUST** begin the handoff with a clear, actionable next step
+- **MUST** prioritize remaining tasks
+- **MUST** highlight any decisions that need to be made
+
+### 4. Document Assumptions - REQUIRED
+- **MUST** clearly state any assumptions made during implementation
+- **MUST** note areas where user input might be needed
+- **MUST** identify potential alternative approaches
+
+### 5. Optimize for Resumability - REQUIRED
+- **MUST** structure the handoff so the next session can begin working immediately
+- **MUST** include setup instructions if environment configuration is needed
+- **MUST** provide a quick summary at the top for rapid context restoration
+
+## Example Task Handoff
+
+### Example #1 of an effective task handoff:
+
+```xml
+<new_task>
+<context>
+
+# Task Continuation: Implement User Authentication System
+
+## Completed Work
+- Created basic Express.js server structure
+- Implemented MongoDB connection and user schema
+- Completed user registration endpoint with password hashing
+- Added input validation using Joi
+- Created initial test suite for registration endpoint
+
+## Current State
+- Server runs successfully on port 3000
+- MongoDB connection is established
+- Registration endpoint (/api/users/register) is fully functional
+- Test suite passes for all registration scenarios
+
+## Next Steps
+1. Implement login endpoint (/api/users/login)
+   - Use bcrypt to compare passwords
+   - Generate JWT token upon successful login
+   - Add proper error handling for invalid credentials
+2. Create authentication middleware
+   - Verify JWT tokens
+   - Extract user information
+   - Handle expired tokens
+3. Add protected routes that require authentication
+4. Implement password reset functionality
+
+## Reference Information
+- JWT secret should be stored in .env file
+- Follow the existing error handling pattern in routes/users.js
+- User schema is defined in models/User.js
+- Test patterns are established in tests/auth.test.js
+
+Please continue by implementing the login endpoint following the same patterns established in the registration endpoint.
+</context>
+</new_task>
+```
+
+## When to Use Task Handoffs - MANDATORY TRIGGERS
+
+You **MUST** initiate task handoffs in these scenarios:
+
+1. **CRITICAL**: When context window usage exceeds 75% (e.g., 100,000+ tokens for a 200K context window)
+2. **Long-running projects** that exceed a single session
+3. **Complex implementations** with multiple distinct phases
+4. **When context window limitations** are approaching
+5. **When switching focus areas** within a larger project
+6. **When different expertise** might be beneficial for different parts of the task
+
+## User Interaction & Workflow Considerations
+
+- **Linear Flow**: Currently, using `new_task` creates a linear sequence. The old task ends, and the new one begins. The old task history remains accessible for backtracking.
+- **User Approval**: You always have control, approving the handoff and having the chance to modify the context Cline proposes to carry forward.
+- **Flexibility**: The core `new_task` tool is a flexible building block. Experiment with `.clinerules` to create workflows that best suit your needs, whether for strict context management, task decomposition, or other creative uses.
+
+**⚠️ FINAL REMINDER - CRITICAL INSTRUCTION ⚠️**
+
+You **MUST** monitor the context window usage in the environment details section. When it exceeds 75% (e.g., "105,000 / 200,000 tokens (53%)"), you **MUST** proactively initiate the task handoff process using the `ask_followup_question` tool followed by the `new_task` tool. You MUST use the `new_task` tool.
+
+By strictly following these guidelines, you'll ensure smooth transitions between tasks, maintain project momentum, and provide the best possible experience for users working on complex, multi-session projects.
