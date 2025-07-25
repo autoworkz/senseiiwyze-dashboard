@@ -36,6 +36,20 @@
       "when": 1753475304488,
       "tag": "0004_pretty_triathlon",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1753477675576,
+      "tag": "0005_special_cargill",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1753482681808,
+      "tag": "0006_curvy_zodiak",
+      "breakpoints": true
     }
   ]
 }
