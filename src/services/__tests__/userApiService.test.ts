@@ -1,5 +1,5 @@
 import { userApiService } from '../userApiService'
-import { User, UserStatus, UserRole } from '@/stores/users-store'
+import { User, UserStatus, UserRole } from '@/types/user'
 import { mockUsers } from '@/mocks/users'
 
 // Mock fetch globally

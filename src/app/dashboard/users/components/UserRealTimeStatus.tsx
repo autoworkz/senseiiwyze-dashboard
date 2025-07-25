@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Wifi, WifiOff, Clock, UserCheck, UserX } from "lucide-react"
-import { UserStatus } from '@/stores/users-store'
+import { UserStatus } from '@/types/user'
 
 interface UserRealTimeStatusProps {
   userId: string

@@ -1,69 +1,16 @@
 import { create } from 'zustand';
 import { persist, combine } from 'zustand/middleware';
-
-// User data models
-export interface UserMetadata {
-  location?: string;
-  timezone?: string;
-  preferences: Record<string, any>;
-  tags: string[];
-}
-
-export enum UserRole {
-  ADMIN = 'admin',
-  USER = 'user',
-  GUEST = 'guest'
-}
-
-export enum UserStatus {
-  ACTIVE = 'active',
-  INACTIVE = 'inactive',
-  SUSPENDED = 'suspended'
-}
-
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  avatar?: string;
-  role: UserRole;
-  status: UserStatus;
-  programReadiness: number;
-  lastActive: string; // ISO string or relative time
-  createdAt: string; // ISO string
-  metadata: UserMetadata;
-  department?: string;
-  completedModules?: number;
-  totalModules?: number;
-}
-
-// Filter and pagination models
-export interface UserFilters {
-  search: string;
-  status: UserStatus[];
-  roles: UserRole[];
-  dateRange?: { from: string; to: string };
-  tags: string[];
-}
-
-export interface UserSorting {
-  field: keyof User;
-  direction: 'asc' | 'desc';
-}
-
-export interface PaginationState {
-  page: number;
-  pageSize: number;
-  total: number;
-}
-
-// Activity history model
-export interface UserActivity {
-  id: string;
-  action: string;
-  timestamp: string;
-  details?: string;
-}
+import { mockUsers, generateMockUsers, filterUsers, sortUsers, paginateUsers } from '@/mocks/users';
+import { 
+  User, 
+  UserRole, 
+  UserStatus, 
+  UserMetadata, 
+  UserFilters, 
+  UserSorting, 
+  PaginationState, 
+  UserActivity 
+} from '@/types/user';
 
 // Main store state
 export interface UsersState {
@@ -401,59 +348,21 @@ const mockFetchUsers = async (
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 500));
   
-  // Generate mock users
-  const mockUsers: User[] = Array.from({ length: 50 }, (_, i) => ({
-    id: (i + 1).toString(),
-    email: `user${i + 1}@example.com`,
-    name: `User ${i + 1}`,
-    avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${i + 1}`,
-    role: i === 0 ? UserRole.ADMIN : i % 3 === 0 ? UserRole.GUEST : UserRole.USER,
-    status: i % 5 === 0 ? UserStatus.SUSPENDED : i % 3 === 0 ? UserStatus.INACTIVE : UserStatus.ACTIVE,
-    programReadiness: Math.floor(Math.random() * 100),
-    lastActive: `${Math.floor(Math.random() * 30) + 1} days ago`,
-    createdAt: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString(),
-    metadata: {
-      preferences: {},
-      tags: i % 2 === 0 ? ['premium'] : ['basic']
-    },
-    department: ['Engineering', 'Marketing', 'Sales', 'Support', 'Operations'][i % 5],
-    completedModules: Math.floor(Math.random() * 12),
-    totalModules: 12
-  }));
-
-  // Apply filters
-  const filteredUsers = mockUsers.filter(user => {
-    if (filters.search && !user.name.toLowerCase().includes(filters.search.toLowerCase()) && 
-        !user.email.toLowerCase().includes(filters.search.toLowerCase())) {
-      return false;
-    }
-    if (filters.status.length > 0 && !filters.status.includes(user.status)) {
-      return false;
-    }
-    if (filters.roles.length > 0 && !filters.roles.includes(user.role)) {
-      return false;
-    }
-    return true;
+  // Use the comprehensive mock data from src/mocks/users.ts
+  let filteredUsers = filterUsers(mockUsers, {
+    search: filters.search,
+    status: filters.status,
+    roles: filters.roles,
+    dateRange: filters.dateRange,
+    tags: filters.tags
   });
 
   // Apply sorting
-  filteredUsers.sort((a, b) => {
-    const aVal = a[sorting.field];
-    const bVal = b[sorting.field];
-    
-    if (aVal == null && bVal == null) return 0;
-    if (aVal == null) return sorting.direction === 'asc' ? -1 : 1;
-    if (bVal == null) return sorting.direction === 'asc' ? 1 : -1;
-    
-    if (aVal < bVal) return sorting.direction === 'asc' ? -1 : 1;
-    if (aVal > bVal) return sorting.direction === 'asc' ? 1 : -1;
-    return 0;
-  });
+  filteredUsers = sortUsers(filteredUsers, sorting.field, sorting.direction);
 
   // Apply pagination
   const total = filteredUsers.length;
-  const start = (page - 1) * pageSize;
-  const paginatedUsers = filteredUsers.slice(start, start + pageSize);
+  const paginatedUsers = paginateUsers(filteredUsers, page, pageSize);
 
   return {
     users: paginatedUsers,
@@ -464,25 +373,13 @@ const mockFetchUsers = async (
 const mockFetchUserById = async (id: string): Promise<User> => {
   await new Promise(resolve => setTimeout(resolve, 300));
   
-  const userIndex = parseInt(id) - 1;
-  return {
-    id,
-    email: `user${id}@example.com`,
-    name: `User ${id}`,
-    avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${id}`,
-    role: userIndex === 0 ? UserRole.ADMIN : userIndex % 3 === 0 ? UserRole.GUEST : UserRole.USER,
-    status: userIndex % 5 === 0 ? UserStatus.SUSPENDED : userIndex % 3 === 0 ? UserStatus.INACTIVE : UserStatus.ACTIVE,
-    programReadiness: Math.floor(Math.random() * 100),
-    lastActive: `${Math.floor(Math.random() * 30) + 1} days ago`,
-    createdAt: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString(),
-    metadata: {
-      preferences: {},
-      tags: userIndex % 2 === 0 ? ['premium'] : ['basic']
-    },
-    department: ['Engineering', 'Marketing', 'Sales', 'Support', 'Operations'][userIndex % 5],
-    completedModules: Math.floor(Math.random() * 12),
-    totalModules: 12
-  };
+  // Find user in mock data
+  const user = mockUsers.find(u => u.id === id);
+  if (!user) {
+    throw new Error('User not found');
+  }
+  
+  return user;
 };
 
 const mockFetchUserActivities = async (userId: string): Promise<UserActivity[]> => {

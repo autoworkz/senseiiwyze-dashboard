@@ -1,5 +1,5 @@
 import { mockUsers, generateMockUser, generateMockUsers, mockActiveUsers, mockAdminUsers } from '../users'
-import { UserRole, UserStatus } from '@/stores/users-store'
+import { UserRole, UserStatus } from '@/types/user'
 
 describe('Mock Users Data', () => {
   describe('mockUsers', () => {

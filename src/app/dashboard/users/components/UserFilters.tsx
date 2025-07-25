@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select"
 import { DateRangePicker } from '@/components/ui/date-range-picker'
 import { DateRange } from 'react-day-picker'
-import { UserRole, UserStatus } from '@/stores/users-store'
+import { UserRole, UserStatus } from '@/types/user'
 
 interface UserFiltersProps {
   filters: {

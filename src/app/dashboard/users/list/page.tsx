@@ -34,7 +34,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import Link from "next/link"
-import { useUsersStore, UserRole, UserStatus } from '@/stores/users-store'
+import { useUsersStore } from '@/stores/users-store'
+import { UserRole, UserStatus } from '@/types/user'
 import { DateRangePicker } from '@/components/ui/date-range-picker'
 import { DateRange } from 'react-day-picker'
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -47,35 +48,20 @@ export default function UserListPage() {
   const [showStatusDialog, setShowStatusDialog] = useState(false)
   const [bulkAction, setBulkAction] = useState<'delete' | 'activate' | 'suspend' | null>(null)
 
-  const {
-    users,
-    filters,
-    pagination,
-    isLoading,
-    error,
-    fetchUsers,
-    setFilters,
-    setPage,
-    setPageSize,
-    resetFilters,
-    resetError,
-    bulkDeleteUsers,
-    bulkUpdateUsers
-  } = useUsersStore((state) => ({
-    users: state.users,
-    filters: state.filters,
-    pagination: state.pagination,
-    isLoading: state.isLoading,
-    error: state.error,
-    fetchUsers: state.fetchUsers,
-    setFilters: state.setFilters,
-    setPage: state.setPage,
-    setPageSize: state.setPageSize,
-    resetFilters: state.resetFilters,
-    resetError: state.resetError,
-    bulkDeleteUsers: state.bulkDeleteUsers,
-    bulkUpdateUsers: state.bulkUpdateUsers
-  }))
+  // Use individual selectors to avoid infinite loops
+  const users = useUsersStore((state) => state.users)
+  const filters = useUsersStore((state) => state.filters)
+  const pagination = useUsersStore((state) => state.pagination)
+  const isLoading = useUsersStore((state) => state.isLoading)
+  const error = useUsersStore((state) => state.error)
+  const fetchUsers = useUsersStore((state) => state.fetchUsers)
+  const setFilters = useUsersStore((state) => state.setFilters)
+  const setPage = useUsersStore((state) => state.setPage)
+  const setPageSize = useUsersStore((state) => state.setPageSize)
+  const resetFilters = useUsersStore((state) => state.resetFilters)
+  const resetError = useUsersStore((state) => state.resetError)
+  const bulkDeleteUsers = useUsersStore((state) => state.bulkDeleteUsers)
+  const bulkUpdateUsers = useUsersStore((state) => state.bulkUpdateUsers)
 
   // Load users on component mount
   useEffect(() => {

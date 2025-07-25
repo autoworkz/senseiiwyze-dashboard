@@ -1,4 +1,4 @@
-import { User, UserRole, UserStatus } from '@/stores/users-store'
+import { User, UserRole, UserStatus } from '@/types/user'
 
 // Mock user data for testing and development
 export const mockUsers: User[] = [
@@ -325,4 +325,75 @@ export const mockFilterData = {
 export const mockSortingData = {
   field: 'createdAt' as keyof User,
   direction: 'desc' as 'asc' | 'desc'
-} 
+}
+
+// Filter interface for consistency with the store
+export interface UserFilters {
+  search: string;
+  status: UserStatus[];
+  roles: UserRole[];
+  dateRange?: { from: string; to: string };
+  tags: string[];
+}
+
+// Filter users based on criteria
+export const filterUsers = (users: User[], filters: UserFilters): User[] => {
+  return users.filter(user => {
+    // Search filter
+    if (filters.search && !user.name.toLowerCase().includes(filters.search.toLowerCase()) && 
+        !user.email.toLowerCase().includes(filters.search.toLowerCase())) {
+      return false;
+    }
+    
+    // Status filter
+    if (filters.status.length > 0 && !filters.status.includes(user.status)) {
+      return false;
+    }
+    
+    // Role filter
+    if (filters.roles.length > 0 && !filters.roles.includes(user.role)) {
+      return false;
+    }
+    
+    // Date range filter
+    if (filters.dateRange?.from && filters.dateRange?.to) {
+      const userDate = new Date(user.createdAt);
+      const fromDate = new Date(filters.dateRange.from);
+      const toDate = new Date(filters.dateRange.to);
+      
+      if (userDate < fromDate || userDate > toDate) {
+        return false;
+      }
+    }
+    
+    // Tags filter
+    if (filters.tags.length > 0 && !filters.tags.some(tag => user.metadata.tags.includes(tag))) {
+      return false;
+    }
+    
+    return true;
+  });
+};
+
+// Sort users by field and direction
+export const sortUsers = (users: User[], field: keyof User, direction: 'asc' | 'desc'): User[] => {
+  return [...users].sort((a, b) => {
+    const aVal = a[field];
+    const bVal = b[field];
+    
+    if (aVal == null && bVal == null) return 0;
+    if (aVal == null) return direction === 'asc' ? -1 : 1;
+    if (bVal == null) return direction === 'asc' ? 1 : -1;
+    
+    if (aVal < bVal) return direction === 'asc' ? -1 : 1;
+    if (aVal > bVal) return direction === 'asc' ? 1 : -1;
+    return 0;
+  });
+};
+
+// Paginate users
+export const paginateUsers = (users: User[], page: number, pageSize: number): User[] => {
+  const start = (page - 1) * pageSize;
+  const end = start + pageSize;
+  return users.slice(start, end);
+}; 

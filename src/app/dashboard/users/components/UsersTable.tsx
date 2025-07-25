@@ -15,7 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import Link from "next/link"
-import { User, UserRole, UserStatus } from '@/stores/users-store'
+import { User, UserRole, UserStatus } from '@/types/user'
 
 interface UsersTableProps {
   users: User[]
