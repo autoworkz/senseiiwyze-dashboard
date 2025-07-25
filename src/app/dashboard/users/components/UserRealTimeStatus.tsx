@@ -59,10 +59,10 @@ export function UserRealTimeStatus({
 
   const getStatusColor = (status: UserStatus) => {
     switch (status) {
-      case 'active': return 'bg-green-100 text-green-800'
-      case 'inactive': return 'bg-gray-100 text-gray-800'
-      case 'suspended': return 'bg-red-100 text-red-800'
-      default: return 'bg-gray-100 text-gray-800'
+      case 'active': return 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-400 dark:border-green-800'
+      case 'inactive': return 'bg-muted text-muted-foreground border-border'
+      case 'suspended': return 'bg-destructive/10 text-destructive border-destructive/20'
+      default: return 'bg-muted text-muted-foreground border-border'
     }
   }
 
@@ -81,9 +81,9 @@ export function UserRealTimeStatus({
           <CardTitle className="text-sm">Real-time Status</CardTitle>
           <div className="flex items-center space-x-2">
             {isConnected ? (
-              <Wifi className="h-4 w-4 text-green-500" />
+              <Wifi className="h-4 w-4 text-green-600 dark:text-green-400" />
             ) : (
-              <WifiOff className="h-4 w-4 text-gray-400" />
+              <WifiOff className="h-4 w-4 text-muted-foreground" />
             )}
             <Badge 
               variant="outline" 
@@ -99,7 +99,7 @@ export function UserRealTimeStatus({
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Connection:</span>
-            <span className={isOnline ? "text-green-600" : "text-gray-500"}>
+            <span className={isOnline ? "text-green-600 dark:text-green-400" : "text-muted-foreground"}>
               {isOnline ? "Online" : "Offline"}
             </span>
           </div>
@@ -111,7 +111,7 @@ export function UserRealTimeStatus({
           </div>
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Real-time:</span>
-            <span className={isConnected ? "text-green-600" : "text-gray-500"}>
+            <span className={isConnected ? "text-green-600 dark:text-green-400" : "text-muted-foreground"}>
               {isConnected ? "Connected" : "Connecting..."}
             </span>
           </div>

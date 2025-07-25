@@ -5,10 +5,11 @@ describe('UserPagination', () => {
   const mockOnPageChange = jest.fn()
 
   const defaultProps = {
-    currentPage: 1,
-    totalPages: 5,
-    totalItems: 100,
-    pageSize: 20,
+    pagination: {
+      page: 1,
+      pageSize: 20,
+      total: 100,
+    },
     onPageChange: mockOnPageChange,
   }
 
@@ -26,27 +27,27 @@ describe('UserPagination', () => {
 
   it('does not render when there is only one page', () => {
     const { container } = render(
-      <UserPagination {...defaultProps} totalPages={1} />
+      <UserPagination {...defaultProps} pagination={{ page: 1, pageSize: 20, total: 15 }} />
     )
     expect(container.firstChild).toBeNull()
   })
 
   it('disables previous button on first page', () => {
-    render(<UserPagination {...defaultProps} currentPage={1} />)
+    render(<UserPagination {...defaultProps} pagination={{ page: 1, pageSize: 20, total: 100 }} />)
     
     const prevButton = screen.getByText('Previous')
     expect(prevButton).toBeDisabled()
   })
 
   it('disables next button on last page', () => {
-    render(<UserPagination {...defaultProps} currentPage={5} />)
+    render(<UserPagination {...defaultProps} pagination={{ page: 5, pageSize: 20, total: 100 }} />)
     
     const nextButton = screen.getByText('Next')
     expect(nextButton).toBeDisabled()
   })
 
   it('calls onPageChange when next button is clicked', () => {
-    render(<UserPagination {...defaultProps} currentPage={1} />)
+    render(<UserPagination {...defaultProps} pagination={{ page: 1, pageSize: 20, total: 100 }} />)
     
     const nextButton = screen.getByText('Next')
     fireEvent.click(nextButton)
@@ -55,7 +56,7 @@ describe('UserPagination', () => {
   })
 
   it('calls onPageChange when previous button is clicked', () => {
-    render(<UserPagination {...defaultProps} currentPage={3} />)
+    render(<UserPagination {...defaultProps} pagination={{ page: 3, pageSize: 20, total: 100 }} />)
     
     const prevButton = screen.getByText('Previous')
     fireEvent.click(prevButton)
@@ -64,7 +65,7 @@ describe('UserPagination', () => {
   })
 
   it('shows correct page range', () => {
-    render(<UserPagination {...defaultProps} currentPage={3} />)
+    render(<UserPagination {...defaultProps} pagination={{ page: 3, pageSize: 20, total: 100 }} />)
     
     expect(screen.getByText('Showing 41 to 60 of 100 results')).toBeInTheDocument()
   })

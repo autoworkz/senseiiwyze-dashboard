@@ -43,9 +43,9 @@ export function UsersTable({
 
   const getStatusBadge = (status: UserStatus) => {
     const variants = {
-      [UserStatus.ACTIVE]: "bg-green-100 text-green-800",
-      [UserStatus.INACTIVE]: "bg-gray-100 text-gray-800",
-      [UserStatus.SUSPENDED]: "bg-red-100 text-red-800"
+      [UserStatus.ACTIVE]: "bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-400 dark:border-green-800",
+      [UserStatus.INACTIVE]: "bg-muted text-muted-foreground border-border",
+      [UserStatus.SUSPENDED]: "bg-destructive/10 text-destructive border-destructive/20"
     }
     return (
       <Badge className={variants[status]}>
@@ -56,9 +56,9 @@ export function UsersTable({
 
   const getRoleBadge = (role: UserRole) => {
     const variants = {
-      [UserRole.ADMIN]: "bg-purple-100 text-purple-800",
-      [UserRole.USER]: "bg-blue-100 text-blue-800",
-      [UserRole.GUEST]: "bg-orange-100 text-orange-800"
+      [UserRole.ADMIN]: "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/20 dark:text-purple-400 dark:border-purple-800",
+      [UserRole.USER]: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-800",
+      [UserRole.GUEST]: "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/20 dark:text-orange-400 dark:border-orange-800"
     }
     return (
       <Badge className={variants[role]}>
@@ -112,9 +112,9 @@ export function UsersTable({
               <TableCell>{user.lastActive}</TableCell>
               <TableCell>
                 <div className="flex items-center space-x-2">
-                  <div className="w-16 bg-gray-200 rounded-full h-2">
+                  <div className="w-16 bg-muted rounded-full h-2">
                     <div
-                      className="bg-blue-600 h-2 rounded-full"
+                      className="bg-primary h-2 rounded-full"
                       style={{ width: `${user.programReadiness}%` }}
                     />
                   </div>
@@ -144,7 +144,7 @@ export function UsersTable({
                       <DropdownMenuSeparator />
                       <DropdownMenuItem 
                         onClick={() => onUserAction?.(user.id, 'delete')}
-                        className="text-red-600"
+                        className="text-destructive"
                       >
                         Delete User
                       </DropdownMenuItem>

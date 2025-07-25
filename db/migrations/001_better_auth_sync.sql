@@ -1,8 +1,8 @@
--- Migration: Better Auth and Workplace Synchronization
+-- Migration: Better Auth Setup in Supabase Database
 -- Date: 2025-07-25
--- Purpose: Create sync between existing workplaces table and Better-Auth's organization table
--- Note: This migration maintains compatibility with Supabase for mobile app while 
---       introducing Better Auth for dashboard authentication
+-- Purpose: Add Better Auth tables to existing Supabase database and sync with workplaces
+-- Note: This migration adds Better Auth tables to the same database as Supabase auth
+--       Mobile app continues using auth.users, dashboard uses Better Auth tables
 
 -- =================================
 -- REFERENCE COLUMNS SETUP

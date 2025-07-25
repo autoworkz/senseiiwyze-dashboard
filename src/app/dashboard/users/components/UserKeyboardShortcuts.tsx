@@ -178,10 +178,10 @@ export function UserKeyboardShortcuts({
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'search': return 'bg-blue-100 text-blue-800'
-      case 'actions': return 'bg-green-100 text-green-800'
-      case 'bulk': return 'bg-purple-100 text-purple-800'
-      default: return 'bg-gray-100 text-gray-800'
+      case 'search': return 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-800'
+      case 'actions': return 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-400 dark:border-green-800'
+      case 'bulk': return 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/20 dark:text-purple-400 dark:border-purple-800'
+      default: return 'bg-muted text-muted-foreground border-border'
     }
   }
 

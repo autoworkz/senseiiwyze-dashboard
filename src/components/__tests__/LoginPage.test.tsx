@@ -53,7 +53,7 @@ describe('LoginPage', () => {
     const component = await LoginPage({});
     render(component);
     
-    expect(screen.getByText('Login')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Login' })).toBeInTheDocument();
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /login/i })).toBeInTheDocument();

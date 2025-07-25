@@ -202,15 +202,15 @@ describe('UsersTable', () => {
     
     // Each badge should have the appropriate styling
     activeBadges.forEach(badge => {
-      expect(badge).toHaveClass('bg-green-100', 'text-green-800')
+      expect(badge).toHaveClass('bg-green-50', 'text-green-700', 'border-green-200')
     })
     
     inactiveBadges.forEach(badge => {
-      expect(badge).toHaveClass('bg-gray-100', 'text-gray-800')
+      expect(badge).toHaveClass('bg-muted', 'text-muted-foreground', 'border-border')
     })
     
     suspendedBadges.forEach(badge => {
-      expect(badge).toHaveClass('bg-red-100', 'text-red-800')
+      expect(badge).toHaveClass('bg-destructive/10', 'text-destructive', 'border-destructive/20')
     })
   })
 }) 

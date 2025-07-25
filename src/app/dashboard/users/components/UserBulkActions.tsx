@@ -3,7 +3,6 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Download, Trash2, UserCheck, UserX } from "lucide-react"
-import { UserStatus } from '@/stores/users-store'
 
 interface UserBulkActionsProps {
   selectedCount: number
@@ -22,23 +21,23 @@ export function UserBulkActions({
   onActivate,
   onSuspend,
   onDelete,
-  className = ""
+  className
 }: UserBulkActionsProps) {
   if (selectedCount === 0) return null
 
   return (
-    <Card className={`border-blue-200 bg-blue-50 ${className}`}>
+    <Card className={`border-accent bg-accent/10 ${className || ''}`}>
       <CardContent className="pt-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <span className="text-sm font-medium text-blue-900">
+            <span className="text-sm font-medium text-foreground">
               {selectedCount} user{selectedCount !== 1 ? 's' : ''} selected
             </span>
             <Button
               variant="ghost"
               size="sm"
               onClick={onClearSelection}
-              className="text-blue-700 hover:text-blue-900"
+              className="text-muted-foreground hover:text-foreground"
             >
               Clear selection
             </Button>
@@ -48,7 +47,7 @@ export function UserBulkActions({
               variant="outline"
               size="sm"
               onClick={onExport}
-              className="border-blue-300 text-blue-700 hover:bg-blue-100"
+              className="border-accent text-accent-foreground hover:bg-accent"
             >
               <Download className="mr-2 h-4 w-4" />
               Export
@@ -57,7 +56,7 @@ export function UserBulkActions({
               variant="outline"
               size="sm"
               onClick={onActivate}
-              className="border-green-300 text-green-700 hover:bg-green-100"
+              className="border-green-500/20 text-green-700 hover:bg-green-50 dark:border-green-400/20 dark:text-green-400 dark:hover:bg-green-950/20"
             >
               <UserCheck className="mr-2 h-4 w-4" />
               Activate
@@ -66,7 +65,7 @@ export function UserBulkActions({
               variant="outline"
               size="sm"
               onClick={onSuspend}
-              className="border-orange-300 text-orange-700 hover:bg-orange-100"
+              className="border-orange-500/20 text-orange-700 hover:bg-orange-50 dark:border-orange-400/20 dark:text-orange-400 dark:hover:bg-orange-950/20"
             >
               <UserX className="mr-2 h-4 w-4" />
               Suspend
@@ -75,7 +74,7 @@ export function UserBulkActions({
               variant="outline"
               size="sm"
               onClick={onDelete}
-              className="border-red-300 text-red-700 hover:bg-red-100"
+              className="border-destructive/20 text-destructive hover:bg-destructive/10"
             >
               <Trash2 className="mr-2 h-4 w-4" />
               Delete

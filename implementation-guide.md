@@ -237,65 +237,343 @@ ALLOWED_ORIGINS=http://localhost:3000,https://yourdomain.com
 
 ---
 
-## Step 3: Database Schema Synchronization
+## Step 6: Database Schema Synchronization
 
-### User Table Enhancement
-Extend existing user table to support multiple auth methods:
+Database schema synchronization is crucial when migrating from Supabase Auth to Better Auth. The table structures and naming conventions differ significantly, requiring careful migration planning.
+
+### Schema Differences Overview
+
+Better Auth uses different table names and structures compared to Supabase Auth:
 
 ```sql
--- Add OAuth provider columns
-ALTER TABLE users ADD COLUMN google_id VARCHAR(255) UNIQUE;
-ALTER TABLE users ADD COLUMN github_id VARCHAR(255) UNIQUE;
-ALTER TABLE users ADD COLUMN discord_id VARCHAR(255) UNIQUE;
-ALTER TABLE users ADD COLUMN auth_method VARCHAR(50) DEFAULT 'email';
-ALTER TABLE users ADD COLUMN is_email_verified BOOLEAN DEFAULT FALSE;
-ALTER TABLE users ADD COLUMN avatar_url VARCHAR(500);
-ALTER TABLE users ADD COLUMN last_login_method VARCHAR(50);
-ALTER TABLE users ADD COLUMN created_via VARCHAR(50) DEFAULT 'email';
+-- Supabase Auth tables (original)
+auth.users
+auth.sessions
+auth.refresh_tokens
 
--- Add indexes for performance
-CREATE INDEX idx_users_google_id ON users(google_id);
-CREATE INDEX idx_users_github_id ON users(github_id);
-CREATE INDEX idx_users_discord_id ON users(discord_id);
-CREATE INDEX idx_users_auth_method ON users(auth_method);
+-- Better Auth tables (target)
+better_auth_user
+better_auth_session
+better_auth_account
+better_auth_verification
+better_auth_organization
+better_auth_member
+better_auth_invitation
 ```
 
-### Account Linking Table
-Create table to manage linked accounts:
+### SQL Migration Script
+
+Here's a comprehensive SQL migration script showing the schema transformation:
 
 ```sql
-CREATE TABLE user_accounts (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    provider VARCHAR(50) NOT NULL,
-    provider_id VARCHAR(255) NOT NULL,
-    provider_email VARCHAR(255),
-    provider_data JSONB,
-    linked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    is_primary BOOLEAN DEFAULT FALSE,
-    UNIQUE(provider, provider_id)
+-- Step 1: Rename existing tables to preserve data during migration
+ALTER TABLE auth.users RENAME TO supabase_users_backup;
+ALTER TABLE auth.sessions RENAME TO supabase_sessions_backup;
+
+-- Step 2: Create Better Auth tables
+CREATE TABLE better_auth_user (
+    id TEXT PRIMARY KEY,
+    email TEXT UNIQUE NOT NULL,
+    emailVerified BOOLEAN DEFAULT FALSE,
+    name TEXT,
+    image TEXT,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_user_accounts_user_id ON user_accounts(user_id);
-CREATE INDEX idx_user_accounts_provider ON user_accounts(provider, provider_id);
+CREATE TABLE better_auth_session (
+    id TEXT PRIMARY KEY,
+    userId TEXT NOT NULL,
+    expiresAt TIMESTAMP NOT NULL,
+    token TEXT UNIQUE NOT NULL,
+    ipAddress TEXT,
+    userAgent TEXT,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (userId) REFERENCES better_auth_user(id) ON DELETE CASCADE
+);
+
+CREATE TABLE better_auth_account (
+    id TEXT PRIMARY KEY,
+    userId TEXT NOT NULL,
+    provider TEXT NOT NULL,
+    providerAccountId TEXT NOT NULL,
+    accessToken TEXT,
+    refreshToken TEXT,
+    expiresAt TIMESTAMP,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (userId) REFERENCES better_auth_user(id) ON DELETE CASCADE,
+    UNIQUE(provider, providerAccountId)
+);
+
+CREATE TABLE better_auth_verification (
+    id TEXT PRIMARY KEY,
+    identifier TEXT NOT NULL,
+    value TEXT NOT NULL,
+    expiresAt TIMESTAMP NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE better_auth_organization (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    slug TEXT UNIQUE NOT NULL,
+    logo TEXT,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE better_auth_member (
+    id TEXT PRIMARY KEY,
+    organizationId TEXT NOT NULL,
+    userId TEXT NOT NULL,
+    role TEXT NOT NULL DEFAULT 'member',
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (organizationId) REFERENCES better_auth_organization(id) ON DELETE CASCADE,
+    FOREIGN KEY (userId) REFERENCES better_auth_user(id) ON DELETE CASCADE,
+    UNIQUE(organizationId, userId)
+);
+
+CREATE TABLE better_auth_invitation (
+    id TEXT PRIMARY KEY,
+    organizationId TEXT NOT NULL,
+    email TEXT NOT NULL,
+    role TEXT NOT NULL DEFAULT 'member',
+    status TEXT NOT NULL DEFAULT 'pending',
+    expiresAt TIMESTAMP NOT NULL,
+    inviterId TEXT NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (organizationId) REFERENCES better_auth_organization(id) ON DELETE CASCADE,
+    FOREIGN KEY (inviterId) REFERENCES better_auth_user(id) ON DELETE CASCADE
+);
+
+-- Step 3: Migrate existing user data
+INSERT INTO better_auth_user (id, email, emailVerified, name, createdAt, updatedAt)
+SELECT 
+    id::TEXT,
+    email,
+    email_confirmed_at IS NOT NULL,
+    COALESCE(raw_user_meta_data->>'name', email),
+    created_at,
+    updated_at
+FROM supabase_users_backup
+WHERE email IS NOT NULL;
+
+-- Step 4: Create indexes for performance
+CREATE INDEX idx_better_auth_session_user_id ON better_auth_session(userId);
+CREATE INDEX idx_better_auth_session_expires_at ON better_auth_session(expiresAt);
+CREATE INDEX idx_better_auth_account_user_id ON better_auth_account(userId);
+CREATE INDEX idx_better_auth_account_provider ON better_auth_account(provider, providerAccountId);
+CREATE INDEX idx_better_auth_member_org_id ON better_auth_member(organizationId);
+CREATE INDEX idx_better_auth_member_user_id ON better_auth_member(userId);
+CREATE INDEX idx_better_auth_invitation_org_id ON better_auth_invitation(organizationId);
+CREATE INDEX idx_better_auth_verification_identifier ON better_auth_verification(identifier);
 ```
 
-### Session Management Enhancement
-```sql
--- Extend sessions table if exists, or create new
-CREATE TABLE user_sessions (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    session_token VARCHAR(255) NOT NULL UNIQUE,
-    refresh_token VARCHAR(255),
-    auth_method VARCHAR(50),
-    ip_address INET,
-    user_agent TEXT,
-    expires_at TIMESTAMP NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    last_accessed TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+### Drizzle Schema Definition
+
+Create your Drizzle schema file (`src/db/schema.ts`) to match the Better Auth tables:
+
+```typescript
+import { pgTable, text, boolean, timestamp, index } from 'drizzle-orm/pg-core';
+import { relations } from 'drizzle-orm';
+
+export const betterAuthUser = pgTable('better_auth_user', {
+  id: text('id').primaryKey(),
+  email: text('email').unique().notNull(),
+  emailVerified: boolean('emailVerified').default(false),
+  name: text('name'),
+  image: text('image'),
+  createdAt: timestamp('createdAt').defaultNow(),
+  updatedAt: timestamp('updatedAt').defaultNow(),
+});
+
+export const betterAuthSession = pgTable('better_auth_session', {
+  id: text('id').primaryKey(),
+  userId: text('userId').notNull().references(() => betterAuthUser.id, { onDelete: 'cascade' }),
+  expiresAt: timestamp('expiresAt').notNull(),
+  token: text('token').unique().notNull(),
+  ipAddress: text('ipAddress'),
+  userAgent: text('userAgent'),
+  createdAt: timestamp('createdAt').defaultNow(),
+  updatedAt: timestamp('updatedAt').defaultNow(),
+}, (table) => ({
+  userIdIdx: index('idx_better_auth_session_user_id').on(table.userId),
+  expiresAtIdx: index('idx_better_auth_session_expires_at').on(table.expiresAt),
+}));
+
+export const betterAuthAccount = pgTable('better_auth_account', {
+  id: text('id').primaryKey(),
+  userId: text('userId').notNull().references(() => betterAuthUser.id, { onDelete: 'cascade' }),
+  provider: text('provider').notNull(),
+  providerAccountId: text('providerAccountId').notNull(),
+  accessToken: text('accessToken'),
+  refreshToken: text('refreshToken'),
+  expiresAt: timestamp('expiresAt'),
+  createdAt: timestamp('createdAt').defaultNow(),
+  updatedAt: timestamp('updatedAt').defaultNow(),
+}, (table) => ({
+  userIdIdx: index('idx_better_auth_account_user_id').on(table.userId),
+  providerIdx: index('idx_better_auth_account_provider').on(table.provider, table.providerAccountId),
+}));
+
+export const betterAuthOrganization = pgTable('better_auth_organization', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  slug: text('slug').unique().notNull(),
+  logo: text('logo'),
+  createdAt: timestamp('createdAt').defaultNow(),
+  updatedAt: timestamp('updatedAt').defaultNow(),
+});
+
+export const betterAuthMember = pgTable('better_auth_member', {
+  id: text('id').primaryKey(),
+  organizationId: text('organizationId').notNull().references(() => betterAuthOrganization.id, { onDelete: 'cascade' }),
+  userId: text('userId').notNull().references(() => betterAuthUser.id, { onDelete: 'cascade' }),
+  role: text('role').notNull().default('member'),
+  createdAt: timestamp('createdAt').defaultNow(),
+  updatedAt: timestamp('updatedAt').defaultNow(),
+}, (table) => ({
+  orgIdIdx: index('idx_better_auth_member_org_id').on(table.organizationId),
+  userIdIdx: index('idx_better_auth_member_user_id').on(table.userId),
+}));
+
+// Define relations
+export const userRelations = relations(betterAuthUser, ({ many }) => ({
+  sessions: many(betterAuthSession),
+  accounts: many(betterAuthAccount),
+  memberships: many(betterAuthMember),
+}));
+
+export const sessionRelations = relations(betterAuthSession, ({ one }) => ({
+  user: one(betterAuthUser, {
+    fields: [betterAuthSession.userId],
+    references: [betterAuthUser.id],
+  }),
+}));
+
+export const organizationRelations = relations(betterAuthOrganization, ({ many }) => ({
+  members: many(betterAuthMember),
+}));
 ```
+
+### Running Migrations
+
+#### Using Supabase CLI
+
+1. **Create migration file:**
+   ```bash
+   supabase migration new better_auth_schema_migration
+   ```
+
+2. **Add the SQL migration script** to the generated file in `supabase/migrations/`
+
+3. **Apply migrations to local development:**
+   ```bash
+   supabase db reset
+   ```
+
+4. **Apply migrations to production:**
+   ```bash
+   supabase db push
+   ```
+
+5. **Verify migration status:**
+   ```bash
+   supabase migration list
+   ```
+
+#### Using Drizzle ORM
+
+1. **Install Drizzle dependencies:**
+   ```bash
+   npm install drizzle-orm pg
+   npm install -D drizzle-kit @types/pg
+   ```
+
+2. **Configure Drizzle (`drizzle.config.ts`):**
+   ```typescript
+   import type { Config } from 'drizzle-kit';
+   
+   export default {
+     schema: './src/db/schema.ts',
+     out: './drizzle/migrations',
+     driver: 'pg',
+     dbCredentials: {
+       connectionString: process.env.DATABASE_URL!,
+     },
+     verbose: true,
+     strict: true,
+   } satisfies Config;
+   ```
+
+3. **Generate migration files:**
+   ```bash
+   npx drizzle-kit generate:pg
+   ```
+
+4. **Run migrations:**
+   ```bash
+   npx drizzle-kit push:pg
+   ```
+
+5. **Create a migration runner script (`src/db/migrate.ts`):**
+   ```typescript
+   import { drizzle } from 'drizzle-orm/postgres-js';
+   import { migrate } from 'drizzle-orm/postgres-js/migrator';
+   import postgres from 'postgres';
+   
+   const connectionString = process.env.DATABASE_URL!;
+   const sql = postgres(connectionString, { max: 1 });
+   const db = drizzle(sql);
+   
+   async function main() {
+     console.log('Running migrations...');
+     await migrate(db, { migrationsFolder: 'drizzle/migrations' });
+     console.log('Migrations completed!');
+     process.exit(0);
+   }
+   
+   main().catch((err) => {
+     console.error('Migration failed:', err);
+     process.exit(1);
+   });
+   ```
+
+6. **Run the migration script:**
+   ```bash
+   npx tsx src/db/migrate.ts
+   ```
+
+### Data Migration Strategy
+
+1. **Backup existing data** before starting the migration
+2. **Run the schema migration** to create new tables
+3. **Migrate user data** using the INSERT statements provided
+4. **Test the migration** with a subset of data first
+5. **Update application code** to use Better Auth
+6. **Clean up old tables** after successful migration
+
+### Post-Migration Verification
+
+```sql
+-- Verify data migration
+SELECT COUNT(*) FROM better_auth_user;
+SELECT COUNT(*) FROM supabase_users_backup;
+
+-- Check for missing data
+SELECT email FROM supabase_users_backup 
+WHERE email NOT IN (SELECT email FROM better_auth_user);
+
+-- Verify indexes
+\d+ better_auth_session
+```
+
+This comprehensive migration approach ensures a smooth transition from Supabase Auth to Better Auth while preserving existing user data and maintaining database performance through proper indexing.
 
 ---
 
@@ -361,114 +639,350 @@ Document rollback steps for each migration:
 
 ## Step 5: AuthService Refactor
 
-### Core AuthService Architecture
-Refactor authentication service to support multiple providers:
+### Overview
 
-```javascript
-// auth/AuthService.js
-class AuthService {
-    constructor() {
-        this.strategies = new Map();
-        this.initializeStrategies();
+This step refactors the existing `AuthService` to integrate with Better Auth, replacing mock implementations with actual Better Auth client calls while maintaining backward compatibility and adding comprehensive error handling.
+
+### Before/After Implementation
+
+#### Current Implementation (`src/services/authService.ts`)
+
+**Before:**
+```typescript
+// Current mock-based implementation
+export class AuthService {
+  private readonly apiDisabled = true;
+  
+  async login(email: string, password: string): Promise<LoginResponse> {
+    if (this.apiDisabled) {
+      return this.mockLogin(email, password); // Mock implementation
+    }
+    // ... existing fetch-based code
+  }
+  
+  private async mockLogin(email: string, password: string): Promise<LoginResponse> {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    if (!email || !password) {
+      throw new Error('Email and password are required');
     }
     
-    // Initialize all authentication strategies
-    initializeStrategies() {
-        this.strategies.set('email', new EmailPasswordStrategy());
-        this.strategies.set('google', new GoogleOAuthStrategy());
-        this.strategies.set('github', new GitHubOAuthStrategy());
-        this.strategies.set('discord', new DiscordOAuthStrategy());
-    }
+    const token = 'mock-jwt-token-' + Date.now();
+    this.setAuthCookie(token); // Manual cookie management
     
-    // Authenticate user with specified strategy
-    async authenticate(strategy, credentials) {
-        const authStrategy = this.strategies.get(strategy);
-        if (!authStrategy) {
-            throw new Error(`Unsupported auth strategy: ${strategy}`);
+    return {
+      token: token,
+      user: {
+        id: 1,
+        email: email,
+      }
+    };
+  }
+  
+  private setAuthCookie(token: string): void {
+    document.cookie = `auth-token=${token}; path=/; max-age=86400`;
+  }
+}
+```
+
+**After:**
+```typescript
+// Better Auth integrated implementation
+import { betterAuthClient } from '../lib/auth-client';
+import type { Session, User } from 'better-auth/types';
+
+export interface LoginResponse {
+  token?: string; // Optional for backward compatibility
+  user: User;
+  session: Session;
+}
+
+export class AuthService {
+  private readonly timeout = 5000;
+  
+  async login(email: string, password: string): Promise<LoginResponse> {
+    try {
+      // Input validation
+      if (!email || !password) {
+        throw new AuthError('Email and password are required', 'VALIDATION_ERROR');
+      }
+      
+      // Better Auth login with automatic cookie management
+      const result = await betterAuthClient.signIn.email({
+        email,
+        password,
+        fetchOptions: {
+          onError: (context) => {
+            console.error('Login error:', context.error);
+          },
+          onRequest: () => {
+            console.log('Login request initiated');
+          },
+          onSuccess: (context) => {
+            console.log('Login successful:', context.data);
+          }
         }
-        return await authStrategy.authenticate(credentials);
-    }
-    
-    // Link account to existing user
-    async linkAccount(userId, provider, providerData) {
-        // Implementation for account linking
-    }
-    
-    // Unlink account from user
-    async unlinkAccount(userId, provider) {
-        // Implementation for account unlinking
-    }
-}
-```
-
-### Strategy Pattern Implementation
-Create individual strategy classes:
-
-```javascript
-// auth/strategies/GoogleOAuthStrategy.js
-class GoogleOAuthStrategy {
-    async authenticate(profile) {
-        // Find existing user by Google ID
-        let user = await User.findByGoogleId(profile.id);
-        
-        if (!user) {
-            // Check if user exists with same email
-            user = await User.findByEmail(profile.emails[0].value);
-            if (user) {
-                // Link Google account to existing user
-                await this.linkGoogleAccount(user.id, profile);
-            } else {
-                // Create new user
-                user = await this.createUserFromGoogle(profile);
-            }
+      });
+      
+      if (result.error) {
+        throw new AuthError(
+          this.mapBetterAuthError(result.error),
+          'LOGIN_FAILED'
+        );
+      }
+      
+      // Better Auth automatically sets secure HTTP-only cookies
+      // No manual cookie management needed
+      
+      return {
+        user: result.data.user,
+        session: result.data.session,
+        // Keep token for backward compatibility
+        token: result.data.session.token
+      };
+      
+    } catch (error) {
+      if (error instanceof AuthError) {
+        throw error;
+      }
+      
+      // Handle network and other errors
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          throw new AuthError('Login request timed out', 'TIMEOUT');
         }
-        
-        return user;
+        throw new AuthError('Login failed due to network error', 'NETWORK_ERROR');
+      }
+      
+      throw new AuthError('An unexpected error occurred', 'UNKNOWN_ERROR');
     }
+  }
+  
+  async socialLogin(provider: SocialProvider): Promise<LoginResponse> {
+    try {
+      const supportedProviders: SocialProvider[] = ['google', 'facebook', 'github'];
+      
+      if (!supportedProviders.includes(provider)) {
+        throw new AuthError(
+          `Unsupported social login provider: ${provider}`,
+          'UNSUPPORTED_PROVIDER'
+        );
+      }
+      
+      // Better Auth social login
+      const result = await betterAuthClient.signIn.social({
+        provider,
+        callbackURL: `${window.location.origin}/auth/callback`,
+        fetchOptions: {
+          onError: (context) => {
+            console.error('Social login error:', context.error);
+          }
+        }
+      });
+      
+      if (result.error) {
+        throw new AuthError(
+          this.mapBetterAuthError(result.error),
+          'SOCIAL_LOGIN_FAILED'
+        );
+      }
+      
+      return {
+        user: result.data.user,
+        session: result.data.session,
+        token: result.data.session.token
+      };
+      
+    } catch (error) {
+      if (error instanceof AuthError) {
+        throw error;
+      }
+      
+      throw new AuthError('Social login failed', 'SOCIAL_LOGIN_ERROR');
+    }
+  }
+  
+  async logout(): Promise<void> {
+    try {
+      await betterAuthClient.signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            console.log('Logout successful');
+          },
+          onError: (context) => {
+            console.error('Logout error:', context.error);
+          }
+        }
+      });
+      
+      // Better Auth automatically clears cookies
+      // No manual cookie management needed
+      
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Continue with logout even if server request fails
+      // Better Auth client will still clear local session
+    }
+  }
+  
+  isAuthenticated(): boolean {
+    // Use Better Auth session check instead of cookie parsing
+    const session = betterAuthClient.useSession();
+    return session.data?.session !== null;
+  }
+  
+  getCurrentUser(): User | null {
+    const session = betterAuthClient.useSession();
+    return session.data?.user || null;
+  }
+  
+  getCurrentSession(): Session | null {
+    const session = betterAuthClient.useSession();
+    return session.data?.session || null;
+  }
+  
+  // Error mapping for consistent error handling
+  private mapBetterAuthError(error: any): string {
+    const errorMap: Record<string, string> = {
+      'INVALID_EMAIL_OR_PASSWORD': 'Invalid email or password',
+      'EMAIL_NOT_VERIFIED': 'Please verify your email address before signing in',
+      'ACCOUNT_NOT_FOUND': 'No account found with this email address',
+      'TOO_MANY_REQUESTS': 'Too many login attempts. Please try again later',
+      'PROVIDER_ERROR': 'Social login provider error. Please try again',
+      'CALLBACK_URL_MISMATCH': 'Authentication callback URL mismatch',
+      'SESSION_EXPIRED': 'Your session has expired. Please sign in again'
+    };
     
-    async linkGoogleAccount(userId, profile) {
-        // Implementation for linking Google account
-    }
-    
-    async createUserFromGoogle(profile) {
-        // Implementation for creating user from Google profile
-    }
+    return errorMap[error.code] || error.message || 'Authentication failed';
+  }
+}
+
+// Custom error class for better error handling
+export class AuthError extends Error {
+  constructor(
+    message: string,
+    public code: string,
+    public cause?: Error
+  ) {
+    super(message);
+    this.name = 'AuthError';
+  }
 }
 ```
 
-### Session Management
-Enhanced session handling:
+### Error Handling Mapping
 
-```javascript
-// auth/SessionManager.js
-class SessionManager {
-    async createSession(user, authMethod, metadata = {}) {
-        const sessionToken = this.generateSecureToken();
-        const refreshToken = this.generateSecureToken();
-        
-        const session = {
-            user_id: user.id,
-            session_token: sessionToken,
-            refresh_token: refreshToken,
-            auth_method: authMethod,
-            ip_address: metadata.ip,
-            user_agent: metadata.userAgent,
-            expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
-        };
-        
-        await db.query('INSERT INTO user_sessions ...', session);
-        return { sessionToken, refreshToken };
-    }
+#### Comprehensive Error Code Mapping
+```typescript
+// src/services/authService.ts - Enhanced error mapping
+private mapBetterAuthError(error: any): string {
+  const errorMap: Record<string, string> = {
+    // Authentication errors
+    'INVALID_EMAIL_OR_PASSWORD': 'Invalid email or password',
+    'EMAIL_NOT_VERIFIED': 'Please verify your email address before signing in',
+    'ACCOUNT_NOT_FOUND': 'No account found with this email address',
     
-    async validateSession(sessionToken) {
-        // Implementation for session validation
-    }
+    // Rate limiting errors
+    'TOO_MANY_REQUESTS': 'Too many login attempts. Please try again later',
+    'RATE_LIMIT_EXCEEDED': 'Rate limit exceeded. Please wait before trying again',
     
-    async refreshSession(refreshToken) {
-        // Implementation for session refresh
-    }
+    // Social login errors
+    'PROVIDER_ERROR': 'Social login provider error. Please try again',
+    'OAUTH_ERROR': 'OAuth authentication failed',
+    'CALLBACK_URL_MISMATCH': 'Authentication callback URL mismatch',
+    
+    // Session errors
+    'SESSION_EXPIRED': 'Your session has expired. Please sign in again',
+    'INVALID_SESSION': 'Invalid session. Please sign in again',
+    
+    // Network errors
+    'NETWORK_ERROR': 'Network error. Please check your connection',
+    'TIMEOUT': 'Request timed out. Please try again',
+    
+    // Validation errors
+    'VALIDATION_ERROR': 'Invalid input provided',
+    'MISSING_CREDENTIALS': 'Email and password are required',
+    
+    // Server errors
+    'INTERNAL_SERVER_ERROR': 'Server error. Please try again later',
+    'SERVICE_UNAVAILABLE': 'Authentication service is temporarily unavailable'
+  };
+  
+  return errorMap[error.code] || error.message || 'Authentication failed';
 }
 ```
+
+#### Usage in Components
+```typescript
+// Example component usage with proper error handling
+import { authService, AuthError } from '../services/authService';
+
+const LoginComponent = () => {
+  const [error, setError] = useState<string>('');
+  const [loading, setLoading] = useState(false);
+  
+  const handleLogin = async (email: string, password: string) => {
+    try {
+      setLoading(true);
+      setError('');
+      
+      const result = await authService.login(email, password);
+      
+      // Handle successful login
+      router.push('/dashboard');
+      
+    } catch (error) {
+      if (error instanceof AuthError) {
+        // Display user-friendly error message
+        setError(error.message);
+        
+        // Handle specific error codes
+        switch (error.code) {
+          case 'EMAIL_NOT_VERIFIED':
+            // Redirect to email verification
+            router.push('/verify-email');
+            break;
+          case 'TOO_MANY_REQUESTS':
+            // Show rate limiting UI
+            setShowRateLimitWarning(true);
+            break;
+          default:
+            // Generic error handling
+            break;
+        }
+      } else {
+        setError('An unexpected error occurred');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // ... component JSX
+};
+```
+
+### Key Changes Summary
+
+1. **Better Auth Integration**: Replaced `this.mockLogin(...)` with `betterAuthClient.signIn.email()`
+2. **Automatic Cookie Management**: Better Auth handles secure HTTP-only cookies automatically
+3. **Enhanced Error Handling**: Comprehensive error mapping with specific error codes
+4. **Session Management**: Added proper session and user state management
+5. **Backward Compatibility**: Maintained existing interface while adding new functionality
+6. **Social Login Enhancement**: Improved social provider handling with better error management
+7. **Type Safety**: Enhanced TypeScript types for better development experience
+
+### Migration Checklist
+
+- [ ] Install Better Auth dependencies
+- [ ] Set up Better Auth client configuration
+- [ ] Update AuthService implementation
+- [ ] Test login/logout functionality
+- [ ] Test social login providers
+- [ ] Update error handling in components
+- [ ] Verify session persistence
+- [ ] Test authentication state management
+- [ ] Update existing tests
 
 ---
 
@@ -766,150 +1280,372 @@ async function buildAccountContext(user) {
 
 ## Step 8: API Routes Implementation
 
-### Authentication Routes
-Implement comprehensive authentication API routes:
+### Overview
 
-```javascript
-// routes/auth.js
-const express = require('express');
-const router = express.Router();
-const rateLimit = require('express-rate-limit');
+For this Next.js 15 project using the App Router, we'll implement Better Auth API routes in the `src/pages/api/auth/` directory to handle authentication endpoints. Better Auth provides a streamlined API that automatically handles OAuth flows, session management, and security best practices.
 
-// Rate limiting
-const authRateLimit = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 5, // 5 attempts per window
-    message: 'Too many authentication attempts'
+### Directory Structure
+
+Create the following API route structure:
+
+```
+src/pages/api/auth/
+├── login.ts                 # Email/password login
+├── register.ts              # User registration
+├── logout.ts                # User logout
+├── refresh.ts               # Token refresh
+├── session.ts               # Session validation
+├── google/
+│   └── callback.ts          # Google OAuth callback
+├── github/
+│   └── callback.ts          # GitHub OAuth callback
+└── discord/
+    └── callback.ts          # Discord OAuth callback
+```
+
+### Core Authentication Routes
+
+#### 1. Login Route (`src/pages/api/auth/login.ts`)
+
+```typescript
+import { NextApiRequest, NextApiResponse } from 'next';
+import { auth } from '../../../lib/betterAuthClient';
+import { rateLimit } from '../../../lib/rateLimit';
+import { validateLoginInput } from '../../../lib/validation';
+
+// Rate limiting middleware
+const loginRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // 5 attempts per window
+  message: 'Too many login attempts, please try again later'
 });
 
-// Email/Password Routes
-router.post('/login', authRateLimit, async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        
-        // Validate input
-        const { error } = loginSchema.validate({ email, password });
-        if (error) {
-            return res.status(400).json({ error: error.details[0].message });
-        }
-        
-        // Authenticate user
-        const user = await authService.authenticate('email', { email, password });
-        
-        // Create session
-        const { sessionToken, refreshToken } = await sessionManager.createSession(
-            user, 
-            'email', 
-            { ip: req.ip, userAgent: req.get('User-Agent') }
-        );
-        
-        // Set secure cookies
-        res.cookie('sessionToken', sessionToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 24 * 60 * 60 * 1000 // 24 hours
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    // Apply rate limiting
+    await loginRateLimit(req, res);
+
+    const { email, password } = req.body;
+    
+    // Validate input
+    const validation = validateLoginInput({ email, password });
+    if (!validation.success) {
+      return res.status(400).json({ 
+        error: 'Validation failed', 
+        details: validation.error.errors 
+      });
+    }
+
+    // Authenticate with Better Auth
+    const session = await auth.api.signInEmail({
+      body: {
+        email,
+        password,
+      },
+      headers: req.headers,
+    });
+
+    if (!session) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    // Better Auth automatically sets secure HTTP-only cookies
+    res.status(200).json({
+      success: true,
+      session: {
+        id: session.session.id,
+        userId: session.user.id,
+        expiresAt: session.session.expiresAt
+      },
+      user: {
+        id: session.user.id,
+        email: session.user.email,
+        name: session.user.name,
+        emailVerified: session.user.emailVerified,
+        image: session.user.image
+      }
+    });
+    
+  } catch (error) {
+    console.error('Login error:', error);
+    
+    // Handle specific Better Auth errors
+    if (error instanceof Error) {
+      if (error.message.includes('INVALID_EMAIL_OR_PASSWORD')) {
+        return res.status(401).json({ error: 'Invalid email or password' });
+      }
+      if (error.message.includes('EMAIL_NOT_VERIFIED')) {
+        return res.status(401).json({ 
+          error: 'Please verify your email address before signing in',
+          code: 'EMAIL_NOT_VERIFIED'
         });
-        
-        res.json({
-            success: true,
-            user: sanitizeUser(user),
-            sessionToken // Also return in response for SPA
-        });
-        
-    } catch (error) {
-        console.error('Login error:', error);
-        res.status(401).json({ error: 'Authentication failed' });
+      }
+      if (error.message.includes('TOO_MANY_REQUESTS')) {
+        return res.status(429).json({ error: 'Too many requests' });
+      }
     }
+    
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+```
+
+#### 2. Register Route (`src/pages/api/auth/register.ts`)
+
+```typescript
+import { NextApiRequest, NextApiResponse } from 'next';
+import { auth } from '../../../lib/betterAuthClient';
+import { rateLimit } from '../../../lib/rateLimit';
+import { validateRegisterInput } from '../../../lib/validation';
+
+const registerRateLimit = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 3, // 3 registration attempts per hour
+  message: 'Too many registration attempts'
 });
 
-router.post('/register', authRateLimit, async (req, res) => {
-    try {
-        const { email, password, name } = req.body;
-        
-        // Validate input
-        const { error } = registerSchema.validate({ email, password, name });
-        if (error) {
-            return res.status(400).json({ error: error.details[0].message });
-        }
-        
-        // Register user
-        const user = await authService.register({ email, password, name });
-        
-        res.status(201).json({
-            success: true,
-            message: 'Registration successful. Please verify your email.',
-            user: sanitizeUser(user)
-        });
-        
-    } catch (error) {
-        if (error instanceof ValidationError) {
-            return res.status(400).json({ error: error.message });
-        }
-        console.error('Registration error:', error);
-        res.status(500).json({ error: 'Registration failed' });
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    await registerRateLimit(req, res);
+
+    const { email, password, name } = req.body;
+    
+    // Validate input
+    const validation = validateRegisterInput({ email, password, name });
+    if (!validation.success) {
+      return res.status(400).json({ 
+        error: 'Validation failed', 
+        details: validation.error.errors 
+      });
     }
-});
 
-// OAuth Routes
-router.get('/google', passport.authenticate('google', {
-    scope: ['profile', 'email']
-}));
+    // Register with Better Auth
+    const result = await auth.api.signUpEmail({
+      body: {
+        email,
+        password,
+        name,
+      },
+      headers: req.headers,
+    });
 
-router.get('/google/callback', 
-    passport.authenticate('google', { session: false }),
-    async (req, res) => {
-        try {
-            // Create session for OAuth user
-            const { sessionToken } = await sessionManager.createSession(
-                req.user,
-                'google',
-                { ip: req.ip, userAgent: req.get('User-Agent') }
-            );
-            
-            // Set cookie and redirect
-            res.cookie('sessionToken', sessionToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'strict',
-                maxAge: 24 * 60 * 60 * 1000
-            });
-            
-            res.redirect('/dashboard?auth=success');
-        } catch (error) {
-            console.error('OAuth callback error:', error);
-            res.redirect('/login?error=oauth_failed');
-        }
+    if (!result) {
+      return res.status(400).json({ error: 'Registration failed' });
     }
-);
 
-// Similar routes for GitHub and Discord...
-
-// Session Management Routes
-router.post('/refresh', async (req, res) => {
-    try {
-        const { refreshToken } = req.body;
-        const newSession = await sessionManager.refreshSession(refreshToken);
-        
-        res.json({
-            success: true,
-            sessionToken: newSession.sessionToken
-        });
-    } catch (error) {
-        res.status(401).json({ error: 'Invalid refresh token' });
+    res.status(201).json({
+      success: true,
+      message: 'Registration successful. Please check your email to verify your account.',
+      user: {
+        id: result.user.id,
+        email: result.user.email,
+        name: result.user.name,
+        emailVerified: result.user.emailVerified
+      }
+    });
+    
+  } catch (error) {
+    console.error('Registration error:', error);
+    
+    if (error instanceof Error) {
+      if (error.message.includes('EMAIL_ALREADY_EXISTS')) {
+        return res.status(409).json({ error: 'Email already exists' });
+      }
+      if (error.message.includes('WEAK_PASSWORD')) {
+        return res.status(400).json({ error: 'Password does not meet requirements' });
+      }
     }
-});
+    
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+```
 
-router.post('/logout', authenticateToken, async (req, res) => {
-    try {
-        await sessionManager.destroySession(req.sessionToken);
-        res.clearCookie('sessionToken');
-        res.json({ success: true });
-    } catch (error) {
-        console.error('Logout error:', error);
-        res.status(500).json({ error: 'Logout failed' });
+#### 3. Logout Route (`src/pages/api/auth/logout.ts`)
+
+```typescript
+import { NextApiRequest, NextApiResponse } from 'next';
+import { auth } from '../../../lib/betterAuthClient';
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    // Better Auth handles session termination and cookie cleanup
+    await auth.api.signOut({
+      headers: req.headers,
+    });
+
+    res.status(200).json({ 
+      success: true, 
+      message: 'Logged out successfully' 
+    });
+    
+  } catch (error) {
+    console.error('Logout error:', error);
+    // Even if logout fails on server, consider it successful for client
+    res.status(200).json({ 
+      success: true, 
+      message: 'Logged out' 
+    });
+  }
+}
+```
+
+#### 4. Session Validation Route (`src/pages/api/auth/session.ts`)
+
+```typescript
+import { NextApiRequest, NextApiResponse } from 'next';
+import { auth } from '../../../lib/betterAuthClient';
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    // Get current session from Better Auth
+    const session = await auth.api.getSession({
+      headers: req.headers,
+    });
+
+    if (!session) {
+      return res.status(401).json({ 
+        authenticated: false, 
+        error: 'No active session' 
+      });
     }
-});
+
+    res.status(200).json({
+      authenticated: true,
+      session: {
+        id: session.session.id,
+        userId: session.user.id,
+        expiresAt: session.session.expiresAt
+      },
+      user: {
+        id: session.user.id,
+        email: session.user.email,
+        name: session.user.name,
+        emailVerified: session.user.emailVerified,
+        image: session.user.image
+      }
+    });
+    
+  } catch (error) {
+    console.error('Session validation error:', error);
+    res.status(401).json({ 
+      authenticated: false, 
+      error: 'Session validation failed' 
+    });
+  }
+}
+```
+
+### OAuth Callback Routes
+
+#### Google OAuth Callback (`src/pages/api/auth/google/callback.ts`)
+
+```typescript
+import { NextApiRequest, NextApiResponse } from 'next';
+import { auth } from '../../../../lib/betterAuthClient';
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    // Better Auth handles OAuth callback automatically
+    const result = await auth.api.callback({
+      query: req.query,
+      headers: req.headers,
+    });
+
+    if (!result) {
+      return res.redirect('/login?error=oauth_failed');
+    }
+
+    // Redirect to dashboard on successful authentication
+    res.redirect('/dashboard?auth=success');
+    
+  } catch (error) {
+    console.error('Google OAuth callback error:', error);
+    res.redirect('/login?error=oauth_failed');
+  }
+}
+```
+
+#### GitHub OAuth Callback (`src/pages/api/auth/github/callback.ts`)
+
+```typescript
+// Similar structure to Google callback
+import { NextApiRequest, NextApiResponse } from 'next';
+import { auth } from '../../../../lib/betterAuthClient';
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    const result = await auth.api.callback({
+      query: req.query,
+      headers: req.headers,
+    });
+
+    if (!result) {
+      return res.redirect('/login?error=github_oauth_failed');
+    }
+
+    res.redirect('/dashboard?auth=success&provider=github');
+    
+  } catch (error) {
+    console.error('GitHub OAuth callback error:', error);
+    res.redirect('/login?error=github_oauth_failed');
+  }
+}
+```
+
+#### Discord OAuth Callback (`src/pages/api/auth/discord/callback.ts`)
+
+```typescript
+// Similar structure to other OAuth callbacks
+import { NextApiRequest, NextApiResponse } from 'next';
+import { auth } from '../../../../lib/betterAuthClient';
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    const result = await auth.api.callback({
+      query: req.query,
+      headers: req.headers,
+    });
+
+    if (!result) {
+      return res.redirect('/login?error=discord_oauth_failed');
+    }
+
+    res.redirect('/dashboard?auth=success&provider=discord');
+    
+  } catch (error) {
+    console.error('Discord OAuth callback error:', error);
+    res.redirect('/login?error=discord_oauth_failed');
+  }
+}
 ```
 
 ### Account Management Routes
