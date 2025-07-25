@@ -1,5 +1,6 @@
 import { userApiService } from '../userApiService'
 import { User, UserStatus, UserRole } from '@/stores/users-store'
+import { mockUsers } from '@/mocks/users'
 
 // Mock fetch globally
 global.fetch = jest.fn()
@@ -12,25 +13,16 @@ describe('userApiService', () => {
   })
 
   describe('getUsers', () => {
-    const mockUsers: User[] = [
-      {
-        id: '1',
-        email: 'test@example.com',
-        name: 'Test User',
-        role: UserRole.USER,
-        status: UserStatus.ACTIVE,
-        createdAt: '2024-01-01T00:00:00Z',
-        avatar: 'https://example.com/avatar.jpg'
-      }
-    ]
+    // Use first few users from mock data
+    const testUsers = mockUsers.slice(0, 3)
 
     it('fetches users successfully', async () => {
       const mockResponse = {
-        data: mockUsers,
+        data: testUsers,
         pagination: {
           page: 1,
-          pageSize: 20,
-          total: 1,
+          pageSize: 10,
+          total: testUsers.length,
           totalPages: 1
         },
         success: true
@@ -46,10 +38,10 @@ describe('userApiService', () => {
       expect(mockFetch).toHaveBeenCalledWith(
         '/api/users?page=1&pageSize=10',
         expect.objectContaining({
-          method: 'GET',
           headers: expect.objectContaining({
             'Content-Type': 'application/json'
-          })
+          }),
+          signal: expect.any(AbortSignal)
         })
       )
       expect(result).toEqual(mockResponse)
@@ -68,15 +60,7 @@ describe('userApiService', () => {
   })
 
   describe('getUserById', () => {
-    const mockUser: User = {
-      id: '1',
-      email: 'test@example.com',
-      name: 'Test User',
-      role: UserRole.USER,
-      status: UserStatus.ACTIVE,
-      createdAt: '2024-01-01T00:00:00Z',
-      avatar: 'https://example.com/avatar.jpg'
-    }
+    const mockUser = mockUsers[0] // Use first user from mock data
 
     it('fetches a single user successfully', async () => {
       mockFetch.mockResolvedValueOnce({
@@ -88,7 +72,12 @@ describe('userApiService', () => {
 
       expect(mockFetch).toHaveBeenCalledWith(
         '/api/users/1',
-        expect.objectContaining({ method: 'GET' })
+        expect.objectContaining({ 
+          headers: expect.objectContaining({
+            'Content-Type': 'application/json'
+          }),
+          signal: expect.any(AbortSignal)
+        })
       )
       expect(result).toEqual(mockUser)
     })
@@ -164,8 +153,12 @@ describe('userApiService', () => {
       expect(mockFetch).toHaveBeenCalledWith(
         '/api/users/1',
         expect.objectContaining({
-          method: 'PUT',
-          body: JSON.stringify(updateData)
+          method: 'PATCH',
+          body: JSON.stringify(updateData),
+          headers: expect.objectContaining({
+            'Content-Type': 'application/json'
+          }),
+          signal: expect.any(AbortSignal)
         })
       )
       expect(result).toEqual(updatedUser)

@@ -31,7 +31,8 @@ describe('UserSearchBar', () => {
   it('displays the search icon', () => {
     render(<UserSearchBar value="" onChange={mockOnChange} />)
     
-    const searchIcon = screen.getByRole('img', { hidden: true })
+    // The search icon is a Lucide React SVG component
+    const searchIcon = document.querySelector('svg')
     expect(searchIcon).toBeInTheDocument()
   })
 
