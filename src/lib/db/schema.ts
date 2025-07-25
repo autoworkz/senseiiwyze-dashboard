@@ -1,5 +1,7 @@
 /* eslint-disable */
 import { pgSchema, uuid } from 'drizzle-orm/pg-core';
+import { schemaUtils } from './drizzle/schema-utils';
+
 
 // Auth schema for Supabase auth.users table
 const authSchema = pgSchema('auth');

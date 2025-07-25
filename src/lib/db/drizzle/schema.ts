@@ -1,7 +1,7 @@
 import { pgTable, index, foreignKey, unique, pgPolicy, serial, varchar, uuid, timestamp, uniqueIndex, text, smallint, boolean, integer, numeric, jsonb, bigint, json, doublePrecision, check, inet, primaryKey, pgView, pgSequence, pgEnum } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
-import { users, gen_random_uuid, generate_token } from "./schema-utils"
+import { schemaUtils } from "./schema-utils"
 
 export const accountRole = pgEnum("account_role", ['owner', 'member', 'super-owner'])
 export const appPermissions = pgEnum("app_permissions", ['roles.manage', 'billing.manage', 'settings.manage', 'members.manage', 'invites.manage', 'tasks.write', 'tasks.delete'])
@@ -43,7 +43,7 @@ export const invitations = pgTable("invitations", {
 	}).onDelete("cascade"),
 	foreignKey({
 		columns: [table.invitedBy],
-		foreignColumns: [users.id],
+		foreignColumns: [schemaUtils.users.id],
 		name: "invitations_invited_by_fkey"
 	}).onDelete("cascade"),
 	foreignKey({
@@ -83,7 +83,7 @@ export const profiles = pgTable("profiles", {
 	uniqueIndex("profiles_email_key").using("btree", table.email.asc().nullsLast().op("text_ops")),
 	foreignKey({
 		columns: [table.id],
-		foreignColumns: [users.id],
+		foreignColumns: [schemaUtils.users.id],
 		name: "profiles_id_fkey"
 	}).onDelete("cascade"),
 	foreignKey({
@@ -333,7 +333,7 @@ export const chats = pgTable("chats", {
 ]);
 
 export const goals = pgTable("goals", {
-	id: text().default(gen_random_uuid()).primaryKey().notNull(),
+	id: text().default(schemaUtils.gen_random_uuid()).primaryKey().notNull(),
 	name: text().notNull(),
 	description: text().notNull(),
 	url: text().notNull(),
@@ -408,7 +408,7 @@ export const config = pgTable("config", {
 ]);
 
 export const obstacles = pgTable("obstacles", {
-	id: text().default(gen_random_uuid()).primaryKey().notNull(),
+	id: text().default(schemaUtils.gen_random_uuid()).primaryKey().notNull(),
 	name: text(),
 	visionId: text("vision_id"),
 	goalId: text("goal_id"),
@@ -469,7 +469,7 @@ export const profilesCopy = pgTable("profiles_copy", {
 	uniqueIndex("profiles_copy_email_idx").using("btree", table.email.asc().nullsLast().op("text_ops")),
 	foreignKey({
 		columns: [table.id],
-		foreignColumns: [users.id],
+		foreignColumns: [schemaUtils.users.id],
 		name: "profiles_copy_id_fkey"
 	}),
 	foreignKey({
@@ -549,14 +549,14 @@ export const nonces = pgTable("nonces", {
 	index("idx_nonces_status").using("btree", table.clientToken.asc().nullsLast().op("text_ops"), table.userId.asc().nullsLast().op("uuid_ops"), table.purpose.asc().nullsLast().op("timestamptz_ops"), table.expiresAt.asc().nullsLast().op("uuid_ops")).where(sql`((used_at IS NULL) AND (revoked = false))`),
 	foreignKey({
 		columns: [table.userId],
-		foreignColumns: [users.id],
+		foreignColumns: [schemaUtils.users.id],
 		name: "nonces_user_id_fkey"
 	}).onDelete("cascade"),
 	pgPolicy("Users can read their own nonces", { as: "permissive", for: "select", to: ["public"], using: sql`(user_id = ( SELECT auth.uid() AS uid))` }),
 ]);
 
 export const sizes = pgTable("sizes", {
-	id: text().default(gen_random_uuid()).primaryKey().notNull(),
+	id: text().default(schemaUtils.gen_random_uuid()).primaryKey().notNull(),
 	height: doublePrecision().default(200).notNull(),
 	width: doublePrecision().default(200).notNull(),
 });
@@ -571,7 +571,7 @@ export const lcaInvitations = pgTable("lca_invitations", {
 	id: uuid().default(sql`uuid_generate_v4()`).primaryKey().notNull(),
 	accountRole: accountRole("account_role").notNull(),
 	accountId: uuid("account_id").notNull(),
-	token: text().default(generate_token(30)).notNull(),
+	token: text().default(schemaUtils.generate_token(32)).notNull(),
 	invitedByUserId: uuid("invited_by_user_id").notNull(),
 	accountTeamName: text("account_team_name"),
 	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow(),
@@ -729,7 +729,7 @@ export const visionLog = pgTable("vision_log", {
 ]);
 
 export const visionBoards = pgTable("vision_boards", {
-	id: text().default(gen_random_uuid()).primaryKey().notNull(),
+	id: text().default(schemaUtils.gen_random_uuid()).primaryKey().notNull(),
 	name: text().notNull(),
 	description: text().notNull(),
 	imgUrl: text("img_url"),
@@ -767,17 +767,17 @@ export const accounts = pgTable("accounts", {
 	uniqueIndex("unique_personal_account").using("btree", table.primaryOwnerUserId.asc().nullsLast().op("uuid_ops")).where(sql`(is_personal_account = true)`),
 	foreignKey({
 		columns: [table.createdBy],
-		foreignColumns: [users.id],
+		foreignColumns: [schemaUtils.users.id],
 		name: "accounts_created_by_fkey"
 	}),
 	foreignKey({
 		columns: [table.primaryOwnerUserId],
-		foreignColumns: [users.id],
+		foreignColumns: [schemaUtils.users.id],
 		name: "accounts_primary_owner_user_id_fkey"
 	}).onDelete("cascade"),
 	foreignKey({
 		columns: [table.updatedBy],
-		foreignColumns: [users.id],
+		foreignColumns: [schemaUtils.users.id],
 		name: "accounts_updated_by_fkey"
 	}),
 	unique("accounts_slug_key").on(table.slug),
@@ -910,17 +910,17 @@ export const accountsMemberships = pgTable("accounts_memberships", {
 	}),
 	foreignKey({
 		columns: [table.createdBy],
-		foreignColumns: [users.id],
+		foreignColumns: [schemaUtils.users.id],
 		name: "accounts_memberships_created_by_fkey"
 	}),
 	foreignKey({
 		columns: [table.updatedBy],
-		foreignColumns: [users.id],
+		foreignColumns: [schemaUtils.users.id],
 		name: "accounts_memberships_updated_by_fkey"
 	}),
 	foreignKey({
 		columns: [table.userId],
-		foreignColumns: [users.id],
+		foreignColumns: [schemaUtils.users.id],
 		name: "accounts_memberships_user_id_fkey"
 	}).onDelete("cascade"),
 	primaryKey({ columns: [table.userId, table.accountId], name: "accounts_memberships_pkey" }),
