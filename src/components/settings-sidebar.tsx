@@ -93,12 +93,12 @@ export function SettingsSidebar() {
                   >
                     {item.description}
                   </div>
-                  <div className="flex overflow-x-auto space-x-2 py-1 scrollbar-hide">
+                  <div className="flex flex-wrap gap-1.5">
                     {item.features.map((feature, index) => (
                       <div
                         key={index}
                         className={cn(
-                          "text-xs px-2 py-0.5 rounded-full flex-shrink-0",
+                          "text-xs px-2 py-0.5 rounded-full",
                           isActive
                             ? "bg-primary-foreground/20 text-primary-foreground"
                             : "bg-muted text-muted-foreground",

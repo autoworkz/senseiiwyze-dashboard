@@ -1,9 +1,12 @@
 "use client"
 
+import { useEffect } from "react"
 import { SettingsSidebar } from "@/components/settings-sidebar"
 import { SettingsStatus } from "@/components/settings-status"
+import { AccountSwitcher } from "@/components/ui/account-switcher"
 import { useSettingsNavigationStore } from "@/stores/settings-navigation-store"
 import { useDebouncedSettingsStore } from "@/stores/debounced-settings-store"
+import { useAccountContextStore } from "@/stores/account-context-store"
 
 // Import compressed section components
 import { AccountSection } from "@/components/settings-sections/account-section"
@@ -18,8 +21,14 @@ import { Save } from "lucide-react"
 export default function SettingsPage() {
   const { activeSection } = useSettingsNavigationStore()
   const { pendingChanges, saveChanges, clearPendingChanges, isSaving } = useDebouncedSettingsStore()
+  const { accounts, currentAccount, setCurrentAccount, initializeWithDefaults } = useAccountContextStore()
 
   const hasPendingChanges = Object.keys(pendingChanges).length > 0
+
+  // Initialize account context with defaults on mount
+  useEffect(() => {
+    initializeWithDefaults()
+  }, [])
 
   const handleManualSave = async () => {
     await saveChanges()

@@ -26,8 +26,13 @@ import {
   Truck,
   Users,
   X,
+  UserCheck,
+  LineChart,
+  UserCog,
 } from "lucide-react";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -38,6 +43,7 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
+import { cn } from "@/lib/utils";
 
 interface Solution {
   title: string;
@@ -282,6 +288,62 @@ const Navbar7 = () => {
                 </NavigationMenuContent>
               </NavigationMenuItem>
 
+              <NavigationMenuItem>
+                <NavigationMenuTrigger>Users</NavigationMenuTrigger>
+                <NavigationMenuContent className="min-w-[400px] p-4">
+                  <div className="grid gap-3">
+                    <NavigationMenuLink asChild>
+                      <Link
+                        href="/dashboard/users"
+                        className="group flex items-center gap-3 rounded-md p-3 hover:bg-muted"
+                      >
+                        <div className="rounded-lg bg-muted p-2 shadow-sm">
+                          <UserCheck className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
+                        </div>
+                        <div>
+                          <div className="font-medium">User Dashboard</div>
+                          <div className="text-sm text-muted-foreground">
+                            Overview of user metrics and statistics
+                          </div>
+                        </div>
+                      </Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink asChild>
+                      <Link
+                        href="/dashboard/users/list"
+                        className="group flex items-center gap-3 rounded-md p-3 hover:bg-muted"
+                      >
+                        <div className="rounded-lg bg-muted p-2 shadow-sm">
+                          <Users className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
+                        </div>
+                        <div>
+                          <div className="font-medium">User Management</div>
+                          <div className="text-sm text-muted-foreground">
+                            Manage all users in your organization
+                          </div>
+                        </div>
+                      </Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink asChild>
+                      <Link
+                        href="/dashboard/users/analytics"
+                        className="group flex items-center gap-3 rounded-md p-3 hover:bg-muted"
+                      >
+                        <div className="rounded-lg bg-muted p-2 shadow-sm">
+                          <LineChart className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
+                        </div>
+                        <div>
+                          <div className="font-medium">User Analytics</div>
+                          <div className="text-sm text-muted-foreground">
+                            Deep insights into user behavior and trends
+                          </div>
+                        </div>
+                      </Link>
+                    </NavigationMenuLink>
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+
               <Button variant="ghost">Developer</Button>
               <NavigationMenuItem>
                 <NavigationMenuTrigger>Resources</NavigationMenuTrigger>
@@ -349,6 +411,14 @@ const Navbar7 = () => {
                   <span className="flex-1">Platform</span>
                   <span className="shrink-0"></span>
                 </a>
+                <Link
+                  href="/dashboard/users"
+                  type="button"
+                  className="flex w-full items-center border-b-2 border-dashed px-8 py-4 text-left"
+                >
+                  <span className="flex-1">Users</span>
+                  <span className="shrink-0"></span>
+                </Link>
                 <a
                   href="#"
                   type="button"

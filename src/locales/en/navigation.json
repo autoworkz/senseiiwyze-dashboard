@@ -1,0 +1,130 @@
+{
+  "dashboard": {
+    "overview": {
+      "title": "Overview",
+      "description": "Dashboard overview and key metrics"
+    },
+    "users": {
+      "title": "Users",
+      "description": "User management and analytics",
+      "dashboard": {
+        "title": "User Dashboard",
+        "description": "Overview of user metrics and statistics"
+      },
+      "management": {
+        "title": "User Management",
+        "description": "Manage all users in your organization"
+      },
+      "analytics": {
+        "title": "User Analytics",
+        "description": "Deep insights into user behavior and trends"
+      }
+    },
+    "settings": {
+      "title": "Settings",
+      "description": "Application settings and preferences"
+    }
+  },
+  "platform": {
+    "solutions": {
+      "title": "Solutions",
+      "first": {
+        "title": "First solution",
+        "description": "Vestibulum scelerisque quis nisl ut convallis."
+      },
+      "second": {
+        "title": "Another solution",
+        "description": "Curabitur vehicula malesuada enim a cursus."
+      },
+      "third": {
+        "title": "And a third solution",
+        "description": "Proin aliquam feugiat lobortis."
+      },
+      "fourth": {
+        "title": "And a fourth solution",
+        "description": "Donec nec sapien nec dolor."
+      }
+    },
+    "useCases": {
+      "title": "By Use Case",
+      "banking": "Banking",
+      "fintech": "Fintech",
+      "ecommerce": "E-commerce",
+      "travel": "Travel & Hospitality",
+      "realEstate": "Real Estate",
+      "gaming": "Gaming",
+      "manufacturing": "Manufacturing",
+      "logistics": "Logistics"
+    }
+  },
+  "resources": {
+    "aiPowered": {
+      "title": "AI Powered",
+      "description": "Explore AI-powered resources"
+    },
+    "aiDevelopment": {
+      "title": "AI Development",
+      "description": "Tools and frameworks for AI development"
+    },
+    "machineLearning": {
+      "title": "Machine Learning",
+      "description": "Resources for machine learning enthusiasts"
+    },
+    "dataManagement": {
+      "title": "Data Management",
+      "description": "Best practices for data management"
+    },
+    "cloudAi": {
+      "title": "Cloud AI",
+      "description": "Cloud-based AI solutions"
+    },
+    "aiSecurity": {
+      "title": "AI Security",
+      "description": "Secure your AI applications"
+    },
+    "aiConfiguration": {
+      "title": "AI Configuration",
+      "description": "Configure AI systems effectively"
+    },
+    "aiAnalytics": {
+      "title": "AI Analytics",
+      "description": "Analyze AI performance metrics"
+    },
+    "globalTrends": {
+      "title": "Global AI Trends",
+      "description": "Stay updated with global AI trends"
+    },
+    "aiCommunity": {
+      "title": "AI Community",
+      "description": "Join the AI community"
+    },
+    "aiLearning": {
+      "title": "AI Learning",
+      "description": "Learn AI from the best resources"
+    },
+    "aiSupport": {
+      "title": "AI Support",
+      "description": "Get support for AI-related queries"
+    }
+  },
+  "main": {
+    "platform": "Platform",
+    "users": "Users",
+    "developer": "Developer",
+    "resources": "Resources"
+  },
+  "actions": {
+    "signIn": "Sign in",
+    "getStarted": "Get Started",
+    "login": "Login",
+    "startNow": "Start now",
+    "backToUsers": "Back to Users"
+  },
+  "breadcrumbs": {
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "list": "List",
+    "analytics": "Analytics",
+    "userDetail": "User Details"
+  }
+}

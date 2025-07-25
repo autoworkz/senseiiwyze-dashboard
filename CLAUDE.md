@@ -2,6 +2,47 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Memory Bank & Planning System
+
+Claude Code maintains context within sessions but loses it between sessions. This unified system optimizes for **quick context recovery**, **strategic alignment**, and **intelligent handoffs** while leveraging Claude Code's ability to explore your codebase directly.
+
+The system combines two complementary approaches:
+- **Memory Bank**: Persistent context preservation between sessions
+- **Planning Mode**: Strategic reflection points to prevent "building the wrong thing efficiently"
+
+### Memory Bank Structure
+
+```
+.claude/
+├── memory-bank/
+│   ├── projectbrief.md       # Core: What & Why (rarely changes)
+│   ├── activeContext.md      # Core: Current state (changes frequently) 
+│   ├── systemPatterns.md     # Core: How it's built (evolves slowly)
+│   ├── progress.md           # Core: Status tracking (updated often)
+│   └── features/             # Optional: Complex feature docs
+├── planning/
+│   ├── planning-log.md       # Planning session history
+│   ├── prompts.md            # Planning prompts for Claude Code
+│   └── triggers.sh           # Automated planning triggers
+└── session-logs/             # Auto-generated session summaries
+```
+
+### Memory Bank Best Practices
+
+1. **Start every session** by reading activeContext.md
+2. **End every session** by updating activeContext.md  
+3. **Keep docs high-level** - let Claude Code examine code details
+4. **Focus on "why" not "what"** - code shows what, docs explain why
+5. **Document decisions and patterns** - harder to infer from code
+
+### Planning Mode Triggers
+
+- When stuck for >30 minutes
+- Before starting a new feature  
+- After completing a significant milestone
+- When feeling disconnected from project goals
+- When Memory Bank files haven't been updated in >1 week
+
 ## Package Manager
 
 **⚠️ IMPORTANT: This project REQUIRES pnpm as the package manager.**

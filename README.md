@@ -2,6 +2,11 @@
 
 A Next.js 15 dashboard application with multi-step authentication flow and shadcn/ui components.
 
+https://senseii-web-app-tsaw.vercel.app/dashboard/program-readiness-dashboard
+https://senseii-web-app-tsaw.vercel.app/dashboard/executive-dashboard
+https://senseii-web-app-tsaw.vercel.app/dashboard/user-dashboard
+
+
 ## Prerequisites
 
 - **Node.js**: >= 18.0.0

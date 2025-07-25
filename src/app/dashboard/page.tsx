@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useDebouncedSettingsStore } from "@/stores/debounced-settings-store"
 import { authService } from "@/services/authService"
 import { useRouter } from "next/navigation"
+import UserDashboardPage from "./user-dashboard/page"
 
 export default function DashboardPage() {
   const { profile } = useDebouncedSettingsStore()
@@ -87,6 +88,7 @@ export default function DashboardPage() {
                 <TabsTrigger value="analytics">Analytics</TabsTrigger>
                 <TabsTrigger value="reports">Reports</TabsTrigger>
                 <TabsTrigger value="notifications">Notifications</TabsTrigger>
+                <TabsTrigger value="userdata">User Data</TabsTrigger>
               </TabsList>
               <div className="flex items-center gap-2">
                 <Button variant="outline" size="sm" className="h-8">
@@ -290,6 +292,9 @@ export default function DashboardPage() {
                   </div>
                 </CardContent>
               </Card>
+            </TabsContent>
+            <TabsContent value="userdata" className="space-y-4">
+              <UserDashboardPage />
             </TabsContent>
           </Tabs>
         </div>
