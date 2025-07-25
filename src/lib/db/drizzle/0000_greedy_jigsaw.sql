@@ -1,6 +1,7 @@
 -- Current sql file was generated after introspecting the database
 -- If you want to run this migration please uncomment this code before executing migrations
 /*
+
 CREATE TYPE "public"."account_role" AS ENUM('owner', 'member', 'super-owner');--> statement-breakpoint
 CREATE TYPE "public"."app_permissions" AS ENUM('roles.manage', 'billing.manage', 'settings.manage', 'members.manage', 'invites.manage', 'tasks.write', 'tasks.delete');--> statement-breakpoint
 CREATE TYPE "public"."billing_provider" AS ENUM('stripe', 'lemon-squeezy', 'paddle');--> statement-breakpoint
@@ -21,521 +22,521 @@ CREATE TYPE "public"."taskstate" AS ENUM('UNTOUCHED', 'ONGOING', 'COMPLETED');--
 CREATE TYPE "public"."tasktype" AS ENUM('GAME', 'QUIZ', 'FLASHCARD');--> statement-breakpoint
 CREATE SEQUENCE "public"."answers_id_seq1" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1;--> statement-breakpoint
 CREATE TABLE "invitations" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"email" varchar(255) NOT NULL,
-	"account_id" uuid NOT NULL,
-	"invited_by" uuid NOT NULL,
-	"role" varchar(50) NOT NULL,
-	"invite_token" varchar(255) NOT NULL,
-	"created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	"updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	"expires_at" timestamp with time zone DEFAULT (CURRENT_TIMESTAMP + '7 days'::interval) NOT NULL,
-	CONSTRAINT "invitations_email_account_id_key" UNIQUE("email","account_id"),
-	CONSTRAINT "invitations_invite_token_key" UNIQUE("invite_token")
+"id" serial PRIMARY KEY NOT NULL,
+"email" varchar(255) NOT NULL,
+"account_id" uuid NOT NULL,
+"invited_by" uuid NOT NULL,
+"role" varchar(50) NOT NULL,
+"invite_token" varchar(255) NOT NULL,
+"created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+"updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+"expires_at" timestamp with time zone DEFAULT (CURRENT_TIMESTAMP + '7 days'::interval) NOT NULL,
+CONSTRAINT "invitations_email_account_id_key" UNIQUE("email","account_id"),
+CONSTRAINT "invitations_invite_token_key" UNIQUE("invite_token")
 );
 --> statement-breakpoint
 ALTER TABLE "invitations" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
 CREATE TABLE "profiles" (
-	"email" text NOT NULL,
-	"name" text,
-	"workplace" text,
-	"created_at" timestamp(3) DEFAULT now(),
-	"updated_at" timestamp(3) DEFAULT now(),
-	"fdb_ref" uuid,
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"topPos" smallint,
-	"bottomPos" smallint,
-	"leftPos" smallint,
-	"rightPos" smallint,
-	"profile_photo" text,
-	"user_role" "role_status" DEFAULT 'user' NOT NULL,
-	"workplace_ref" uuid,
-	"institution_ref" uuid,
-	"employment_status" text,
-	"is_deleted" boolean DEFAULT false
+"email" text NOT NULL,
+"name" text,
+"workplace" text,
+"created_at" timestamp(3) DEFAULT now(),
+"updated_at" timestamp(3) DEFAULT now(),
+"fdb_ref" uuid,
+"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+"topPos" smallint,
+"bottomPos" smallint,
+"leftPos" smallint,
+"rightPos" smallint,
+"profile_photo" text,
+"user_role" "role_status" DEFAULT 'user' NOT NULL,
+"workplace_ref" uuid,
+"institution_ref" uuid,
+"employment_status" text,
+"is_deleted" boolean DEFAULT false
 );
 --> statement-breakpoint
 CREATE TABLE "orders" (
-	"id" text PRIMARY KEY NOT NULL,
-	"account_id" uuid NOT NULL,
-	"billing_customer_id" integer NOT NULL,
-	"status" "payment_status" NOT NULL,
-	"billing_provider" "billing_provider" NOT NULL,
-	"total_amount" numeric NOT NULL,
-	"currency" varchar(3) NOT NULL,
-	"created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	"updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+"id" text PRIMARY KEY NOT NULL,
+"account_id" uuid NOT NULL,
+"billing_customer_id" integer NOT NULL,
+"status" "payment_status" NOT NULL,
+"billing_provider" "billing_provider" NOT NULL,
+"total_amount" numeric NOT NULL,
+"currency" varchar(3) NOT NULL,
+"created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+"updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 --> statement-breakpoint
 ALTER TABLE "orders" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
 CREATE TABLE "subscriptions" (
-	"id" text PRIMARY KEY NOT NULL,
-	"account_id" uuid NOT NULL,
-	"billing_customer_id" integer NOT NULL,
-	"status" "subscription_status" NOT NULL,
-	"active" boolean NOT NULL,
-	"billing_provider" "billing_provider" NOT NULL,
-	"cancel_at_period_end" boolean NOT NULL,
-	"currency" varchar(3) NOT NULL,
-	"created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	"updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	"period_starts_at" timestamp with time zone NOT NULL,
-	"period_ends_at" timestamp with time zone NOT NULL,
-	"trial_starts_at" timestamp with time zone,
-	"trial_ends_at" timestamp with time zone
+"id" text PRIMARY KEY NOT NULL,
+"account_id" uuid NOT NULL,
+"billing_customer_id" integer NOT NULL,
+"status" "subscription_status" NOT NULL,
+"active" boolean NOT NULL,
+"billing_provider" "billing_provider" NOT NULL,
+"cancel_at_period_end" boolean NOT NULL,
+"currency" varchar(3) NOT NULL,
+"created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+"updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+"period_starts_at" timestamp with time zone NOT NULL,
+"period_ends_at" timestamp with time zone NOT NULL,
+"trial_starts_at" timestamp with time zone,
+"trial_ends_at" timestamp with time zone
 );
 --> statement-breakpoint
 ALTER TABLE "subscriptions" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
 CREATE TABLE "answers" (
-	"id" integer PRIMARY KEY GENERATED BY DEFAULT AS IDENTITY (sequence name "answers_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
-	"answered_at" timestamp(3) DEFAULT now() NOT NULL,
-	"rating" integer NOT NULL,
-	"question_id" integer NOT NULL,
-	"user_id" uuid NOT NULL,
-	"assessment_id" uuid,
-	"response" jsonb DEFAULT '{}'::jsonb,
-	"evaluation_id" uuid NOT NULL,
-	CONSTRAINT "answers_id_key" UNIQUE("id"),
-	CONSTRAINT "idx_unique_answers_for_eval" UNIQUE("question_id","evaluation_id")
+"id" integer PRIMARY KEY GENERATED BY DEFAULT AS IDENTITY (sequence name "answers_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
+"answered_at" timestamp(3) DEFAULT now() NOT NULL,
+"rating" integer NOT NULL,
+"question_id" integer NOT NULL,
+"user_id" uuid NOT NULL,
+"assessment_id" uuid,
+"response" jsonb DEFAULT '{}'::jsonb,
+"evaluation_id" uuid NOT NULL,
+CONSTRAINT "answers_id_key" UNIQUE("id"),
+CONSTRAINT "idx_unique_answers_for_eval" UNIQUE("question_id","evaluation_id")
 );
 --> statement-breakpoint
 CREATE TABLE "_prisma_migrations" (
-	"id" varchar(36) PRIMARY KEY NOT NULL,
-	"checksum" varchar(64) NOT NULL,
-	"finished_at" timestamp with time zone,
-	"migration_name" varchar(255) NOT NULL,
-	"logs" text,
-	"rolled_back_at" timestamp with time zone,
-	"started_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"applied_steps_count" integer DEFAULT 0 NOT NULL
+"id" varchar(36) PRIMARY KEY NOT NULL,
+"checksum" varchar(64) NOT NULL,
+"finished_at" timestamp with time zone,
+"migration_name" varchar(255) NOT NULL,
+"logs" text,
+"rolled_back_at" timestamp with time zone,
+"started_at" timestamp with time zone DEFAULT now() NOT NULL,
+"applied_steps_count" integer DEFAULT 0 NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "account_user" (
-	"user_id" uuid NOT NULL,
-	"account_id" uuid NOT NULL,
-	"account_role" "account_role" NOT NULL,
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL
+"user_id" uuid NOT NULL,
+"account_id" uuid NOT NULL,
+"account_role" "account_role" NOT NULL,
+"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "activities" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
-	"name" varchar(255) NOT NULL,
-	"category_id" bigint,
-	"subcategory" varchar(255),
-	"description" text,
-	"image_url" varchar(255),
-	"thumbnail_url" varchar(255),
-	"enabled" boolean NOT NULL,
-	"meta_data" jsonb,
-	"featured" boolean DEFAULT false NOT NULL,
-	"created_at" timestamp DEFAULT now()
+"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
+"name" varchar(255) NOT NULL,
+"category_id" bigint,
+"subcategory" varchar(255),
+"description" text,
+"image_url" varchar(255),
+"thumbnail_url" varchar(255),
+"enabled" boolean NOT NULL,
+"meta_data" jsonb,
+"featured" boolean DEFAULT false NOT NULL,
+"created_at" timestamp DEFAULT now()
 );
 --> statement-breakpoint
 CREATE TABLE "constants" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"key" text NOT NULL,
-	"value" json
+"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+"key" text NOT NULL,
+"value" json
 );
 --> statement-breakpoint
 CREATE TABLE "billing_customers" (
-	"account_id" uuid NOT NULL,
-	"id" serial PRIMARY KEY NOT NULL,
-	"email" text,
-	"provider" "billing_provider" NOT NULL,
-	"customer_id" text NOT NULL,
-	CONSTRAINT "billing_customers_account_id_customer_id_provider_key" UNIQUE("account_id","provider","customer_id")
+"account_id" uuid NOT NULL,
+"id" serial PRIMARY KEY NOT NULL,
+"email" text,
+"provider" "billing_provider" NOT NULL,
+"customer_id" text NOT NULL,
+CONSTRAINT "billing_customers_account_id_customer_id_provider_key" UNIQUE("account_id","provider","customer_id")
 );
 --> statement-breakpoint
 ALTER TABLE "billing_customers" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
 CREATE TABLE "evaluations" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"user_id" uuid NOT NULL,
-	"assessment_id" uuid,
-	"results" jsonb DEFAULT '{}'::jsonb,
-	"is_completed" boolean DEFAULT false NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"workplace_id" uuid NOT NULL
+"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+"user_id" uuid NOT NULL,
+"assessment_id" uuid,
+"results" jsonb DEFAULT '{}'::jsonb,
+"is_completed" boolean DEFAULT false NOT NULL,
+"created_at" timestamp DEFAULT now() NOT NULL,
+"workplace_id" uuid NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "credits_usage" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"account_id" uuid NOT NULL,
-	"remaining_credits" integer DEFAULT 0 NOT NULL
+"id" serial PRIMARY KEY NOT NULL,
+"account_id" uuid NOT NULL,
+"remaining_credits" integer DEFAULT 0 NOT NULL
 );
 --> statement-breakpoint
 ALTER TABLE "credits_usage" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
 CREATE TABLE "categories" (
-	"id" bigint PRIMARY KEY GENERATED BY DEFAULT AS IDENTITY (sequence name "categories_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 1 CACHE 1),
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"name" varchar
+"id" bigint PRIMARY KEY GENERATED BY DEFAULT AS IDENTITY (sequence name "categories_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 1 CACHE 1),
+"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+"name" varchar
 );
 --> statement-breakpoint
 CREATE TABLE "chats" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"reference_id" varchar(8) NOT NULL,
-	"name" varchar(255) NOT NULL,
-	"account_id" uuid NOT NULL,
-	"settings" jsonb DEFAULT '{}'::jsonb NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now(),
-	CONSTRAINT "chats_reference_id_key" UNIQUE("reference_id")
+"id" serial PRIMARY KEY NOT NULL,
+"reference_id" varchar(8) NOT NULL,
+"name" varchar(255) NOT NULL,
+"account_id" uuid NOT NULL,
+"settings" jsonb DEFAULT '{}'::jsonb NOT NULL,
+"created_at" timestamp with time zone DEFAULT now(),
+CONSTRAINT "chats_reference_id_key" UNIQUE("reference_id")
 );
 --> statement-breakpoint
 ALTER TABLE "chats" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
 CREATE TABLE "goals" (
-	"id" text PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"name" text NOT NULL,
-	"description" text NOT NULL,
-	"url" text NOT NULL,
-	"vision_id" text NOT NULL,
-	"top_pos" double precision,
-	"bottom_pos" double precision,
-	"left_pos" double precision,
-	"right_pos" double precision,
-	"size_id" text,
-	"createdAt" timestamp(3) DEFAULT now() NOT NULL,
-	"updatedAt" timestamp(3) DEFAULT now() NOT NULL,
-	"cluster_class" text
+"id" text PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+"name" text NOT NULL,
+"description" text NOT NULL,
+"url" text NOT NULL,
+"vision_id" text NOT NULL,
+"top_pos" double precision,
+"bottom_pos" double precision,
+"left_pos" double precision,
+"right_pos" double precision,
+"size_id" text,
+"createdAt" timestamp(3) DEFAULT now() NOT NULL,
+"updatedAt" timestamp(3) DEFAULT now() NOT NULL,
+"cluster_class" text
 );
 --> statement-breakpoint
 CREATE TABLE "game_tasks" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
-	"activity_id" uuid NOT NULL,
-	"name" varchar(255) NOT NULL,
-	"description" text,
-	"max_score" integer DEFAULT 1 NOT NULL,
-	"order" integer,
-	"difficulty_level" "difficulty"
+"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
+"activity_id" uuid NOT NULL,
+"name" varchar(255) NOT NULL,
+"description" text,
+"max_score" integer DEFAULT 1 NOT NULL,
+"order" integer,
+"difficulty_level" "difficulty"
 );
 --> statement-breakpoint
 CREATE TABLE "chat_messages" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"chat_id" serial NOT NULL,
-	"account_id" uuid NOT NULL,
-	"content" text NOT NULL,
-	"role" "chat_role" NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now()
+"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+"chat_id" serial NOT NULL,
+"account_id" uuid NOT NULL,
+"content" text NOT NULL,
+"role" "chat_role" NOT NULL,
+"created_at" timestamp with time zone DEFAULT now()
 );
 --> statement-breakpoint
 ALTER TABLE "chat_messages" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
 CREATE TABLE "config" (
-	"enable_team_accounts" boolean DEFAULT true NOT NULL,
-	"enable_account_billing" boolean DEFAULT true NOT NULL,
-	"enable_team_account_billing" boolean DEFAULT true NOT NULL,
-	"billing_provider" "billing_provider" DEFAULT 'stripe' NOT NULL
+"enable_team_accounts" boolean DEFAULT true NOT NULL,
+"enable_account_billing" boolean DEFAULT true NOT NULL,
+"enable_team_account_billing" boolean DEFAULT true NOT NULL,
+"billing_provider" "billing_provider" DEFAULT 'stripe' NOT NULL
 );
 --> statement-breakpoint
 ALTER TABLE "config" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
 CREATE TABLE "obstacles" (
-	"id" text PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"name" text,
-	"vision_id" text,
-	"goal_id" text,
-	"createdAt" timestamp DEFAULT now(),
-	"updatedAt" timestamp DEFAULT now(),
-	"is_completed" boolean DEFAULT false
+"id" text PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+"name" text,
+"vision_id" text,
+"goal_id" text,
+"createdAt" timestamp DEFAULT now(),
+"updatedAt" timestamp DEFAULT now(),
+"is_completed" boolean DEFAULT false
 );
 --> statement-breakpoint
 CREATE TABLE "scores" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"score" double precision,
-	"updated_at" timestamp(3) DEFAULT now()
+"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+"score" double precision,
+"updated_at" timestamp(3) DEFAULT now()
 );
 --> statement-breakpoint
 CREATE TABLE "order_items" (
-	"id" text PRIMARY KEY NOT NULL,
-	"order_id" text NOT NULL,
-	"product_id" text NOT NULL,
-	"variant_id" text NOT NULL,
-	"price_amount" numeric,
-	"quantity" integer DEFAULT 1 NOT NULL,
-	"created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	"updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	CONSTRAINT "order_items_order_id_product_id_variant_id_key" UNIQUE("order_id","product_id","variant_id")
+"id" text PRIMARY KEY NOT NULL,
+"order_id" text NOT NULL,
+"product_id" text NOT NULL,
+"variant_id" text NOT NULL,
+"price_amount" numeric,
+"quantity" integer DEFAULT 1 NOT NULL,
+"created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+"updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+CONSTRAINT "order_items_order_id_product_id_variant_id_key" UNIQUE("order_id","product_id","variant_id")
 );
 --> statement-breakpoint
 ALTER TABLE "order_items" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
 CREATE TABLE "profiles_copy" (
-	"email" text NOT NULL,
-	"name" text,
-	"workplace" text,
-	"created_at" timestamp(3) DEFAULT now(),
-	"updated_at" timestamp(3) DEFAULT now(),
-	"fdb_ref" uuid,
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"topPos" smallint,
-	"bottomPos" smallint,
-	"leftPos" smallint,
-	"rightPos" smallint,
-	"profile_photo" text,
-	"user_role" "role_status" DEFAULT 'user' NOT NULL,
-	"workplace_ref" uuid,
-	"institution_ref" uuid,
-	"employment_status" text
+"email" text NOT NULL,
+"name" text,
+"workplace" text,
+"created_at" timestamp(3) DEFAULT now(),
+"updated_at" timestamp(3) DEFAULT now(),
+"fdb_ref" uuid,
+"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+"topPos" smallint,
+"bottomPos" smallint,
+"leftPos" smallint,
+"rightPos" smallint,
+"profile_photo" text,
+"user_role" "role_status" DEFAULT 'user' NOT NULL,
+"workplace_ref" uuid,
+"institution_ref" uuid,
+"employment_status" text
 );
 --> statement-breakpoint
 CREATE TABLE "plans" (
-	"variant_id" varchar(255) PRIMARY KEY NOT NULL,
-	"name" varchar(255) NOT NULL,
-	"tokens_quota" integer NOT NULL
+"variant_id" varchar(255) PRIMARY KEY NOT NULL,
+"name" varchar(255) NOT NULL,
+"tokens_quota" integer NOT NULL
 );
 --> statement-breakpoint
 ALTER TABLE "plans" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
 CREATE TABLE "roles" (
-	"name" varchar(50) PRIMARY KEY NOT NULL,
-	"hierarchy_level" integer NOT NULL,
-	CONSTRAINT "roles_hierarchy_level_key" UNIQUE("hierarchy_level"),
-	CONSTRAINT "roles_hierarchy_level_check" CHECK (hierarchy_level > 0)
+"name" varchar(50) PRIMARY KEY NOT NULL,
+"hierarchy_level" integer NOT NULL,
+CONSTRAINT "roles_hierarchy_level_key" UNIQUE("hierarchy_level"),
+CONSTRAINT "roles_hierarchy_level_check" CHECK (hierarchy_level > 0)
 );
 --> statement-breakpoint
 ALTER TABLE "roles" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
 CREATE TABLE "status" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"state" "taskstate" DEFAULT 'UNTOUCHED',
-	"locked" boolean DEFAULT true,
-	"progress" integer DEFAULT 0,
-	"complete" boolean DEFAULT false,
-	"started_at" timestamp(3) DEFAULT now(),
-	"completed_at" timestamp
+"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+"state" "taskstate" DEFAULT 'UNTOUCHED',
+"locked" boolean DEFAULT true,
+"progress" integer DEFAULT 0,
+"complete" boolean DEFAULT false,
+"started_at" timestamp(3) DEFAULT now(),
+"completed_at" timestamp
 );
 --> statement-breakpoint
 CREATE TABLE "questions" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"question" text NOT NULL,
-	"category" text NOT NULL,
-	"feat_label" text NOT NULL,
-	"assessment_id" uuid,
-	"metadata" jsonb DEFAULT '{}'::jsonb
+"id" serial PRIMARY KEY NOT NULL,
+"question" text NOT NULL,
+"category" text NOT NULL,
+"feat_label" text NOT NULL,
+"assessment_id" uuid,
+"metadata" jsonb DEFAULT '{}'::jsonb
 );
 --> statement-breakpoint
 CREATE TABLE "nonces" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"client_token" text NOT NULL,
-	"nonce" text NOT NULL,
-	"user_id" uuid,
-	"purpose" text NOT NULL,
-	"expires_at" timestamp with time zone NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"used_at" timestamp with time zone,
-	"revoked" boolean DEFAULT false NOT NULL,
-	"revoked_reason" text,
-	"verification_attempts" integer DEFAULT 0 NOT NULL,
-	"last_verification_at" timestamp with time zone,
-	"last_verification_ip" "inet",
-	"last_verification_user_agent" text,
-	"metadata" jsonb DEFAULT '{}'::jsonb,
-	"scopes" text[] DEFAULT '{""}'
+"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+"client_token" text NOT NULL,
+"nonce" text NOT NULL,
+"user_id" uuid,
+"purpose" text NOT NULL,
+"expires_at" timestamp with time zone NOT NULL,
+"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+"used_at" timestamp with time zone,
+"revoked" boolean DEFAULT false NOT NULL,
+"revoked_reason" text,
+"verification_attempts" integer DEFAULT 0 NOT NULL,
+"last_verification_at" timestamp with time zone,
+"last_verification_ip" "inet",
+"last_verification_user_agent" text,
+"metadata" jsonb DEFAULT '{}'::jsonb,
+"scopes" text[] DEFAULT '{""}'
 );
 --> statement-breakpoint
 ALTER TABLE "nonces" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
 CREATE TABLE "sizes" (
-	"id" text PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"height" double precision DEFAULT 200 NOT NULL,
-	"width" double precision DEFAULT 200 NOT NULL
+"id" text PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+"height" double precision DEFAULT 200 NOT NULL,
+"width" double precision DEFAULT 200 NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "image_search" (
-	"id" text PRIMARY KEY NOT NULL,
-	"search_term" text NOT NULL,
-	"url" text NOT NULL
+"id" text PRIMARY KEY NOT NULL,
+"search_term" text NOT NULL,
+"url" text NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "lca_invitations" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
-	"account_role" "account_role" NOT NULL,
-	"account_id" uuid NOT NULL,
-	"token" text DEFAULT generate_token(30) NOT NULL,
-	"invited_by_user_id" uuid NOT NULL,
-	"account_team_name" text,
-	"updated_at" timestamp with time zone DEFAULT now(),
-	"created_at" timestamp with time zone DEFAULT now(),
-	"invitation_type" "invitation_type" NOT NULL,
-	"invitee_email" text NOT NULL,
-	"message" text,
-	CONSTRAINT "invitations_token_key" UNIQUE("token")
+"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
+"account_role" "account_role" NOT NULL,
+"account_id" uuid NOT NULL,
+"token" text DEFAULT generate_token(30) NOT NULL,
+"invited_by_user_id" uuid NOT NULL,
+"account_team_name" text,
+"updated_at" timestamp with time zone DEFAULT now(),
+"created_at" timestamp with time zone DEFAULT now(),
+"invitation_type" "invitation_type" NOT NULL,
+"invitee_email" text NOT NULL,
+"message" text,
+CONSTRAINT "invitations_token_key" UNIQUE("token")
 );
 --> statement-breakpoint
 CREATE TABLE "role_permissions" (
-	"id" bigint PRIMARY KEY GENERATED BY DEFAULT AS IDENTITY (sequence name "role_permissions_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 1 CACHE 1),
-	"role" varchar(50) NOT NULL,
-	"permission" "app_permissions" NOT NULL,
-	CONSTRAINT "role_permissions_role_permission_key" UNIQUE("role","permission")
+"id" bigint PRIMARY KEY GENERATED BY DEFAULT AS IDENTITY (sequence name "role_permissions_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 1 CACHE 1),
+"role" varchar(50) NOT NULL,
+"permission" "app_permissions" NOT NULL,
+CONSTRAINT "role_permissions_role_permission_key" UNIQUE("role","permission")
 );
 --> statement-breakpoint
 ALTER TABLE "role_permissions" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
 CREATE TABLE "subscription_items" (
-	"id" varchar(255) PRIMARY KEY NOT NULL,
-	"subscription_id" text NOT NULL,
-	"product_id" varchar(255) NOT NULL,
-	"variant_id" varchar(255) NOT NULL,
-	"type" "subscription_item_type" NOT NULL,
-	"price_amount" numeric,
-	"quantity" integer DEFAULT 1 NOT NULL,
-	"interval" varchar(255) NOT NULL,
-	"interval_count" integer NOT NULL,
-	"created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	"updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	CONSTRAINT "subscription_items_subscription_id_product_id_variant_id_key" UNIQUE("subscription_id","product_id","variant_id"),
-	CONSTRAINT "subscription_items_interval_count_check" CHECK (interval_count > 0)
+"id" varchar(255) PRIMARY KEY NOT NULL,
+"subscription_id" text NOT NULL,
+"product_id" varchar(255) NOT NULL,
+"variant_id" varchar(255) NOT NULL,
+"type" "subscription_item_type" NOT NULL,
+"price_amount" numeric,
+"quantity" integer DEFAULT 1 NOT NULL,
+"interval" varchar(255) NOT NULL,
+"interval_count" integer NOT NULL,
+"created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+"updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+CONSTRAINT "subscription_items_subscription_id_product_id_variant_id_key" UNIQUE("subscription_id","product_id","variant_id"),
+CONSTRAINT "subscription_items_interval_count_check" CHECK (interval_count > 0)
 );
 --> statement-breakpoint
 ALTER TABLE "subscription_items" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
 CREATE TABLE "tasks" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"title" varchar(500) NOT NULL,
-	"description" varchar(50000),
-	"done" boolean DEFAULT false NOT NULL,
-	"account_id" uuid NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+"title" varchar(500) NOT NULL,
+"description" varchar(50000),
+"done" boolean DEFAULT false NOT NULL,
+"account_id" uuid NOT NULL,
+"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 ALTER TABLE "tasks" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
 CREATE TABLE "vendor_ratings" (
-	"id" bigint PRIMARY KEY GENERATED BY DEFAULT AS IDENTITY (sequence name "vendor_ratings_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 1 CACHE 1),
-	"created_at" timestamp with time zone DEFAULT now(),
-	"rating" double precision DEFAULT '0'
+"id" bigint PRIMARY KEY GENERATED BY DEFAULT AS IDENTITY (sequence name "vendor_ratings_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 1 CACHE 1),
+"created_at" timestamp with time zone DEFAULT now(),
+"rating" double precision DEFAULT '0'
 );
 --> statement-breakpoint
 CREATE TABLE "user_emloyement_status" (
-	"employment_status" text
+"employment_status" text
 );
 --> statement-breakpoint
 CREATE TABLE "user_tasks" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"user_id" uuid,
-	"task_id" uuid,
-	"created_at" timestamp,
-	"status_id" uuid,
-	"score_id" uuid,
-	CONSTRAINT "user_tasks_user_id_task_id_key" UNIQUE("user_id","task_id")
+"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+"user_id" uuid,
+"task_id" uuid,
+"created_at" timestamp,
+"status_id" uuid,
+"score_id" uuid,
+CONSTRAINT "user_tasks_user_id_task_id_key" UNIQUE("user_id","task_id")
 );
 --> statement-breakpoint
 CREATE TABLE "user_emloyement_statuss" (
-	"employment_status" text
+"employment_status" text
 );
 --> statement-breakpoint
 CREATE TABLE "workplaces" (
-	"workplace_logo" text,
-	"workplace_address" jsonb,
-	"workplace_description" text,
-	"workplace_domain" text,
-	"workplace_email" varchar(255),
-	"workplace_name" text,
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"type" text,
-	"enabled_assessments" uuid[] DEFAULT '{"3ac68f05-2ea9-4223-b139-d88373859379"}' NOT NULL,
-	CONSTRAINT "workplaces_workplace_domain_key" UNIQUE("workplace_domain"),
-	CONSTRAINT "workplaces_workplace_email_key" UNIQUE("workplace_email")
+"workplace_logo" text,
+"workplace_address" jsonb,
+"workplace_description" text,
+"workplace_domain" text,
+"workplace_email" varchar(255),
+"workplace_name" text,
+"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+"type" text,
+"enabled_assessments" uuid[] DEFAULT '{"3ac68f05-2ea9-4223-b139-d88373859379"}' NOT NULL,
+CONSTRAINT "workplaces_workplace_domain_key" UNIQUE("workplace_domain"),
+CONSTRAINT "workplaces_workplace_email_key" UNIQUE("workplace_email")
 );
 --> statement-breakpoint
 CREATE TABLE "vision_log" (
-	"id" text PRIMARY KEY NOT NULL,
-	"vision_id" text NOT NULL,
-	"device_id" text NOT NULL,
-	"edited_at" timestamp(3) DEFAULT now() NOT NULL,
-	"updated_at" timestamp(3) DEFAULT now() NOT NULL
+"id" text PRIMARY KEY NOT NULL,
+"vision_id" text NOT NULL,
+"device_id" text NOT NULL,
+"edited_at" timestamp(3) DEFAULT now() NOT NULL,
+"updated_at" timestamp(3) DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "vision_boards" (
-	"id" text PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"name" text NOT NULL,
-	"description" text NOT NULL,
-	"img_url" text,
-	"created_at" timestamp(3) DEFAULT now(),
-	"updated_at" timestamp(3) DEFAULT now(),
-	"user_id" uuid NOT NULL
+"id" text PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+"name" text NOT NULL,
+"description" text NOT NULL,
+"img_url" text,
+"created_at" timestamp(3) DEFAULT now(),
+"updated_at" timestamp(3) DEFAULT now(),
+"user_id" uuid NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "workplace_type" (
-	"type" text
+"type" text
 );
 --> statement-breakpoint
 CREATE TABLE "accounts" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
-	"primary_owner_user_id" uuid DEFAULT auth.uid() NOT NULL,
-	"name" varchar(255) NOT NULL,
-	"slug" text,
-	"email" varchar(320),
-	"is_personal_account" boolean DEFAULT false NOT NULL,
-	"updated_at" timestamp with time zone,
-	"created_at" timestamp with time zone,
-	"created_by" uuid,
-	"updated_by" uuid,
-	"picture_url" varchar(1000),
-	"public_data" jsonb DEFAULT '{}'::jsonb NOT NULL,
-	CONSTRAINT "accounts_slug_key" UNIQUE("slug"),
-	CONSTRAINT "accounts_email_key" UNIQUE("email"),
-	CONSTRAINT "accounts_slug_null_if_personal_account_true" CHECK (((is_personal_account = true) AND (slug IS NULL)) OR ((is_personal_account = false) AND (slug IS NOT NULL)))
+"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
+"primary_owner_user_id" uuid DEFAULT auth.uid() NOT NULL,
+"name" varchar(255) NOT NULL,
+"slug" text,
+"email" varchar(320),
+"is_personal_account" boolean DEFAULT false NOT NULL,
+"updated_at" timestamp with time zone,
+"created_at" timestamp with time zone,
+"created_by" uuid,
+"updated_by" uuid,
+"picture_url" varchar(1000),
+"public_data" jsonb DEFAULT '{}'::jsonb NOT NULL,
+CONSTRAINT "accounts_slug_key" UNIQUE("slug"),
+CONSTRAINT "accounts_email_key" UNIQUE("email"),
+CONSTRAINT "accounts_slug_null_if_personal_account_true" CHECK (((is_personal_account = true) AND (slug IS NULL)) OR ((is_personal_account = false) AND (slug IS NOT NULL)))
 );
 --> statement-breakpoint
 ALTER TABLE "accounts" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
 CREATE TABLE "game_info" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now(),
-	"levels_completed" boolean[],
-	"onboarding_completed" boolean,
-	"game_id" text NOT NULL,
-	"profile_id" uuid NOT NULL,
-	"durations" integer[]
+"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+"created_at" timestamp with time zone DEFAULT now(),
+"levels_completed" boolean[],
+"onboarding_completed" boolean,
+"game_id" text NOT NULL,
+"profile_id" uuid NOT NULL,
+"durations" integer[]
 );
 --> statement-breakpoint
 CREATE TABLE "activity_progress" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
-	"profile_id" uuid NOT NULL,
-	"activity_id" uuid NOT NULL,
-	"score" integer,
-	"total_score" integer,
-	"onboarding_completed" boolean,
-	"current_task_order" integer DEFAULT 1 NOT NULL,
-	CONSTRAINT "activity_progress_id_key" UNIQUE("id")
+"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
+"profile_id" uuid NOT NULL,
+"activity_id" uuid NOT NULL,
+"score" integer,
+"total_score" integer,
+"onboarding_completed" boolean,
+"current_task_order" integer DEFAULT 1 NOT NULL,
+CONSTRAINT "activity_progress_id_key" UNIQUE("id")
 );
 --> statement-breakpoint
 CREATE TABLE "assessments" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"type" varchar(255) DEFAULT 'rating' NOT NULL,
-	"strategy" jsonb DEFAULT '{}'::jsonb,
-	"results_schema" jsonb DEFAULT '{}'::jsonb,
-	"created_at" timestamp DEFAULT now(),
-	"updated_at" timestamp DEFAULT now(),
-	"title" text NOT NULL,
-	"description" text NOT NULL,
-	"cover_url" text,
-	"estimated_time" text,
-	"metadata" jsonb DEFAULT '{}'::jsonb NOT NULL
+"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+"type" varchar(255) DEFAULT 'rating' NOT NULL,
+"strategy" jsonb DEFAULT '{}'::jsonb,
+"results_schema" jsonb DEFAULT '{}'::jsonb,
+"created_at" timestamp DEFAULT now(),
+"updated_at" timestamp DEFAULT now(),
+"title" text NOT NULL,
+"description" text NOT NULL,
+"cover_url" text,
+"estimated_time" text,
+"metadata" jsonb DEFAULT '{}'::jsonb NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "notifications" (
-	"id" bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "notifications_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 1 CACHE 1),
-	"account_id" uuid NOT NULL,
-	"type" "notification_type" DEFAULT 'info' NOT NULL,
-	"body" varchar(5000) NOT NULL,
-	"link" varchar(255),
-	"channel" "notification_channel" DEFAULT 'in_app' NOT NULL,
-	"dismissed" boolean DEFAULT false NOT NULL,
-	"expires_at" timestamp with time zone DEFAULT (now() + '1 mon'::interval),
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+"id" bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "notifications_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 1 CACHE 1),
+"account_id" uuid NOT NULL,
+"type" "notification_type" DEFAULT 'info' NOT NULL,
+"body" varchar(5000) NOT NULL,
+"link" varchar(255),
+"channel" "notification_channel" DEFAULT 'in_app' NOT NULL,
+"dismissed" boolean DEFAULT false NOT NULL,
+"expires_at" timestamp with time zone DEFAULT (now() + '1 mon'::interval),
+"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 ALTER TABLE "notifications" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
 CREATE TABLE "task_completion" (
-	"profile_id" uuid NOT NULL,
-	"task_id" uuid NOT NULL,
-	"completion_timestamp" timestamp with time zone DEFAULT now(),
-	"score" integer,
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	CONSTRAINT "task_completion_id_key" UNIQUE("id")
+"profile_id" uuid NOT NULL,
+"task_id" uuid NOT NULL,
+"completion_timestamp" timestamp with time zone DEFAULT now(),
+"score" integer,
+"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+CONSTRAINT "task_completion_id_key" UNIQUE("id")
 );
 --> statement-breakpoint
 CREATE TABLE "accounts_memberships" (
-	"user_id" uuid NOT NULL,
-	"account_id" uuid NOT NULL,
-	"account_role" varchar(50) NOT NULL,
-	"created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	"updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	"created_by" uuid,
-	"updated_by" uuid,
-	CONSTRAINT "accounts_memberships_pkey" PRIMARY KEY("user_id","account_id")
+"user_id" uuid NOT NULL,
+"account_id" uuid NOT NULL,
+"account_role" varchar(50) NOT NULL,
+"created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+"updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+"created_by" uuid,
+"updated_by" uuid,
+CONSTRAINT "accounts_memberships_pkey" PRIMARY KEY("user_id","account_id")
 );
 --> statement-breakpoint
 ALTER TABLE "accounts_memberships" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
@@ -643,8 +644,8 @@ CREATE POLICY "delete_chat_messages" ON "chat_messages" AS PERMISSIVE FOR DELETE
 CREATE POLICY "select_chat_messages" ON "chat_messages" AS PERMISSIVE FOR SELECT TO "authenticated";--> statement-breakpoint
 CREATE POLICY "public config can be read by authenticated users" ON "config" AS PERMISSIVE FOR SELECT TO "authenticated" USING (true);--> statement-breakpoint
 CREATE POLICY "order_items_read_self" ON "order_items" AS PERMISSIVE FOR SELECT TO "authenticated" USING ((EXISTS ( SELECT 1
-   FROM orders
-  WHERE ((orders.id = order_items.order_id) AND ((orders.account_id = ( SELECT auth.uid() AS uid)) OR has_role_on_account(orders.account_id))))));--> statement-breakpoint
+FROM orders
+WHERE ((orders.id = order_items.order_id) AND ((orders.account_id = ( SELECT auth.uid() AS uid)) OR has_role_on_account(orders.account_id))))));--> statement-breakpoint
 CREATE POLICY "restrict_mfa_order_items" ON "order_items" AS RESTRICTIVE FOR ALL TO "authenticated";--> statement-breakpoint
 CREATE POLICY "super_admins_access_order_items" ON "order_items" AS PERMISSIVE FOR SELECT TO "authenticated";--> statement-breakpoint
 CREATE POLICY "select_plans" ON "plans" AS PERMISSIVE FOR SELECT TO "authenticated" USING (true);--> statement-breakpoint

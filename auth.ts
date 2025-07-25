@@ -3,29 +3,23 @@ import { db } from "./database";
 import { nextCookies } from "better-auth/next-js";
 import { betterAuth } from "better-auth";
 import { organization } from "better-auth/plugins";
-import * as authSchema from "./auth-schema";
+import * as authSchema from "./src/lib/db/better-auth-schema";
 
 export const auth = betterAuth({
     database: drizzleAdapter(db, {
         provider: "pg",
-        schema: {
-            ...authSchema,
-            // Map Better Auth tables to the generated schema
-            user: authSchema.user,
-            session: authSchema.session,
-            account: authSchema.account,
-            verification: authSchema.verification,
-            // Organization plugin tables
-            organization: authSchema.organization,
-            member: authSchema.member,
-            invitation: authSchema.invitation, // This maps to organization_invitation table
-        },
+        schema: authSchema, // Use the schema directly since it's already properly structured
     }),
     appName: "senseiiwyze-dashboard",
     secret: process.env.BETTER_AUTH_SECRET || "VCPPDj0m70w8DrUmMqOYlG5DhfOHsFtelazBsyOUiMI=",
     baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
     emailAndPassword: {
         enabled: true,
+        requireEmailVerification: false, // Set to true if you want email verification
+    },
+    session: {
+        strategy: "jwt",
+        expiresIn: 60 * 60 * 24 * 7, // 7 days
     },
 
     plugins: [
@@ -56,3 +50,5 @@ export const auth = betterAuth({
         })
     ],
 });
+
+export type Auth = typeof auth;

@@ -104,6 +104,12 @@
     "test:watch": "pnpm jest --watch",
     "test:coverage": "pnpm jest --coverage",
     "tsc": "pnpm tsc --noEmit",
-    "typecheck": "pnpm tsc --noEmit"
+    "typecheck": "pnpm tsc --noEmit",
+    "auth:fix": "node scripts/fix-auth-schema.js",
+    "auth:setup": "pnpm auth:generate && pnpm auth:fix",
+    "db:migrate": "pnpm drizzle-kit migrate",
+    "db:push": "pnpm drizzle-kit push",
+    "db:studio": "pnpm drizzle-kit studio",
+    "setup:auth": "pnpm auth:setup && pnpm db:generate && pnpm db:migrate"
   }
 }

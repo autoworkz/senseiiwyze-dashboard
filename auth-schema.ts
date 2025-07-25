@@ -4,12 +4,9 @@ import {
   timestamp,
   boolean,
   integer,
-  pgSchema,
 } from "drizzle-orm/pg-core";
 
-export const betterAuthSchema = pgSchema("better_auth");
-
-export const user = betterAuthSchema.table("user", {
+export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
@@ -25,7 +22,7 @@ export const user = betterAuthSchema.table("user", {
     .notNull(),
 });
 
-export const session = betterAuthSchema.table("session", {
+export const session = pgTable("session", {
   id: text("id").primaryKey(),
   expiresAt: timestamp("expires_at").notNull(),
   token: text("token").notNull().unique(),
@@ -39,7 +36,7 @@ export const session = betterAuthSchema.table("session", {
   activeOrganizationId: text("active_organization_id"),
 });
 
-export const account = betterAuthSchema.table("account", {
+export const account = pgTable("account", {
   id: text("id").primaryKey(),
   accountId: text("account_id").notNull(),
   providerId: text("provider_id").notNull(),
@@ -57,7 +54,7 @@ export const account = betterAuthSchema.table("account", {
   updatedAt: timestamp("updated_at").notNull(),
 });
 
-export const verification = betterAuthSchema.table("verification", {
+export const verification = pgTable("verification", {
   id: text("id").primaryKey(),
   identifier: text("identifier").notNull(),
   value: text("value").notNull(),
@@ -70,7 +67,7 @@ export const verification = betterAuthSchema.table("verification", {
   ),
 });
 
-export const organization = betterAuthSchema.table("organization", {
+export const organization = pgTable("organization", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   slug: text("slug").unique(),
@@ -79,7 +76,7 @@ export const organization = betterAuthSchema.table("organization", {
   metadata: text("metadata"),
 });
 
-export const member = betterAuthSchema.table("member", {
+export const member = pgTable("member", {
   id: text("id").primaryKey(),
   organizationId: text("organization_id")
     .notNull()
@@ -91,7 +88,7 @@ export const member = betterAuthSchema.table("member", {
   createdAt: timestamp("created_at").notNull(),
 });
 
-export const invitation = betterAuthSchema.table("invitation", {
+export const invitation = pgTable("invitation", {
   id: text("id").primaryKey(),
   organizationId: text("organization_id")
     .notNull()
