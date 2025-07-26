@@ -1,0 +1,107 @@
+# Company Standards for SenseiiWyze Platform
+# These standards guide development practices across all workstreams
+
+standards:
+  - id: STD-001
+    name: "Authentication & Security Standards"
+    category: security
+    requirements:
+      - "Multi-factor authentication must be available for all user accounts"
+      - "Session timeout after 30 minutes of inactivity"
+      - "Password complexity: minimum 8 characters, uppercase, lowercase, number, special character"
+      - "OAuth providers must be pre-approved and whitelisted"
+      - "All authentication attempts must be logged for audit purposes"
+      - "Failed login attempts must trigger rate limiting after 5 attempts"
+      - "Secure session tokens with HttpOnly and Secure flags"
+      - "CSRF protection on all state-changing operations"
+
+  - id: STD-002
+    name: "UI/UX Design Standards"
+    category: design
+    requirements:
+      - "WCAG 2.1 AA compliance for accessibility"
+      - "Mobile-first responsive design approach"
+      - "Dark mode support with system preference detection"
+      - "Loading states for all async operations"
+      - "Error messages must be user-friendly and actionable"
+      - "Consistent use of shadcn/ui component library"
+      - "Maximum 3 clicks to reach any feature from dashboard"
+      - "Semantic color system for theming flexibility"
+
+  - id: STD-003
+    name: "API & Performance Standards"
+    category: performance
+    requirements:
+      - "API response time < 200ms for 95th percentile"
+      - "Frontend bundle size < 300KB gzipped"
+      - "Time to Interactive < 3 seconds on 3G"
+      - "API versioning with backward compatibility"
+      - "Rate limiting: 100 requests per minute per user"
+      - "Implement caching strategies for repeated queries"
+      - "GraphQL or REST endpoints with consistent patterns"
+      - "Error responses follow RFC 7807 (Problem Details)"
+
+  - id: STD-004
+    name: "Data Privacy & Compliance"
+    category: compliance
+    requirements:
+      - "SOC2 Type II compliance required"
+      - "End-to-end encryption for sensitive data"
+      - "GDPR compliance with data export/deletion capabilities"
+      - "User consent required for data processing"
+      - "Data retention policies clearly documented"
+      - "Regular security audits (quarterly)"
+      - "PII must be encrypted at rest and in transit"
+      - "Audit logs retained for minimum 1 year"
+
+  - id: STD-005
+    name: "AI & Machine Learning Standards"
+    category: ai
+    requirements:
+      - "Model predictions must include confidence scores"
+      - "Explainable AI: users can understand why recommendations were made"
+      - "No training on user data without explicit consent"
+      - "Model performance metrics tracked and reported"
+      - "Bias detection and mitigation strategies implemented"
+      - "A/B testing framework for algorithm improvements"
+      - "Fallback mechanisms when AI services unavailable"
+      - "Regular model retraining schedule (monthly)"
+
+  - id: STD-006
+    name: "Code Quality Standards"
+    category: development
+    requirements:
+      - "TypeScript strict mode enabled"
+      - "Minimum 80% test coverage for critical paths"
+      - "Code reviews required for all changes"
+      - "Conventional commits for version history"
+      - "No hardcoded secrets or credentials"
+      - "ESLint and Prettier configuration enforced"
+      - "Documentation for all public APIs"
+      - "Error handling with proper logging"
+
+  - id: STD-007
+    name: "Database & Storage Standards"
+    category: database
+    requirements:
+      - "Database migrations versioned and reversible"
+      - "Indexes on all foreign keys and frequently queried columns"
+      - "Soft deletes for audit trail preservation"
+      - "Database backups every 6 hours"
+      - "Connection pooling with appropriate limits"
+      - "Query optimization for N+1 prevention"
+      - "Separate read replicas for analytics queries"
+      - "Data archival strategy for records > 2 years"
+
+  - id: STD-008
+    name: "Monitoring & Observability"
+    category: operations
+    requirements:
+      - "Application Performance Monitoring (APM) required"
+      - "Error tracking with Sentry or similar"
+      - "Custom metrics for business KPIs"
+      - "Uptime monitoring with 99.9% SLA target"
+      - "Alert fatigue prevention through smart thresholds"
+      - "Distributed tracing for microservices"
+      - "Log aggregation with searchable interface"
+      - "Real User Monitoring (RUM) for frontend"

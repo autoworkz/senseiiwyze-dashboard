@@ -1,0 +1,26 @@
+ticket:
+  id: SENSEI-002
+  title: Create Role-Based Dashboard Views
+  description: Build responsive dashboard layouts with different views for Admin, Corporate, Coach, Learner, and Guest users.
+  workstream: ui
+  priority: high
+  status: pending
+  acceptanceCriteria:
+    - Five different dashboard views implemented
+    - Responsive design works on mobile and desktop
+    - Account switcher component allows role switching
+    - Real-time data updates using WebSocket or polling
+    - Loading states for all async operations
+    - Error boundaries prevent crashes
+  technicalRequirements:
+    - Next.js 15 App Router
+    - shadcn/ui component library
+    - Tailwind CSS for styling
+    - Zustand for state management
+    - React Query for data fetching
+  dependencies:
+    - SENSEI-001
+  metadata:
+    estimatedEffort: 8 days
+    assignee: frontend-team
+    sprint: Sprint 1

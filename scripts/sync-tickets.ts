@@ -31,7 +31,8 @@ async function main() {
     if (!ticket?.id) continue;
 
     const issueTitle = `${ticket.id}  ${ticket.title}`;
-    const labels = ['ai-ticket', ...(ticket.workstream ? [`workstream/${ticket.workstream.replace(/\s+/g, '-').toLowerCase()}`] : [])];
+
+    const labels = ['work-tasks', ...(ticket.workstream ? [`workstream/${ticket.workstream.replace(/\s+/g, '-').toLowerCase()}`] : [])];
 
     // Check if issue exists
     const existing = await octokit.rest.search.issuesAndPullRequests({
@@ -53,3 +54,4 @@ main().catch(err => {
   console.error(err);
   process.exit(1);
 }); 
+
