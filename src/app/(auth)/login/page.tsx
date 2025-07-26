@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { authService } from '@/services/authService'
+import { signIn } from '@/lib/auth-client'
 import { SocialLogin } from '@/components/auth/social-login'
 
 export default function LoginPage() {
@@ -23,22 +23,12 @@ export default function LoginPage() {
     setError('')
 
     try {
-      const loginResponse = await authService.login(email, password)
+      await signIn.emailAndPassword({
+        email,
+        password,
+        callbackURL: '/',
+      })
       
-      // Role-based redirect
-      switch (loginResponse.user.role) {
-        case 'learner':
-          router.push('/me')
-          break
-        case 'admin':
-          router.push('/team')
-          break
-        case 'executive':
-          router.push('/org')
-          break
-        default:
-          router.push('/dashboard')
-      }
     } catch {
       setError('Invalid credentials. Please try again.')
     } finally {
