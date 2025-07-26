@@ -1,0 +1,55 @@
+import { betterAuth } from "better-auth";
+import { github, google } from "better-auth/plugins/oauth";
+import { magicLink } from "better-auth/plugins/magic-link";
+import { sendMagicLinkEmail, sendVerificationEmail } from "../src/lib/email";
+
+export const auth = betterAuth({
+  database: {
+    provider: "sqlite",
+    url: "./dev.db"
+  },
+  emailAndPassword: {
+    enabled: true,
+    requireEmailVerification: true,
+    sendResetPassword: async ({ user, url }) => {
+      // Use Resend for password reset emails
+      await sendMagicLinkEmail({
+        email: user.email,
+        url,
+        appName: 'SenseiiWyze'
+      });
+    },
+  },
+  emailVerification: {
+    sendVerificationEmail: async ({ user, url }) => {
+      // Use Resend for email verification
+      await sendVerificationEmail({
+        email: user.email,
+        url,
+        appName: 'SenseiiWyze'
+      });
+    },
+  },
+  plugins: [
+    github({
+      clientId: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+    }),
+    google({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+    magicLink({
+      sendMagicLink: async ({ email, url }) => {
+        // Use Resend for magic link emails
+        await sendMagicLinkEmail({
+          email,
+          url,
+          appName: 'SenseiiWyze'
+        });
+      },
+    }),
+  ],
+});
+
+export type Auth = typeof auth;

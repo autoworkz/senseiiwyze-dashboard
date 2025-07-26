@@ -125,10 +125,7 @@ out of poverty, simultaneously.
 
 rural
 
-│ > Here's context: @docs/project/context.md @docs/project/business_context.md \                       │
-│   \                                                                                                  │
-│   I need you to analyze this and try to tell me what you think of this project from the standpoint   │
-│   of these docs: I'll fur @docs/project/delegatable.md                                               
+│ >                                                
 
 BEAD funding and AI Adoption is a
 perfect storm for Automation Workz
