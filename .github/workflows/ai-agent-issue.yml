@@ -1,0 +1,307 @@
+name: AI Agent Issue Management
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Run every hour to check for AI agent activation
+    - cron: '0 * * * *'
+  issues:
+    types: [closed, labeled, unlabeled]
+
+jobs:
+  manage-ai-agent-issue:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Check for AI agent issue
+        id: check-issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const AGENT_LABEL = 'ai-agent-active';
+            const ISSUE_TITLE = '🤖 AI Agent Activation';
+            const ISSUE_BODY = `
+            # AI Agent Activation Issue
+            
+            This issue is used to activate and manage AI agents for this repository.
+            
+            ## Status
+            - **Label**: \`${AGENT_LABEL}\`
+            - **Purpose**: AI agent activation and management
+            - **Created**: ${new Date().toISOString()}
+            - **Repository**: ${context.repo.owner}/${context.repo.repo}
+            
+            ## Instructions
+            - Keep this issue open to maintain AI agent activation
+            - The \`${AGENT_LABEL}\` label is required for agent functionality
+            - This issue is automatically managed by GitHub Actions
+            - Manual edits are preserved but the label management is automatic
+            
+            ## Features
+            - Automated issue creation and label management
+            - AI agent activation trigger
+            - Repository automation support
+            - Hourly health checks
+            - Issue state monitoring
+            
+            ## Validation
+            - ✅ Issue exists and is open
+            - ✅ Required label \`${AGENT_LABEL}\` is present
+            - ✅ Workflow permissions are correct
+            
+            ---
+            *This issue was automatically created by GitHub Actions workflow*
+            *Last updated: ${new Date().toISOString()}*
+            `;
+            
+            // Validation function
+            function validateIssue(issue) {
+              const validations = {
+                exists: !!issue,
+                isOpen: issue?.state === 'open',
+                hasLabel: issue?.labels?.some(label => label.name === AGENT_LABEL),
+                hasCorrectTitle: issue?.title === ISSUE_TITLE
+              };
+              
+              console.log('🔍 Issue validation:', validations);
+              return validations;
+            }
+            
+            try {
+              console.log(`🔍 Checking for AI agent issues with label '${AGENT_LABEL}'`);
+              
+              // Get all open issues with the agent label
+              const { data: labeledIssues } = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                labels: AGENT_LABEL
+              });
+              
+              console.log(`Found ${labeledIssues.length} open issues with label '${AGENT_LABEL}'`);
+              
+              if (labeledIssues.length > 0) {
+                // AI agent issue already exists with the label
+                const issue = labeledIssues[0];
+                const validation = validateIssue(issue);
+                
+                if (validation.exists && validation.isOpen && validation.hasLabel) {
+                  console.log(`✅ AI agent issue exists and is valid: #${issue.number}`);
+                  console.log(`   Title: ${issue.title}`);
+                  console.log(`   URL: ${issue.html_url}`);
+                  core.setOutput('action', 'exists');
+                  core.setOutput('issue-number', issue.number);
+                  core.setOutput('issue-url', issue.html_url);
+                  core.setOutput('validation', 'passed');
+                  return;
+                } else {
+                  console.log(`⚠️ AI agent issue exists but has validation issues`);
+                  console.log(`   Validation results:`, validation);
+                }
+              }
+              
+              // Check for issues with the title but without the label
+              console.log(`🔍 Checking for issues with title '${ISSUE_TITLE}' without label`);
+              const { data: allIssues } = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open'
+              });
+              
+              const existingIssue = allIssues.find(issue => 
+                issue.title === ISSUE_TITLE && 
+                !issue.labels.some(label => label.name === AGENT_LABEL)
+              );
+              
+              if (existingIssue) {
+                // Issue exists but doesn't have the label - add it
+                console.log(`🏷️ Found existing issue #${existingIssue.number} without label, adding label`);
+                console.log(`   Title: ${existingIssue.title}`);
+                console.log(`   Current labels: ${existingIssue.labels.map(l => l.name).join(', ')}`);
+                
+                try {
+                  await github.rest.issues.addLabels({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: existingIssue.number,
+                    labels: [AGENT_LABEL]
+                  });
+                  
+                  // Verify the label was added
+                  const { data: updatedIssue } = await github.rest.issues.get({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: existingIssue.number
+                  });
+                  
+                  const validation = validateIssue(updatedIssue);
+                  
+                  if (validation.hasLabel) {
+                    console.log(`✅ Successfully added label to issue #${existingIssue.number}`);
+                    core.setOutput('action', 'labeled');
+                    core.setOutput('issue-number', existingIssue.number);
+                    core.setOutput('issue-url', updatedIssue.html_url);
+                    core.setOutput('validation', 'passed');
+                  } else {
+                    console.log(`❌ Failed to add label to issue #${existingIssue.number}`);
+                    core.setOutput('validation', 'failed');
+                  }
+                  return;
+                  
+                } catch (labelError) {
+                  console.error(`❌ Error adding label to issue #${existingIssue.number}:`, labelError);
+                  core.setOutput('validation', 'error');
+                  throw labelError;
+                }
+              }
+              
+              // No AI agent issue exists - create one
+              console.log('🆕 No AI agent issue found, creating new issue');
+              
+              try {
+                const { data: newIssue } = await github.rest.issues.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: ISSUE_TITLE,
+                  body: ISSUE_BODY,
+                  labels: [AGENT_LABEL]
+                });
+                
+                // Verify the created issue
+                const validation = validateIssue(newIssue);
+                
+                if (validation.exists && validation.isOpen && validation.hasLabel) {
+                  console.log(`✅ Successfully created AI agent issue: #${newIssue.number}`);
+                  console.log(`   Title: ${newIssue.title}`);
+                  console.log(`   URL: ${newIssue.html_url}`);
+                  console.log(`   Labels: ${newIssue.labels.map(l => l.name).join(', ')}`);
+                  
+                  core.setOutput('action', 'created');
+                  core.setOutput('issue-number', newIssue.number);
+                  core.setOutput('issue-url', newIssue.html_url);
+                  core.setOutput('validation', 'passed');
+                } else {
+                  console.log(`❌ Created issue has validation issues:`, validation);
+                  core.setOutput('validation', 'failed');
+                }
+                
+              } catch (createError) {
+                console.error(`❌ Error creating AI agent issue:`, createError);
+                core.setOutput('validation', 'error');
+                throw createError;
+              }
+              
+            } catch (error) {
+              console.error('❌ Error managing AI agent issue:', error);
+              console.error('Error details:', {
+                message: error.message,
+                status: error.status,
+                response: error.response?.data
+              });
+              core.setOutput('validation', 'error');
+              core.setFailed(`Failed to manage AI agent issue: ${error.message}`);
+            }
+      
+      - name: Report results
+        run: |
+          echo "========================"
+          echo "🤖 AI AGENT ISSUE REPORT"
+          echo "========================"
+          echo "Action taken: ${{ steps.check-issue.outputs.action }}"
+          echo "Issue number: ${{ steps.check-issue.outputs.issue-number }}"
+          echo "Issue URL: ${{ steps.check-issue.outputs.issue-url }}"
+          echo "Validation: ${{ steps.check-issue.outputs.validation }}"
+          echo "Timestamp: $(date)"
+          echo ""
+          
+          case "${{ steps.check-issue.outputs.action }}" in
+            "exists")
+              echo "✅ AI agent issue already exists with proper label"
+              echo "   No action needed - system is ready for AI agent activation"
+              ;;
+            "labeled") 
+              echo "🏷️ Added ai-agent-active label to existing issue"
+              echo "   AI agent can now be activated using this issue"
+              ;;
+            "created")
+              echo "🆕 Created new AI agent issue with label"
+              echo "   Fresh issue created and ready for AI agent activation"
+              ;;
+            *)
+              echo "❓ Unknown action taken or error occurred"
+              echo "   Check workflow logs for details"
+              ;;
+          esac
+          
+          echo ""
+          case "${{ steps.check-issue.outputs.validation }}" in
+            "passed")
+              echo "✅ All validations passed - AI agent system is ready"
+              ;;
+            "failed")
+              echo "❌ Validation failed - manual intervention may be required"
+              ;;
+            "error")
+              echo "⚠️ Validation error - check workflow logs and permissions"
+              ;;
+            *)
+              echo "ℹ️ Validation status unknown"
+              ;;
+          esac
+          echo "========================"
+
+      - name: Validate final state
+        if: steps.check-issue.outputs.validation == 'passed'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issueNumber = '${{ steps.check-issue.outputs.issue-number }}';
+            const AGENT_LABEL = 'ai-agent-active';
+            
+            if (!issueNumber) {
+              console.log('❌ No issue number available for validation');
+              return;
+            }
+            
+            try {
+              console.log(`🔍 Final validation of issue #${issueNumber}`);
+              
+              const { data: issue } = await github.rest.issues.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber
+              });
+              
+              const checks = {
+                'Issue exists': !!issue,
+                'Issue is open': issue.state === 'open',
+                'Has AI agent label': issue.labels.some(label => label.name === AGENT_LABEL),
+                'Correct title': issue.title === '🤖 AI Agent Activation'
+              };
+              
+              console.log('🎯 Final validation results:');
+              for (const [check, result] of Object.entries(checks)) {
+                console.log(`   ${result ? '✅' : '❌'} ${check}`);
+              }
+              
+              const allPassed = Object.values(checks).every(check => check);
+              
+              if (allPassed) {
+                console.log('🎉 All final validations passed!');
+                console.log(`🔗 Issue URL: ${issue.html_url}`);
+                console.log('🤖 AI agent can now be activated');
+              } else {
+                console.log('⚠️ Some final validations failed');
+                core.setFailed('Final validation failed');
+              }
+              
+            } catch (error) {
+              console.error('❌ Error during final validation:', error);
+              core.setFailed(`Final validation error: ${error.message}`);
+            }

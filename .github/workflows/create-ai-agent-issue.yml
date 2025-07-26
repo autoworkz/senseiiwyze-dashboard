@@ -1,0 +1,128 @@
+name: Create AI Agent Issue
+
+on:
+  workflow_dispatch:
+    inputs:
+      force_create:
+        description: 'Force create new issue even if one exists'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  create-ai-agent-issue:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    
+    steps:
+      - name: Create or update AI agent issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const AGENT_LABEL = 'ai-agent-active';
+            const ISSUE_TITLE = '🤖 AI Agent Activation';
+            const forceCreate = '${{ github.event.inputs.force_create }}' === 'true';
+            
+            const ISSUE_BODY = `
+            # AI Agent Activation Issue
+            
+            This issue is used to activate and manage AI agents for this repository.
+            
+            ## Status
+            - **Label**: \`${AGENT_LABEL}\`
+            - **Purpose**: AI agent activation and management
+            - **Created**: ${new Date().toISOString()}
+            
+            ## Instructions
+            - Keep this issue open to maintain AI agent activation
+            - The \`${AGENT_LABEL}\` label is required for agent functionality
+            - This issue can be managed manually or automatically via GitHub Actions
+            
+            ## Features
+            - Automated issue creation and label management
+            - AI agent activation trigger
+            - Repository automation support
+            - Manual workflow trigger available
+            
+            ## Usage
+            To manually trigger the AI agent issue management:
+            1. Go to Actions tab
+            2. Select "Create AI Agent Issue" workflow
+            3. Click "Run workflow"
+            
+            ---
+            *This issue was created via GitHub Actions workflow*
+            `;
+            
+            try {
+              if (!forceCreate) {
+                // Check if issue already exists with the label
+                const { data: issues } = await github.rest.issues.listForRepo({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  state: 'open',
+                  labels: AGENT_LABEL
+                });
+                
+                if (issues.length > 0) {
+                  const issue = issues[0];
+                  console.log(`✅ AI agent issue already exists: #${issue.number}`);
+                  console.log(`Issue URL: ${issue.html_url}`);
+                  return;
+                }
+                
+                // Check for issue without label
+                const { data: allIssues } = await github.rest.issues.listForRepo({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  state: 'open'
+                });
+                
+                const existingIssue = allIssues.find(issue => 
+                  issue.title === ISSUE_TITLE
+                );
+                
+                if (existingIssue) {
+                  console.log(`🏷️ Adding label to existing issue #${existingIssue.number}`);
+                  
+                  await github.rest.issues.addLabels({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: existingIssue.number,
+                    labels: [AGENT_LABEL]
+                  });
+                  
+                  console.log(`✅ Label added to issue #${existingIssue.number}`);
+                  console.log(`Issue URL: ${existingIssue.html_url}`);
+                  return;
+                }
+              }
+              
+              // Create new issue
+              console.log('🆕 Creating new AI agent issue...');
+              
+              const { data: newIssue } = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: ISSUE_TITLE,
+                body: ISSUE_BODY,
+                labels: [AGENT_LABEL]
+              });
+              
+              console.log(`✅ Created AI agent issue: #${newIssue.number}`);
+              console.log(`Issue URL: ${newIssue.html_url}`);
+              
+              // Add a comment with additional info
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: newIssue.number,
+                body: `🚀 AI Agent issue has been successfully created!\n\nThis issue will help activate and manage AI agents for the repository. The \`${AGENT_LABEL}\` label is essential for proper functionality.`
+              });
+              
+            } catch (error) {
+              console.error('❌ Error creating AI agent issue:', error);
+              core.setFailed(`Failed to create AI agent issue: ${error.message}`);
+            }
