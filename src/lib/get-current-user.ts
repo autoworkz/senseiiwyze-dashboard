@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers'
-import { auth } from '@/lib/auth'
+import { auth } from '../../lib/auth'
 
 export async function getCurrentUser() {
   const cookieHeader = { cookie: cookies().toString() }

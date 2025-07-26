@@ -6,7 +6,7 @@ import { Bell, LogOut, Settings } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { DashboardSidebar, DashboardSidebarItems } from "@/components/dashboard-sidebar"
-import { signOut } from "@/lib/auth-client"
+import { signOut } from "../../../lib/auth-client"
 import { useRouter } from "next/navigation"
 
 export default function DashboardLayout({

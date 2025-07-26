@@ -8,7 +8,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useDebouncedSettingsStore } from "@/stores/debounced-settings-store"
-import { signOut } from "@/lib/auth-client"
+import { signOut } from "../../../lib/auth-client"
 import { useRouter } from "next/navigation"
 import UserDashboardPage from "./user-dashboard/page"
 
