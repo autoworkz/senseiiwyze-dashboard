@@ -1,3 +1,2 @@
-import { getMyMetrics } from '../mock-data'
+export { getMyMetrics } from '@/lib/mock-data'
 
-export { getMyMetrics }

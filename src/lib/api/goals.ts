@@ -1,3 +1,2 @@
-import { getMyGoals } from '../mock-data'
+export { getMyGoals } from '@/lib/mock-data'
 
-export { getMyGoals }

@@ -1,3 +1,2 @@
-import { getTeamStats, getLearners, getLearnerProfile } from '../mock-data'
+export { getLearners, getTeamStats, getLearnerProfile } from '@/lib/mock-data'
 
-export { getTeamStats, getLearners, getLearnerProfile }

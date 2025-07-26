@@ -4,12 +4,8 @@ import { LearnerProgress } from '@/components/team/LearnerProgress'
 import { InterventionHistory } from '@/components/team/InterventionHistory'
 import { getLearnerProfile } from '@/lib/api/team'
 
-export default async function LearnerProfilePage({
-  params,
-}: {
-  params: { id: string }
-}) {
-  const learner = await getLearnerProfile(params.id)
+export default async function LearnerProfilePage() {
+  const learner = await getLearnerProfile()
   
   if (!learner) {
     return (
@@ -17,7 +13,7 @@ export default async function LearnerProfilePage({
         <div className="text-center">
           <h2 className="text-2xl font-semibold mb-2">Learner Not Found</h2>
           <p className="text-muted-foreground">
-            The learner profile you're looking for doesn't exist.
+            The learner profile you&apos;re looking for doesn&apos;t exist.
           </p>
         </div>
       </div>

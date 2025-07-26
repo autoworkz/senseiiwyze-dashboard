@@ -3,7 +3,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 interface ProgressGridProps {
-  metrics: any
+  metrics: {
+    skillFit: number
+    overallProgress: number
+    visionAlignment: number
+    gameIndex: number
+    gritScore: number
+  }
 }
 
 export function ProgressGrid({ metrics }: ProgressGridProps) {

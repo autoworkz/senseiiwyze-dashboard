@@ -1,3 +1,2 @@
-import { getMyLearningData } from '../mock-data'
+export { getMyLearningData } from '@/lib/mock-data'
 
-export { getMyLearningData }

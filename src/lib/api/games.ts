@@ -1,3 +1,2 @@
-import { getMyGameStats } from '../mock-data'
+export { getMyGameStats } from '@/lib/mock-data'
 
-export { getMyGameStats }

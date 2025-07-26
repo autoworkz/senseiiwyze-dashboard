@@ -1,16 +1,74 @@
+'use client'
+
+import { useState, useEffect } from 'react'
 import { SummaryBar } from '@/components/team/SummaryBar'
 import { FilterPanel } from '@/components/team/FilterPanel'
 import { LearnerTable } from '@/components/team/LearnerTable'
 import { TeamInsights } from '@/components/team/TeamInsights'
 import { getLearners, getTeamStats } from '@/lib/api/team'
 
-export default async function TeamDashboardPage({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined }
-}) {
-  const stats = await getTeamStats()
-  const learners = await getLearners(searchParams)
+interface FilterState {
+  search?: string
+  status?: string
+  riskLevel?: string
+  skillFit?: string
+  showAtRiskOnly?: boolean
+}
+
+interface TeamStats {
+  totalLearners: number
+  averageSkillFit: number
+  atRiskPercentage: number
+  atRiskCount: number
+  weeklyActive: number
+  completionRate: number
+  averageProgress: number
+}
+
+interface Learner {
+  id: string
+  name: string
+  email: string
+  track: string
+  skillFit: number
+  progress: number
+  lastActive: Date
+  riskStatus: string
+  coach: string
+  joinDate: Date
+}
+
+export default function TeamDashboardPage() {
+  const [stats, setStats] = useState<TeamStats | null>(null)
+  const [learners, setLearners] = useState<Learner[]>([])
+  const [filters, setFilters] = useState<FilterState>({})
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [statsData, learnersResponse] = await Promise.all([
+          getTeamStats(),
+          getLearners(filters as Record<string, unknown>)
+        ])
+        setStats(statsData)
+        setLearners(learnersResponse.data)
+      } catch (error) {
+        console.error('Failed to load data:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadData()
+  }, [filters])
+
+  const handleFiltersChange = (newFilters: FilterState) => {
+    setFilters(newFilters)
+  }
+
+  if (loading || !stats) {
+    return <div>Loading...</div>
+  }
   
   return (
     <div className="space-y-6">
@@ -26,21 +84,19 @@ export default async function TeamDashboardPage({
       <SummaryBar stats={stats} />
       
       {/* Team insights */}
-      <TeamInsights stats={stats} />
+      <TeamInsights data={stats} />
       
       {/* Main content with sidebar */}
       <div className="flex gap-6">
         {/* Filter sidebar */}
         <aside className="w-64 shrink-0 hidden xl:block">
-          <FilterPanel />
+          <FilterPanel onFiltersChange={handleFiltersChange} activeFilters={filters} />
         </aside>
         
         {/* Data table */}
         <div className="flex-1">
           <LearnerTable 
-            learners={learners.data} 
-            totalCount={learners.total}
-            currentPage={learners.page}
+            learners={learners} 
           />
         </div>
       </div>

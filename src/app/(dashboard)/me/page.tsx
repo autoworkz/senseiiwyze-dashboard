@@ -13,7 +13,7 @@ export default async function MyProgressPage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">My Progress</h1>
         <p className="text-muted-foreground mt-2">
-          Track your journey to tech mastery and see how you're progressing
+          Track your journey to tech mastery and see how you&apos;re progressing
         </p>
       </div>
       

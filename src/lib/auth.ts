@@ -31,7 +31,7 @@ const mockUsers: Record<string, User> = {
 
 export async function getCurrentUser(): Promise<User | null> {
   try {
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     const userCookie = cookieStore.get('user')
     
     if (!userCookie) {

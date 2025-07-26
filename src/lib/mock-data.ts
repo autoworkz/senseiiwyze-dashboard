@@ -1,5 +1,28 @@
 // Centralized mock data service for the SenseiiWyze dashboard
 
+interface LearningModule {
+  id: string
+  title: string
+  progress: number
+  status: 'completed' | 'in-progress' | 'upcoming'
+  duration: string
+}
+
+interface Recommendation {
+  title: string
+  type: 'course' | 'article' | 'video'
+  reason: string
+}
+
+interface Intervention {
+  id: string
+  title: string
+  description: string
+  priority: 'high' | 'medium' | 'low'
+  action: string
+  dueDate: string
+}
+
 export const mockData = {
   // Executive KPIs
   organizationKPIs: {
@@ -81,7 +104,7 @@ export const mockData = {
         id: 'int-1',
         title: 'Complete Module 3 Lab',
         description: 'You\'re 2 days behind schedule on the networking lab',
-        priority: 'high',
+        priority: 'high' as const,
         action: 'Start Lab',
         dueDate: '2024-01-15',
       },
@@ -89,11 +112,11 @@ export const mockData = {
         id: 'int-2',
         title: 'Join Study Group',
         description: 'Connect with peers working on similar modules',
-        priority: 'medium',
+        priority: 'medium' as const,
         action: 'Find Group',
         dueDate: '2024-01-20',
       },
-    ],
+    ] as Intervention[],
   },
   
   // Goals data for learner
@@ -230,36 +253,36 @@ export const mockData = {
         id: 'mod-1',
         title: 'Python Fundamentals',
         progress: 100,
-        status: 'completed',
+        status: 'completed' as const,
         duration: '4 weeks',
       },
       {
         id: 'mod-2',
         title: 'Network Security',
         progress: 75,
-        status: 'in-progress',
+        status: 'in-progress' as const,
         duration: '6 weeks',
       },
       {
         id: 'mod-3',
         title: 'Cloud Architecture',
         progress: 0,
-        status: 'upcoming',
+        status: 'upcoming' as const,
         duration: '8 weeks',
       },
-    ],
+    ] as LearningModule[],
     recommendations: [
       {
         title: 'Advanced Python Patterns',
-        type: 'course',
+        type: 'course' as const,
         reason: 'Based on your Python completion',
       },
       {
         title: 'Security Best Practices',
-        type: 'article',
+        type: 'article' as const,
         reason: 'Complements current module',
       },
-    ],
+    ] as Recommendation[],
     currentPath: [
       {
         title: 'Complete Network Lab 3',
@@ -357,7 +380,7 @@ export async function getTeamStats() {
   return mockData.teamStats
 }
 
-export async function getLearners(params: any) {
+export async function getLearners(params: Record<string, unknown>) {
   await delay(400)
   
   // Apply filters
@@ -378,7 +401,7 @@ export async function getLearners(params: any) {
   }
 }
 
-export async function getLearnerProfile(id: string) {
+export async function getLearnerProfile() {
   await delay(300)
   return mockData.learnerProfile
 }

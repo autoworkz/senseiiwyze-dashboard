@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
+
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -22,10 +22,10 @@ export default function LoginPage() {
     setError('')
 
     try {
-      const user = await authService.login(email, password)
+      const loginResponse = await authService.login(email, password)
       
       // Role-based redirect
-      switch (user.role) {
+      switch (loginResponse.user.role) {
         case 'learner':
           router.push('/me')
           break
@@ -38,7 +38,7 @@ export default function LoginPage() {
         default:
           router.push('/dashboard')
       }
-    } catch (err) {
+    } catch {
       setError('Invalid credentials. Please try again.')
     } finally {
       setIsLoading(false)

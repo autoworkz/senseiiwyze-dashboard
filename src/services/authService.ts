@@ -1,6 +1,7 @@
 export interface User {
   id: number
   email: string
+  role: 'learner' | 'admin' | 'executive'
   provider?: string
 }
 
@@ -82,6 +83,14 @@ class AuthService {
       throw new Error('Email and password are required')
     }
     
+    // Determine role based on email for demo purposes
+    let role: 'learner' | 'admin' | 'executive' = 'learner'
+    if (email.includes('admin')) {
+      role = 'admin'
+    } else if (email.includes('executive')) {
+      role = 'executive'
+    }
+    
     // For demo purposes, accept any email/password combination
     // In a real app, you would validate credentials against a database
     const token = 'mock-jwt-token-' + Date.now()
@@ -94,6 +103,7 @@ class AuthService {
       user: {
         id: 1,
         email: email,
+        role: role,
       }
     }
   }
@@ -115,6 +125,7 @@ class AuthService {
       user: {
         id: Math.floor(Math.random() * 1000) + 1,
         email: `user@${provider}.com`,
+        role: 'learner',
         provider: provider,
       }
     }

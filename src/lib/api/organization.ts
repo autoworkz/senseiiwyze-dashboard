@@ -1,3 +1,2 @@
-import { getOrganizationKPIs } from '../mock-data'
+export { getOrganizationKPIs } from '@/lib/mock-data'
 
-export { getOrganizationKPIs }
