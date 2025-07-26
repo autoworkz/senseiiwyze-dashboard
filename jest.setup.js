@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom'
+import 'jest-axe/extend-expect'
 
 // Use legacy fake timers to avoid timer conflicts
 jest.useFakeTimers('legacy')
