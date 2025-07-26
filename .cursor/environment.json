@@ -1,7 +1,12 @@
 {
-  "build": {
-    "dockerfile": "Dockerfile",
-    "context": "."
-  },
-  "terminals": []
+  "agentCanUpdateSnapshot": true,
+  "install": "pnpm install",
+  "start": "pnpm start",
+  "name": "SenseiiWyze AI-powered B2B2C tech skill coaching platform",
+  "terminals": [
+    {
+      "name": "SenseiiWyze AI-powered B2B2C tech skill coaching platform",
+      "command": "pnpm dev"
+    }
+  ]
 }
