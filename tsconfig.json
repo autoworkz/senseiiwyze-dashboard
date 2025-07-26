@@ -33,7 +33,8 @@
     "types": [
       "./env.d.ts",
       "node",
-      "jest"
+      "jest",
+      "@testing-library/jest-dom"
     ]
   },
   "include": [

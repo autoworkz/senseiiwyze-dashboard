@@ -1,5 +1,5 @@
 import { betterAuth } from "better-auth";
-import { github, google } from "better-auth/plugins/oauth";
+// import { github, google } from "better-auth/plugins/oauth";
 import { magicLink } from "better-auth/plugins/magic-link";
 import { sendMagicLinkEmail, sendVerificationEmail } from "../src/lib/email";
 
@@ -20,6 +20,16 @@ export const auth = betterAuth({
       });
     },
   },
+  socialProviders: {
+    github: {
+      clientId: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+    },
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    },
+  },
   emailVerification: {
     sendVerificationEmail: async ({ user, url }) => {
       // Use Resend for email verification
@@ -31,14 +41,7 @@ export const auth = betterAuth({
     },
   },
   plugins: [
-    github({
-      clientId: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-    }),
-    google({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    }),
+
     magicLink({
       sendMagicLink: async ({ email, url }) => {
         // Use Resend for magic link emails
