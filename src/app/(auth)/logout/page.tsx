@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { authService } from '@/services/authService'
+import { signOut } from '../../../../lib/auth-client'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default function LogoutPage() {
@@ -11,14 +11,14 @@ export default function LogoutPage() {
   useEffect(() => {
     const performLogout = async () => {
       try {
-        await authService.logout()
+        await signOut({ callbackURL: '/auth/login' })
         // Redirect to login after a brief delay
         setTimeout(() => {
-          router.push('/login')
+          router.push('/auth/login')
         }, 2000)
       } catch (error) {
         console.error('Logout error:', error)
-        router.push('/login')
+        router.push('/auth/login')
       }
     }
 

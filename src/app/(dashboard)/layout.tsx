@@ -1,7 +1,7 @@
 import { DashboardNav } from '@/components/layout/DashboardNav'
 import { DashboardSidebar } from '@/components/layout/DashboardSidebar'
 import { UserMenu } from '@/components/layout/UserMenu'
-import { getCurrentUser } from '@/lib/auth'
+import { getCurrentUser } from '@/lib/get-current-user'
 import { redirect } from 'next/navigation'
 
 export default async function DashboardLayout({
