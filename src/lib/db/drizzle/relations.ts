@@ -1,7 +1,8 @@
 import { relations } from "drizzle-orm/relations";
-import { accounts, invitations, usersInAuth, roles, profiles, workplaces, orders, billingCustomers, subscriptions, assessments, answers, evaluations, questions, accountUser, categories, activities, creditsUsage, chats, sizes, goals, visionBoards, gameTasks, chatMessages, orderItems, profilesCopy, nonces, lcaInvitations, rolePermissions, subscriptionItems, tasks, userTasks, scores, status, visionLog, gameInfo, activityProgress, notifications, taskCompletion, accountsMemberships } from "./schema";
+import { accounts, invitations, roles, profiles, workplaces, orders, billingCustomers, subscriptions, assessments, answers, evaluations, questions, accountUser, categories, activities, creditsUsage, chats, sizes, goals, visionBoards, gameTasks, chatMessages, orderItems, profilesCopy, nonces, lcaInvitations, rolePermissions, subscriptionItems, tasks, userTasks, scores, status, visionLog, gameInfo, activityProgress, notifications, taskCompletion, accountsMemberships } from "./schema";
+import { user as usersInAuth } from "../better-auth-schema";
 
-export const invitationsRelations = relations(invitations, ({one}) => ({
+export const invitationsRelations = relations(invitations, ({ one }) => ({
 	account: one(accounts, {
 		fields: [invitations.accountId],
 		references: [accounts.id]
@@ -16,7 +17,7 @@ export const invitationsRelations = relations(invitations, ({one}) => ({
 	}),
 }));
 
-export const accountsRelations = relations(accounts, ({one, many}) => ({
+export const accountsRelations = relations(accounts, ({ one, many }) => ({
 	invitations: many(invitations),
 	orders: many(orders),
 	subscriptions: many(subscriptions),
@@ -44,7 +45,7 @@ export const accountsRelations = relations(accounts, ({one, many}) => ({
 	accountsMemberships: many(accountsMemberships),
 }));
 
-export const usersInAuthRelations = relations(usersInAuth, ({many}) => ({
+export const usersInAuthRelations = relations(usersInAuth, ({ many }) => ({
 	invitations: many(invitations),
 	profiles: many(profiles),
 	profilesCopies: many(profilesCopy),
@@ -69,13 +70,13 @@ export const usersInAuthRelations = relations(usersInAuth, ({many}) => ({
 	}),
 }));
 
-export const rolesRelations = relations(roles, ({many}) => ({
+export const rolesRelations = relations(roles, ({ many }) => ({
 	invitations: many(invitations),
 	rolePermissions: many(rolePermissions),
 	accountsMemberships: many(accountsMemberships),
 }));
 
-export const profilesRelations = relations(profiles, ({one, many}) => ({
+export const profilesRelations = relations(profiles, ({ one, many }) => ({
 	usersInAuth: one(usersInAuth, {
 		fields: [profiles.id],
 		references: [usersInAuth.id]
@@ -101,7 +102,7 @@ export const profilesRelations = relations(profiles, ({one, many}) => ({
 	taskCompletions: many(taskCompletion),
 }));
 
-export const workplacesRelations = relations(workplaces, ({many}) => ({
+export const workplacesRelations = relations(workplaces, ({ many }) => ({
 	profiles_institutionRef: many(profiles, {
 		relationName: "profiles_institutionRef_workplaces_id"
 	}),
@@ -119,7 +120,7 @@ export const workplacesRelations = relations(workplaces, ({many}) => ({
 	lcaInvitations: many(lcaInvitations),
 }));
 
-export const ordersRelations = relations(orders, ({one, many}) => ({
+export const ordersRelations = relations(orders, ({ one, many }) => ({
 	account: one(accounts, {
 		fields: [orders.accountId],
 		references: [accounts.id]
@@ -131,7 +132,7 @@ export const ordersRelations = relations(orders, ({one, many}) => ({
 	orderItems: many(orderItems),
 }));
 
-export const billingCustomersRelations = relations(billingCustomers, ({one, many}) => ({
+export const billingCustomersRelations = relations(billingCustomers, ({ one, many }) => ({
 	orders: many(orders),
 	subscriptions: many(subscriptions),
 	account: one(accounts, {
@@ -140,7 +141,7 @@ export const billingCustomersRelations = relations(billingCustomers, ({one, many
 	}),
 }));
 
-export const subscriptionsRelations = relations(subscriptions, ({one, many}) => ({
+export const subscriptionsRelations = relations(subscriptions, ({ one, many }) => ({
 	account: one(accounts, {
 		fields: [subscriptions.accountId],
 		references: [accounts.id]
@@ -152,7 +153,7 @@ export const subscriptionsRelations = relations(subscriptions, ({one, many}) => 
 	subscriptionItems: many(subscriptionItems),
 }));
 
-export const answersRelations = relations(answers, ({one}) => ({
+export const answersRelations = relations(answers, ({ one }) => ({
 	assessment: one(assessments, {
 		fields: [answers.assessmentId],
 		references: [assessments.id]
@@ -171,13 +172,13 @@ export const answersRelations = relations(answers, ({one}) => ({
 	}),
 }));
 
-export const assessmentsRelations = relations(assessments, ({many}) => ({
+export const assessmentsRelations = relations(assessments, ({ many }) => ({
 	answers: many(answers),
 	evaluations: many(evaluations),
 	questions: many(questions),
 }));
 
-export const evaluationsRelations = relations(evaluations, ({one, many}) => ({
+export const evaluationsRelations = relations(evaluations, ({ one, many }) => ({
 	answers: many(answers),
 	assessment: one(assessments, {
 		fields: [evaluations.assessmentId],
@@ -193,7 +194,7 @@ export const evaluationsRelations = relations(evaluations, ({one, many}) => ({
 	}),
 }));
 
-export const questionsRelations = relations(questions, ({one, many}) => ({
+export const questionsRelations = relations(questions, ({ one, many }) => ({
 	answers: many(answers),
 	assessment: one(assessments, {
 		fields: [questions.assessmentId],
@@ -201,7 +202,7 @@ export const questionsRelations = relations(questions, ({one, many}) => ({
 	}),
 }));
 
-export const accountUserRelations = relations(accountUser, ({one}) => ({
+export const accountUserRelations = relations(accountUser, ({ one }) => ({
 	workplace: one(workplaces, {
 		fields: [accountUser.accountId],
 		references: [workplaces.id]
@@ -212,7 +213,7 @@ export const accountUserRelations = relations(accountUser, ({one}) => ({
 	}),
 }));
 
-export const activitiesRelations = relations(activities, ({one, many}) => ({
+export const activitiesRelations = relations(activities, ({ one, many }) => ({
 	category: one(categories, {
 		fields: [activities.categoryId],
 		references: [categories.id]
@@ -221,18 +222,18 @@ export const activitiesRelations = relations(activities, ({one, many}) => ({
 	activityProgresses: many(activityProgress),
 }));
 
-export const categoriesRelations = relations(categories, ({many}) => ({
+export const categoriesRelations = relations(categories, ({ many }) => ({
 	activities: many(activities),
 }));
 
-export const creditsUsageRelations = relations(creditsUsage, ({one}) => ({
+export const creditsUsageRelations = relations(creditsUsage, ({ one }) => ({
 	account: one(accounts, {
 		fields: [creditsUsage.accountId],
 		references: [accounts.id]
 	}),
 }));
 
-export const chatsRelations = relations(chats, ({one, many}) => ({
+export const chatsRelations = relations(chats, ({ one, many }) => ({
 	account: one(accounts, {
 		fields: [chats.accountId],
 		references: [accounts.id]
@@ -240,7 +241,7 @@ export const chatsRelations = relations(chats, ({one, many}) => ({
 	chatMessages: many(chatMessages),
 }));
 
-export const goalsRelations = relations(goals, ({one}) => ({
+export const goalsRelations = relations(goals, ({ one }) => ({
 	size: one(sizes, {
 		fields: [goals.sizeId],
 		references: [sizes.id]
@@ -251,11 +252,11 @@ export const goalsRelations = relations(goals, ({one}) => ({
 	}),
 }));
 
-export const sizesRelations = relations(sizes, ({many}) => ({
+export const sizesRelations = relations(sizes, ({ many }) => ({
 	goals: many(goals),
 }));
 
-export const visionBoardsRelations = relations(visionBoards, ({one, many}) => ({
+export const visionBoardsRelations = relations(visionBoards, ({ one, many }) => ({
 	goals: many(goals),
 	visionLogs: many(visionLog),
 	profile: one(profiles, {
@@ -264,7 +265,7 @@ export const visionBoardsRelations = relations(visionBoards, ({one, many}) => ({
 	}),
 }));
 
-export const gameTasksRelations = relations(gameTasks, ({one, many}) => ({
+export const gameTasksRelations = relations(gameTasks, ({ one, many }) => ({
 	activity: one(activities, {
 		fields: [gameTasks.activityId],
 		references: [activities.id]
@@ -272,7 +273,7 @@ export const gameTasksRelations = relations(gameTasks, ({one, many}) => ({
 	taskCompletions: many(taskCompletion),
 }));
 
-export const chatMessagesRelations = relations(chatMessages, ({one}) => ({
+export const chatMessagesRelations = relations(chatMessages, ({ one }) => ({
 	account: one(accounts, {
 		fields: [chatMessages.accountId],
 		references: [accounts.id]
@@ -283,14 +284,14 @@ export const chatMessagesRelations = relations(chatMessages, ({one}) => ({
 	}),
 }));
 
-export const orderItemsRelations = relations(orderItems, ({one}) => ({
+export const orderItemsRelations = relations(orderItems, ({ one }) => ({
 	order: one(orders, {
 		fields: [orderItems.orderId],
 		references: [orders.id]
 	}),
 }));
 
-export const profilesCopyRelations = relations(profilesCopy, ({one}) => ({
+export const profilesCopyRelations = relations(profilesCopy, ({ one }) => ({
 	usersInAuth: one(usersInAuth, {
 		fields: [profilesCopy.id],
 		references: [usersInAuth.id]
@@ -307,14 +308,14 @@ export const profilesCopyRelations = relations(profilesCopy, ({one}) => ({
 	}),
 }));
 
-export const noncesRelations = relations(nonces, ({one}) => ({
+export const noncesRelations = relations(nonces, ({ one }) => ({
 	usersInAuth: one(usersInAuth, {
 		fields: [nonces.userId],
 		references: [usersInAuth.id]
 	}),
 }));
 
-export const lcaInvitationsRelations = relations(lcaInvitations, ({one}) => ({
+export const lcaInvitationsRelations = relations(lcaInvitations, ({ one }) => ({
 	workplace: one(workplaces, {
 		fields: [lcaInvitations.accountId],
 		references: [workplaces.id]
@@ -325,28 +326,28 @@ export const lcaInvitationsRelations = relations(lcaInvitations, ({one}) => ({
 	}),
 }));
 
-export const rolePermissionsRelations = relations(rolePermissions, ({one}) => ({
+export const rolePermissionsRelations = relations(rolePermissions, ({ one }) => ({
 	role: one(roles, {
 		fields: [rolePermissions.role],
 		references: [roles.name]
 	}),
 }));
 
-export const subscriptionItemsRelations = relations(subscriptionItems, ({one}) => ({
+export const subscriptionItemsRelations = relations(subscriptionItems, ({ one }) => ({
 	subscription: one(subscriptions, {
 		fields: [subscriptionItems.subscriptionId],
 		references: [subscriptions.id]
 	}),
 }));
 
-export const tasksRelations = relations(tasks, ({one}) => ({
+export const tasksRelations = relations(tasks, ({ one }) => ({
 	account: one(accounts, {
 		fields: [tasks.accountId],
 		references: [accounts.id]
 	}),
 }));
 
-export const userTasksRelations = relations(userTasks, ({one}) => ({
+export const userTasksRelations = relations(userTasks, ({ one }) => ({
 	profile: one(profiles, {
 		fields: [userTasks.userId],
 		references: [profiles.id]
@@ -361,29 +362,29 @@ export const userTasksRelations = relations(userTasks, ({one}) => ({
 	}),
 }));
 
-export const scoresRelations = relations(scores, ({many}) => ({
+export const scoresRelations = relations(scores, ({ many }) => ({
 	userTasks: many(userTasks),
 }));
 
-export const statusRelations = relations(status, ({many}) => ({
+export const statusRelations = relations(status, ({ many }) => ({
 	userTasks: many(userTasks),
 }));
 
-export const visionLogRelations = relations(visionLog, ({one}) => ({
+export const visionLogRelations = relations(visionLog, ({ one }) => ({
 	visionBoard: one(visionBoards, {
 		fields: [visionLog.visionId],
 		references: [visionBoards.id]
 	}),
 }));
 
-export const gameInfoRelations = relations(gameInfo, ({one}) => ({
+export const gameInfoRelations = relations(gameInfo, ({ one }) => ({
 	profile: one(profiles, {
 		fields: [gameInfo.profileId],
 		references: [profiles.id]
 	}),
 }));
 
-export const activityProgressRelations = relations(activityProgress, ({one}) => ({
+export const activityProgressRelations = relations(activityProgress, ({ one }) => ({
 	activity: one(activities, {
 		fields: [activityProgress.activityId],
 		references: [activities.id]
@@ -394,14 +395,14 @@ export const activityProgressRelations = relations(activityProgress, ({one}) => 
 	}),
 }));
 
-export const notificationsRelations = relations(notifications, ({one}) => ({
+export const notificationsRelations = relations(notifications, ({ one }) => ({
 	account: one(accounts, {
 		fields: [notifications.accountId],
 		references: [accounts.id]
 	}),
 }));
 
-export const taskCompletionRelations = relations(taskCompletion, ({one}) => ({
+export const taskCompletionRelations = relations(taskCompletion, ({ one }) => ({
 	profile: one(profiles, {
 		fields: [taskCompletion.profileId],
 		references: [profiles.id]
@@ -412,7 +413,7 @@ export const taskCompletionRelations = relations(taskCompletion, ({one}) => ({
 	}),
 }));
 
-export const accountsMembershipsRelations = relations(accountsMemberships, ({one}) => ({
+export const accountsMembershipsRelations = relations(accountsMemberships, ({ one }) => ({
 	account: one(accounts, {
 		fields: [accountsMemberships.accountId],
 		references: [accounts.id]

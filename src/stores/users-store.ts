@@ -1,15 +1,13 @@
 import { create } from 'zustand';
-import { persist, combine } from 'zustand/middleware';
-import { mockUsers, generateMockUsers, filterUsers, sortUsers, paginateUsers } from '@/mocks/users';
-import { 
-  User, 
-  UserRole, 
-  UserStatus, 
-  UserMetadata, 
-  UserFilters, 
-  UserSorting, 
-  PaginationState, 
-  UserActivity 
+import { persist } from 'zustand/middleware';
+import { mockUsers, filterUsers, sortUsers, paginateUsers } from '@/mocks/users';
+import {
+  User,
+  UserStatus,
+  UserFilters,
+  UserSorting,
+  PaginationState,
+  UserActivity
 } from '@/types/user';
 
 // Main store state
@@ -18,7 +16,7 @@ export interface UsersState {
   users: User[];
   selectedUser: User | null;
   userActivities: Record<string, UserActivity[]>;
-  
+
   // UI State
   filters: UserFilters;
   sorting: UserSorting;
@@ -26,39 +24,39 @@ export interface UsersState {
   isLoading: boolean;
   isDetailLoading: boolean;
   error: string | null;
-  
+
   // Actions
   // Data fetching
   fetchUsers: (page?: number, pageSize?: number) => Promise<void>;
   fetchUserById: (id: string) => Promise<void>;
   fetchUserActivities: (userId: string) => Promise<void>;
-  
+
   // CRUD operations
   createUser: (user: Omit<User, 'id' | 'createdAt' | 'lastActive'>) => Promise<void>;
   updateUser: (id: string, updates: Partial<User>) => Promise<void>;
   deleteUser: (id: string) => Promise<void>;
-  
+
   // Bulk operations
   bulkUpdateUsers: (ids: string[], updates: Partial<User>) => Promise<void>;
   bulkDeleteUsers: (ids: string[]) => Promise<void>;
-  
+
   // User actions
   suspendUser: (id: string) => Promise<void>;
   activateUser: (id: string) => Promise<void>;
   resetUserPassword: (id: string) => Promise<void>;
-  
+
   // State management
   setSelectedUser: (user: User | null) => void;
   setFilters: (filters: Partial<UserFilters>) => void;
   setSorting: (field: keyof User, direction: 'asc' | 'desc') => void;
   setPage: (page: number) => void;
   setPageSize: (pageSize: number) => void;
-  
+
   // Local state updates (optimistic updates)
   updateLocalUser: (id: string, updates: Partial<User>) => void;
   removeLocalUser: (id: string) => void;
   addLocalUser: (user: User) => void;
-  
+
   // Reset actions
   resetFilters: () => void;
   resetError: () => void;
@@ -106,7 +104,7 @@ export const useUsersStore = create<UsersState>()(
           // This will be replaced with actual API call
           // For now, we'll simulate the API response structure
           const response = await mockFetchUsers(page, pageSize, get().filters, get().sorting);
-          
+
           set({
             users: response.users,
             pagination: {
@@ -186,10 +184,10 @@ export const useUsersStore = create<UsersState>()(
         try {
           const updatedUser = await mockUpdateUser(id, updates);
           set({
-            users: get().users.map(user => 
+            users: get().users.map(user =>
               user.id === id ? { ...user, ...updatedUser } : user
             ),
-            selectedUser: get().selectedUser?.id === id 
+            selectedUser: get().selectedUser?.id === id
               ? { ...get().selectedUser, ...updatedUser }
               : get().selectedUser,
             isLoading: false
@@ -229,7 +227,7 @@ export const useUsersStore = create<UsersState>()(
         try {
           await mockBulkUpdateUsers(ids, updates);
           set({
-            users: get().users.map(user => 
+            users: get().users.map(user =>
               ids.includes(user.id) ? { ...user, ...updates } : user
             ),
             isLoading: false
@@ -286,38 +284,38 @@ export const useUsersStore = create<UsersState>()(
 
       // State management actions
       setSelectedUser: (user) => set({ selectedUser: user }),
-      
+
       setFilters: (filters) => set({
         filters: { ...get().filters, ...filters }
       }),
-      
+
       setSorting: (field, direction) => set({
         sorting: { field, direction }
       }),
-      
+
       setPage: (page) => set({
         pagination: { ...get().pagination, page }
       }),
-      
+
       setPageSize: (pageSize) => set({
         pagination: { ...get().pagination, pageSize }
       }),
 
       // Local state updates (optimistic updates)
       updateLocalUser: (id, updates) => set({
-        users: get().users.map(user => 
+        users: get().users.map(user =>
           user.id === id ? { ...user, ...updates } : user
         ),
-        selectedUser: get().selectedUser?.id === id 
+        selectedUser: get().selectedUser?.id === id
           ? { ...get().selectedUser, ...updates } as User
           : get().selectedUser
       }),
-      
+
       removeLocalUser: (id) => set({
         users: get().users.filter(user => user.id !== id),
         selectedUser: get().selectedUser?.id === id ? null : get().selectedUser
       }),
-      
+
       addLocalUser: (user) => set({
         users: [...get().users, user]
       }),
@@ -340,14 +338,14 @@ export const useUsersStore = create<UsersState>()(
 
 // Mock API functions (to be replaced with real API calls)
 const mockFetchUsers = async (
-  page: number, 
-  pageSize: number, 
-  filters: UserFilters, 
+  page: number,
+  pageSize: number,
+  filters: UserFilters,
   sorting: UserSorting
 ): Promise<{ users: User[]; total: number }> => {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 500));
-  
+
   // Use the comprehensive mock data from src/mocks/users.ts
   let filteredUsers = filterUsers(mockUsers, {
     search: filters.search,
@@ -372,19 +370,19 @@ const mockFetchUsers = async (
 
 const mockFetchUserById = async (id: string): Promise<User> => {
   await new Promise(resolve => setTimeout(resolve, 300));
-  
+
   // Find user in mock data
   const user = mockUsers.find(u => u.id === id);
   if (!user) {
     throw new Error('User not found');
   }
-  
+
   return user;
 };
 
-const mockFetchUserActivities = async (userId: string): Promise<UserActivity[]> => {
+const mockFetchUserActivities = async (_userId: string): Promise<UserActivity[]> => {
   await new Promise(resolve => setTimeout(resolve, 200));
-  
+
   return [
     {
       id: '1',
@@ -419,38 +417,38 @@ const mockFetchUserActivities = async (userId: string): Promise<UserActivity[]> 
 
 const mockCreateUser = async (userData: Omit<User, 'id' | 'createdAt' | 'lastActive'>): Promise<User> => {
   await new Promise(resolve => setTimeout(resolve, 300));
-  
+
   const newUser: User = {
     ...userData,
     id: (Date.now()).toString(),
     createdAt: new Date().toISOString(),
     lastActive: 'Just now'
   };
-  
+
   return newUser;
 };
 
 const mockUpdateUser = async (id: string, updates: Partial<User>): Promise<User> => {
   await new Promise(resolve => setTimeout(resolve, 300));
-  
+
   return {
     id,
     ...updates
   } as User;
 };
 
-const mockDeleteUser = async (id: string): Promise<void> => {
+const mockDeleteUser = async (_id: string): Promise<void> => {
   await new Promise(resolve => setTimeout(resolve, 300));
 };
 
-const mockBulkUpdateUsers = async (ids: string[], updates: Partial<User>): Promise<void> => {
+const mockBulkUpdateUsers = async (_ids: string[], _updates: Partial<User>): Promise<void> => {
   await new Promise(resolve => setTimeout(resolve, 500));
 };
 
-const mockBulkDeleteUsers = async (ids: string[]): Promise<void> => {
+const mockBulkDeleteUsers = async (_ids: string[]): Promise<void> => {
   await new Promise(resolve => setTimeout(resolve, 500));
 };
 
-const mockResetUserPassword = async (id: string): Promise<void> => {
+const mockResetUserPassword = async (_id: string): Promise<void> => {
   await new Promise(resolve => setTimeout(resolve, 300));
 };

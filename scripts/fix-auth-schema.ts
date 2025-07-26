@@ -31,10 +31,10 @@ function fixAuthSchema(filePath: string) {
     // 2. Add better_auth schema definition if missing
     const schemaDeclaration = sourceFile.getVariableDeclaration('betterAuthSchema');
     if (!schemaDeclaration) {
-        // Find the first import and add schema after it
-        const firstImport = sourceFile.getImportDeclarations()[0];
-        if (firstImport) {
-            firstImport.insertText(firstImport.getEnd(), '\n\nexport const betterAuthSchema = pgSchema("better_auth");');
+        // Add schema definition after imports
+        const lastImport = sourceFile.getImportDeclarations()[sourceFile.getImportDeclarations().length - 1];
+        if (lastImport) {
+            sourceFile.insertText(lastImport.getEnd(), '\n\nexport const betterAuthSchema = pgSchema("better_auth");');
             console.log('✅ Added better_auth schema definition');
             changesMade = true;
         }

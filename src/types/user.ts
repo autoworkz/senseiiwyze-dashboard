@@ -2,7 +2,7 @@
 export interface UserMetadata {
   location?: string;
   timezone?: string;
-  preferences: Record<string, any>;
+  preferences: Record<string, unknown>;
   tags: string[];
 }
 

@@ -3,12 +3,13 @@ import { db } from "./database";
 import { nextCookies } from "better-auth/next-js";
 import { betterAuth } from "better-auth";
 import { organization } from "better-auth/plugins";
-import * as authSchema from "./src/lib/db/better-auth-schema";
+import * as betterAuthSchema from "./src/lib/db/better-auth-schema";
 
 export const auth = betterAuth({
     database: drizzleAdapter(db, {
         provider: "pg",
-        schema: authSchema, // Use the schema directly since it's already properly structured
+        // Better Auth tables live under the pgSchema we expose from `better-auth-schema.ts`
+        schema: betterAuthSchema,
     }),
     appName: "senseiiwyze-dashboard",
     secret: process.env.BETTER_AUTH_SECRET || "VCPPDj0m70w8DrUmMqOYlG5DhfOHsFtelazBsyOUiMI=",
@@ -21,32 +22,55 @@ export const auth = betterAuth({
         strategy: "jwt",
         expiresIn: 60 * 60 * 24 * 7, // 7 days
     },
+    socialProviders: {
+        google: {
+            clientId: process.env.GOOGLE_CLIENT_ID as string,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+        },
+    },
 
     plugins: [
         nextCookies(),
         organization({
-            // Allow users to create organizations
+            // Map Better-Auth organization models to existing MakerKit tables
+            schema: {
+                organization: {
+                    modelName: "accounts",
+                },
+                member: {
+                    modelName: "accounts_memberships",
+                    fields: {
+                        organizationId: "account_id",
+                        userId: "user_id",
+                        role: "account_role",
+                    },
+                },
+                invitation: {
+                    modelName: "invitations",
+                    fields: {
+                        organizationId: "account_id",
+                        inviterId: "invited_by",
+                    },
+                },
+            },
+
             allowUserToCreateOrganization: true,
-            // Organization creation hooks
+
             organizationCreation: {
                 disabled: false,
-                beforeCreate: async ({ organization, user }, request) => {
-                    // Run custom logic before organization is created
-                    return {
-                        data: {
-                            ...organization,
-                            metadata: {
-                                createdBy: user.id,
-                                createdAt: new Date().toISOString()
-                            }
-                        }
-                    }
+                beforeCreate: async ({ organization, user }) => ({
+                    data: {
+                        ...organization,
+                        metadata: {
+                            createdBy: user.id,
+                            createdAt: new Date().toISOString(),
+                        },
+                    },
+                }),
+                afterCreate: async ({ organization, user }) => {
+                    console.log(`Organization ${organization.name} created by user ${user.id}`)
                 },
-                afterCreate: async ({ organization, member, user }, request) => {
-                    // Run custom logic after organization is created
-                    console.log(`Organization ${organization.name} created by user ${user.id}`);
-                }
-            }
+            },
         })
     ],
 });

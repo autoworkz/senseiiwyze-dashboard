@@ -6,7 +6,7 @@ import { Bell, LogOut, Settings } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { DashboardSidebar, DashboardSidebarItems } from "@/components/dashboard-sidebar"
-import { authService } from "@/services/authService"
+import { authClient } from "@/auth-client"
 import { useRouter } from "next/navigation"
 
 export default function DashboardLayout({
@@ -16,17 +16,31 @@ export default function DashboardLayout({
 }) {
   const [isClient, setIsClient] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const [session, setSession] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
 
-  // This ensures hydration issues are avoided
   useEffect(() => {
     setIsClient(true)
-  }, [])
+    // Check session on mount
+    const checkSession = async () => {
+      try {
+        const sessionData = await authClient.getSession()
+        setSession(sessionData)
+      } catch (error) {
+        console.error('Session check failed:', error)
+        router.push('/auth/login')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    checkSession()
+  }, [router])
 
   const handleLogout = async () => {
     setIsLoggingOut(true)
     try {
-      await authService.logout()
+      await authClient.signOut()
       router.push('/auth/login')
     } catch (error) {
       console.error('Logout failed:', error)
@@ -35,7 +49,13 @@ export default function DashboardLayout({
     }
   }
 
-  if (!isClient) {
+  // Show loading state while checking session
+  if (!isClient || isLoading) {
+    return null
+  }
+
+  // Don't render dashboard if not authenticated
+  if (!session) {
     return null
   }
 
@@ -74,8 +94,8 @@ export default function DashboardLayout({
             <span className="sr-only">Log out</span>
           </Button>
           <Avatar>
-            <AvatarImage src="https://github.com/shadcn.png" alt="User" />
-            <AvatarFallback>JD</AvatarFallback>
+            <AvatarImage src={session.user.image || undefined} alt={session.user.name || 'User'} />
+            <AvatarFallback>{session.user.name?.charAt(0) || 'U'}</AvatarFallback>
           </Avatar>
         </div>
       </header>

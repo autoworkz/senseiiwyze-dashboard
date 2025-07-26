@@ -6,16 +6,16 @@ Implementing Better Auth to replace the existing authentication system with prop
 ## Phase 1: Core Setup ✅
 - [x] Install Better Auth dependencies
 - [x] Configure Drizzle adapter
-- [x] Set up environment variables
-- [x] Create Better Auth configuration
-- [x] Generate Better Auth schema
-- [x] Create API routes
+- [ ] Set up environment variables
+- [ ] Create Better Auth configuration
+- [ ] Generate Better Auth schema
+- [ ] Create API routes
 
 ## Phase 2: Database & Schema ✅
-- [x] Add organization and anonymous plugins
-- [x] Integrate plugin tables into schema
-- [x] Apply dedicated SQL migration for Better Auth tables ✅
-- [x] Test database connectivity and verify new tables ✅
+- [ ] Add organization and anonymous plugins
+- [ ] Integrate plugin tables into schema
+- [ ] Apply dedicated SQL migration for Better Auth tables ✅
+- [ ] Test database connectivity and verify new tables ✅
 
 ## Phase 3: Authentication Components 🚧
 - [ ] Update login page

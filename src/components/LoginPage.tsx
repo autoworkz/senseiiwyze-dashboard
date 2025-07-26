@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import { useLoginForm } from '@/hooks/useLoginForm';
-import { authService, SocialProvider } from '@/services/authService';
+import { authClient } from '@/auth-client';
 
 // TypeScript interfaces for component props and form data
 interface LoginPageProps {
@@ -25,7 +25,7 @@ interface LoginPageProps {
   signupText?: string;
   signupUrl?: string;
   onLogin?: (email: string, password: string) => Promise<void>;
-  onSocialLogin?: (provider: 'google' | 'facebook' | 'github') => Promise<void>;
+  onSocialLogin?: (provider: 'google' | 'facebook' | 'github' | 'apple') => Promise<void>;
 }
 
 const LoginPage: React.FC<LoginPageProps> = ({
@@ -58,14 +58,14 @@ const LoginPage: React.FC<LoginPageProps> = ({
     validateForm,
   } = useLoginForm();
 
+  const router = useRouter();
+
   // Handle input field changes
   const handleInputChange = (field: 'email' | 'password') => (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     updateField(field, event.target.value);
   };
-
-  const router = useRouter();
 
   // Handle form submission
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -80,12 +80,15 @@ const LoginPage: React.FC<LoginPageProps> = ({
     setErrors({});
 
     try {
-      // Call the onLogin prop if provided, otherwise use auth service
+      // Call the onLogin prop if provided, otherwise use auth client
       if (onLogin) {
         await onLogin(formData.email, formData.password);
       } else {
-        // Use auth service for login
-        const result = await authService.login(formData.email, formData.password);
+        const result = await authClient.signIn.email({
+          email: formData.email,
+          password: formData.password,
+        });
+        
         console.log('Login successful:', result);
         
         // Redirect to dashboard after successful login
@@ -101,28 +104,8 @@ const LoginPage: React.FC<LoginPageProps> = ({
   };
 
   // Handle social login buttons
-  const handleSocialLogin = async (provider: SocialProvider) => {
-    setIsLoading(true);
-    setErrors({});
-
-    try {
-      // Call the onSocialLogin prop if provided, otherwise use auth service
-      if (onSocialLogin) {
-        await onSocialLogin(provider);
-      } else {
-        // Use auth service for social login
-        const result = await authService.socialLogin(provider);
-        console.log(`${provider} login successful:`, result);
-        
-        // Redirect to dashboard after successful login
-        router.push('/dashboard');
-      }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : `${provider} login failed. Please try again.`;
-      setErrors({ general: errorMessage });
-    } finally {
-      setIsLoading(false);
-    }
+  const handleSocialLogin = async (provider: 'google' | 'facebook' | 'github' | 'apple') => {
+    // This will be implemented next, for now we just prevent form submission
   };
 
   return (
@@ -217,6 +200,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
             </Button>
 
             {/* Social login buttons */}
+            {/* 
             <div className="flex w-full flex-col gap-2">
               <Button 
                 type="button" 
@@ -241,21 +225,21 @@ const LoginPage: React.FC<LoginPageProps> = ({
                 type="button" 
                 className="w-full" 
                 variant="outline"
-                onClick={() => handleSocialLogin('facebook')}
+                onClick={() => handleSocialLogin('apple')}
                 disabled={isSubmitting || isLoading}
               >
                 {isLoading ? (
                   <Loader2 className="size-5 animate-spin" />
                 ) : (
                   <img
-                    src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/facebook-icon.svg"
+                    src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/apple-icon.svg"
                     className="size-5"
-                    alt="Facebook"
+                    alt="Apple"
                   />
                 )}
-                {facebookText}
+                Login with Apple
               </Button>
-              
+
               <Button 
                 type="button" 
                 className="w-full" 
@@ -275,6 +259,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
                 {githubText}
               </Button>
             </div>
+            */}
 
             {/* Sign up link */}
             <div className="text-muted-foreground flex justify-center gap-1 text-sm">

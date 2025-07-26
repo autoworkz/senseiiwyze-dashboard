@@ -30,6 +30,11 @@ export const loginFormSchema = z.object({
   password: passwordSchema,
 });
 
+// Signup form schema
+export const signupFormSchema = loginFormSchema.extend({
+  name: z.string().min(1, 'Name is required'),
+});
+
 // Export types
 export type LoginFormData = z.infer<typeof loginFormSchema>;
 export type LoginFormErrors = {

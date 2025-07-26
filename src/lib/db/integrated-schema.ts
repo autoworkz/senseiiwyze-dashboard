@@ -2,7 +2,7 @@
 import * as existingSchema from './drizzle/schema';
 
 // Import Better Auth schema
-import * as authSchema from '../../../auth-schema';
+import * as authSchema from './better-auth-schema';
 
 // Export the integrated schema
 export const schema = {
@@ -14,7 +14,7 @@ export const schema = {
   organization: authSchema.organization,
   member: authSchema.member,
   invitation: authSchema.invitation,
-  
+
   // Existing tables (using correct names from schema)
   profiles: existingSchema.profiles,
   accounts: existingSchema.accounts,
@@ -68,4 +68,4 @@ export const schema = {
 
 // Export individual tables for convenience
 export * from './drizzle/schema';
-export * from '../../../auth-schema'; 
+export * from './better-auth-schema'; 
