@@ -1,0 +1,21 @@
+ticket:
+  id: WS2-LAYOUT-001
+  title: "Set up navigation structure for CEO / Worker / Frontliner"
+  workstream: "Layout & Navigation"
+  phase: "Phase 1 – Foundation"
+  priority: "high"
+  description: |
+    Create a role-aware navigation system that renders the correct menu items per user role.
+  acceptance_criteria:
+    - Navbar shows AppName + account switcher.
+    - Sidebar (or topbar on mobile) lists role-specific links drawn from a single `navigation-config.ts` map.
+    - Active link is highlighted using semantic Tailwind classes.
+    - Navigation config resides in `src/lib/navigation-config.ts` returning an array of `{ label, href, icon }` per role.
+    - Component test: CEO sees “Executive Insights”, Worker sees “Team Dashboard”, Frontliner sees “My Tasks”.
+  tasks:
+    - Define navigation map in `lib/navigation-config.ts`.
+    - Update `DashboardSidebar.tsx` (or navbar) to consume the map.
+    - Add basic icons via lucide-react.
+    - Write React Testing Library test `navigation.test.tsx`.
+  standards_ref: ../standards.yml
+  tags: [navigation, layout, phase1] 

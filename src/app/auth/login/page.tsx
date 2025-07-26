@@ -1,18 +1,5 @@
-import LoginPage from "@/components/LoginPage";
+import { LoginForm } from '@/components/auth/login-form'
 
-export default function Login() {
-  return (
-    <LoginPage 
-      heading="Welcome to SenseiiWyze"
-      logo={{
-        url: "/",
-        src: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/shadcnblocks-logo.svg",
-        alt: "SenseiiWyze",
-        title: "SenseiiWyze",
-      }}
-      buttonText="Sign In"
-      signupText="Don't have an account?"
-      signupUrl="/auth/signup"
-    />
-  );
+export default function LoginPage() {
+  return <LoginForm />
 } 

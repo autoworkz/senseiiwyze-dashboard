@@ -1,0 +1,21 @@
+ticket:
+  id: WS1-AUTH-002
+  title: "Extend authentication with role support (CEO/Worker/Frontliner)"
+  workstream: "Authentication & Permissions"
+  phase: "Phase 1 – Foundation"
+  priority: "high"
+  description: |
+    Enhance Better-Auth configuration to persist a `role` field on the `user` record and expose it in the session JWT.
+    Roles: `ceo`, `worker`, `frontliner`.
+  acceptance_criteria:
+    - On sign-up a role param can be supplied (default `worker`).
+    - `GET /api/auth/session` returns `user.role`.
+    - RBAC middleware helper `requireRole('ceo')` works.
+    - Jest integration test covers happy & denied paths.
+  tasks:
+    - Add `role` column to current SQLite schema (string, enum).
+    - Update `better-auth` signUp/email and signIn/email typings.
+    - Create `lib/role-middleware.ts` exporting `requireRole`.
+    - Tests under `src/__tests__/auth/role.test.ts`.
+  standards_ref: ../standards.yml
+  tags: [auth, role, phase1] 

@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import { validateForm as validateFormUtil, FormData, FormErrors } from '@/utils/validation'
+import { emailSchema, passwordSchema } from '@/utils/validationSchema'
 
 export interface UseLoginFormReturn {
   formData: FormData
@@ -16,7 +17,7 @@ export interface UseLoginFormReturn {
 
 const initialFormData: FormData = {
   email: 'demo@example.com',
-  password: 'Demo@123456',
+  password: 'Demo@123456710',
 }
 
 const initialErrors: FormErrors = {}
@@ -31,21 +32,22 @@ export const useLoginForm = (): UseLoginFormReturn => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
-  /**
-   * Updates a specific form field and clears related errors
-   */
+  /* ---------- Updates a single field & live-validates ---------- */
   const updateField = useCallback((field: keyof FormData, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value,
-    }))
+    setFormData(prev => ({ ...prev, [field]: value }))
 
-    // Clear field-specific error and general error when user starts typing
+    // Re-validate the edited field on every keystroke
     setErrors(prev => {
-      const newErrors = { ...prev }
-      delete newErrors[field]
-      delete newErrors.general
-      return newErrors
+      const errs = { ...prev, general: undefined }
+      try {
+        field === 'email'
+          ? emailSchema.parse(value)
+          : passwordSchema.parse(value)
+        delete errs[field]
+      } catch (e: any) {
+        errs[field] = e.errors?.[0]?.message ?? 'Invalid value'
+      }
+      return errs
     })
   }, [])
 

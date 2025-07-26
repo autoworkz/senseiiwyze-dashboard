@@ -26,6 +26,18 @@
       "@/*": [
         "./src/*"
       ],
+      "@/lib/*": [
+        "./src/lib/*"
+      ],
+      "@/db/*": [
+        "./src/db/*"
+      ],
+      "@/utils/*": [
+        "./src/utils/*"
+      ],
+      "@/auth/*": [
+        "./auth"
+      ],
       "@emails/*": [
         "./src/emails/*"
       ],

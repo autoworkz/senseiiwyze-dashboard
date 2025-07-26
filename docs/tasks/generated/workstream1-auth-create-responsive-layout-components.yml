@@ -1,0 +1,23 @@
+ticket:
+  id: WS1-AUTH-001
+  title: "Create responsive layout components (CEO / Worker / Frontliner)"
+  workstream: "Layout & Navigation"
+  phase: "Phase 1 – Foundation"
+  priority: "high"
+  description: |
+    Build the top-level responsive layouts for the three user dashboards.
+    Each layout must share the same header/navbar component but use a role-specific sidebar.
+  acceptance_criteria:
+    - CEO, Worker, Frontliner pages render without runtime errors at `/ceo`, `/worker`, `/frontliner`.
+    - Viewport widths 375px, 768px, 1280px show no horizontal scroll.
+    - Uses only shadcn/ui primitives; colors via semantic Tailwind classes.
+    - Layout resides in src/components/layout/RoleLayout.tsx with props `role` (ceo | worker | frontliner) and children content.
+    - Storybook story (or Playwright snapshot) demonstrates three roles.
+    - Jest test asserts sidebar items render per role.
+  tasks:
+    - Generate new component with `pnpm dlx shadcn@latest add sidebar` (if not present).
+    - Create `RoleLayout.tsx` composed of Navbar + Sidebar + main content.
+    - Add sample routes in `src/app/(dashboard)` for each role with placeholder content.
+    - Write tests `src/__tests__/layout/RoleLayout.test.tsx`.
+  standards_ref: ../standards.yml
+  tags: [layout, responsive, shadcn, phase1] 

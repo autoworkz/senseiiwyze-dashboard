@@ -1,0 +1,25 @@
+name: AI Ticket Bot
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  run-bot:
+    if: contains(github.event.issue.labels.*.name, 'ai-ticket/gh-bot')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up PNPM
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+      - name: Run open-source LLM (placeholder)
+        run: |
+          echo "## TODO: Run LLM container to generate patch" >> $GITHUB_STEP_SUMMARY
+          # docker run -v ${{ github.workspace }}:/repo ghcr.io/your/llm-image:latest /repo .github/issue-context.json
+      - name: Placeholder commit
+        run: echo "No-op; implementation pending" 
