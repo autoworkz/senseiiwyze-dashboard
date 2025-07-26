@@ -11,7 +11,7 @@ export default async function OrgDashboardPage() {
       {/* Page header */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Executive Dashboard</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Org Dashboard</h1>
           <p className="text-muted-foreground mt-2">
             Real-time training program metrics and organizational insights
           </p>

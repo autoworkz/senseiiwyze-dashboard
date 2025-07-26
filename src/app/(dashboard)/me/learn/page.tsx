@@ -3,14 +3,14 @@ import { LearningProgress } from '@/components/me/LearningProgress'
 import { RecommendedContent } from '@/components/me/RecommendedContent'
 import { getMyLearningData } from '@/lib/api/learning'
 
-export default async function LearnPage() {
+export default async function LearningPage() {
   const learningData = await getMyLearningData()
   
   return (
     <div className="space-y-8">
       {/* Page header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Learning Modules</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Learning</h1>
         <p className="text-muted-foreground mt-2">
           Access your personalized learning content and track your progress
         </p>

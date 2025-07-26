@@ -75,7 +75,7 @@ export default function TeamDashboardPage() {
     <div className="space-y-6">
       {/* Page header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Team Overview</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Team Dashboard</h1>
         <p className="text-muted-foreground mt-2">
           Manage and support your learners with data-driven insights
         </p>

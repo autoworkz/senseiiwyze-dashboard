@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { Home, Target, CheckCircle, BookOpen, Users, BarChart3, Building2, MessageSquare, Gamepad2 } from 'lucide-react'
+import { Home, Target, CheckCircle, BookOpen, Users, BarChart3, Building2, MessageSquare, Gamepad2, UserCircle, Presentation } from 'lucide-react'
 
 interface User {
   role: 'learner' | 'admin' | 'executive'
@@ -23,7 +23,7 @@ const navigationItems = {
     { href: '/me/learn', label: 'Learn', icon: BookOpen },
   ],
   admin: [
-    { href: '/team', label: 'Team Overview', icon: Users },
+    { href: '/team', label: 'Team', icon: Users },
     { href: '/team/tasks', label: 'Tasks', icon: CheckCircle },
     { href: '/team/courses', label: 'Courses', icon: BookOpen },
     { href: '/team/messages', label: 'Messages', icon: MessageSquare },
@@ -31,7 +31,7 @@ const navigationItems = {
   executive: [
     { href: '/org', label: 'Dashboard', icon: BarChart3 },
     { href: '/org/reports', label: 'Reports', icon: Building2 },
-    { href: '/org/presentation', label: 'Presentation', icon: Target },
+    { href: '/org/presentation', label: 'Present', icon: Presentation },
   ],
 }
 

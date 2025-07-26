@@ -3,14 +3,14 @@ import { GameLeaderboard } from '@/components/me/GameLeaderboard'
 import { GameAchievements } from '@/components/me/GameAchievements'
 import { getMyGameStats } from '@/lib/api/games'
 
-export default async function GamesPage() {
+export default async function GameStatsPage() {
   const gameStats = await getMyGameStats()
   
   return (
     <div className="space-y-8">
       {/* Page header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Game Statistics</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Game Stats</h1>
         <p className="text-muted-foreground mt-2">
           Track your performance in learning games and compete with peers
         </p>

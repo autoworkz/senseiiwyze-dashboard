@@ -3,14 +3,14 @@ import { GoalProgress } from '@/components/me/GoalProgress'
 import { GoalSetting } from '@/components/me/GoalSetting'
 import { getMyGoals } from '@/lib/api/goals'
 
-export default async function GoalsPage() {
+export default async function VisionBoardPage() {
   const goals = await getMyGoals()
   
   return (
     <div className="space-y-8">
       {/* Page header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">My Goals</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Vision Board</h1>
         <p className="text-muted-foreground mt-2">
           Set, track, and achieve your learning objectives with our vision board
         </p>
