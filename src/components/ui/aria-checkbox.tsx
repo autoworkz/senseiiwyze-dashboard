@@ -9,7 +9,7 @@ import { Check, Minus } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { createAriaId, createValidationAriaProps } from "@/lib/aria-utils"
 
-export interface AriaCheckboxProps extends AriaCheckboxProps {
+export interface CustomAriaCheckboxProps extends AriaCheckboxProps {
   className?: string
   /**
    * Error message to display
@@ -45,7 +45,7 @@ const iconSizes = {
   lg: "h-4 w-4",
 }
 
-const AriaCheckbox = React.forwardRef<HTMLInputElement, AriaCheckboxProps>(
+const AriaCheckbox = React.forwardRef<HTMLInputElement, CustomAriaCheckboxProps>(
   (
     {
       className,
@@ -132,7 +132,7 @@ const AriaCheckbox = React.forwardRef<HTMLInputElement, AriaCheckboxProps>(
     const descriptionClasses = "text-sm text-muted-foreground mt-1"
 
     // Determine checkbox state for styling
-    const isIndeterminate = state.isSelected === "indeterminate"
+    const isIndeterminate = props.isIndeterminate || false
     const isChecked = state.isSelected === true
 
     return (

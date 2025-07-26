@@ -8,7 +8,7 @@ import { AriaSwitchProps } from "@react-types/switch"
 import { cn } from "@/lib/utils"
 import { createAriaId, createValidationAriaProps } from "@/lib/aria-utils"
 
-export interface AriaSwitchProps extends AriaSwitchProps {
+interface CustomAriaSwitchProps extends AriaSwitchProps {
   className?: string
   /**
    * Error message to display
@@ -47,7 +47,7 @@ const switchSizes = {
   },
 }
 
-const AriaSwitch = React.forwardRef<HTMLInputElement, AriaSwitchProps>(
+const AriaSwitch = React.forwardRef<HTMLInputElement, CustomAriaSwitchProps>(
   (
     {
       className,
@@ -86,7 +86,6 @@ const AriaSwitch = React.forwardRef<HTMLInputElement, AriaSwitchProps>(
         children,
         isSelected: state.isSelected,
         onChange: state.toggle,
-        validationState: error ? "invalid" : "valid",
       },
       state,
       inputRef as React.RefObject<HTMLInputElement>
@@ -206,4 +205,4 @@ const AriaSwitch = React.forwardRef<HTMLInputElement, AriaSwitchProps>(
 AriaSwitch.displayName = "AriaSwitch"
 
 export { AriaSwitch }
-export type { AriaSwitchProps }
+export type { CustomAriaSwitchProps }

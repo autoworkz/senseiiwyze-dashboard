@@ -47,8 +47,8 @@ const focusRingStyles = {
   link: "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
 }
 
-export interface AriaButtonProps
-  extends Omit<AriaButtonProps, 'children'>,
+export interface CustomAriaButtonProps
+  extends Omit<AriaButtonProps<'button'>, 'children'>,
     VariantProps<typeof ariaButtonVariants> {
   className?: string
   children?: React.ReactNode
@@ -70,7 +70,7 @@ export interface AriaButtonProps
   loadingIcon?: React.ReactNode
 }
 
-const AriaButton = React.forwardRef<HTMLButtonElement, AriaButtonProps>(
+const AriaButton = React.forwardRef<HTMLButtonElement, CustomAriaButtonProps>(
   (
     {
       className,
@@ -112,7 +112,7 @@ const AriaButton = React.forwardRef<HTMLButtonElement, AriaButtonProps>(
       ariaButtonVariants({ variant, size }),
       {
         // Focus ring styles
-        [focusRingStyles[variant]]: isFocusVisible,
+        [focusRingStyles[variant || 'default']]: isFocusVisible,
         // Pressed state
         "scale-95": isPressed && !disabled,
         // Loading state

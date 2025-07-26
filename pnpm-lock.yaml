@@ -83,6 +83,9 @@ importers:
       '@react-aria/utils':
         specifier: ^3.30.0
         version: 3.30.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-stately/grid':
+        specifier: ^3.11.4
+        version: 3.11.4(react@19.1.0)
       '@react-stately/select':
         specifier: ^3.7.0
         version: 3.7.0(react@19.1.0)
@@ -95,15 +98,27 @@ importers:
       '@react-types/button':
         specifier: ^3.13.0
         version: 3.13.0(react@19.1.0)
+      '@react-types/checkbox':
+        specifier: ^3.10.0
+        version: 3.10.0(react@19.1.0)
       '@react-types/dialog':
         specifier: ^3.5.20
         version: 3.5.20(react@19.1.0)
+      '@react-types/grid':
+        specifier: ^3.3.4
+        version: 3.3.4(react@19.1.0)
       '@react-types/menu':
         specifier: ^3.10.3
         version: 3.10.3(react@19.1.0)
       '@react-types/shared':
         specifier: ^3.31.0
         version: 3.31.0(react@19.1.0)
+      '@react-types/switch':
+        specifier: ^3.5.13
+        version: 3.5.13(react@19.1.0)
+      '@react-types/table':
+        specifier: ^3.13.2
+        version: 3.13.2(react@19.1.0)
       '@react-types/textfield':
         specifier: ^3.12.4
         version: 3.12.4(react@19.1.0)

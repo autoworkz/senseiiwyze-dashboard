@@ -8,14 +8,14 @@ import { cn } from './utils'
 /**
  * Merges ARIA attributes with existing props, handling conflicts gracefully
  */
-export function mergeAriaProps<T extends Record<string, any>>(
+export function mergeAriaProps<T extends Record<string, unknown>>(
   baseProps: T,
-  ariaProps: AriaAttributes & Record<string, any>
+  ariaProps: AriaAttributes & Record<string, unknown>
 ): T & AriaAttributes {
   return {
     ...baseProps,
     ...ariaProps,
-    className: cn(baseProps.className, ariaProps.className),
+    className: cn(baseProps.className as string, ariaProps.className as string),
   }
 }
 

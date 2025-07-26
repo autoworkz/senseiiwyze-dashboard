@@ -7,7 +7,7 @@ import { AriaTextFieldProps } from "@react-types/textfield"
 import { cn } from "@/lib/utils"
 import { createAriaId, createValidationAriaProps } from "@/lib/aria-utils"
 
-export interface AriaInputProps extends AriaTextFieldProps {
+interface CustomAriaInputProps extends AriaTextFieldProps {
   className?: string
   /**
    * Error message to display
@@ -51,7 +51,7 @@ const inputSizes = {
   lg: "h-10 px-4 py-2",
 }
 
-const AriaInput = React.forwardRef<HTMLInputElement, AriaInputProps>(
+const AriaInput = React.forwardRef<HTMLInputElement, CustomAriaInputProps>(
   (
     {
       className,
@@ -201,7 +201,7 @@ AriaInput.displayName = "AriaInput"
 /**
  * Simple input component without label wrapper (for use in forms with external labels)
  */
-const AriaInputField = React.forwardRef<HTMLInputElement, Omit<AriaInputProps, 'label'>>(
+const AriaInputField = React.forwardRef<HTMLInputElement, Omit<CustomAriaInputProps, 'label'>>(
   (
     {
       className,
@@ -278,4 +278,4 @@ const AriaInputField = React.forwardRef<HTMLInputElement, Omit<AriaInputProps, '
 AriaInputField.displayName = "AriaInputField"
 
 export { AriaInput, AriaInputField }
-export type { AriaInputProps }
+export type { CustomAriaInputProps }
