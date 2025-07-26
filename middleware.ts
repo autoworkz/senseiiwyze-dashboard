@@ -22,14 +22,14 @@ export function middleware(request: NextRequest) {
   
   // If the user is logged in and trying to access the homepage or auth pages, redirect to dashboard
   if (isLoggedIn && (pathnameWithoutLocale === '/' || pathnameWithoutLocale.startsWith('/auth'))) {
-    const locale = pathname.split('/')[1]
+    const locale = pathname.split('/')[1] || 'en'
     const redirectUrl = new URL(`/${locale}/dashboard`, request.url)
     return NextResponse.redirect(redirectUrl)
   }
   
   // If the user is not logged in and trying to access protected routes, redirect to login
   if (!isLoggedIn && (pathnameWithoutLocale.startsWith('/dashboard') || pathnameWithoutLocale.startsWith('/settings'))) {
-    const locale = pathname.split('/')[1]
+    const locale = pathname.split('/')[1] || 'en'
     const redirectUrl = new URL(`/${locale}/auth/login`, request.url)
     return NextResponse.redirect(redirectUrl)
   }
@@ -39,5 +39,10 @@ export function middleware(request: NextRequest) {
 
 // See "Matching Paths" below to learn more
 export const config = {
-  matcher: ['/', '/(de|en|es|fr)/:path*', '/dashboard/:path*', '/settings/:path*', '/auth/:path*'],
+  matcher: [
+    // Match all pathnames except for
+    // - … if they start with `/api`, `/_next` or `/_vercel`
+    // - … the ones containing a dot (e.g. `favicon.ico`)
+    '/((?!api|_next|_vercel|.*\\..*).*)'
+  ],
 }
