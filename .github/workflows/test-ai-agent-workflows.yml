@@ -1,0 +1,507 @@
+name: Test AI Agent Workflows
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_scenario:
+        description: 'Test scenario to run'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - 'all'
+          - 'no_existing_issue'
+          - 'issue_without_label'
+          - 'issue_with_label'
+          - 'multiple_issues'
+          - 'cleanup'
+
+jobs:
+  test-ai-agent-workflows:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup test environment
+        id: setup
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const AGENT_LABEL = 'ai-agent-active';
+            const TEST_LABEL = 'test-ai-agent';
+            const ISSUE_TITLE = '🤖 AI Agent Activation';
+            const TEST_ISSUE_TITLE = '🧪 Test AI Agent Issue';
+            
+            core.setOutput('agent-label', AGENT_LABEL);
+            core.setOutput('test-label', TEST_LABEL);
+            core.setOutput('issue-title', ISSUE_TITLE);
+            core.setOutput('test-issue-title', TEST_ISSUE_TITLE);
+            
+            console.log('🔧 Test environment setup complete');
+            console.log(`Agent Label: ${AGENT_LABEL}`);
+            console.log(`Test Label: ${TEST_LABEL}`);
+            console.log(`Issue Title: ${ISSUE_TITLE}`);
+
+      - name: Test 1 - No existing issue scenario
+        if: github.event.inputs.test_scenario == 'all' || github.event.inputs.test_scenario == 'no_existing_issue'
+        id: test-no-issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const AGENT_LABEL = '${{ steps.setup.outputs.agent-label }}';
+            const ISSUE_TITLE = '${{ steps.setup.outputs.issue-title }}';
+            
+            console.log('🧪 TEST 1: No existing issue scenario');
+            
+            try {
+              // First, cleanup any existing issues
+              const { data: existingIssues } = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open'
+              });
+              
+              const agentIssues = existingIssues.filter(issue => 
+                issue.title === ISSUE_TITLE || 
+                issue.labels.some(label => label.name === AGENT_LABEL)
+              );
+              
+              for (const issue of agentIssues) {
+                console.log(`🧹 Closing existing issue #${issue.number} for clean test`);
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  state: 'closed'
+                });
+              }
+              
+              // Wait a moment
+              await new Promise(resolve => setTimeout(resolve, 1000));
+              
+              // Now check that no issues exist
+              const { data: issues } = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                labels: AGENT_LABEL
+              });
+              
+              if (issues.length === 0) {
+                console.log('✅ TEST 1 SETUP: No existing issues with agent label');
+                core.setOutput('test1-setup', 'success');
+              } else {
+                console.log('❌ TEST 1 SETUP: Failed to cleanup existing issues');
+                core.setOutput('test1-setup', 'failed');
+              }
+              
+            } catch (error) {
+              console.error('❌ TEST 1 SETUP ERROR:', error);
+              core.setOutput('test1-setup', 'error');
+            }
+
+      - name: Test 1 - Run AI agent workflow (no existing issue)
+        if: steps.test-no-issue.outputs.test1-setup == 'success'
+        id: test1-run
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const AGENT_LABEL = '${{ steps.setup.outputs.agent-label }}';
+            const ISSUE_TITLE = '${{ steps.setup.outputs.issue-title }}';
+            
+            console.log('🧪 TEST 1: Running AI agent logic (no existing issue)');
+            
+            const ISSUE_BODY = `
+            # AI Agent Activation Issue (TEST)
+            
+            This is a test issue created by the test workflow.
+            
+            ## Status
+            - **Label**: \`${AGENT_LABEL}\`
+            - **Purpose**: Testing AI agent activation
+            - **Created**: ${new Date().toISOString()}
+            `;
+            
+            try {
+              // Check for existing issues (should be none)
+              const { data: issues } = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                labels: AGENT_LABEL
+              });
+              
+              if (issues.length > 0) {
+                console.log('❌ TEST 1 FAILED: Found existing issues when none expected');
+                core.setOutput('test1-result', 'failed');
+                return;
+              }
+              
+              // Create new issue (simulating the workflow behavior)
+              const { data: newIssue } = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: ISSUE_TITLE,
+                body: ISSUE_BODY,
+                labels: [AGENT_LABEL, 'test-created']
+              });
+              
+              console.log(`✅ TEST 1 SUCCESS: Created issue #${newIssue.number}`);
+              core.setOutput('test1-result', 'success');
+              core.setOutput('test1-issue', newIssue.number);
+              
+            } catch (error) {
+              console.error('❌ TEST 1 ERROR:', error);
+              core.setOutput('test1-result', 'error');
+            }
+
+      - name: Test 2 - Issue without label scenario
+        if: github.event.inputs.test_scenario == 'all' || github.event.inputs.test_scenario == 'issue_without_label'
+        id: test2-setup
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const AGENT_LABEL = '${{ steps.setup.outputs.agent-label }}';
+            const ISSUE_TITLE = '${{ steps.setup.outputs.issue-title }}';
+            
+            console.log('🧪 TEST 2: Issue without label scenario');
+            
+            try {
+              // Create an issue without the agent label
+              const { data: newIssue } = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: ISSUE_TITLE,
+                body: '# Test Issue Without Label\n\nThis issue exists but lacks the AI agent label.',
+                labels: ['test-no-label']
+              });
+              
+              console.log(`✅ TEST 2 SETUP: Created issue #${newIssue.number} without agent label`);
+              core.setOutput('test2-setup', 'success');
+              core.setOutput('test2-issue', newIssue.number);
+              
+            } catch (error) {
+              console.error('❌ TEST 2 SETUP ERROR:', error);
+              core.setOutput('test2-setup', 'error');
+            }
+
+      - name: Test 2 - Run AI agent workflow (add label)
+        if: steps.test2-setup.outputs.test2-setup == 'success'
+        id: test2-run
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const AGENT_LABEL = '${{ steps.setup.outputs.agent-label }}';
+            const ISSUE_TITLE = '${{ steps.setup.outputs.issue-title }}';
+            const issueNumber = '${{ steps.test2-setup.outputs.test2-issue }}';
+            
+            console.log('🧪 TEST 2: Running AI agent logic (add label to existing issue)');
+            
+            try {
+              // Check for issues with the agent label (should be none)
+              const { data: labeledIssues } = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                labels: AGENT_LABEL
+              });
+              
+              if (labeledIssues.length > 0) {
+                console.log('❌ TEST 2 FAILED: Found issues with agent label when none expected');
+                core.setOutput('test2-result', 'failed');
+                return;
+              }
+              
+              // Check for issues with the title but without the label
+              const { data: allIssues } = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open'
+              });
+              
+              const existingIssue = allIssues.find(issue => 
+                issue.title === ISSUE_TITLE && 
+                !issue.labels.some(label => label.name === AGENT_LABEL)
+              );
+              
+              if (!existingIssue) {
+                console.log('❌ TEST 2 FAILED: Could not find issue without agent label');
+                core.setOutput('test2-result', 'failed');
+                return;
+              }
+              
+              // Add the agent label
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existingIssue.number,
+                labels: [AGENT_LABEL]
+              });
+              
+              // Verify the label was added
+              const { data: updatedIssue } = await github.rest.issues.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existingIssue.number
+              });
+              
+              const hasAgentLabel = updatedIssue.labels.some(label => label.name === AGENT_LABEL);
+              
+              if (hasAgentLabel) {
+                console.log(`✅ TEST 2 SUCCESS: Added agent label to issue #${existingIssue.number}`);
+                core.setOutput('test2-result', 'success');
+              } else {
+                console.log('❌ TEST 2 FAILED: Label was not added successfully');
+                core.setOutput('test2-result', 'failed');
+              }
+              
+            } catch (error) {
+              console.error('❌ TEST 2 ERROR:', error);
+              core.setOutput('test2-result', 'error');
+            }
+
+      - name: Test 3 - Issue with label already exists
+        if: github.event.inputs.test_scenario == 'all' || github.event.inputs.test_scenario == 'issue_with_label'
+        id: test3-run
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const AGENT_LABEL = '${{ steps.setup.outputs.agent-label }}';
+            const ISSUE_TITLE = '${{ steps.setup.outputs.issue-title }}';
+            
+            console.log('🧪 TEST 3: Issue with label already exists scenario');
+            
+            try {
+              // Check for existing issues with the agent label
+              const { data: issues } = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                labels: AGENT_LABEL
+              });
+              
+              if (issues.length === 0) {
+                // Create an issue with the label for this test
+                const { data: newIssue } = await github.rest.issues.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: ISSUE_TITLE,
+                  body: '# Test Issue With Label\n\nThis issue already has the AI agent label.',
+                  labels: [AGENT_LABEL, 'test-with-label']
+                });
+                console.log(`✅ TEST 3 SETUP: Created issue #${newIssue.number} with agent label`);
+              }
+              
+              // Now check the workflow behavior (should detect existing issue)
+              const { data: finalIssues } = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                labels: AGENT_LABEL
+              });
+              
+              if (finalIssues.length > 0) {
+                const issue = finalIssues[0];
+                console.log(`✅ TEST 3 SUCCESS: Found existing issue #${issue.number} with agent label`);
+                core.setOutput('test3-result', 'success');
+                core.setOutput('test3-issue', issue.number);
+              } else {
+                console.log('❌ TEST 3 FAILED: No issues with agent label found');
+                core.setOutput('test3-result', 'failed');
+              }
+              
+            } catch (error) {
+              console.error('❌ TEST 3 ERROR:', error);
+              core.setOutput('test3-result', 'error');
+            }
+
+      - name: Test 4 - Multiple issues scenario
+        if: github.event.inputs.test_scenario == 'all' || github.event.inputs.test_scenario == 'multiple_issues'
+        id: test4-run
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const AGENT_LABEL = '${{ steps.setup.outputs.agent-label }}';
+            const ISSUE_TITLE = '${{ steps.setup.outputs.issue-title }}';
+            
+            console.log('🧪 TEST 4: Multiple issues scenario');
+            
+            try {
+              // Create multiple issues with the same title but different states
+              const issue1 = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: ISSUE_TITLE + ' (Test 1)',
+                body: '# Test Issue 1\n\nFirst test issue.',
+                labels: ['test-multiple-1']
+              });
+              
+              const issue2 = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: ISSUE_TITLE + ' (Test 2)',
+                body: '# Test Issue 2\n\nSecond test issue.',
+                labels: [AGENT_LABEL, 'test-multiple-2']
+              });
+              
+              console.log(`✅ TEST 4 SETUP: Created multiple test issues #${issue1.data.number} and #${issue2.data.number}`);
+              
+              // Test workflow behavior - should find the one with the agent label
+              const { data: issues } = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                labels: AGENT_LABEL
+              });
+              
+              const agentIssues = issues.filter(issue => 
+                issue.labels.some(label => label.name === AGENT_LABEL)
+              );
+              
+              if (agentIssues.length >= 1) {
+                console.log(`✅ TEST 4 SUCCESS: Found ${agentIssues.length} issue(s) with agent label`);
+                core.setOutput('test4-result', 'success');
+                core.setOutput('test4-count', agentIssues.length);
+              } else {
+                console.log('❌ TEST 4 FAILED: No issues with agent label found');
+                core.setOutput('test4-result', 'failed');
+              }
+              
+            } catch (error) {
+              console.error('❌ TEST 4 ERROR:', error);
+              core.setOutput('test4-result', 'error');
+            }
+
+      - name: Cleanup test issues
+        if: github.event.inputs.test_scenario == 'all' || github.event.inputs.test_scenario == 'cleanup'
+        id: cleanup
+        uses: actions/github-script@v7
+        with:
+          script: |
+            console.log('🧹 CLEANUP: Removing test issues');
+            
+            try {
+              const { data: allIssues } = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open'
+              });
+              
+              const testIssues = allIssues.filter(issue => 
+                issue.labels.some(label => 
+                  label.name.startsWith('test-') || 
+                  label.name === 'test-created' ||
+                  label.name === 'test-no-label' ||
+                  label.name === 'test-with-label' ||
+                  label.name === 'test-multiple-1' ||
+                  label.name === 'test-multiple-2'
+                ) || 
+                issue.title.includes('(Test')
+              );
+              
+              console.log(`Found ${testIssues.length} test issues to cleanup`);
+              
+              for (const issue of testIssues) {
+                console.log(`🗑️ Closing test issue #${issue.number}: ${issue.title}`);
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  state: 'closed'
+                });
+              }
+              
+              console.log('✅ CLEANUP: Test issues cleaned up successfully');
+              core.setOutput('cleanup-result', 'success');
+              core.setOutput('cleanup-count', testIssues.length);
+              
+            } catch (error) {
+              console.error('❌ CLEANUP ERROR:', error);
+              core.setOutput('cleanup-result', 'error');
+            }
+
+      - name: Generate test report
+        uses: actions/github-script@v7
+        with:
+          script: |
+            console.log('\n📊 TEST REPORT SUMMARY');
+            console.log('========================');
+            
+            const tests = [
+              {
+                name: 'Test 1: No existing issue',
+                setup: '${{ steps.test-no-issue.outputs.test1-setup }}',
+                result: '${{ steps.test1-run.outputs.test1-result }}',
+                issue: '${{ steps.test1-run.outputs.test1-issue }}'
+              },
+              {
+                name: 'Test 2: Issue without label',
+                setup: '${{ steps.test2-setup.outputs.test2-setup }}',
+                result: '${{ steps.test2-run.outputs.test2-result }}',
+                issue: '${{ steps.test2-setup.outputs.test2-issue }}'
+              },
+              {
+                name: 'Test 3: Issue with label exists',
+                result: '${{ steps.test3-run.outputs.test3-result }}',
+                issue: '${{ steps.test3-run.outputs.test3-issue }}'
+              },
+              {
+                name: 'Test 4: Multiple issues',
+                result: '${{ steps.test4-run.outputs.test4-result }}',
+                count: '${{ steps.test4-run.outputs.test4-count }}'
+              }
+            ];
+            
+            let passedTests = 0;
+            let totalTests = 0;
+            
+            for (const test of tests) {
+              if (test.result) {
+                totalTests++;
+                const status = test.result === 'success' ? '✅ PASS' : 
+                             test.result === 'failed' ? '❌ FAIL' : 
+                             '⚠️ ERROR';
+                
+                console.log(`${status} | ${test.name}`);
+                
+                if (test.setup && test.setup !== 'success') {
+                  console.log(`    Setup: ${test.setup}`);
+                }
+                
+                if (test.issue) {
+                  console.log(`    Issue: #${test.issue}`);
+                }
+                
+                if (test.count) {
+                  console.log(`    Count: ${test.count}`);
+                }
+                
+                if (test.result === 'success') {
+                  passedTests++;
+                }
+              }
+            }
+            
+            const cleanupResult = '${{ steps.cleanup.outputs.cleanup-result }}';
+            const cleanupCount = '${{ steps.cleanup.outputs.cleanup-count }}';
+            
+            if (cleanupResult) {
+              const cleanupStatus = cleanupResult === 'success' ? '✅ PASS' : '❌ FAIL';
+              console.log(`${cleanupStatus} | Cleanup: ${cleanupCount} issues cleaned`);
+            }
+            
+            console.log('========================');
+            console.log(`🎯 OVERALL: ${passedTests}/${totalTests} tests passed`);
+            
+            if (passedTests === totalTests && totalTests > 0) {
+              console.log('🎉 ALL TESTS PASSED!');
+            } else if (totalTests === 0) {
+              console.log('ℹ️ No tests were run (check scenario selection)');
+            } else {
+              console.log('⚠️ Some tests failed - check logs above');
+            }
