@@ -28,6 +28,21 @@
       ],
       "@emails/*": [
         "./src/emails/*"
+      ],
+      "@/lib/*": [
+        "./src/lib/*"
+      ],
+      "@/db/*": [
+        "./src/db/*"
+      ],
+      "@/utils/*": [
+        "./src/utils/*"
+      ],
+      "@/auth-client*": [
+        "./lib/auth-client"
+      ],
+      "@/lib/auth-client/*": [
+        "./lib/auth-client/*"
       ]
     },
     "types": [

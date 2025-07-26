@@ -14,6 +14,12 @@ function getResendClient(): Resend {
   return resend;
 }
 
+export interface OtpEmailOptions {
+  email: string;
+  otp: string;
+  appName?: string;
+}
+
 export interface MagicLinkEmailOptions {
   email: string;
   url: string;
@@ -31,6 +37,60 @@ export interface WelcomeEmailOptions {
   name: string;
   appName?: string;
 }
+
+
+/**
+ * Send OTP email for authentication
+ */
+export async function sendOtpEmail({
+  email,
+  otp,
+  appName = 'SenseiiWyze'
+}: OtpEmailOptions) {
+  try {
+    const resendClient = getResendClient();
+    const { data, error } = await resendClient.emails.send({
+      from: `${appName} <auth@senseiiwyze.com>`,
+      to: [email],
+      subject: `Your ${appName} verification code`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; border-radius: 10px 10px 0 0; text-align: center;">
+            <h1 style="color: white; margin: 0; font-size: 28px;">${appName}</h1>
+            <p style="color: white; margin: 10px 0 0 0; opacity: 0.9;">Your one-time password (OTP)</p>
+          </div>
+          <div style="background: white; padding: 40px 20px; border: 1px solid #e1e5e9; border-top: none;">
+            <h2 style="color: #333; margin: 0 0 20px 0;">Verification Code</h2>
+            <p style="color: #666; line-height: 1.5; margin: 0 0 30px 0;">
+              Use the following code to verify your email address. This code will expire in 10 minutes.
+            </p>
+            <div style="text-align: center; margin: 30px 0;">
+              <span style="display: inline-block; background: #f3f4f6; color: #333; font-size: 32px; letter-spacing: 8px; padding: 16px 32px; border-radius: 8px; font-weight: bold;">
+                ${otp}
+              </span>
+            </div>
+            <p style="color: #999; font-size: 14px; margin: 30px 0 0 0;">
+              If you didn't request this email, you can safely ignore it.
+            </p>
+          </div>
+          <div style="background: #f8f9fa; padding: 20px; border-radius: 0 0 10px 10px; border: 1px solid #e1e5e9; border-top: none;">
+            <p style="color: #666; font-size: 12px; margin: 0; text-align: center;">
+              &copy; ${new Date().getFullYear()} ${appName}
+            </p>
+          </div>
+        </div>
+      `
+    });
+    if (error) {
+      throw error;
+    }
+    return data;
+  } catch (err) {
+    throw new Error(`Failed to send OTP email: ${err instanceof Error ? err.message : String(err)}`);
+  }
+}
+
+
 
 /**
  * Send magic link email for passwordless authentication
