@@ -1,15 +1,35 @@
 import { Resend } from 'resend';
 
 // Initialize Resend client lazily to avoid API key errors during build time
-let resend: Resend | null = null;
+type ResendLike = { emails: { send: (opts: any) => Promise<{ data: any; error: any }> } };
 
-function getResendClient(): Resend {
+let resend: ResendLike | null = null;
+
+function getResendClient(): ResendLike {
+  // If EMAIL_PROVIDER=CONSOLE or we're in test env, return console logger implementation
+  if (process.env.EMAIL_PROVIDER === 'CONSOLE') {
+    return {
+      emails: {
+        async send(opts: any) {
+          /* eslint-disable no-console */
+          console.log('\n================ EMAIL (console provider) ================');
+          console.log('From:', opts.from);
+          console.log('To:', opts.to);
+          console.log('Subject:', opts.subject);
+          console.log('HTML Preview:\n', opts.html?.slice(0, 500));
+          console.log('==========================================================\n');
+          return { data: { preview: true }, error: null };
+        },
+      },
+    } as ResendLike;
+  }
+
   if (!resend) {
     const apiKey = process.env.RESEND_API_KEY;
     if (!apiKey) {
       throw new Error('RESEND_API_KEY environment variable is not set');
     }
-    resend = new Resend(apiKey);
+    resend = new Resend(apiKey) as unknown as ResendLike;
   }
   return resend;
 }

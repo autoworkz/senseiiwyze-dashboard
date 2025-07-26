@@ -1,0 +1,26 @@
+code: |
+  # Shared Engineering Standards – SenseiiWyze B2B2C Engine
+  
+  code:
+    package_manager: pnpm
+    framework: nextjs15-app-router
+    ui_library: shadcn/ui
+    styling: tailwind-semantic-colors  # bg-card, text-muted-foreground, etc.
+    state_management: zustand
+    validation: zod
+    lint_command: pnpm lint
+    typecheck_command: pnpm tsc --noEmit
+    build_command: pnpm build
+  testing:
+    framework: jest + react-testing-library
+    coverage_threshold: 80
+    command: pnpm test
+  docs:
+    update_docs: true
+    changelog_file: CHANGELOG.md
+  pull_request:
+    ci_commands:
+      - pnpm lint
+      - pnpm test
+      - pnpm build
+    must_pass: true 

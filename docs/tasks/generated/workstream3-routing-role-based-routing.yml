@@ -1,0 +1,19 @@
+ticket:
+  id: WS3-ROUTING-001
+  title: "Implement role-based routing with auto-redirection"
+  workstream: "Routing System"
+  phase: "Phase 1 – Foundation"
+  priority: "high"
+  description: |
+    Protect routes using Next.js middleware so users are redirected to their role dashboard if they attempt to access another facet.
+  acceptance_criteria:
+    - Unauthenticated users hitting `/ceo` → redirected to `/login`.
+    - Authenticated `worker` hitting `/ceo` → redirected to `/worker`.
+    - Middleware located at `src/middleware.ts` uses Better-Auth session cookie to determine role.
+    - Jest integration test simulates each case.
+  tasks:
+    - Extend existing `middleware.ts` with role guard logic.
+    - Add helper `getUserRole(request)` in `lib/auth-helpers.ts` (wraps auth API).
+    - Write tests `routing-guard.test.ts` using Next.js test utils.
+  standards_ref: ../standards.yml
+  tags: [routing, auth, phase1] 
