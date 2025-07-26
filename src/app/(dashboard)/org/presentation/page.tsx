@@ -1,4 +1,4 @@
-export default function ExecutivePresentationPage() {
+export default function PresentationModePage() {
   return (
     <div className="space-y-6">
       {/* Page header */}

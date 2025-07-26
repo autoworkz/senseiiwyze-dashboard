@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { Home, Target, CheckCircle, BookOpen, Users, BarChart3, Building2, MessageSquare, Settings, Gamepad2 } from 'lucide-react'
+import { Home, Target, CheckCircle, BookOpen, Users, BarChart3, Building2, MessageSquare, Settings, Gamepad2, Presentation } from 'lucide-react'
 
 interface User {
   role: 'learner' | 'admin' | 'executive'
@@ -19,39 +19,39 @@ const sidebarItems = {
   learner: [
     { 
       href: '/me', 
-      label: 'Overview', 
+      label: 'My Progress', 
       icon: Home,
       description: 'Your learning dashboard'
     },
     { 
       href: '/me/goals', 
-      label: 'Goals', 
+      label: 'Vision Board', 
       icon: Target,
       description: 'Track your objectives'
     },
     { 
       href: '/me/games', 
-      label: 'Games', 
+      label: 'Game Stats', 
       icon: Gamepad2,
       description: 'Learning through play'
     },
     { 
       href: '/me/learn', 
-      label: 'Learn', 
+      label: 'Learning', 
       icon: BookOpen,
-      description: 'Access courses'
+      description: 'Access courses and modules'
     },
   ],
   admin: [
     { 
       href: '/team', 
-      label: 'Team Overview', 
+      label: 'Team Dashboard', 
       icon: Users,
       description: 'Manage your learners'
     },
     { 
       href: '/team/tasks', 
-      label: 'Intervention Tasks', 
+      label: 'Task Manager', 
       icon: CheckCircle,
       description: 'Support interventions'
     },
@@ -63,28 +63,28 @@ const sidebarItems = {
     },
     { 
       href: '/team/messages', 
-      label: 'Messages', 
+      label: 'Message Center', 
       icon: MessageSquare,
-      description: 'Communication center'
+      description: 'Communication hub'
     },
   ],
   executive: [
     { 
       href: '/org', 
-      label: 'Executive Overview', 
+      label: 'Org Dashboard', 
       icon: BarChart3,
       description: 'High-level insights'
     },
     { 
       href: '/org/reports', 
-      label: 'Analytics Reports', 
+      label: 'Reports Hub', 
       icon: Building2,
       description: 'Performance analysis'
     },
     { 
       href: '/org/presentation', 
       label: 'Presentation Mode', 
-      icon: Target,
+      icon: Presentation,
       description: 'Executive presentations'
     },
   ],

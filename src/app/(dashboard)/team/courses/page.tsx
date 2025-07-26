@@ -1,4 +1,4 @@
-export default function TeamCoursesPage() {
+export default function CurriculumPage() {
   return (
     <div className="space-y-6">
       {/* Page header */}
