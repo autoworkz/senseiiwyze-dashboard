@@ -24,11 +24,16 @@ interface UserMenuProps {
 }
 
 export function UserMenu({ user }: UserMenuProps) {
-  const initials = user.name
-    .split(' ')
-    .map(n => n[0])
-    .join('')
-    .toUpperCase()
+  const users_name = user.name;
+  let initials = "";
+  
+  if (users_name !== undefined && users_name.trim()) {
+    initials = users_name.split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2); // Limit to 2 characters for better display
+  }
 
   return (
     <DropdownMenu>
@@ -36,7 +41,7 @@ export function UserMenu({ user }: UserMenuProps) {
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
             <AvatarImage src="" alt={user.name} />
-            <AvatarFallback>{initials}</AvatarFallback>
+            <AvatarFallback className="bg-primary text-primary-foreground">{initials}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>

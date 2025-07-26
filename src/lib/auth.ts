@@ -33,11 +33,11 @@ export async function getCurrentUser(): Promise<User | null> {
   try {
     const cookieStore = await cookies()
     const userCookie = cookieStore.get('user')
-    
+
     if (!userCookie) {
       return null
     }
-    
+
     const userData = JSON.parse(userCookie.value)
     return userData as User
   } catch (error) {

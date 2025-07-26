@@ -58,10 +58,15 @@ class AuthService {
   /**
    * Sets authentication cookie
    */
-  private setAuthCookie(token: string): void {
+  private setAuthCookie(token: string, user?: User): void {
     // Set a secure HTTP-only cookie with the token
     // In a production environment, you would set secure and httpOnly flags
     document.cookie = `auth-token=${token}; path=/; max-age=86400`
+
+    // Also set user cookie for compatibility with getCurrentUser()
+    if (user) {
+      document.cookie = `user=${JSON.stringify(user)}; path=/; max-age=86400`
+    }
   }
 
   /**
@@ -69,6 +74,7 @@ class AuthService {
    */
   private removeAuthCookie(): void {
     document.cookie = 'auth-token=; path=/; max-age=0'
+    document.cookie = 'user=; path=/; max-age=0'
   }
 
   /**
@@ -77,12 +83,12 @@ class AuthService {
   private async mockLogin(email: string, password: string): Promise<LoginResponse> {
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 1000))
-    
+
     // Mock validation
     if (!email || !password) {
       throw new Error('Email and password are required')
     }
-    
+
     // Determine role based on email for demo purposes
     let role: 'learner' | 'admin' | 'executive' = 'learner'
     if (email.includes('admin')) {
@@ -90,21 +96,23 @@ class AuthService {
     } else if (email.includes('executive')) {
       role = 'executive'
     }
-    
+
     // For demo purposes, accept any email/password combination
     // In a real app, you would validate credentials against a database
     const token = 'mock-jwt-token-' + Date.now()
-    
-    // Set the auth cookie
-    this.setAuthCookie(token)
-    
+
+    const user = {
+      id: 1,
+      email: email,
+      role: role,
+    }
+
+    // Set the auth cookie with user data
+    this.setAuthCookie(token, user)
+
     return {
       token: token,
-      user: {
-        id: 1,
-        email: email,
-        role: role,
-      }
+      user: user
     }
   }
 
@@ -114,20 +122,22 @@ class AuthService {
   private async mockSocialLogin(provider: SocialProvider): Promise<LoginResponse> {
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 1500))
-    
+
     const token = `mock-${provider}-token-${Date.now()}`
-    
-    // Set the auth cookie
-    this.setAuthCookie(token)
-    
+
+    const user = {
+      id: Math.floor(Math.random() * 1000) + 1,
+      email: `user@${provider}.com`,
+      role: 'learner' as const,
+      provider: provider,
+    }
+
+    // Set the auth cookie with user data
+    this.setAuthCookie(token, user)
+
     return {
       token: token,
-      user: {
-        id: Math.floor(Math.random() * 1000) + 1,
-        email: `user@${provider}.com`,
-        role: 'learner',
-        provider: provider,
-      }
+      user: user
     }
   }
 
@@ -162,7 +172,7 @@ class AuthService {
    */
   async socialLogin(provider: SocialProvider): Promise<LoginResponse> {
     const supportedProviders: SocialProvider[] = ['google', 'facebook', 'github']
-    
+
     if (!supportedProviders.includes(provider)) {
       throw new Error(`Unsupported social login provider: ${provider}`)
     }
@@ -190,7 +200,7 @@ class AuthService {
   async logout(): Promise<void> {
     // Remove the auth cookie
     this.removeAuthCookie()
-    
+
     if (this.apiDisabled) {
       // Mock logout - just simulate a delay
       await new Promise(resolve => setTimeout(resolve, 500))
