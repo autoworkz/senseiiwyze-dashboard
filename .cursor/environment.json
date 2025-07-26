@@ -1,0 +1,13 @@
+{
+  "agentCanUpdateSnapshot": true,
+  "install": "pnpm install",
+  "build": "pnpm build",
+  "start": "pnpm start",
+  "name": "SenseiiWyze AI-powered B2B2C tech skill coaching platform",
+  "terminals": [
+    {
+      "name": "SenseiiWyze AI-powered B2B2C tech skill coaching platform",
+      "command": "pnpm dev"
+    }
+  ]
+}
