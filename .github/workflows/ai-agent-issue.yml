@@ -1,0 +1,137 @@
+name: AI Agent Issue Management
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Run every hour to check for AI agent activation
+    - cron: '0 * * * *'
+  issues:
+    types: [closed, labeled, unlabeled]
+
+jobs:
+  manage-ai-agent-issue:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Check for AI agent issue
+        id: check-issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const AGENT_LABEL = 'ai-agent-active';
+            const ISSUE_TITLE = '🤖 AI Agent Activation';
+            const ISSUE_BODY = `
+            # AI Agent Activation Issue
+            
+            This issue is used to activate and manage AI agents for this repository.
+            
+            ## Status
+            - **Label**: \`${AGENT_LABEL}\`
+            - **Purpose**: AI agent activation and management
+            
+            ## Instructions
+            - Keep this issue open to maintain AI agent activation
+            - The \`${AGENT_LABEL}\` label is required for agent functionality
+            - This issue is automatically managed by GitHub Actions
+            
+            ## Features
+            - Automated issue creation and label management
+            - AI agent activation trigger
+            - Repository automation support
+            
+            ---
+            *This issue was automatically created by GitHub Actions*
+            `;
+            
+            try {
+              // Get all open issues
+              const { data: issues } = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                labels: AGENT_LABEL
+              });
+              
+              console.log(`Found ${issues.length} issues with label '${AGENT_LABEL}'`);
+              
+              if (issues.length > 0) {
+                // AI agent issue already exists with the label
+                const issue = issues[0];
+                console.log(`AI agent issue exists: #${issue.number}`);
+                core.setOutput('action', 'exists');
+                core.setOutput('issue-number', issue.number);
+                return;
+              }
+              
+              // Check for issues with the title but without the label
+              const { data: allIssues } = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open'
+              });
+              
+              const existingIssue = allIssues.find(issue => 
+                issue.title === ISSUE_TITLE
+              );
+              
+              if (existingIssue) {
+                // Issue exists but doesn't have the label - add it
+                console.log(`Found existing issue #${existingIssue.number} without label, adding label`);
+                
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: existingIssue.number,
+                  labels: [AGENT_LABEL]
+                });
+                
+                core.setOutput('action', 'labeled');
+                core.setOutput('issue-number', existingIssue.number);
+                return;
+              }
+              
+              // No AI agent issue exists - create one
+              console.log('No AI agent issue found, creating new issue');
+              
+              const { data: newIssue } = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: ISSUE_TITLE,
+                body: ISSUE_BODY,
+                labels: [AGENT_LABEL]
+              });
+              
+              console.log(`Created new AI agent issue: #${newIssue.number}`);
+              core.setOutput('action', 'created');
+              core.setOutput('issue-number', newIssue.number);
+              
+            } catch (error) {
+              console.error('Error managing AI agent issue:', error);
+              core.setFailed(`Failed to manage AI agent issue: ${error.message}`);
+            }
+      
+      - name: Report results
+        run: |
+          echo "Action taken: ${{ steps.check-issue.outputs.action }}"
+          echo "Issue number: ${{ steps.check-issue.outputs.issue-number }}"
+          
+          case "${{ steps.check-issue.outputs.action }}" in
+            "exists")
+              echo "✅ AI agent issue already exists with proper label"
+              ;;
+            "labeled") 
+              echo "🏷️ Added ai-agent-active label to existing issue"
+              ;;
+            "created")
+              echo "🆕 Created new AI agent issue with label"
+              ;;
+            *)
+              echo "❓ Unknown action taken"
+              ;;
+          esac
