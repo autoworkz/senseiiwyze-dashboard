@@ -2,12 +2,10 @@ import { betterAuth } from "better-auth";
 // import { github, google } from "better-auth/plugins/oauth";
 import { magicLink } from "better-auth/plugins/magic-link";
 import { sendMagicLinkEmail, sendVerificationEmail } from "../src/lib/email";
+import Database from "better-sqlite3";
 
 export const auth = betterAuth({
-  database: {
-    provider: "sqlite",
-    url: "./dev.db"
-  },
+  database: new Database("./dev.db"),
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,

@@ -1,7 +1,18 @@
 import { Resend } from 'resend';
 
-// Initialize Resend client
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Initialize Resend client lazily to avoid API key errors during build time
+let resend: Resend | null = null;
+
+function getResendClient(): Resend {
+  if (!resend) {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      throw new Error('RESEND_API_KEY environment variable is not set');
+    }
+    resend = new Resend(apiKey);
+  }
+  return resend;
+}
 
 export interface MagicLinkEmailOptions {
   email: string;
@@ -30,7 +41,8 @@ export async function sendMagicLinkEmail({
   appName = 'SenseiiWyze'
 }: MagicLinkEmailOptions) {
   try {
-    const { data, error } = await resend.emails.send({
+    const resendClient = getResendClient();
+    const { data, error } = await resendClient.emails.send({
       from: `${appName} <auth@senseiiwyze.com>`, // Replace with your verified domain
       to: [email],
       subject: `Sign in to ${appName}`,
@@ -107,7 +119,8 @@ export async function sendVerificationEmail({
   appName = 'SenseiiWyze'
 }: VerificationEmailOptions) {
   try {
-    const { data, error } = await resend.emails.send({
+    const resendClient = getResendClient();
+    const { data, error } = await resendClient.emails.send({
       from: `${appName} <auth@senseiiwyze.com>`, // Replace with your verified domain
       to: [email],
       subject: `Verify your ${appName} account`,
@@ -182,7 +195,8 @@ export async function sendWelcomeEmail({
   appName = 'SenseiiWyze'
 }: WelcomeEmailOptions) {
   try {
-    const { data, error } = await resend.emails.send({
+    const resendClient = getResendClient();
+    const { data, error } = await resendClient.emails.send({
       from: `${appName} <welcome@senseiiwyze.com>`, // Replace with your verified domain
       to: [email],
       subject: `Welcome to ${appName}!`,
@@ -259,4 +273,7 @@ export async function sendWelcomeEmail({
   }
 }
 
-export { resend };
+// Export a function to get the Resend client for other modules that might need it
+export function getResend() {
+  return getResendClient();
+}
