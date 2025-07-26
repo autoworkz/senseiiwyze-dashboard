@@ -1,11 +1,11 @@
 import type React from "react"
 import type { Metadata } from "next"
-// import { GeistSans } from "geist/font/sans"
-// import { GeistMono } from "geist/font/mono"
-// import { Inter } from "next/font/google"
+import { GeistSans } from "geist/font/sans"
+import { GeistMono } from "geist/font/mono"
+import { Inter } from "next/font/google"
 import "./globals.css"
-// import { ThemeProvider } from "@/components/theme-provider"
-// import { Geist } from "next/font/google"
+import { ThemeProvider } from "@/components/theme-provider"
+import { Geist } from "next/font/google"
 
 
 export const metadata: Metadata = {
@@ -15,36 +15,27 @@ export const metadata: Metadata = {
 }
 
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode
+}>) {
   return (
     <html lang="en">
-      <head />
-      <body>{children}</body>
-    </html>
-  );
+      <head>
+        <style>{`
+html {
+  font-family: ${GeistSans.style.fontFamily};
+  --font-sans: ${GeistSans.variable};
+  --font-mono: ${GeistMono.variable};
 }
-
-// export default function RootLayout({
-//   children,
-// }: Readonly<{
-//   children: React.ReactNode
-// }>) {
-//   return (
-//     <html lang="en">
-//       <head>
-//         <style>{`
-// html {
-//   font-family: ${GeistSans.style.fontFamily};
-//   --font-sans: ${GeistSans.variable};
-//   --font-mono: ${GeistMono.variable};
-// }
-//         `}</style>
-//       </head>
-//       <body>
-//         <ThemeProvider>
-//           {children}
-//         </ThemeProvider>
-//       </body>
-//     </html>
-//   )
-// }
+        `}</style>
+      </head>
+      <body>
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
+      </body>
+    </html>
+  )
+}
