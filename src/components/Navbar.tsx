@@ -31,6 +31,8 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
+import { useTranslations, useLocale } from 'next-intl';
+import { LanguageSwitcher } from './language-switcher';
 
 import { Button } from "@/components/ui/button";
 import {
@@ -209,6 +211,8 @@ const DATA_RESOURCES: Resource[] = [
 
 const Navbar7 = () => {
   const [open, setOpen] = useState(false);
+  const t = useTranslations();
+  const locale = useLocale();
   return (
     <section className="inset-x-0 top-0 z-20 bg-background">
       <div className="container px-4 sm:px-6 md:px-8 lg:px-40 xl:px-52">
@@ -229,12 +233,12 @@ const Navbar7 = () => {
             </a>
             <NavigationMenuList className="hidden lg:flex">
               <NavigationMenuItem>
-                <NavigationMenuTrigger>Platform</NavigationMenuTrigger>
+                <NavigationMenuTrigger>{t('main.platform')}</NavigationMenuTrigger>
                 <NavigationMenuContent className="min-w-[760px] p-4">
                   <div className="flex items-start justify-between">
                     <div className="max-w-[760px] flex-1">
                       <div className="text-xs tracking-widest text-muted-foreground">
-                        Solutions
+                        {t('platform.solutions.title')}
                       </div>
                       <div className="grid grid-rows-1 gap-6">
                         {DATA_SOLUTIONS.map((solution, index) => (
@@ -286,53 +290,53 @@ const Navbar7 = () => {
               </NavigationMenuItem>
 
               <NavigationMenuItem>
-                <NavigationMenuTrigger>Users</NavigationMenuTrigger>
+                <NavigationMenuTrigger>{t('main.users')}</NavigationMenuTrigger>
                 <NavigationMenuContent className="min-w-[400px] p-4">
                   <div className="grid gap-3">
                     <NavigationMenuLink asChild>
                       <Link
-                        href="/dashboard/users"
+                        href={`/${locale}/dashboard/users`}
                         className="group flex items-center gap-3 rounded-md p-3 hover:bg-muted"
                       >
                         <div className="rounded-lg bg-muted p-2 shadow-sm">
                           <UserCheck className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
                         </div>
                         <div>
-                          <div className="font-medium">User Dashboard</div>
+                          <div className="font-medium">{t('dashboard.users.dashboard.title')}</div>
                           <div className="text-sm text-muted-foreground">
-                            Overview of user metrics and statistics
+                            {t('dashboard.users.dashboard.description')}
                           </div>
                         </div>
                       </Link>
                     </NavigationMenuLink>
                     <NavigationMenuLink asChild>
                       <Link
-                        href="/dashboard/users/list"
+                        href={`/${locale}/dashboard/users/list`}
                         className="group flex items-center gap-3 rounded-md p-3 hover:bg-muted"
                       >
                         <div className="rounded-lg bg-muted p-2 shadow-sm">
                           <Users className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
                         </div>
                         <div>
-                          <div className="font-medium">User Management</div>
+                          <div className="font-medium">{t('dashboard.users.management.title')}</div>
                           <div className="text-sm text-muted-foreground">
-                            Manage all users in your organization
+                            {t('dashboard.users.management.description')}
                           </div>
                         </div>
                       </Link>
                     </NavigationMenuLink>
                     <NavigationMenuLink asChild>
                       <Link
-                        href="/dashboard/users/analytics"
+                        href={`/${locale}/dashboard/users/analytics`}
                         className="group flex items-center gap-3 rounded-md p-3 hover:bg-muted"
                       >
                         <div className="rounded-lg bg-muted p-2 shadow-sm">
                           <LineChart className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
                         </div>
                         <div>
-                          <div className="font-medium">User Analytics</div>
+                          <div className="font-medium">{t('dashboard.users.analytics.title')}</div>
                           <div className="text-sm text-muted-foreground">
-                            Deep insights into user behavior and trends
+                            {t('dashboard.users.analytics.description')}
                           </div>
                         </div>
                       </Link>
@@ -341,9 +345,9 @@ const Navbar7 = () => {
                 </NavigationMenuContent>
               </NavigationMenuItem>
 
-              <Button variant="ghost">Developer</Button>
+              <Button variant="ghost">{t('main.developer')}</Button>
               <NavigationMenuItem>
-                <NavigationMenuTrigger>Resources</NavigationMenuTrigger>
+                <NavigationMenuTrigger>{t('main.resources')}</NavigationMenuTrigger>
                 <NavigationMenuContent className="w-full min-w-[820px] p-4">
                   <div className="grid grid-cols-3 gap-6">
                     {DATA_RESOURCES.map((solution, index) => (
@@ -370,11 +374,12 @@ const Navbar7 = () => {
               </NavigationMenuItem>
             </NavigationMenuList>
             <div className="hidden items-center gap-4 lg:flex">
+              <LanguageSwitcher />
               <Button variant="ghost" asChild>
-                <a href="/auth/login">Sign in</a>
+                <a href={`/${locale}/auth/login`}>{t('actions.signIn')}</a>
               </Button>
               <Button asChild>
-                <a href="/auth/signup">Get Started</a>
+                <a href={`/${locale}/auth/signup`}>{t('actions.getStarted')}</a>
               </Button>
             </div>
             <div className="flex items-center gap-4 lg:hidden">
@@ -405,15 +410,15 @@ const Navbar7 = () => {
                   type="button"
                   className="flex w-full items-center border-b-2 border-dashed px-8 py-4 text-left"
                 >
-                  <span className="flex-1">Platform</span>
+                  <span className="flex-1">{t('main.platform')}</span>
                   <span className="shrink-0"></span>
                 </a>
                 <Link
-                  href="/dashboard/users"
+                  href={`/${locale}/dashboard/users`}
                   type="button"
                   className="flex w-full items-center border-b-2 border-dashed px-8 py-4 text-left"
                 >
-                  <span className="flex-1">Users</span>
+                  <span className="flex-1">{t('main.users')}</span>
                   <span className="shrink-0"></span>
                 </Link>
                 <a
@@ -421,7 +426,7 @@ const Navbar7 = () => {
                   type="button"
                   className="flex w-full items-center border-b-2 border-dashed px-8 py-4 text-left"
                 >
-                  <span className="flex-1">Developers</span>
+                  <span className="flex-1">{t('main.developer')}</span>
                   <span className="shrink-0"></span>
                 </a>
                 <a
@@ -429,16 +434,16 @@ const Navbar7 = () => {
                   type="button"
                   className="flex w-full items-center border-b-2 border-dashed px-8 py-4 text-left"
                 >
-                  <span className="flex-1">Resources</span>
+                  <span className="flex-1">{t('main.resources')}</span>
                   <span className="shrink-0"></span>
                 </a>
               </div>
               <div className="mx-[2rem] mt-auto flex flex-col gap-4 py-12">
                 <span className="text-center">
-                  Existing Customer? <a href="/auth/login" className="font-bold hover:underline">Login</a>
+                  Existing Customer? <a href={`/${locale}/auth/login`} className="font-bold hover:underline">{t('actions.login')}</a>
                 </span>
                 <Button className="relative" size="lg" asChild>
-                  <a href="/auth/signup">Start now</a>
+                  <a href={`/${locale}/auth/signup`}>{t('actions.startNow')}</a>
                 </Button>
               </div>
             </div>

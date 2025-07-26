@@ -1,0 +1,130 @@
+{
+  "dashboard": {
+    "overview": {
+      "title": "Übersicht",
+      "description": "Dashboard-Übersicht und wichtige Kennzahlen"
+    },
+    "users": {
+      "title": "Benutzer",
+      "description": "Benutzerverwaltung und Analysen",
+      "dashboard": {
+        "title": "Benutzer-Dashboard",
+        "description": "Übersicht über Benutzermetriken und Statistiken"
+      },
+      "management": {
+        "title": "Benutzerverwaltung",
+        "description": "Verwalten Sie alle Benutzer in Ihrer Organisation"
+      },
+      "analytics": {
+        "title": "Benutzeranalysen",
+        "description": "Tiefe Einblicke in Benutzerverhalten und Trends"
+      }
+    },
+    "settings": {
+      "title": "Einstellungen",
+      "description": "Anwendungseinstellungen und Präferenzen"
+    }
+  },
+  "platform": {
+    "solutions": {
+      "title": "Lösungen",
+      "first": {
+        "title": "Erste Lösung",
+        "description": "Vestibulum scelerisque quis nisl ut convallis."
+      },
+      "second": {
+        "title": "Eine weitere Lösung",
+        "description": "Curabitur vehicula malesuada enim a cursus."
+      },
+      "third": {
+        "title": "Und eine dritte Lösung",
+        "description": "Proin aliquam feugiat lobortis."
+      },
+      "fourth": {
+        "title": "Und eine vierte Lösung",
+        "description": "Donec nec sapien nec dolor."
+      }
+    },
+    "useCases": {
+      "title": "Nach Anwendungsfall",
+      "banking": "Banking",
+      "fintech": "Fintech",
+      "ecommerce": "E-Commerce",
+      "travel": "Reisen & Gastgewerbe",
+      "realEstate": "Immobilien",
+      "gaming": "Gaming",
+      "manufacturing": "Fertigung",
+      "logistics": "Logistik"
+    }
+  },
+  "resources": {
+    "aiPowered": {
+      "title": "KI-gestützt",
+      "description": "Erkunden Sie KI-gestützte Ressourcen"
+    },
+    "aiDevelopment": {
+      "title": "KI-Entwicklung",
+      "description": "Tools und Frameworks für die KI-Entwicklung"
+    },
+    "machineLearning": {
+      "title": "Maschinelles Lernen",
+      "description": "Ressourcen für Enthusiasten des maschinellen Lernens"
+    },
+    "dataManagement": {
+      "title": "Datenmanagement",
+      "description": "Best Practices für das Datenmanagement"
+    },
+    "cloudAi": {
+      "title": "Cloud-KI",
+      "description": "Cloud-basierte KI-Lösungen"
+    },
+    "aiSecurity": {
+      "title": "KI-Sicherheit",
+      "description": "Sichern Sie Ihre KI-Anwendungen"
+    },
+    "aiConfiguration": {
+      "title": "KI-Konfiguration",
+      "description": "Konfigurieren Sie KI-Systeme effektiv"
+    },
+    "aiAnalytics": {
+      "title": "KI-Analysen",
+      "description": "Analysieren Sie KI-Leistungsmetriken"
+    },
+    "globalTrends": {
+      "title": "Globale KI-Trends",
+      "description": "Bleiben Sie über globale KI-Trends auf dem Laufenden"
+    },
+    "aiCommunity": {
+      "title": "KI-Community",
+      "description": "Treten Sie der KI-Community bei"
+    },
+    "aiLearning": {
+      "title": "KI-Lernen",
+      "description": "Lernen Sie KI von den besten Ressourcen"
+    },
+    "aiSupport": {
+      "title": "KI-Support",
+      "description": "Erhalten Sie Support für KI-bezogene Anfragen"
+    }
+  },
+  "main": {
+    "platform": "Plattform",
+    "users": "Benutzer",
+    "developer": "Entwickler",
+    "resources": "Ressourcen"
+  },
+  "actions": {
+    "signIn": "Anmelden",
+    "getStarted": "Loslegen",
+    "login": "Anmelden",
+    "startNow": "Jetzt Starten",
+    "backToUsers": "Zurück zu Benutzern"
+  },
+  "breadcrumbs": {
+    "dashboard": "Dashboard",
+    "users": "Benutzer",
+    "list": "Liste",
+    "analytics": "Analysen",
+    "userDetail": "Benutzerdetails"
+  }
+}

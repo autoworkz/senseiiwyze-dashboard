@@ -27,7 +27,7 @@ export default function SettingsPage() {
   // Initialize account context with defaults on mount
   useEffect(() => {
     initializeWithDefaults()
-  }, [])
+  }, [initializeWithDefaults])
 
   const handleManualSave = async () => {
     await saveChanges()

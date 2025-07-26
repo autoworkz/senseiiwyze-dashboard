@@ -1,0 +1,130 @@
+{
+  "dashboard": {
+    "overview": {
+      "title": "Resumen",
+      "description": "Resumen del panel y métricas clave"
+    },
+    "users": {
+      "title": "Usuarios",
+      "description": "Gestión de usuarios y análisis",
+      "dashboard": {
+        "title": "Panel de Usuarios",
+        "description": "Resumen de métricas y estadísticas de usuarios"
+      },
+      "management": {
+        "title": "Gestión de Usuarios",
+        "description": "Gestiona todos los usuarios de tu organización"
+      },
+      "analytics": {
+        "title": "Análisis de Usuarios",
+        "description": "Información detallada sobre el comportamiento y tendencias de usuarios"
+      }
+    },
+    "settings": {
+      "title": "Configuración",
+      "description": "Configuración de la aplicación y preferencias"
+    }
+  },
+  "platform": {
+    "solutions": {
+      "title": "Soluciones",
+      "first": {
+        "title": "Primera solución",
+        "description": "Vestibulum scelerisque quis nisl ut convallis."
+      },
+      "second": {
+        "title": "Otra solución",
+        "description": "Curabitur vehicula malesuada enim a cursus."
+      },
+      "third": {
+        "title": "Y una tercera solución",
+        "description": "Proin aliquam feugiat lobortis."
+      },
+      "fourth": {
+        "title": "Y una cuarta solución",
+        "description": "Donec nec sapien nec dolor."
+      }
+    },
+    "useCases": {
+      "title": "Por Caso de Uso",
+      "banking": "Banca",
+      "fintech": "Fintech",
+      "ecommerce": "Comercio Electrónico",
+      "travel": "Viajes y Hospitalidad",
+      "realEstate": "Bienes Raíces",
+      "gaming": "Juegos",
+      "manufacturing": "Manufactura",
+      "logistics": "Logística"
+    }
+  },
+  "resources": {
+    "aiPowered": {
+      "title": "Impulsado por IA",
+      "description": "Explora recursos impulsados por IA"
+    },
+    "aiDevelopment": {
+      "title": "Desarrollo de IA",
+      "description": "Herramientas y marcos para el desarrollo de IA"
+    },
+    "machineLearning": {
+      "title": "Aprendizaje Automático",
+      "description": "Recursos para entusiastas del aprendizaje automático"
+    },
+    "dataManagement": {
+      "title": "Gestión de Datos",
+      "description": "Mejores prácticas para la gestión de datos"
+    },
+    "cloudAi": {
+      "title": "IA en la Nube",
+      "description": "Soluciones de IA basadas en la nube"
+    },
+    "aiSecurity": {
+      "title": "Seguridad de IA",
+      "description": "Asegura tus aplicaciones de IA"
+    },
+    "aiConfiguration": {
+      "title": "Configuración de IA",
+      "description": "Configura sistemas de IA de manera efectiva"
+    },
+    "aiAnalytics": {
+      "title": "Análisis de IA",
+      "description": "Analiza métricas de rendimiento de IA"
+    },
+    "globalTrends": {
+      "title": "Tendencias Globales de IA",
+      "description": "Mantente actualizado con las tendencias globales de IA"
+    },
+    "aiCommunity": {
+      "title": "Comunidad de IA",
+      "description": "Únete a la comunidad de IA"
+    },
+    "aiLearning": {
+      "title": "Aprendizaje de IA",
+      "description": "Aprende IA de los mejores recursos"
+    },
+    "aiSupport": {
+      "title": "Soporte de IA",
+      "description": "Obtén soporte para consultas relacionadas con IA"
+    }
+  },
+  "main": {
+    "platform": "Plataforma",
+    "users": "Usuarios",
+    "developer": "Desarrollador",
+    "resources": "Recursos"
+  },
+  "actions": {
+    "signIn": "Iniciar Sesión",
+    "getStarted": "Comenzar",
+    "login": "Iniciar Sesión",
+    "startNow": "Comenzar Ahora",
+    "backToUsers": "Volver a Usuarios"
+  },
+  "breadcrumbs": {
+    "dashboard": "Panel",
+    "users": "Usuarios",
+    "list": "Lista",
+    "analytics": "Análisis",
+    "userDetail": "Detalles del Usuario"
+  }
+}

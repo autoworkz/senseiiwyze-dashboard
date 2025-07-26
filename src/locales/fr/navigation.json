@@ -1,0 +1,130 @@
+{
+  "dashboard": {
+    "overview": {
+      "title": "Aperçu",
+      "description": "Aperçu du tableau de bord et métriques clés"
+    },
+    "users": {
+      "title": "Utilisateurs",
+      "description": "Gestion des utilisateurs et analyses",
+      "dashboard": {
+        "title": "Tableau de Bord Utilisateurs",
+        "description": "Aperçu des métriques et statistiques des utilisateurs"
+      },
+      "management": {
+        "title": "Gestion des Utilisateurs",
+        "description": "Gérez tous les utilisateurs de votre organisation"
+      },
+      "analytics": {
+        "title": "Analyses des Utilisateurs",
+        "description": "Informations approfondies sur le comportement et les tendances des utilisateurs"
+      }
+    },
+    "settings": {
+      "title": "Paramètres",
+      "description": "Paramètres de l'application et préférences"
+    }
+  },
+  "platform": {
+    "solutions": {
+      "title": "Solutions",
+      "first": {
+        "title": "Première solution",
+        "description": "Vestibulum scelerisque quis nisl ut convallis."
+      },
+      "second": {
+        "title": "Une autre solution",
+        "description": "Curabitur vehicula malesuada enim a cursus."
+      },
+      "third": {
+        "title": "Et une troisième solution",
+        "description": "Proin aliquam feugiat lobortis."
+      },
+      "fourth": {
+        "title": "Et une quatrième solution",
+        "description": "Donec nec sapien nec dolor."
+      }
+    },
+    "useCases": {
+      "title": "Par Cas d'Usage",
+      "banking": "Banque",
+      "fintech": "Fintech",
+      "ecommerce": "Commerce Électronique",
+      "travel": "Voyage et Hospitalité",
+      "realEstate": "Immobilier",
+      "gaming": "Jeux",
+      "manufacturing": "Fabrication",
+      "logistics": "Logistique"
+    }
+  },
+  "resources": {
+    "aiPowered": {
+      "title": "Alimenté par l'IA",
+      "description": "Explorez les ressources alimentées par l'IA"
+    },
+    "aiDevelopment": {
+      "title": "Développement IA",
+      "description": "Outils et frameworks pour le développement IA"
+    },
+    "machineLearning": {
+      "title": "Apprentissage Automatique",
+      "description": "Ressources pour les passionnés d'apprentissage automatique"
+    },
+    "dataManagement": {
+      "title": "Gestion des Données",
+      "description": "Meilleures pratiques pour la gestion des données"
+    },
+    "cloudAi": {
+      "title": "IA Cloud",
+      "description": "Solutions IA basées sur le cloud"
+    },
+    "aiSecurity": {
+      "title": "Sécurité IA",
+      "description": "Sécurisez vos applications IA"
+    },
+    "aiConfiguration": {
+      "title": "Configuration IA",
+      "description": "Configurez efficacement les systèmes IA"
+    },
+    "aiAnalytics": {
+      "title": "Analyses IA",
+      "description": "Analysez les métriques de performance IA"
+    },
+    "globalTrends": {
+      "title": "Tendances Mondiales IA",
+      "description": "Restez à jour avec les tendances mondiales de l'IA"
+    },
+    "aiCommunity": {
+      "title": "Communauté IA",
+      "description": "Rejoignez la communauté IA"
+    },
+    "aiLearning": {
+      "title": "Apprentissage IA",
+      "description": "Apprenez l'IA avec les meilleures ressources"
+    },
+    "aiSupport": {
+      "title": "Support IA",
+      "description": "Obtenez du support pour les requêtes liées à l'IA"
+    }
+  },
+  "main": {
+    "platform": "Plateforme",
+    "users": "Utilisateurs",
+    "developer": "Développeur",
+    "resources": "Ressources"
+  },
+  "actions": {
+    "signIn": "Se Connecter",
+    "getStarted": "Commencer",
+    "login": "Connexion",
+    "startNow": "Commencer Maintenant",
+    "backToUsers": "Retour aux Utilisateurs"
+  },
+  "breadcrumbs": {
+    "dashboard": "Tableau de Bord",
+    "users": "Utilisateurs",
+    "list": "Liste",
+    "analytics": "Analyses",
+    "userDetail": "Détails de l'Utilisateur"
+  }
+}
