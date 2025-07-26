@@ -173,8 +173,7 @@ export default function UserListPage() {
                       <div className="flex items-center gap-2">
                         <div className="flex-1 bg-secondary rounded-full h-2">
                           <div
-                            className="bg-primary h-2 rounded-full"
-                            style={{ width: `${user.programReadiness}%` }}
+                            className={`bg-primary h-2 rounded-full w-[${user.programReadiness}%]`}
                           />
                         </div>
                         <span className="text-sm text-muted-foreground">{user.programReadiness}%</span>

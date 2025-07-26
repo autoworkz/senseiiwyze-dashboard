@@ -73,8 +73,7 @@ export default function DataOverviewPage() {
                 </div>
                 <div className="h-2 bg-muted rounded-full overflow-hidden">
                   <div 
-                    className="h-full bg-primary" 
-                    style={{ width: `${sampleData.filter(item => item.progress >= 90 && item.progress <= 100).length / sampleData.length * 100}%` }}
+                    className={`h-full bg-primary w-[${sampleData.filter(item => item.progress >= 90 && item.progress <= 100).length / sampleData.length * 100}%]`}
                   />
                 </div>
               </div>
@@ -87,8 +86,7 @@ export default function DataOverviewPage() {
                 </div>
                 <div className="h-2 bg-muted rounded-full overflow-hidden">
                   <div 
-                    className="h-full bg-primary" 
-                    style={{ width: `${sampleData.filter(item => item.progress >= 70 && item.progress < 90).length / sampleData.length * 100}%` }}
+                    className={`h-full bg-primary w-[${sampleData.filter(item => item.progress >= 70 && item.progress < 90).length / sampleData.length * 100}%]`}
                   />
                 </div>
               </div>
@@ -101,8 +99,7 @@ export default function DataOverviewPage() {
                 </div>
                 <div className="h-2 bg-muted rounded-full overflow-hidden">
                   <div 
-                    className="h-full bg-primary" 
-                    style={{ width: `${sampleData.filter(item => item.progress >= 50 && item.progress < 70).length / sampleData.length * 100}%` }}
+                    className={`h-full bg-primary w-[${sampleData.filter(item => item.progress >= 50 && item.progress < 70).length / sampleData.length * 100}%]`}
                   />
                 </div>
               </div>
@@ -115,8 +112,7 @@ export default function DataOverviewPage() {
                 </div>
                 <div className="h-2 bg-muted rounded-full overflow-hidden">
                   <div 
-                    className="h-full bg-primary" 
-                    style={{ width: `${sampleData.filter(item => item.progress >= 30 && item.progress < 50).length / sampleData.length * 100}%` }}
+                    className={`h-full bg-primary w-[${sampleData.filter(item => item.progress >= 30 && item.progress < 50).length / sampleData.length * 100}%]`}
                   />
                 </div>
               </div>
@@ -129,8 +125,7 @@ export default function DataOverviewPage() {
                 </div>
                 <div className="h-2 bg-muted rounded-full overflow-hidden">
                   <div 
-                    className="h-full bg-primary" 
-                    style={{ width: `${sampleData.filter(item => item.progress >= 0 && item.progress < 30).length / sampleData.length * 100}%` }}
+                    className={`h-full bg-primary w-[${sampleData.filter(item => item.progress >= 0 && item.progress < 30).length / sampleData.length * 100}%]`}
                   />
                 </div>
               </div>

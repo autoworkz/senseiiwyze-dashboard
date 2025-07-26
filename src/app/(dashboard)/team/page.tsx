@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
 import { SummaryBar } from '@/components/team/SummaryBar'
 import { FilterPanel } from '@/components/team/FilterPanel'
 import { LearnerTable } from '@/components/team/LearnerTable'
@@ -108,27 +109,27 @@ export default function TeamDashboardPage() {
           <p className="text-sm text-muted-foreground mb-3">
             {stats.atRiskCount} learners need immediate attention
           </p>
-          <button className="text-sm text-primary hover:underline">
+          <Button variant="link" className="p-0 h-auto text-sm text-primary hover:underline">
             View interventions →
-          </button>
+          </Button>
         </div>
         <div className="rounded-lg border bg-card p-4">
           <h4 className="font-semibold mb-2">Weekly Check-ins</h4>
           <p className="text-sm text-muted-foreground mb-3">
             Schedule 1-on-1s with struggling learners
           </p>
-          <button className="text-sm text-primary hover:underline">
+          <Button variant="link" className="p-0 h-auto text-sm text-primary hover:underline">
             Schedule meetings →
-          </button>
+          </Button>
         </div>
         <div className="rounded-lg border bg-card p-4">
           <h4 className="font-semibold mb-2">Content Updates</h4>
           <p className="text-sm text-muted-foreground mb-3">
             Review and update learning materials
           </p>
-          <button className="text-sm text-primary hover:underline">
+          <Button variant="link" className="p-0 h-auto text-sm text-primary hover:underline">
             Manage content →
-          </button>
+          </Button>
         </div>
       </div>
     </div>

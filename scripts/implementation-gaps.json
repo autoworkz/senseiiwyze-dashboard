@@ -1,0 +1,109 @@
+{
+  "timestamp": "2025-07-26T10:03:52.723Z",
+  "totalGaps": 6,
+  "priorityBreakdown": {
+    "critical": 2,
+    "high": 2,
+    "medium": 2,
+    "low": 0
+  },
+  "effortEstimation": {
+    "minHours": 5.5,
+    "maxHours": 11,
+    "breakdown": {
+      "low": 3,
+      "medium": 2,
+      "high": 1
+    }
+  },
+  "gaps": [
+    {
+      "feature": "OAuth Providers",
+      "currentState": "partially_implemented",
+      "requiredChanges": [
+        "Replace socialProviders configuration with Better Auth plugin system",
+        "Import OAuth plugins from better-auth/plugins/oauth",
+        "Configure each provider as a plugin"
+      ],
+      "codeExample": "// Replace current socialProviders configuration with:\nimport { github, google, discord } from \"better-auth/plugins/oauth\";\n\nexport const auth = betterAuth({\n  // ... existing configuration\n  \n  plugins: [\n    github({\n      clientId: process.env.GITHUB_CLIENT_ID!,\n      clientSecret: process.env.GITHUB_CLIENT_SECRET!,\n    }),\n    google({\n      clientId: process.env.GOOGLE_CLIENT_ID!,\n      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,\n    }),\n    discord({\n      clientId: process.env.DISCORD_CLIENT_ID!,\n      clientSecret: process.env.DISCORD_CLIENT_SECRET!,\n    }),\n  ],\n});",
+      "effortEstimate": "low",
+      "priority": "high",
+      "dependencies": [
+        "Environment variables for OAuth providers"
+      ]
+    },
+    {
+      "feature": "Two-Factor Authentication",
+      "currentState": "not_implemented",
+      "requiredChanges": [
+        "Import twoFactor plugin from better-auth/plugins/two-factor",
+        "Add twoFactor plugin to plugins array",
+        "Configure TOTP options and issuer name"
+      ],
+      "codeExample": "import { twoFactor } from \"better-auth/plugins/two-factor\";\n\n// Add to plugins array:\ntwoFactor({\n  issuer: \"SenseiiWyze Dashboard\",\n  totpOptions: {\n    period: 30,\n    digits: 6,\n  },\n})",
+      "effortEstimate": "medium",
+      "priority": "high",
+      "dependencies": [
+        "otplib package for TOTP generation"
+      ]
+    },
+    {
+      "feature": "Magic Link Authentication",
+      "currentState": "not_implemented",
+      "requiredChanges": [
+        "Import magicLink plugin from better-auth/plugins/magic-link",
+        "Add magicLink plugin to plugins array",
+        "Implement sendMagicLink function with email service",
+        "Configure link expiration time"
+      ],
+      "codeExample": "import { magicLink } from \"better-auth/plugins/magic-link\";\nimport { sendEmail } from \"./email-service\"; // Your email service\n\n// Add to plugins array:\nmagicLink({\n  sendMagicLink: async (email, url, user) => {\n    await sendEmail({\n      to: email,\n      subject: \"Your Magic Link - SenseiiWyze\",\n      html: `\n        <h2>Sign in to SenseiiWyze Dashboard</h2>\n        <p>Click the link below to sign in:</p>\n        <a href=\"${url}\" style=\"display: inline-block; padding: 12px 24px; background-color: #4F46E5; color: white; text-decoration: none; border-radius: 6px;\">\n          Sign In\n        </a>\n        <p>This link expires in 15 minutes.</p>\n        <p>If you didn't request this, please ignore this email.</p>\n      `,\n    });\n  },\n  expiresIn: 60 * 15, // 15 minutes\n})",
+      "effortEstimate": "high",
+      "priority": "medium",
+      "dependencies": [
+        "Email service setup (Resend, SendGrid, etc.)"
+      ]
+    },
+    {
+      "feature": "Enhanced Session Management",
+      "currentState": "not_implemented",
+      "requiredChanges": [
+        "Import sessionManagement plugin",
+        "Configure session options",
+        "Add session extension on activity"
+      ],
+      "codeExample": "import { sessionManagement } from \"better-auth/plugins/session-management\";\n\n// Add to plugins array:\nsessionManagement({\n  extendOnActivity: true,\n  sessionMaxAge: 60 * 60 * 24 * 7, // 7 days\n  allowMultipleSessions: true,\n})",
+      "effortEstimate": "low",
+      "priority": "medium",
+      "dependencies": []
+    },
+    {
+      "feature": "Plugin System Architecture",
+      "currentState": "not_implemented",
+      "requiredChanges": [
+        "Add plugins array to betterAuth configuration",
+        "Migrate all authentication methods to plugin system",
+        "Remove deprecated configuration patterns"
+      ],
+      "codeExample": "export const auth = betterAuth({\n  database: drizzleAdapter(db, {\n    // ... existing database config\n  }),\n  \n  emailAndPassword: {\n    enabled: true,\n    requireEmailVerification: true,\n  },\n  \n  // Add this plugins array:\n  plugins: [\n    // OAuth providers\n    github({ /* config */ }),\n    google({ /* config */ }),\n    discord({ /* config */ }),\n    \n    // Additional authentication methods\n    twoFactor({ /* config */ }),\n    magicLink({ /* config */ }),\n    sessionManagement({ /* config */ }),\n  ],\n  \n  baseURL: process.env.BETTER_AUTH_URL || \"http://localhost:3000\",\n  secret: process.env.BETTER_AUTH_SECRET,\n});",
+      "effortEstimate": "medium",
+      "priority": "critical",
+      "dependencies": []
+    },
+    {
+      "feature": "Environment Variables",
+      "currentState": "partially_implemented",
+      "requiredChanges": [
+        "Set GITHUB_CLIENT_ID in .env.local",
+        "Set GITHUB_CLIENT_SECRET in .env.local",
+        "Set DISCORD_CLIENT_ID in .env.local",
+        "Set DISCORD_CLIENT_SECRET in .env.local"
+      ],
+      "codeExample": "# Add to .env.local:\nGITHUB_CLIENT_ID=your_value_here\nGITHUB_CLIENT_SECRET=your_value_here\nDISCORD_CLIENT_ID=your_value_here\nDISCORD_CLIENT_SECRET=your_value_here",
+      "effortEstimate": "low",
+      "priority": "critical",
+      "dependencies": [
+        "OAuth app registration on provider platforms"
+      ]
+    }
+  ]
+}

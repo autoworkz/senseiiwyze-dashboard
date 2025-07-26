@@ -4,7 +4,7 @@ export default defineConfig({
     // Database connection - configured for Supabase PostgreSQL
     dialect: 'postgresql',
     dbCredentials: {
-        url: process.env.SUPABASE_DATABASE_URL!,
+        url: process.env.DATABASE_URL!,
     },
 
     // Alternative configurations (commented out):
@@ -22,8 +22,8 @@ export default defineConfig({
     // },
 
     // Schema and migration settings
-    schema: './src/db/schema/*',
-    out: './src/db/migrations',
+    schema: './lib/db/schema.ts',
+    out: './drizzle',
 
     // Additional options
     verbose: true,

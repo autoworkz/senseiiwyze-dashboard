@@ -52,7 +52,7 @@ export default function UserAnalyticsPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Growth</CardTitle>
-            <TrendingUp className="h-4 w-4 text-green-600" />
+            <TrendingUp className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">+25.7%</div>
@@ -65,7 +65,7 @@ export default function UserAnalyticsPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active Rate</CardTitle>
-            <UserCheck className="h-4 w-4 text-blue-600" />
+            <UserCheck className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">70%</div>
@@ -78,7 +78,7 @@ export default function UserAnalyticsPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Churn Rate</CardTitle>
-            <UserX className="h-4 w-4 text-red-600" />
+            <UserX className="h-4 w-4 text-destructive" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">3.2%</div>
@@ -91,7 +91,7 @@ export default function UserAnalyticsPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Avg. Session</CardTitle>
-            <Calendar className="h-4 w-4 text-purple-600" />
+            <Calendar className="h-4 w-4 text-accent-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">24m 32s</div>
@@ -148,21 +148,21 @@ export default function UserAnalyticsPage() {
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-blue-500 rounded-full" />
+                      <div className="w-3 h-3 bg-secondary rounded-full" />
                       <span className="text-sm">Social Media</span>
                     </div>
                     <span className="text-sm font-medium">28%</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-green-500 rounded-full" />
+                      <div className="w-3 h-3 bg-accent rounded-full" />
                       <span className="text-sm">Direct</span>
                     </div>
                     <span className="text-sm font-medium">18%</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-purple-500 rounded-full" />
+                      <div className="w-3 h-3 bg-muted rounded-full" />
                       <span className="text-sm">Referral</span>
                     </div>
                     <span className="text-sm font-medium">12%</span>
@@ -184,7 +184,7 @@ export default function UserAnalyticsPage() {
                       <span className="text-sm font-medium">65%</span>
                     </div>
                     <div className="h-2 bg-secondary rounded-full">
-                      <div className="h-2 bg-primary rounded-full" style={{ width: "65%" }} />
+                      <div className="h-2 bg-primary rounded-full w-[65%]" />
                     </div>
                   </div>
                   <div>
@@ -193,7 +193,7 @@ export default function UserAnalyticsPage() {
                       <span className="text-sm font-medium">25%</span>
                     </div>
                     <div className="h-2 bg-secondary rounded-full">
-                      <div className="h-2 bg-blue-500 rounded-full" style={{ width: "25%" }} />
+                      <div className="h-2 bg-secondary rounded-full w-[25%]" />
                     </div>
                   </div>
                   <div>
@@ -202,7 +202,7 @@ export default function UserAnalyticsPage() {
                       <span className="text-sm font-medium">10%</span>
                     </div>
                     <div className="h-2 bg-secondary rounded-full">
-                      <div className="h-2 bg-green-500 rounded-full" style={{ width: "10%" }} />
+                      <div className="h-2 bg-accent rounded-full w-[10%]" />
                     </div>
                   </div>
                 </div>
@@ -258,26 +258,22 @@ export default function UserAnalyticsPage() {
                       <tr key={index} className="border-b">
                         <td className="py-2">{cohort.cohort}</td>
                         <td className="text-center py-2">
-                          <div className="inline-flex items-center justify-center w-16 h-8 rounded"
-                               style={{ backgroundColor: `rgba(34, 197, 94, ${cohort.week1 / 100})` }}>
+                          <div className="inline-flex items-center justify-center w-16 h-8 rounded bg-primary/90">
                             {cohort.week1}%
                           </div>
                         </td>
                         <td className="text-center py-2">
-                          <div className="inline-flex items-center justify-center w-16 h-8 rounded"
-                               style={{ backgroundColor: `rgba(34, 197, 94, ${cohort.week2 / 100})` }}>
+                          <div className="inline-flex items-center justify-center w-16 h-8 rounded bg-primary/80">
                             {cohort.week2}%
                           </div>
                         </td>
                         <td className="text-center py-2">
-                          <div className="inline-flex items-center justify-center w-16 h-8 rounded"
-                               style={{ backgroundColor: `rgba(34, 197, 94, ${cohort.week3 / 100})` }}>
+                          <div className="inline-flex items-center justify-center w-16 h-8 rounded bg-primary/75">
                             {cohort.week3}%
                           </div>
                         </td>
                         <td className="text-center py-2">
-                          <div className="inline-flex items-center justify-center w-16 h-8 rounded"
-                               style={{ backgroundColor: `rgba(34, 197, 94, ${cohort.week4 / 100})` }}>
+                          <div className="inline-flex items-center justify-center w-16 h-8 rounded bg-primary/68">
                             {cohort.week4}%
                           </div>
                         </td>

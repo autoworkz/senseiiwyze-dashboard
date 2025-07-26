@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button'
 import { LearnerProfileHeader } from '@/components/team/LearnerProfileHeader'
 import { LearnerMetrics } from '@/components/team/LearnerMetrics'
 import { LearnerProgress } from '@/components/team/LearnerProgress'
@@ -66,8 +67,8 @@ export default async function LearnerProfilePage() {
             {learner.riskFactors.map((factor, index) => (
               <div key={index} className="flex items-center gap-3">
                 <div className={`w-3 h-3 rounded-full ${
-                  factor.severity === 'high' ? 'bg-red-500' :
-                  factor.severity === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
+                  factor.severity === 'high' ? 'bg-destructive' :
+                  factor.severity === 'medium' ? 'bg-accent' : 'bg-primary'
                 }`}></div>
                 <div className="flex-1">
                   <div className="text-sm font-medium">{factor.factor}</div>
@@ -81,15 +82,15 @@ export default async function LearnerProfilePage() {
       
       {/* Action buttons */}
       <div className="flex gap-4">
-        <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90">
+        <Button>
           Schedule Check-in
-        </button>
-        <button className="px-4 py-2 border rounded-lg hover:bg-muted">
+        </Button>
+        <Button variant="outline">
           Send Message
-        </button>
-        <button className="px-4 py-2 border rounded-lg hover:bg-muted">
+        </Button>
+        <Button variant="outline">
           Create Intervention
-        </button>
+        </Button>
       </div>
     </div>
   )

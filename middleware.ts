@@ -1,11 +1,15 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { auth } from '@/lib/auth'
 
-// This function can be marked `async` if using `await` inside
-export function middleware(request: NextRequest) {
-  // For demonstration purposes, we'll use a simple cookie to check if the user is logged in
-  // In a real application, you would use a more secure method like JWT tokens
-  const isLoggedIn = request.cookies.has('auth-token')
+// This function is marked `async` to use `await` inside
+export async function middleware(request: NextRequest) {
+  // Use Better Auth to check if the user is logged in
+  const session = await auth.api.getSession({
+    headers: request.headers,
+  })
+
+  const isLoggedIn = !!session
 
   // Get the pathname of the request
   const { pathname } = request.nextUrl
