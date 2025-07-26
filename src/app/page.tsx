@@ -1,22 +1,7 @@
 import { redirect } from 'next/navigation'
-import { getCurrentUser } from '@/lib/auth'
 
-export default async function LandingPage() {
-  const user = await getCurrentUser()
-  
-  if (!user) {
-    redirect('/login')
-  }
-  
-  // Role-based routing
-  switch (user.role) {
-    case 'learner':
-      redirect('/me')
-    case 'admin':
-      redirect('/team')
-    case 'executive':
-      redirect('/org')
-    default:
-      redirect('/login')
-  }
+export default function LandingPage() {
+  // Redirect unauthenticated users to login
+  // After Better Auth implementation, this will be updated to check real auth
+  redirect('/login')
 }
