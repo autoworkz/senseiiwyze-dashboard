@@ -37,6 +37,12 @@
   --sidebar-accent-foreground: 222.2 47.4% 11.2%;
   --sidebar-border: 214.3 31.8% 91.4%;
   --sidebar-ring: 221.2 83.2% 53.3%;
+  
+  /* Glass morphism variables */
+  --glass-bg: 255 255 255 / 0.8;
+  --glass-border: 255 255 255 / 0.2;
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  --glass-backdrop-blur: blur(8px);
 }
 
 @theme inline {
@@ -146,6 +152,66 @@ body {
   --sidebar-accent-foreground: 210 40% 98%;
   --sidebar-border: 217.2 32.6% 17.5%;
   --sidebar-ring: 224.3 76.3% 48%;
+}
+
+/* Glass morphism utility classes */
+.glass {
+  background: rgba(var(--glass-bg));
+  backdrop-filter: var(--glass-backdrop-blur);
+  -webkit-backdrop-filter: var(--glass-backdrop-blur);
+  border: 1px solid rgba(var(--glass-border));
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-card {
+  @apply glass rounded-xl border border-white/20 bg-white/10 backdrop-blur-md;
+}
+
+.glass-subtle {
+  @apply bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg;
+}
+
+.glass-strong {
+  @apply bg-white/20 backdrop-blur-lg border border-white/30 rounded-xl shadow-2xl;
+}
+
+/* Animated glass effects */
+.glass-hover {
+  @apply transition-all duration-300 ease-in-out;
+}
+
+.glass-hover:hover {
+  @apply bg-white/15 backdrop-blur-lg border-white/30 shadow-xl transform scale-[1.02];
+}
+
+/* Dark mode glass effects */
+.dark .glass-card {
+  @apply bg-black/10 border-white/10;
+}
+
+.dark .glass-subtle {
+  @apply bg-black/5 border-white/5;
+}
+
+.dark .glass-strong {
+  @apply bg-black/20 border-white/20;
+}
+
+/* Gradient backgrounds for glass containers */
+.glass-gradient {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+}
+
+.dark .glass-gradient {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.2) 0%,
+    rgba(0, 0, 0, 0.1) 100%
+  );
 }
 
 @layer base {
