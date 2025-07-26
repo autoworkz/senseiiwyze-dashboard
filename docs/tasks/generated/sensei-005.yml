@@ -1,0 +1,26 @@
+ticket:
+  id: SENSEI-005
+  title: Implement API Rate Limiting and Security
+  description: Add rate limiting, CORS, and security headers to protect the API endpoints.
+  workstream: security
+  priority: high
+  status: pending
+  acceptanceCriteria:
+    - 'Rate limiting: 100 requests per minute per user'
+    - CORS configured for allowed origins
+    - Security headers prevent common attacks
+    - API versioning implemented
+    - Request validation with Zod schemas
+    - Error responses follow RFC 7807
+  technicalRequirements:
+    - Next.js middleware for rate limiting
+    - Redis for rate limit counters
+    - Helmet.js for security headers
+    - Zod for request validation
+    - OpenAPI documentation
+  dependencies:
+    - SENSEI-001
+  metadata:
+    estimatedEffort: 2 days
+    assignee: backend-team
+    sprint: Sprint 1

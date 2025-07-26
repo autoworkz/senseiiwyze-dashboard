@@ -1,0 +1,25 @@
+ticket:
+  id: SENSEI-001
+  title: Implement User Authentication System
+  description: Set up Better Auth with email/password and OAuth providers (Google, GitHub, Discord) for the SenseiiWyze platform.
+  workstream: authentication
+  priority: high
+  status: in-progress
+  acceptanceCriteria:
+    - Users can sign up with email/password
+    - OAuth login works with Google, GitHub, Discord
+    - Session management is secure with JWT tokens
+    - Password reset flow is implemented via email
+    - Two-factor authentication is available
+    - Rate limiting prevents brute force attacks
+  technicalRequirements:
+    - Better Auth library integration
+    - Resend email service for magic links
+    - PostgreSQL database for user storage
+    - JWT token management with secure cookies
+    - Environment variables for OAuth credentials
+  dependencies: []
+  metadata:
+    estimatedEffort: 5 days
+    assignee: backend-team
+    sprint: Sprint 1

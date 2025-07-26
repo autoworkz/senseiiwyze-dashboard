@@ -1,0 +1,25 @@
+ticket:
+  id: SENSEI-004
+  title: Set Up Database Schema and Migrations
+  description: Design and implement the database schema for users, assessments, learning paths, and analytics.
+  workstream: database
+  priority: high
+  status: pending
+  acceptanceCriteria:
+    - Database schema supports all entity relationships
+    - Migrations are versioned and reversible
+    - Indexes optimize query performance
+    - Soft deletes preserve audit trails
+    - Data encryption for PII fields
+    - Backup strategy documented
+  technicalRequirements:
+    - PostgreSQL with Drizzle ORM
+    - Database migrations with Drizzle Kit
+    - Connection pooling configured
+    - Read replicas for analytics
+    - Encryption at rest enabled
+  dependencies: []
+  metadata:
+    estimatedEffort: 3 days
+    assignee: backend-team
+    sprint: Sprint 1

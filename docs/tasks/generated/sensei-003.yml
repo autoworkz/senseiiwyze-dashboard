@@ -1,0 +1,27 @@
+ticket:
+  id: SENSEI-003
+  title: Implement Readiness Index Algorithm
+  description: Build the core AI-powered assessment algorithm that predicts training success with 87% accuracy.
+  workstream: ai
+  priority: critical
+  status: planning
+  acceptanceCriteria:
+    - Algorithm processes 50+ learner attributes
+    - Prediction accuracy >= 85% on test data
+    - Results returned within 2 seconds
+    - Confidence scores included with predictions
+    - Explainable AI outputs for transparency
+    - A/B testing framework integrated
+  technicalRequirements:
+    - TensorFlow.js for client-side predictions
+    - Python backend with scikit-learn for training
+    - FastAPI for model serving
+    - PostgreSQL for storing assessment data
+    - Redis for caching predictions
+  dependencies:
+    - SENSEI-001
+    - SENSEI-004
+  metadata:
+    estimatedEffort: 15 days
+    assignee: ml-team
+    sprint: Sprint 2

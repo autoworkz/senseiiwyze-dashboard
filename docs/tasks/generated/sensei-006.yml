@@ -1,0 +1,27 @@
+ticket:
+  id: SENSEI-006
+  title: Create AI Coaching Chat Interface
+  description: Build the conversational AI interface for personalized learning guidance using GPT-4.
+  workstream: ai
+  priority: medium
+  status: pending
+  acceptanceCriteria:
+    - Chat interface supports markdown formatting
+    - Message history persisted per user
+    - Streaming responses for better UX
+    - Context-aware responses based on learner profile
+    - Fallback when AI service unavailable
+    - Content moderation filters inappropriate content
+  technicalRequirements:
+    - OpenAI GPT-4 API integration
+    - WebSocket for real-time messaging
+    - PostgreSQL for chat history
+    - Redis for session state
+    - React components for chat UI
+  dependencies:
+    - SENSEI-001
+    - SENSEI-002
+  metadata:
+    estimatedEffort: 5 days
+    assignee: ai-team
+    sprint: Sprint 2
