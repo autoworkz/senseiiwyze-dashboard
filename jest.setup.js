@@ -1,5 +1,5 @@
+import 'cross-fetch/polyfill'   // <-- provides global.fetch in the test env
 import '@testing-library/jest-dom'
-
 // Use legacy fake timers to avoid timer conflicts
 jest.useFakeTimers('legacy')
 

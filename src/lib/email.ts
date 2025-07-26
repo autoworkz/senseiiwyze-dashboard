@@ -32,6 +32,73 @@ export interface WelcomeEmailOptions {
   appName?: string;
 }
 
+// ==============================
+// OTP (One-Time Passcode) Emails
+// ==============================
+
+export interface OtpEmailOptions {
+  email: string;
+  otp: string;
+  type?: string; // e.g. "sign_in", "verify_email"
+  appName?: string;
+}
+
+/**
+ * Send a 6-digit OTP code for email-OTP authentication.
+ * This reuses the Resend client just like the other helpers.
+ */
+export async function sendOtpEmail({
+  email,
+  otp,
+  type = 'sign_in',
+  appName = 'SenseiiWyze',
+}: OtpEmailOptions) {
+  try {
+    const resendClient = getResendClient();
+
+    const subject = type === 'verify_email'
+      ? `Your ${appName} verification code`
+      : `Your ${appName} sign-in code`;
+
+    const { data, error } = await resendClient.emails.send({
+      from: `${appName} <auth@senseiiwyze.com>`,
+      to: [email],
+      subject,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; border-radius: 10px 10px 0 0; text-align: center;">
+            <h1 style="color: white; margin: 0; font-size: 28px;">${appName}</h1>
+            <p style="color: white; margin: 10px 0 0 0; opacity: 0.9;">Your verification code</p>
+          </div>
+          <div style="background: white; padding: 40px 20px; border: 1px solid #e1e5e9; border-top: none; text-align: center;">
+            <p style="color: #666; line-height: 1.5; margin: 0 0 30px 0;">
+              Use the code below to complete your ${type.replace('_', ' ')}.
+            </p>
+            <p style="font-size: 32px; letter-spacing: 4px; font-weight: bold; margin: 0 0 30px 0; color: #333;">
+              ${otp}
+            </p>
+            <p style="color: #999; font-size: 14px; margin: 0;">
+              This code expires in 10 minutes.
+            </p>
+          </div>
+        </div>
+      `,
+      text: `Your ${appName} verification code is ${otp}. It expires in 10 minutes.`,
+    });
+
+    if (error) {
+      console.error('Error sending OTP email:', error);
+      throw new Error('Failed to send OTP email');
+    }
+
+    console.log('OTP email sent successfully:', data);
+    return data;
+  } catch (error) {
+    console.error('Error sending OTP email:', error);
+    throw error;
+  }
+}
+
 /**
  * Send magic link email for passwordless authentication
  */
