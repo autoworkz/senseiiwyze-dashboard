@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "types": [
+            "jest",
+            "@testing-library/jest-dom"
+        ],
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true
+    },
+    "include": [
+        "**/*.test.ts",
+        "**/*.spec.ts"
+    ]
+}

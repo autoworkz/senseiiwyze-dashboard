@@ -25,20 +25,27 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "@emails/*": [
+        "./src/emails/*"
       ]
     },
     "types": [
       "./env.d.ts",
-      "node"
+      "node",
+      "jest",
+      "@testing-library/jest-dom"
     ]
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "src/emails/**/*.tsx"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "react-email"
   ]
 }
