@@ -31,6 +31,7 @@ async function main() {
     if (!ticket?.id) continue;
 
     const issueTitle = `${ticket.id}  ${ticket.title}`;
+
     const labels = ['work-tasks', ...(ticket.workstream ? [`workstream/${ticket.workstream.replace(/\s+/g, '-').toLowerCase()}`] : [])];
 
     // Check if issue exists
@@ -43,7 +44,7 @@ async function main() {
       await octokit.rest.issues.update({ owner, repo, issue_number: number, body: '```yaml\n' + raw + '\n```', labels });
       console.log(`Updated issue #${number} for ${ticket.id}`);
     } else {
-      await octokit.rest.issues.create({ owner, repo, title: issueTitle, body: 'Could you help me complete this task? @ ```yaml\n' + raw + '\n```', labels });
+      await octokit.rest.issues.create({ owner, repo, title: issueTitle, body: '```yaml\n' + raw + '\n```', labels });
       console.log(`Created issue for ${ticket.id}`);
     }
   }
@@ -52,4 +53,5 @@ async function main() {
 main().catch(err => {
   console.error(err);
   process.exit(1);
-});
+}); 
+

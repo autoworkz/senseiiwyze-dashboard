@@ -6,6 +6,8 @@ export const appSchema = pgSchema("auth");
 
 export const usersInAuth = appSchema.table("users", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
+	email: text().notNull(),
+	passwordHash: text().notNull(),
 });
 
 export const accountRole = pgEnum("account_role", ['owner', 'member', 'super-owner'])

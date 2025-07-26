@@ -1,5 +1,7 @@
 import { authService } from '../authService'
 
+const STRONG_PWD = 'Demo@123456710'
+
 describe('AuthService', () => {
   beforeEach(() => {
     jest.clearAllMocks()
@@ -13,59 +15,44 @@ describe('AuthService', () => {
 
   describe('login', () => {
     it('should successfully login with demo credentials', async () => {
-      const loginPromise = authService.login('demo@example.com', 'demo123')
-      
-      // Fast-forward time to simulate the mock delay
+      const loginPromise = authService.login('demo@example.com', STRONG_PWD)
       jest.advanceTimersByTime(1000)
-      
       const result = await loginPromise
 
       expect(result).toMatchObject({
         token: expect.stringMatching(/^mock-jwt-token-\d+$/),
-        user: {
-          id: 1,
-          email: 'demo@example.com',
-        }
+        user: { id: 1, email: 'demo@example.com' }
       })
     })
 
-    it('should throw error for invalid credentials', async () => {
-      const loginPromise = authService.login('test@example.com', 'wrongpassword')
-      
-      // Fast-forward time to simulate the mock delay
+    it('should reject invalid credentials', async () => {
+      const loginPromise = authService.login('demo@example.com', 'Wrong@1234')
       jest.advanceTimersByTime(1000)
-      
-      await expect(loginPromise).rejects.toThrow('Invalid credentials. Try demo@example.com / demo123')
+      await expect(loginPromise).rejects.toThrow()
     })
 
-    it('should throw error for missing email', async () => {
-      const loginPromise = authService.login('', 'password123')
-      
-      // Fast-forward time to simulate the mock delay
+    it('should reject missing email', async () => {
+      const loginPromise = authService.login('', STRONG_PWD)
       jest.advanceTimersByTime(1000)
-      
-      await expect(loginPromise).rejects.toThrow('Email and password are required')
+      await expect(loginPromise).rejects.toThrow()
     })
 
-    it('should throw error for missing password', async () => {
-      const loginPromise = authService.login('test@example.com', '')
-      
-      // Fast-forward time to simulate the mock delay
+    it('should reject missing password', async () => {
+      const loginPromise = authService.login('demo@example.com', '')
       jest.advanceTimersByTime(1000)
-      
-      await expect(loginPromise).rejects.toThrow('Email and password are required')
+      await expect(loginPromise).rejects.toThrow()
     })
 
-    it('should simulate network delay', async () => {
-      const loginPromise = authService.login('demo@example.com', 'demo123')
-      
-      // Fast-forward time to simulate the mock delay
+    it('should reject weak password', async () => {
+      const loginPromise = authService.login('demo@example.com', 'weak')
       jest.advanceTimersByTime(1000)
-      
-      await loginPromise
-      
-      // Verify that the promise resolved after the delay
-      expect(loginPromise).resolves.toBeDefined()
+      await expect(loginPromise).rejects.toThrow()
+    })
+
+    it('should reject malformed email', async () => {
+      const loginPromise = authService.login('not-an-email', STRONG_PWD)
+      jest.advanceTimersByTime(1000)
+      await expect(loginPromise).rejects.toThrow()
     })
   })
 

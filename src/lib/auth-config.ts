@@ -1,7 +1,11 @@
 import { betterAuth } from "better-auth";
-// import { github, google } from "better-auth/plugins/oauth";
 import { magicLink } from "better-auth/plugins/magic-link";
-import { sendMagicLinkEmail, sendVerificationEmail } from "../src/lib/email";
+import { organization } from "better-auth/plugins/organization";
+import { admin } from "better-auth/plugins/admin";
+import { anonymous } from "better-auth/plugins/anonymous";
+import { emailOTP } from "better-auth/plugins/email-otp";
+
+import { sendMagicLinkEmail, sendVerificationEmail, sendOtpEmail } from "./email";
 import Database from "better-sqlite3";
 
 export const auth = betterAuth({
@@ -39,7 +43,30 @@ export const auth = betterAuth({
     },
   },
   plugins: [
+    organization({
+      /**
+       * Resolve the current orgId from the incoming request.
+       * Strategy: look for "x-org-id" header first, then a query param, then fallback to null.
+       */
+      // @ts-expect-error - resolveOrgId is accepted by plugin even if not in typings
+      async resolveOrgId({ request }: { request: Request }) {
+        const headerOrg = request.headers.get('x-org-id');
+        if (headerOrg) return headerOrg;
 
+        const url = new URL(request.url);
+        const qOrg = url.searchParams.get('orgId');
+        if (qOrg) return qOrg;
+
+        return null;
+      },
+    }),
+    admin(),
+    anonymous(),
+    emailOTP({
+      async sendVerificationOTP({ email, otp, type }: { email: string; otp: string; type: string }) {
+        await sendOtpEmail({ email, otp, type, appName: 'SenseiiWyze' });
+      },
+    }),
     magicLink({
       sendMagicLink: async ({ email, url }) => {
         // Use Resend for magic link emails
@@ -53,4 +80,4 @@ export const auth = betterAuth({
   ],
 });
 
-export type Auth = typeof auth;
+export type Auth = typeof auth; 

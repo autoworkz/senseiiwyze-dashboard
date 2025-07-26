@@ -1,0 +1,19 @@
+ticket:
+  id: WS1-AUTH-003
+  title: "Create permission middleware helper"
+  workstream: "Authentication & Permissions"
+  phase: "Phase 1 – Foundation"
+  priority: "high"
+  description: |
+    Provide reusable middleware/hook `requireRole` and `requirePermission` (future) to gate API routes and server components.
+  acceptance_criteria:
+    - `requireRole('ceo')` used in example route returns 403 for non-CEO.
+    - Helper resides in `src/lib/role-middleware.ts` exporting higher-order handler.
+    - Type-safe: role names come from union type Role = 'ceo' | 'worker' | 'frontliner'.
+    - Jest unit test covers allowed & denied cases.
+  tasks:
+    - Implement helper wrapping Better-Auth session lookup.
+    - Demonstrate usage in `/api/debug/ceo-only` route.
+    - Tests under `src/__tests__/middleware/role-middleware.test.ts`.
+  standards_ref: ../standards.yml
+  tags: [auth, middleware, phase1] 

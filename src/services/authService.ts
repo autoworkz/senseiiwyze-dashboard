@@ -1,3 +1,5 @@
+import { emailSchema, passwordSchema } from '@/utils/validationSchema'
+
 export interface User {
   id: number
   email: string
@@ -19,7 +21,7 @@ export type SocialProvider = 'google' | 'facebook' | 'github'
 class AuthService {
   private readonly baseUrl = '/api/auth'
   private readonly timeout = 5000 // 5 seconds
-  private readonly apiDisabled = true // Flag to disable actual API calls
+  private readonly apiDisabled = true  // keep network off inside unit tests
 
   /**
    * Creates a fetch request with timeout
@@ -81,12 +83,15 @@ class AuthService {
    * Mock login implementation
    */
   private async mockLogin(email: string, password: string): Promise<LoginResponse> {
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(r => setTimeout(r, 1000))
 
-    // Mock validation
-    if (!email || !password) {
-      throw new Error('Email and password are required')
+    // Hard-fail on invalid input BEFORE any further logic
+    emailSchema.parse(email)
+    passwordSchema.parse(password)
+
+    // keep a single hard-coded demo cred so “invalid-credentials” can be tested
+    if (email === 'demo@example.com' && password !== 'Demo@123456710') {
+      throw new Error('Invalid credentials. Try demo@example.com / Demo@123456710')
     }
 
     // Determine role based on email for demo purposes
