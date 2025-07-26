@@ -1,4 +1,4 @@
-import { signIn, signOut } from '@/lib/auth-client'
+import { signIn, signOut } from '../../lib/auth-client'
 
 export type SocialProvider = 'google' | 'github' | 'facebook'
 
