@@ -10,10 +10,14 @@
  */
 
 import { config } from 'dotenv'
+import authClient from '../src/lib/auth-client'
+import chalk from 'chalk'
 
 // Load environment variables
 config({ path: '.env.local' })
 config({ path: '.env' })
+
+var candidate = "Candidate";
 
 async function testGitHubOAuth() {
   console.log('🔍 Testing GitHub OAuth Integration...\n')
@@ -34,31 +38,33 @@ async function testGitHubOAuth() {
     return
   }
 
-  // 2. Test Better Auth endpoints
-  console.log('\n2. Better Auth Endpoints:')
-  try {
-    const authUrl = `${betterAuthUrl}/api/auth`
-    const response = await fetch(authUrl)
-    console.log(`   Auth API: ${response.ok ? '✅ Accessible' : '❌ Not accessible'} (${response.status})`)
-  } catch (error) {
-    console.log('   Auth API: ❌ Not accessible (server not running?)')
+  console.log('\n2. Generating GitHub sign-in URL via authClient...')
+  const signInData = await authClient.signIn.social({
+    provider: 'github'
+    // authClient will automatically use configured callback URL
+  })
+
+  if (signInData.error) {
+    console.log(chalk.red(`   ❌ Sign-in generation failed: ${signInData.error.message}`))
+  } else {
+    console.log(chalk.green('   ✅ Sign-in URL generated successfully'))
+    console.log(`   🔗 Redirect URL (first 100 chars): ${signInData.data?.url?.slice(0, 100)}`)
   }
 
-  // 3. Test GitHub OAuth URL generation
-  console.log('\n3. GitHub OAuth Configuration:')
-  const oauthUrl = `${betterAuthUrl}/api/auth/signin/github`
-  console.log(`   OAuth URL: ${oauthUrl}`)
-  console.log(`   Callback URL: ${betterAuthUrl}/api/auth/callback/github`)
+  // Build expected callback URL based on tutorial guidelines
+  // See: https://www.better-auth.com/docs/authentication/github
+  const expectedCallbackUrl = `${betterAuthUrl}/api/auth/callback/github`
+  console.log(`   Expected callback URL: ${expectedCallbackUrl}`)
 
-  // 4. Instructions
-  console.log('\n4. Next Steps:')
-  console.log('   • Start your dev server: pnpm dev')
-  console.log('   • Visit your login page: http://localhost:3000/login')
-  console.log('   • Click "Continue with GitHub" button')
-  console.log('   • Verify OAuth flow works end-to-end')
+  console.log('\n3. Manual verification steps:')
+  console.log('   • Run your dev server: pnpm dev')
+  console.log('   • Visit the login page and click "Continue with GitHub"')
+  console.log('   • Ensure that you are redirected to GitHub and back to:', expectedCallbackUrl)
 
-  console.log('\n✅ GitHub OAuth test completed!')
+  console.log('\n✅ GitHub OAuth test script completed!')
 }
 
-// Run the test
-testGitHubOAuth().catch(console.error)
+// Run the test if executed directly
+if (require.main === module) {
+  testGitHubOAuth().catch(console.error)
+}

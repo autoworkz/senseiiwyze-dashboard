@@ -1,4 +1,4 @@
-import { auth } from '@/lib/auth-config';
+import { auth } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {

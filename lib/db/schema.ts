@@ -1,55 +1,137 @@
-import { pgSchema, text, timestamp, boolean } from "drizzle-orm/pg-core";
+import { sqliteTable, text, integer, unique } from "drizzle-orm/sqlite-core";
 
-// Create better_auth schema
-export const betterAuthSchema = pgSchema("better_auth");
-
-// Define the existing Better Auth user table
-export const users = betterAuthSchema.table("user", {
+export const user = sqliteTable("user", {
   id: text("id").primaryKey(),
-  name: text("name").notNull(),
-  email: text("email").unique().notNull(),
-  emailVerified: boolean("email_verified").default(false).notNull(),
+  email: text("email").notNull().unique(),
+  name: text("name"),
+  emailVerified: integer("emailVerified", { mode: "boolean" }),
   image: text("image"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdAt: integer("createdAt", { mode: "timestamp" }),
+  updatedAt: integer("updatedAt", { mode: "timestamp" }),
+  role: text("role"),
+  banned: integer("banned", { mode: "boolean" }),
+  banReason: text("banReason"),
+  banExpires: integer("banExpires", { mode: "timestamp" }),
+  twoFactorEnabled: integer("twoFactorEnabled", { mode: "boolean" }),
 });
 
-// Define the existing Better Auth session table
-export const sessions = betterAuthSchema.table("session", {
+export const session = sqliteTable("session", {
   id: text("id").primaryKey(),
-  expiresAt: timestamp("expires_at").notNull(),
-  token: text("token").unique().notNull(),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
-  ipAddress: text("ip_address"),
-  userAgent: text("user_agent"),
-  userId: text("user_id").references(() => users.id).notNull(),
-  activeOrganizationId: text("active_organization_id"),
+  expiresAt: integer("expiresAt", { mode: "timestamp" }).notNull(),
+  token: text("token").notNull().unique(),
+  createdAt: integer("createdAt", { mode: "timestamp" }),
+  updatedAt: integer("updatedAt", { mode: "timestamp" }),
+  ipAddress: text("ipAddress"),
+  userAgent: text("userAgent"),
+  userId: text("userId")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  impersonatedBy: text("impersonatedBy"),
+  activeOrganizationId: text("activeOrganizationId"),
 });
 
-// Define the existing Better Auth account table (for OAuth providers)
-export const accounts = betterAuthSchema.table("account", {
-  id: text("id").primaryKey(),
-  accountId: text("account_id").notNull(),
-  providerId: text("provider_id").notNull(),
-  userId: text("user_id").references(() => users.id).notNull(),
-  accessToken: text("access_token"),
-  refreshToken: text("refresh_token"),
-  idToken: text("id_token"),
-  accessTokenExpiresAt: timestamp("access_token_expires_at"),
-  refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
-  scope: text("scope"),
-  password: text("password"),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
-});
+export const account = sqliteTable(
+  "account",
+  {
+    id: text("id").primaryKey(),
+    accountId: text("accountId").notNull(),
+    providerId: text("providerId").notNull(),
+    userId: text("userId")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    accessToken: text("accessToken"),
+    refreshToken: text("refreshToken"),
+    idToken: text("idToken"),
+    expiresAt: integer("expiresAt", { mode: "timestamp" }),
+    accessTokenExpiresAt: integer("accessTokenExpiresAt", { mode: "timestamp" }),
+    refreshTokenExpiresAt: integer("refreshTokenExpiresAt", { mode: "timestamp" }),
+    scope: text("scope"),
+    password: text("password"),
+    createdAt: integer("createdAt", { mode: "timestamp" }),
+    updatedAt: integer("updatedAt", { mode: "timestamp" }),
+  },
+  (table) => ({
+    providerUserUnique: unique().on(table.providerId, table.accountId),
+  })
+);
 
-// Define the existing Better Auth verification table
-export const verifications = betterAuthSchema.table("verification", {
+export const verification = sqliteTable("verification", {
   id: text("id").primaryKey(),
   identifier: text("identifier").notNull(),
   value: text("value").notNull(),
-  expiresAt: timestamp("expires_at").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  expiresAt: integer("expiresAt", { mode: "timestamp" }).notNull(),
+  createdAt: integer("createdAt", { mode: "timestamp" }),
+  updatedAt: integer("updatedAt", { mode: "timestamp" }),
+});
+
+export const organization = sqliteTable("organization", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  slug: text("slug").unique(),
+  logo: text("logo"),
+  createdAt: integer("createdAt", { mode: "timestamp" }),
+  metadata: text("metadata"),
+});
+
+export const member = sqliteTable(
+  "member",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organizationId")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    userId: text("userId")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    role: text("role").notNull(),
+    createdAt: integer("createdAt", { mode: "timestamp" }),
+  },
+  (table) => ({
+    userOrganizationUnique: unique().on(table.userId, table.organizationId),
+  })
+);
+
+export const invitation = sqliteTable(
+  "invitation",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organizationId")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    email: text("email").notNull(),
+    role: text("role"),
+    status: text("status").notNull(),
+    expiresAt: integer("expiresAt", { mode: "timestamp" }).notNull(),
+    inviterId: text("inviterId")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+  },
+  (table) => ({
+    organizationEmailUnique: unique().on(table.organizationId, table.email),
+  })
+);
+
+export const passkey = sqliteTable("passkey", {
+  id: text("id").primaryKey(),
+  name: text("name"),
+  publicKey: text("publicKey").notNull(),
+  userId: text("userId")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  webauthnUserID: text("webauthnUserID").notNull(),
+  counter: integer("counter").notNull(),
+  deviceType: text("deviceType").notNull(),
+  backedUp: integer("backedUp", { mode: "boolean" }).notNull(),
+  transports: text("transports"),
+  createdAt: integer("createdAt", { mode: "timestamp" }),
+});
+
+export const twoFactor = sqliteTable("twoFactor", {
+  id: text("id").primaryKey(),
+  secret: text("secret").notNull(),
+  backupCodes: text("backupCodes").notNull(),
+  userId: text("userId")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" })
+    .unique(),
 });

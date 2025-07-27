@@ -1,11 +1,9 @@
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import { drizzle } from "drizzle-orm/better-sqlite3";
+import Database from "better-sqlite3";
 import * as schema from "./schema";
 
-// Create postgres connection with SSL for Supabase
-const queryClient = postgres(process.env.DATABASE_URL!, {
-  ssl: 'require'
-});
+// Create SQLite connection
+const sqlite = new Database("./sqlite.db");
 
 // Create drizzle instance with schema
-export const db = drizzle(queryClient, { schema });
+export const db = drizzle(sqlite, { schema });

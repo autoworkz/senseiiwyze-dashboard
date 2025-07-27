@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect as _useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
@@ -99,8 +99,8 @@ const mockStandards: CompanyStandard[] = [
 ]
 
 export default function TicketsPage() {
-  const [tickets, setTickets] = useState<Ticket[]>(mockTickets)
-  const [standards, setStandards] = useState<CompanyStandard[]>(mockStandards)
+  const [tickets, _setTickets] = useState<Ticket[]>(mockTickets)
+  const [standards, _setStandards] = useState<CompanyStandard[]>(mockStandards)
   const [expandedTickets, setExpandedTickets] = useState<Set<string>>(new Set())
   const [selectedTicket, setSelectedTicket] = useState<string | null>(null)
   const [aiPrompt, setAiPrompt] = useState('')
@@ -127,7 +127,7 @@ export default function TicketsPage() {
         return false
       })
 
-      const standardsContext = relevantStandards.map(s => 
+      const standardsContext = relevantStandards.map(s =>
         `${s.name}: ${s.requirements.join(', ')}`
       ).join('\n')
 
@@ -209,8 +209,8 @@ Please provide:
             const isSelected = selectedTicket === ticket.id
 
             return (
-              <Card 
-                key={ticket.id} 
+              <Card
+                key={ticket.id}
                 className={cn(
                   "transition-all",
                   isSelected && "ring-2 ring-primary"

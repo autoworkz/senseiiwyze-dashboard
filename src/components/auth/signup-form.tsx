@@ -57,7 +57,7 @@ export function SignupForm() {
       }
 
       setSuccess('Account created successfully! Please check your email to verify your account.')
-      
+
       // Redirect to login with verification notice
       setTimeout(() => {
         router.push('/auth/login?message=verify-email')
@@ -95,7 +95,7 @@ export function SignupForm() {
           {/* Social Login Options */}
           <div className="space-y-4">
             <SocialLogin callbackURL="/dashboard" />
-            
+
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t" />
@@ -147,8 +147,8 @@ export function SignupForm() {
 
             <div className="space-y-2">
               <Label htmlFor="role">Role</Label>
-              <Select 
-                value={formData.role} 
+              <Select
+                value={formData.role}
                 onValueChange={(value) => handleInputChange('role', value)}
               >
                 <SelectTrigger>
