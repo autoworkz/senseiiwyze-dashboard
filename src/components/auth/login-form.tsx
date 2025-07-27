@@ -76,7 +76,7 @@ export function LoginForm() {
           {/* Social Login Options */}
           <div className="space-y-4">
             <SocialLogin callbackURL="/dashboard" />
-            
+
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t" />
@@ -128,18 +128,18 @@ export function LoginForm() {
               {isLoading ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>
-          
+
           <div className="mt-6 pt-6 border-t">
             <div className="space-y-4">
               <div className="text-center">
-                <a 
-                  href="/auth/forgot-password" 
+                <a
+                  href="/auth/forgot-password"
                   className="text-sm text-primary hover:underline"
                 >
                   Forgot your password?
                 </a>
               </div>
-              
+
               <div className="text-center">
                 <p className="text-sm text-muted-foreground">
                   Don't have an account?{' '}

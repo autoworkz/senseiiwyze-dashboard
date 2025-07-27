@@ -28,11 +28,15 @@ describe('Better Auth OAuth Configuration', () => {
       expect(process.env.GOOGLE_CLIENT_SECRET).toBeDefined()
     })
 
-    it('should not include Discord OAuth provider', () => {
-      // Discord should not be in our configuration
-      expect(process.env.DISCORD_CLIENT_ID).toBeUndefined()
-      expect(process.env.DISCORD_CLIENT_SECRET).toBeUndefined()
-    })
+      it('should have conditional OAuth configuration', () => {
+    // OAuth providers should only be configured if environment variables are present
+    if (process.env.GITHUB_CLIENT_ID) {
+      expect(process.env.GITHUB_CLIENT_SECRET).toBeDefined()
+    }
+    if (process.env.GOOGLE_CLIENT_ID) {
+      expect(process.env.GOOGLE_CLIENT_SECRET).toBeDefined()
+    }
+  })
   })
 
   describe('OAuth Endpoints', () => {

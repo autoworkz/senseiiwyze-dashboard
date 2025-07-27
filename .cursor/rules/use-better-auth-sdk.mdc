@@ -1,0 +1,24 @@
+---
+description:
+globs: *.js,*.jsx,*.ts,*.tsx
+alwaysApply: true
+---
+
+Enforces usage of Better Auth server/client SDKs instead of raw fetch/API calls.
+When interacting with Better Auth in JavaScript/TypeScript (client or API tests),
+ALWAYS use the provided server helpers (`auth.admin`, `auth.api`, etc.)
+or client helpers (`authClient.signIn`, `authClient.admin.*`, etc.).
+Direct `fetch` or manual HTTP calls to `/api/auth/*` endpoints are NOT allowed,
+as they bypass validation, middlewares, typed responses, and error handling.
+
+Key points:
+1. ❌ **Do NOT** call `fetch('/api/auth/...')` or construct auth URLs manually.
+2. ✅ **DO** call Better-Auth SDK functions:
+    - Server-side: `auth.api.*`, `auth.admin.*`, `auth.signIn.*`, etc.
+    - Client-side: `authClient.signIn.social`, `authClient.admin.listUsers`, etc.
+3. Tests must rely on SDK helpers; never ping routes directly.
+4. If a helper is missing, extend via plugin or wrapper—not raw fetch.
+
+# Enforcement
+- Linter / reviewer should flag any `fetch('/api/auth')` occurrences.
+- Update existing scripts/tests to comply with SDK usage.

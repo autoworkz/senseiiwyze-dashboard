@@ -29,23 +29,17 @@
       "@/lib/*": [
         "./src/lib/*"
       ],
+      "@/auth-client/*": [
+        "./src/lib/auth-clien"
+      ],
       "@/db/*": [
         "./src/db/*"
       ],
-      "@/utils/*": [
-        "./src/utils/*"
-      ],
-      "@/auth/*": [
-        "./auth"
+      "@/auth": [
+        "./src/lib/auth"
       ],
       "@emails/*": [
         "./src/emails/*"
-      ],
-      "@/lib/*": [
-        "./src/lib/*"
-      ],
-      "@/db/*": [
-        "./src/db/*"
       ],
       "@/utils/*": [
         "./src/utils/*"
