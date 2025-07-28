@@ -568,7 +568,7 @@ function calculateEngagementFactor(gameData: GamingPsychometrics['gameSessionDat
 
 function calculateDataCompleteness(user: PsychometricUserData): number {
   let completeness = 0
-  let totalPossible = 4 // Base learning data + 3 psychometric sources
+  const totalPossible = 4 // Base learning data + 3 psychometric sources
   
   completeness += 1 // Base learning data always present
   

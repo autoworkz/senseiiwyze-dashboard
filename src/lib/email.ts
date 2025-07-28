@@ -11,7 +11,7 @@ function getResendClient(): ResendLike {
     return {
       emails: {
         async send(opts: any) {
-          /* eslint-disable no-console */
+           
           console.log('\n================ EMAIL (console provider) ================');
           console.log('From:', opts.from);
           console.log('To:', opts.to);

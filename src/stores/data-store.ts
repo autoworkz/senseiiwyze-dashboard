@@ -79,6 +79,12 @@ interface OrganizationData {
   readinessScore: number | null;
   readinessMetrics: any | null;
   readinessBreakdown: any | null;
+  teamReadiness: {
+    readyForDeployment: number;
+    needsCoaching: number;
+    avgReadiness: number;
+    totalUsers: number;
+  } | null;
 }
 
 // ===== TIMESTAMP TRACKING =====
@@ -132,6 +138,7 @@ interface LoadingStates {
     readinessScore: boolean;
     readinessMetrics: boolean;
     readinessBreakdown: boolean;
+    teamReadiness: boolean;
   };
 }
 
@@ -178,6 +185,9 @@ interface DataStore {
   isDataStale: (category: 'personal' | 'team' | 'organization', key: string, staleTimeMs?: number) => boolean;
   getSkillFitProgress: () => { current: number; trend: number; status: 'improving' | 'declining' | 'stable' };
   getAtRiskLearners: () => any[];
+
+  // Team readiness action
+  fetchTeamReadiness: () => Promise<void>;
 }
 
 // ===== HELPER FUNCTIONS =====
@@ -221,6 +231,7 @@ export const useDataStore = create<DataStore>()(
     readinessScore: null,
     readinessMetrics: null,
     readinessBreakdown: null,
+    teamReadiness: null,
   },
         timestamps: {
           personal: {
@@ -245,6 +256,7 @@ export const useDataStore = create<DataStore>()(
             readinessScore: null,
             readinessMetrics: null,
             readinessBreakdown: null,
+            teamReadiness: null,
           },
         },
         loading: {
@@ -270,6 +282,7 @@ export const useDataStore = create<DataStore>()(
             readinessScore: false,
             readinessMetrics: false,
             readinessBreakdown: false,
+            teamReadiness: false,
           },
         },
         errors: {},
@@ -744,6 +757,43 @@ export const useDataStore = create<DataStore>()(
           }
         },
 
+        fetchOrganizationTeamReadiness: async () => {
+          const state = get();
+          if (state.loading.organization.teamReadiness || !isStale(state.timestamps.organization.teamReadiness, STALE_TIMES.organization)) {
+            return;
+          }
+
+          set((state) => ({ loading: { ...state.loading, organization: { ...state.loading.organization, teamReadiness: true } } }));
+
+          try {
+            // Mock team readiness data - will be replaced with Better Auth SDK call
+            const teamReadiness = {
+              readyForDeployment: 89,
+              needsCoaching: 11,
+              avgReadiness: 82,
+              totalUsers: 36,
+            };
+
+            set((state) => ({
+              organization: { ...state.organization, teamReadiness },
+              loading: { ...state.loading, organization: { ...state.loading.organization, teamReadiness: false } },
+              timestamps: { ...state.timestamps, organization: { ...state.timestamps.organization, teamReadiness: Date.now() } },
+              errors: { ...state.errors, 'organization.teamReadiness': null },
+            }));
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to fetch team readiness';
+            set((state) => ({
+              loading: { ...state.loading, organization: { ...state.loading.organization, teamReadiness: false } },
+              errors: { ...state.errors, 'organization.teamReadiness': errorMessage },
+            }));
+          }
+        },
+
+        fetchTeamReadiness: async () => {
+          const actions = get();
+          await actions.fetchOrganizationTeamReadiness();
+        },
+
         fetchAllOrganizationData: async () => {
           const actions = get();
           await Promise.allSettled([
@@ -751,6 +801,7 @@ export const useDataStore = create<DataStore>()(
             actions.fetchOrganizationInsights(),
             actions.fetchOrganizationReports(),
             actions.fetchOrganizationStrategy(),
+            actions.fetchOrganizationTeamReadiness(),
           ]);
         },
 
