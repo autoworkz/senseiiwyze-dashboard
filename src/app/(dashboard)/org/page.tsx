@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useDataStore, organizationSelector } from '@/stores/data-store'
+import { useEffect, useCallback } from 'react'
+import { useDataStore } from '@/stores/data-store'
+import { authClient } from '@/lib/auth-client'
 import { KPIGrid } from '@/components/org/KPIGrid'
 import { QuickActions } from '@/components/org/QuickActions'
-import { ExecutiveInsights } from '@/components/org/ExecutiveInsights'
 import { ReadinessDashboard } from '@/components/org/ReadinessDashboard'
 import { ExecutiveKPIGrid } from '@/components/org/ExecutiveKPIGrid'
 // import { FinancialSnapshot } from '@/components/org/FinancialSnapshot'
@@ -16,18 +16,42 @@ import { Badge } from '@/components/ui/badge'
 import { AlertTriangle, Building2 } from 'lucide-react'
 
 export default function ExecutiveDashboard() {
-  // Use the stable selector to prevent unnecessary re-renders
-  const { organization, loading } = useDataStore(organizationSelector)
+  // Get data from store using individual selectors to prevent re-renders
+  const organization = useDataStore((state) => state.organization)
+  const loading = useDataStore((state) => state.loading.organization)
 
-  // Get the fetch function separately to avoid dependency issues
+  // Get the fetch function using the hook and memoize it to prevent unnecessary re-renders
   const fetchAllOrganizationData = useDataStore((state) => state.fetchAllOrganizationData)
-
-  // Fetch organization data on mount only
-  useEffect(() => {
+  const stableFetch = useCallback(() => {
     fetchAllOrganizationData()
-  }, [fetchAllOrganizationData]) // Include dependency as recommended by React
+  }, [fetchAllOrganizationData])
+
+  // Get session to check if user is authenticated (this is where hooks can be called)
+  const { data: session } = authClient.useSession()
+
+  // Fetch organization data on mount if user is authenticated
+  useEffect(() => {
+    if (session?.user?.id) {
+      stableFetch()
+    }
+  }, [session?.user?.id, stableFetch]) // Include stableFetch in dependencies
 
   const isLoading = Object.values(loading).some(Boolean)
+
+  // If not authenticated, show loading or redirect
+  if (!session?.user?.id) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center space-y-4">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-48 mx-auto mb-4"></div>
+            <div className="h-4 bg-gray-200 rounded w-64 mx-auto"></div>
+          </div>
+          <p className="text-muted-foreground">Loading dashboard...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-8">
@@ -68,8 +92,33 @@ export default function ExecutiveDashboard() {
       <ReadinessDashboard className="col-span-full" />
 
       {/* Executive Insights */}
-      {organization?.insights && (
-        <ExecutiveInsights data={organization.insights as any} />
+      {organization?.insights && Array.isArray(organization.insights) && organization.insights.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Executive Insights</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {organization.insights.map((insight: any, index: number) => (
+                <div key={index} className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
+                  <div className="flex-1">
+                    <h4 className="font-medium text-sm">{insight.title}</h4>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Type: {insight.type} • Period: {insight.data?.period || 'Current'}
+                    </p>
+                    {insight.data && (
+                      <div className="mt-2 text-xs">
+                        {insight.data.change && <span>Change: +{insight.data.change}%</span>}
+                        {insight.data.reduction && <span>Reduction: {insight.data.reduction}%</span>}
+                        {insight.data.score && <span>Score: {insight.data.score}/{insight.data.target}</span>}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* Detailed Performance Metrics */}

@@ -147,6 +147,8 @@
     "test:user-management": "pnpm tsx scripts/test-user-management.ts",
     "test:oauth": "pnpm tsx scripts/test-oauth-providers.ts",
     "test:2fa": "pnpm tsx scripts/test-2fa-plugin.ts",
-    "test:database": "pnpm tsx scripts/verify-db-connection.ts"
+    "test:database": "pnpm tsx scripts/verify-db-connection.ts",
+    "auth:generate": "bunx @better-auth/cli generate",
+    "auth:migrate": "bunx @better-auth/cli generate"
   }
 }

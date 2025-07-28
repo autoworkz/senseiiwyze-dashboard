@@ -1,39 +1,29 @@
 import { LucideIcon } from "lucide-react";
 import {
-  Home,
-  Users,
-  UserCheck,
-  LineChart,
-  Settings,
-  Shield,
   BarChart3,
-  Building2,
-  MessageSquare,
-  BookOpen,
+  Users,
+  FileText,
+  UserCircle,
   Target,
   Gamepad2,
-  CheckCircle,
-  TrendingUp,
-  PieChart,
-  Globe,
-  CreditCard,
-  FileText,
+  GraduationCap,
+  MessageSquare,
+  CheckSquare,
   Presentation,
-  Brain,
-  Award,
-  Calendar,
-  Bell
-} from "lucide-react";
+  UserCheck,
+  BookOpen,
+  Settings
+} from 'lucide-react'
 
 export interface NavigationItem {
-  title: string;
-  href: string;
-  icon?: LucideIcon;
-  description?: string;
-  children?: NavigationItem[];
-  badge?: string;
-  external?: boolean;
-  requiredRole?: string[];
+  title: string
+  href: string
+  icon?: LucideIcon
+  description?: string
+  children?: NavigationItem[]
+  badge?: string
+  external?: boolean
+  requiredRole?: string[]
 }
 
 export interface NavigationContext {
@@ -78,28 +68,10 @@ export const executiveNavigation: NavigationItem[] = [
     description: "Strategic KPIs and organizational insights"
   },
   {
-    title: "Financial Analytics",
-    href: "/org/financials",
-    icon: TrendingUp,
-    description: "Revenue, costs, and financial performance"
-  },
-  {
     title: "Performance Reports",
     href: "/org/reports", 
     icon: FileText,
     description: "Comprehensive performance analysis"
-  },
-  {
-    title: "Strategic Planning",
-    href: "/org/strategy",
-    icon: Target,
-    description: "OKRs, roadmaps, and strategic initiatives"
-  },
-  {
-    title: "Risk & Compliance",
-    href: "/org/compliance",
-    icon: Shield,
-    description: "Risk management and regulatory compliance"
   },
   {
     title: "Board Presentation",
@@ -126,7 +98,7 @@ export const teamNavigation: NavigationItem[] = [
   {
     title: "Intervention Tasks",
     href: "/team/tasks",
-    icon: CheckCircle,
+    icon: CheckSquare,
     description: "Support tasks and interventions"
   },
   {
@@ -138,7 +110,7 @@ export const teamNavigation: NavigationItem[] = [
   {
     title: "Team Analytics",
     href: "/team/analytics",
-    icon: PieChart,
+    icon: GraduationCap,
     description: "Performance metrics and trends"
   },
   {
@@ -154,7 +126,7 @@ export const personalNavigation: NavigationItem[] = [
   {
     title: "Personal Overview",
     href: "/me",
-    icon: Home,
+    icon: UserCircle,
     description: "Your personal dashboard and progress"
   },
   {
@@ -172,13 +144,13 @@ export const personalNavigation: NavigationItem[] = [
   {
     title: "Skill Development",
     href: "/me/skills",
-    icon: Brain,
+    icon: GraduationCap,
     description: "Leadership skills and competencies"
   },
   {
     title: "Performance Review",
     href: "/me/performance",
-    icon: Award,
+    icon: GraduationCap,
     description: "Personal performance and achievements"
   }
 ];
@@ -188,7 +160,7 @@ export const learnerPersonalNavigation: NavigationItem[] = [
   {
     title: "Learning Dashboard",
     href: "/me",
-    icon: Home,
+    icon: UserCircle,
     description: "Your learning dashboard and progress"
   },
   {
@@ -206,7 +178,7 @@ export const learnerPersonalNavigation: NavigationItem[] = [
   {
     title: "Skill Development",
     href: "/me/skills",
-    icon: Brain,
+    icon: GraduationCap,
     description: "Skill assessments and growth"
   },
   {
@@ -218,7 +190,7 @@ export const learnerPersonalNavigation: NavigationItem[] = [
   {
     title: "Achievements",
     href: "/me/achievements",
-    icon: Award,
+    icon: GraduationCap,
     description: "Your accomplishments and badges"
   }
 ];
@@ -234,13 +206,13 @@ export const globalSettingsNavigation: NavigationItem[] = [
   {
     title: "Account & Security",
     href: "/settings/security",
-    icon: Shield,
+    icon: Settings,
     description: "Security settings and authentication"
   },
   {
     title: "Notifications",
     href: "/settings/notifications",
-    icon: Bell,
+    icon: GraduationCap,
     description: "Communication preferences"
   },
   {
@@ -252,13 +224,13 @@ export const globalSettingsNavigation: NavigationItem[] = [
   {
     title: "Billing & Plans",
     href: "/settings/billing",
-    icon: CreditCard,
+    icon: GraduationCap,
     description: "Subscription and payment information"
   },
   {
     title: "Integrations",
     href: "/settings/integrations",
-    icon: Globe,
+    icon: GraduationCap,
     description: "Third-party app connections"
   }
 ];
@@ -391,6 +363,7 @@ export function getBreadcrumbTrail(path: string): NavigationItem[] {
       trail.push({
         title: segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' '),
         href: currentPath,
+        icon: Settings,
       });
     }
   }

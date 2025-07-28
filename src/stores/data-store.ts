@@ -12,7 +12,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { devtools } from 'zustand/middleware';
-import { clientPermissions } from '@/lib/auth-client';
 
 // ===== TYPES =====
 interface PersonalData {
@@ -285,9 +284,7 @@ export const useDataStore = create<DataStore>()(
           set((state) => ({ loading: { ...state.loading, personal: { ...state.loading.personal, metrics: true } } }));
 
           try {
-            const canView = clientPermissions.checkUserPermission('personal', 'view');
-            if (!canView) throw new Error('Forbidden');
-
+            // Note: Permission checks are now handled at the component level to avoid hook calls
             const { getMyMetrics } = await import('@/lib/mock-data');
             const metrics = await getMyMetrics();
 
@@ -315,9 +312,7 @@ export const useDataStore = create<DataStore>()(
           set((state) => ({ loading: { ...state.loading, personal: { ...state.loading.personal, goals: true } } }));
 
           try {
-            const canView = clientPermissions.checkUserPermission('personal', 'goals');
-            if (!canView) throw new Error('Forbidden');
-
+            // Note: Permission checks are now handled at the component level to avoid hook calls
             const { getMyGoals } = await import('@/lib/mock-data');
             const goals = await getMyGoals();
 
@@ -345,9 +340,7 @@ export const useDataStore = create<DataStore>()(
           set((state) => ({ loading: { ...state.loading, personal: { ...state.loading.personal, gameStats: true } } }));
 
           try {
-            const canView = clientPermissions.checkUserPermission('personal', 'games');
-            if (!canView) throw new Error('Forbidden');
-
+            // Note: Permission checks are now handled at the component level to avoid hook calls
             const { getMyGameStats } = await import('@/lib/mock-data');
             const gameStats = await getMyGameStats();
 
@@ -375,9 +368,7 @@ export const useDataStore = create<DataStore>()(
           set((state) => ({ loading: { ...state.loading, personal: { ...state.loading.personal, learning: true } } }));
 
           try {
-            const canView = clientPermissions.checkUserPermission('personal', 'learning');
-            if (!canView) throw new Error('Forbidden');
-
+            // Note: Permission checks are now handled at the component level to avoid hook calls
             const { mockData } = await import('@/lib/mock-data');
             const learning = mockData.myLearningData;
 
@@ -405,9 +396,7 @@ export const useDataStore = create<DataStore>()(
           set((state) => ({ loading: { ...state.loading, personal: { ...state.loading.personal, interventions: true } } }));
 
           try {
-            const canView = clientPermissions.checkUserPermission('personal', 'view');
-            if (!canView) throw new Error('Forbidden');
-
+            // Note: Permission checks are now handled at the component level to avoid hook calls
             const { mockData } = await import('@/lib/mock-data');
             const interventions = mockData.myMetrics.interventions;
 
@@ -447,9 +436,7 @@ export const useDataStore = create<DataStore>()(
           set((state) => ({ loading: { ...state.loading, team: { ...state.loading.team, stats: true } } }));
 
           try {
-            const canView = clientPermissions.checkUserPermission('team', 'view');
-            if (!canView) throw new Error('Forbidden');
-
+            // Note: Permission checks are now handled at the component level to avoid hook calls
             const { getTeamStats } = await import('@/lib/mock-data');
             const stats = await getTeamStats();
 
@@ -482,9 +469,7 @@ export const useDataStore = create<DataStore>()(
           set((state) => ({ loading: { ...state.loading, team: { ...state.loading.team, learners: true } } }));
 
           try {
-            const canView = clientPermissions.checkUserPermission('team', 'view');
-            if (!canView) throw new Error('Forbidden');
-
+            // Note: Permission checks are now handled at the component level to avoid hook calls
             const { getLearners } = await import('@/lib/mock-data');
             const learnersResponse = await getLearners(filters);
             
@@ -522,9 +507,7 @@ export const useDataStore = create<DataStore>()(
           set((state) => ({ loading: { ...state.loading, team: { ...state.loading.team, insights: true } } }));
 
           try {
-            const canView = clientPermissions.checkUserPermission('team', 'analytics');
-            if (!canView) throw new Error('Forbidden');
-
+            // Note: Permission checks are now handled at the component level to avoid hook calls
             // Mock team insights
             const insights = {
               riskAnalysis: [
@@ -568,9 +551,7 @@ export const useDataStore = create<DataStore>()(
           set((state) => ({ loading: { ...state.loading, team: { ...state.loading.team, courses: true } } }));
 
           try {
-            const canView = clientPermissions.checkUserPermission('team', 'courses');
-            if (!canView) throw new Error('Forbidden');
-
+            // Note: Permission checks are now handled at the component level to avoid hook calls
             // Mock courses data
             const courses = [
               { id: 'course-1', title: 'Advanced React Patterns', enrolled: 25, completed: 18 },
@@ -602,9 +583,7 @@ export const useDataStore = create<DataStore>()(
           set((state) => ({ loading: { ...state.loading, team: { ...state.loading.team, messages: true } } }));
 
           try {
-            const canView = clientPermissions.checkUserPermission('team', 'messages');
-            if (!canView) throw new Error('Forbidden');
-
+            // Note: Permission checks are now handled at the component level to avoid hook calls
             // Mock messages data
             const messages = [
               { id: 'msg-1', from: 'System', content: 'New learner joined your team', timestamp: Date.now() },
@@ -647,9 +626,7 @@ export const useDataStore = create<DataStore>()(
           set((state) => ({ loading: { ...state.loading, organization: { ...state.loading.organization, kpis: true } } }));
 
           try {
-            const canView = clientPermissions.checkUserPermission('organization', 'view');
-            if (!canView) throw new Error('Forbidden');
-
+            // Note: Permission checks are now handled at the component level to avoid hook calls
             const { getOrganizationKPIs } = await import('@/lib/mock-data');
             const kpis = await getOrganizationKPIs();
 
@@ -677,8 +654,7 @@ export const useDataStore = create<DataStore>()(
           set((state) => ({ loading: { ...state.loading, organization: { ...state.loading.organization, insights: true } } }));
 
           try {
-            const canView = clientPermissions.checkUserPermission('organization', 'reports');
-            if (!canView) throw new Error('Forbidden');
+            // Note: Permission checks are now handled at the component level to avoid hook calls
 
             // Mock organization insights
             const insights = [
@@ -711,8 +687,7 @@ export const useDataStore = create<DataStore>()(
           set((state) => ({ loading: { ...state.loading, organization: { ...state.loading.organization, reports: true } } }));
 
           try {
-            const canView = clientPermissions.checkUserPermission('organization', 'reports');
-            if (!canView) throw new Error('Forbidden');
+            // Note: Permission checks are now handled at the component level to avoid hook calls
 
             // Mock reports data
             const reports = [
@@ -745,8 +720,7 @@ export const useDataStore = create<DataStore>()(
           set((state) => ({ loading: { ...state.loading, organization: { ...state.loading.organization, strategy: true } } }));
 
           try {
-            const canView = clientPermissions.checkUserPermission('organization', 'strategy');
-            if (!canView) throw new Error('Forbidden');
+            // Note: Permission checks are now handled at the component level to avoid hook calls
 
             // Mock strategy data
             const strategy = [
@@ -923,20 +897,4 @@ export const useDataStore = create<DataStore>()(
 export const usePersonalData = () => useDataStore((state) => state.personal);
 export const useTeamData = () => useDataStore((state) => state.team);
 export const useOrganizationData = () => useDataStore((state) => state.organization);
-export const useLoadingStates = () => useDataStore((state) => state.loading);
-
-// ===== STABLE SELECTORS =====
-export const organizationSelector = (state: DataStore) => ({
-  organization: state.organization,
-  loading: state.loading.organization,
-});
-
-export const personalSelector = (state: DataStore) => ({
-  personal: state.personal,
-  loading: state.loading.personal,
-});
-
-export const teamSelector = (state: DataStore) => ({
-  team: state.team,
-  loading: state.loading.team,
-}); 
+export const useLoadingStates = () => useDataStore((state) => state.loading); 

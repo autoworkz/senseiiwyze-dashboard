@@ -55,15 +55,17 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex">
-      {/* Sidebar */}
-      <SettingsSidebar />
+    <div className="flex gap-6 max-w-7xl">
+      {/* Settings Sidebar */}
+      <div className="w-80 flex-shrink-0">
+        <SettingsSidebar />
+      </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        {/* Header with status and actions */}
-        <div className="border-b border-border bg-card/50 px-6 py-4">
-          <div className="flex items-center justify-between">
+      <div className="flex-1 min-w-0">
+        {/* Status and Actions Bar */}
+        {(hasPendingChanges || isSaving) && (
+          <div className="flex items-center justify-between bg-card/50 border border-border rounded-lg px-4 py-3 mb-6">
             <SettingsStatus />
             {hasPendingChanges && !isSaving && (
               <div className="flex gap-2">
@@ -77,11 +79,11 @@ export default function SettingsPage() {
               </div>
             )}
           </div>
-        </div>
+        )}
 
         {/* Content Area */}
-        <div className="flex-1 p-6 overflow-auto">
-          <div className="max-w-6xl">{renderSection()}</div>
+        <div className="space-y-6">
+          {renderSection()}
         </div>
       </div>
     </div>

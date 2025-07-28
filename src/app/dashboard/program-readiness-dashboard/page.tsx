@@ -16,71 +16,84 @@ import {
   Database
 } from "lucide-react"
 
-// Mock data for individual user
+// Mock data
 const userData = {
-  name: "Alex Johnson",
-  level: "Advanced",
+  name: "Maya Johnson",
+  level: "Level 8",
   avatar: "https://github.com/shadcn.png",
   coreMetrics: {
-    vision: 85,
-    grit: 92,
-    logic: 78,
-    algorithm: 88
+    vision: 75,
+    grit: 80,
+    logic: 65,
+    algorithm: 62
   },
-  overallReadiness: 86,
-  programsCompleted: 3,
-  skillsAcquired: 12
+  overallReadiness: 70,
+  programsCompleted: 12,
+  skillsAcquired: 45
 }
 
 const skillsData = [
-  { name: "Problem Solving", score: 89, color: "bg-primary" },
-  { name: "Critical Thinking", score: 85, color: "bg-secondary" },
-  { name: "Data Analysis", score: 78, color: "bg-accent" },
-  { name: "Communication", score: 92, color: "bg-muted" }
+  { name: "Vision", shortName: "V", score: 75, color: "bg-primary" },
+  { name: "Grit", shortName: "G", score: 80, color: "bg-secondary" },
+  { name: "Logic", shortName: "L", score: 65, color: "bg-accent" },
+  { name: "Algorithm", shortName: "A", score: 62, color: "bg-muted" }
 ]
 
 const programData = [
   {
     id: 1,
-    name: "AI/ML Fundamentals",
-    image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=200&fit=crop",
-    score: 88,
-    status: "Ready",
-    progress: 95
+    name: "Cyber Security",
+    image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400&h=200&fit=crop",
+    score: 65,
+    status: "Not Ready",
+    progress: 65,
+    icon: "🔒"
   },
   {
     id: 2,
-    name: "Data Analytics",
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=200&fit=crop",
-    score: 92,
-    status: "Ready",
-    progress: 100
+    name: "Computer Networking",
+    image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=200&fit=crop",
+    score: 72,
+    status: "Almost",
+    progress: 72,
+    icon: "🌐"
   },
   {
     id: 3,
-    name: "IoT Tech Support",
-    image: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=200&fit=crop",
-    score: 75,
+    name: "Data Analytics",
+    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=200&fit=crop",
+    score: 68,
     status: "Almost",
-    progress: 80
+    progress: 68,
+    icon: "📊"
   },
   {
     id: 4,
-    name: "Cyber Security",
-    image: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=400&h=200&fit=crop",
-    score: 68,
+    name: "AI/ML Fundamentals",
+    image: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=400&h=200&fit=crop",
+    score: 58,
     status: "Not Ready",
-    progress: 65
+    progress: 58,
+    icon: "🤖"
+  },
+  {
+    id: 5,
+    name: "IoT Tech Support",
+    image: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=200&fit=crop",
+    score: 78,
+    status: "Ready",
+    progress: 78,
+    icon: "📱"
   }
 ]
 
 const tableData = [
-  { skill: "Python Programming", current: 85, target: 90, progress: 94 },
-  { skill: "Machine Learning", current: 78, target: 85, progress: 92 },
-  { skill: "Data Visualization", current: 92, target: 80, progress: 100 },
-  { skill: "Statistical Analysis", current: 75, target: 85, progress: 88 },
-  { skill: "Database Management", current: 68, target: 75, progress: 91 },
-  { skill: "Cloud Computing", current: 82, target: 80, progress: 100 }
+  { skill: "Network Security", current: 65, target: 75, progress: 87 },
+  { skill: "TCP/IP Protocols", current: 72, target: 80, progress: 90 },
+  { skill: "Data Analysis", current: 68, target: 75, progress: 91 },
+  { skill: "Machine Learning Basics", current: 58, target: 70, progress: 83 },
+  { skill: "IoT Device Management", current: 78, target: 85, progress: 92 },
+  { skill: "Cloud Infrastructure", current: 70, target: 80, progress: 88 }
 ]
 
 const getStatusTextColor = (status: string) => {
