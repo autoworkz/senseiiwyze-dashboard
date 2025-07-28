@@ -18,13 +18,6 @@ export default async function DashboardLayout({
     <div className="min-h-screen bg-background">
       {/* Main layout */}
       <div className="flex h-screen">
-        {/* Global Sidebar - Desktop only */}
-        <GlobalNavigation
-          user={user as any}
-          variant="sidebar"
-          className="hidden lg:flex flex-col"
-        />
-
         {/* Main content */}
         <div className="flex-1 flex flex-col min-w-0">
           {/* Global Top navigation */}

@@ -1,0 +1,1 @@
+ALTER TABLE "ba_users" ALTER COLUMN "name" SET NOT NULL;

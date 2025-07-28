@@ -1,47 +1,16 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guidance for Claude Code working with this repository.
 
-## Memory Bank & Planning System
+## Memory Bank
 
-Claude Code maintains context within sessions but loses it between sessions. This unified system optimizes for **quick context recovery**, **strategic alignment**, and **intelligent handoffs** while leveraging Claude Code's ability to explore your codebase directly.
+Refer to `.claude/memory-bank/activeContext.md` for current session state and immediate focus.
 
-The system combines two complementary approaches:
-- **Memory Bank**: Persistent context preservation between sessions
-- **Planning Mode**: Strategic reflection points to prevent "building the wrong thing efficiently"
-
-### Memory Bank Structure
-
-```
-.claude/
-├── memory-bank/
-│   ├── projectbrief.md       # Core: What & Why (rarely changes)
-│   ├── activeContext.md      # Core: Current state (changes frequently) 
-│   ├── systemPatterns.md     # Core: How it's built (evolves slowly)
-│   ├── progress.md           # Core: Status tracking (updated often)
-│   └── features/             # Optional: Complex feature docs
-├── planning/
-│   ├── planning-log.md       # Planning session history
-│   ├── prompts.md            # Planning prompts for Claude Code
-│   └── triggers.sh           # Automated planning triggers
-└── session-logs/             # Auto-generated session summaries
-```
-
-### Memory Bank Best Practices
-
-1. **Start every session** by reading activeContext.md
-2. **End every session** by updating activeContext.md  
-3. **Keep docs high-level** - let Claude Code examine code details
-4. **Focus on "why" not "what"** - code shows what, docs explain why
-5. **Document decisions and patterns** - harder to infer from code
-
-### Planning Mode Triggers
-
-- When stuck for >30 minutes
-- Before starting a new feature  
-- After completing a significant milestone
-- When feeling disconnected from project goals
-- When Memory Bank files haven't been updated in >1 week
+Key files:
+- `activeContext.md` - Current state (update after each session)
+- `projectbrief.md` - What & Why
+- `systemPatterns.md` - Architecture patterns
+- `progress.md` - Status tracking
 
 ## Package Manager
 
@@ -72,22 +41,9 @@ pnpm audit        # Security audit
 
 ### Testing
 ```bash
-pnpm test             # Run all tests once
-pnpm test:watch       # Run tests in watch mode (use for TDD)
-pnpm test:coverage    # Generate test coverage report
-```
-
-### Running a Single Test
-```bash
-# Run tests matching a pattern
-pnpm test -- LoginPage
-pnpm test -- useLoginForm
-
-# Run tests in a specific file
-pnpm test -- src/components/__tests__/LoginPage.test.tsx
-
-# Run tests with debugging
-pnpm test -- --detectOpenHandles
+pnpm test             # Run all tests
+pnpm test:watch       # Watch mode for TDD
+pnpm test -- <pattern> # Run specific tests
 ```
 
 ## Architecture Overview
@@ -101,28 +57,13 @@ This is a Next.js 15 application using the App Router pattern with TypeScript an
 - **Validation**: Zod schemas with custom utilities
 - **Styling**: Tailwind CSS with neutral theme (easily customizable)
 
-### Key Architectural Decisions
+### Key Architecture
 
-1. **Component Pattern**: All interactive components use `'use client'` directive. Components are composed using shadcn/ui primitives (Button, Input, Label, etc.) with variant-based styling through CVA (class-variance-authority).
-
-2. **State Management**: 
-   - Local state for component-specific UI (useState)
-   - Global state via Zustand store (`lib/store.ts`) for user profiles, settings, and projects
-   - Form state managed through custom hooks (e.g., `useLoginForm`)
-
-3. **Multi-Step Process**: The app implements a multi-step flow (`/step1`, `/step2`, `/step3`) with global navigation through the Navbar component.
-
-4. **Authentication Flow**: 
-   - Login page redirects to `/step1` on successful authentication
-   - Support for email/password and social authentication (Google, Facebook, GitHub)
-   - Authentication service uses singleton pattern with proper error handling
-
-5. **Validation Architecture**:
-   - Zod schemas define validation rules (`utils/validationSchema.ts`)
-   - Utility functions provide reusable validation (`utils/validation.ts`)
-   - Password requirements: min 8 chars, uppercase, lowercase, number, special char
-
-6. **Testing Strategy**: Test-Driven Development (TDD) approach with Jest and React Testing Library. Tests should be written before implementation.
+- **Components**: `'use client'` directive, shadcn/ui primitives with CVA
+- **State**: Zustand for global state, custom hooks for forms
+- **Auth**: Better Auth with email/social providers
+- **Validation**: Zod schemas (password: 8+ chars, mixed case, number, special)
+- **Testing**: TDD with Jest + React Testing Library
 
 ### shadcn/ui Integration & Theming
 
@@ -153,28 +94,7 @@ This project uses shadcn/ui components with semantic color system for easy theme
 - **Utility Function**: `cn()` in `lib/utils.ts` for class merging
 - **Theme Variables**: Defined in CSS custom properties (HSL format)
 
-#### Theme Implementation
-```tsx
-// ✅ CORRECT - Uses semantic colors
-<div className="bg-background text-foreground">
-  <div className="bg-card p-6 rounded-lg border">
-    <h2 className="text-lg font-semibold">Title</h2>
-    <p className="text-muted-foreground">Description</p>
-    <Button className="bg-primary text-primary-foreground">Action</Button>
-  </div>
-</div>
 
-// ❌ WRONG - Uses hardcoded colors
-<div className="bg-white text-gray-900">
-  <div className="bg-gray-50 p-6 rounded-lg border-gray-200">
-    <h2 className="text-gray-800">Title</h2>
-    <p className="text-gray-600">Description</p>
-    <Button className="bg-blue-600 text-white">Action</Button>
-  </div>
-</div>
-```
-
-This approach ensures the entire application can switch themes (light/dark/custom) by simply changing CSS variables, without modifying any component code.
 
 ### Project Structure Patterns
 
@@ -196,22 +116,9 @@ import { Button } from '@/components/ui/button'
 import { useLoginForm } from '@/hooks/useLoginForm'
 ```
 
-### Current Implementation Status
-- ✅ Authentication system (login page)
-- ✅ Multi-step process routing
-- ✅ Global state management
-- ✅ Form validation
-- ✅ Responsive navbar
-- 🚧 Settings page (in progress)
-- ⏳ API routes (not yet implemented)
 
-## Account Context Awareness
 
-The application implements multi-account support (personal vs team accounts). Key considerations:
-- Always show which account context is active
-- Account switcher should be prominent in the UI
-- Forms and actions must clearly indicate which account they affect
-- Consider confirmation dialogs for critical actions that specify the account
+
 
 ## Agent OS Documentation
 

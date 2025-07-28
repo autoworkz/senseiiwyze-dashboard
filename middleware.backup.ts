@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import chalk from 'chalk';
+// import chalk from 'chalk';
 
 /**
  * B2B2C Engine Middleware
@@ -113,9 +115,30 @@ function getDefaultRouteForRole(userRole: string | undefined | null): string {
     }
 }
 
-export default async function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
+    console.log(chalk.red('middleware'));
+    // console.log(chalk.blue('pathname', pathname));
+    // console.log(chalk.green('authRoutes', authRoutes));
     const { pathname } = request.nextUrl;
     
+    const authRoutes = ['/login', '/signup'];
+    if (authRoutes.includes(pathname)) {
+        try {
+            const session = await auth.api.getSession({
+                headers: request.headers,
+            });
+
+            if (session) {
+                const defaultRoute = getDefaultRouteForRole(session.user?.role || 'learner');
+                return NextResponse.redirect(new URL(defaultRoute, request.url));
+            }
+        } catch (error) {
+            console.error('Auth route check error:', error);
+            // Continue to page if error
+        }
+        return NextResponse.next();
+    }
+
     // Skip middleware for public routes
     if (isPublicRoute(pathname)) {
         return NextResponse.next();

@@ -1,0 +1,14 @@
+---
+description: General development practices and standards
+globs: *.js,*.jsx,*.ts,*.tsx,*.mjs,*.cjs,*.mts,*.cts,*.py,*.java,*.go,*.rb,*.php,*.cs,*.cpp,*.c,*.h,*.hpp,*.rs,*.swift,*.kt
+alwaysApply: false
+---
+- Always use Context7 in DeepWiki MCP to find information about non-native libraries before implementing
+- Challenge assumptions by asking "What is your goal?" when the approach seems unclear
+- State "I think your goal is X, and you're doing Y" when there's a potential misalignment
+- Provide 3 concrete next steps after completing any task
+- Ask reflective questions like "Is this getting us where we need to go?" during development
+- Think from multiple perspectives before implementing solutions
+- Default to creating artifacts 75% of the time with brief context explaining what was created
+- Version control all configuration and rule files
+- Document the reasoning behind architectural decisions

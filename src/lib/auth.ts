@@ -1,4 +1,3 @@
-import Database from "better-sqlite3";
 import {
     twoFactor,
     username,
@@ -17,6 +16,9 @@ import { sso } from "better-auth/plugins/sso";
 import { nextCookies } from "better-auth/next-js";
 import { betterAuth } from "better-auth";
 import { headers } from "next/headers";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { db } from "../../lib/db";
+import * as schema from "../../lib/db/schema";
 
 // Import our B2B2C access control system
 import { 
@@ -29,9 +31,25 @@ import {
     executive 
 } from "./permissions";
 
+
 export const auth = betterAuth({
-    // database: new Database(process.env.DATABASE_URL || "database.sqlite"),
-    database: new Database("database.sqlite"),
+    database: drizzleAdapter(db, {
+        provider: "pg",
+        camelCase: false,
+        schema: {
+            user: schema.user,
+            session: schema.session,
+            account: schema.account,
+            verification: schema.verification,
+            organization: schema.organization,
+            member: schema.member,
+            invitation: schema.invitation,
+            apiKey: schema.apikey,
+            twoFactor: schema.twoFactor,
+            ssoProvider: schema.ssoProvider,
+            jwks: schema.jwks,
+        }
+    }),
     appName: "senseiiwyze-dashboard",
     emailAndPassword: {
         enabled: true,

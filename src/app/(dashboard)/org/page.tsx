@@ -16,6 +16,10 @@ import {
   TabsTrigger,
   TabsContent,
 } from '@/components/ui/tabs'
+import { IndividualTrackingDashboard } from '@/components/org/individual/IndividualTrackingDashboard'
+import { ReadinessCharts } from '@/components/org/operational/ReadinessCharts'
+import { CoachingQueue } from '@/components/org/operational/CoachingQueue'
+import { UserReadinessTable } from '@/components/org/operational/UserReadinessTable'
 
 // Mock team readiness data - will be moved to store later
 const mockTeamReadiness = {
@@ -237,37 +241,19 @@ export default function ExecutiveDashboard() {
         {/* Team Readiness Snapshot - Quick Win */}
         <TeamReadinessSnapshotCard />
 
-        {/* Placeholders for future operational components */}
+        {/* Operational components */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <PlaceholderState
-            title="Team Readiness Overview"
-            description="Detailed readiness charts and distribution analysis coming soon."
-          />
-          <PlaceholderState
-            title="Coaching Queue"
-            description="Prioritized list of learners needing intervention and coaching."
-          />
+          <ReadinessCharts />
+          <CoachingQueue />
         </div>
 
-        <PlaceholderState
-          title="User Readiness Table"
-          description="Searchable and filterable table of all team members with readiness scores."
-        />
+        <UserReadinessTable />
+
       </TabsContent>
 
       {/* Individuals Tab Content */}
       <TabsContent value="individuals" className="space-y-8">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight text-foreground mb-4">Individual Tracking</h2>
-          <p className="text-muted-foreground mb-6">
-            Detailed individual learner readiness and coaching recommendations
-          </p>
-        </div>
-
-        <PlaceholderState
-          title="Individual Tracking"
-          description="Detailed learner readiness tracking, skill breakdowns, and personalized coaching recommendations coming soon."
-        />
+        <IndividualTrackingDashboard />
       </TabsContent>
     </Tabs>
   )
