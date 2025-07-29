@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import { LocaleLink } from '@/components/locale-link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { ChevronDown, Settings } from 'lucide-react'
@@ -19,6 +19,7 @@ import {
     DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
+import { LocaleSwitcher } from '@/components/locale-switcher'
 
 interface User {
     role: 'learner' | 'admin' | 'executive' | 'ceo' | 'worker' | 'frontliner'
@@ -67,7 +68,7 @@ export function GlobalNavigation({ user, variant = 'desktop', className }: Globa
                             <DropdownMenuContent className="w-56" align="start">
                                 {accessibleContexts.map((context) => (
                                     <DropdownMenuItem key={context.key} asChild>
-                                        <Link
+                                        <LocaleLink
                                             href={context.basePath}
                                             className={cn(
                                                 "flex flex-col items-start py-2",
@@ -76,7 +77,7 @@ export function GlobalNavigation({ user, variant = 'desktop', className }: Globa
                                         >
                                             <span className="font-medium">{context.title}</span>
                                             <span className="text-xs text-muted-foreground">{context.description}</span>
-                                        </Link>
+                                        </LocaleLink>
                                     </DropdownMenuItem>
                                 ))}
                             </DropdownMenuContent>
@@ -97,7 +98,7 @@ export function GlobalNavigation({ user, variant = 'desktop', className }: Globa
                         const Icon = item.icon
                         const isActive = pathname === item.href || (pathname?.startsWith(item.href + '/') ?? false)
                         return (
-                            <Link
+                            <LocaleLink
                                 key={item.href}
                                 href={item.href}
                                 className={cn(
@@ -129,14 +130,17 @@ export function GlobalNavigation({ user, variant = 'desktop', className }: Globa
                                         </div>
                                     )}
                                 </div>
-                            </Link>
+                            </LocaleLink>
                         )
                     })}
                 </nav>
 
                 {/* Universal Settings Footer */}
-                <div className="p-4 border-t">
-                    <Link
+                <div className="p-4 border-t space-y-2">
+                    <div className="px-3">
+                        <LocaleSwitcher />
+                    </div>
+                    <LocaleLink
                         href="/settings"
                         className={cn(
                             "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200",
@@ -147,7 +151,7 @@ export function GlobalNavigation({ user, variant = 'desktop', className }: Globa
                     >
                         <Settings className="h-4 w-4 shrink-0" />
                         <span className="font-medium">Settings</span>
-                    </Link>
+                    </LocaleLink>
                 </div>
             </div>
         )
@@ -160,7 +164,7 @@ export function GlobalNavigation({ user, variant = 'desktop', className }: Globa
                     const Icon = item.icon
                     const isActive = pathname === item.href || (pathname?.startsWith(item.href + '/') ?? false)
                     return (
-                        <Link
+                        <LocaleLink
                             key={item.href}
                             href={item.href}
                             className={cn(
@@ -172,10 +176,10 @@ export function GlobalNavigation({ user, variant = 'desktop', className }: Globa
                         >
                             {Icon && <Icon className="h-4 w-4" />}
                             <span className="truncate">{item.title.split(' ')[0]}</span>
-                        </Link>
+                        </LocaleLink>
                     )
                 })}
-                <Link
+                <LocaleLink
                     href="/settings"
                     className={cn(
                         "flex flex-col items-center gap-1 px-3 py-2 text-xs transition-colors",
@@ -186,7 +190,7 @@ export function GlobalNavigation({ user, variant = 'desktop', className }: Globa
                 >
                     <Settings className="h-4 w-4" />
                     <span className="truncate">Settings</span>
-                </Link>
+                </LocaleLink>
             </nav>
         )
     }
@@ -206,17 +210,17 @@ export function GlobalNavigation({ user, variant = 'desktop', className }: Globa
                     <DropdownMenuContent align="start">
                         {accessibleContexts.map((context) => (
                             <DropdownMenuItem key={context.key} asChild>
-                                <Link href={context.basePath}>
+                                <LocaleLink href={context.basePath}>
                                     {context.title}
-                                </Link>
+                                </LocaleLink>
                             </DropdownMenuItem>
                         ))}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
-                            <Link href="/settings">
+                            <LocaleLink href="/settings">
                                 <Settings className="h-4 w-4 mr-2" />
                                 Settings
-                            </Link>
+                            </LocaleLink>
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -234,7 +238,7 @@ export function GlobalNavigation({ user, variant = 'desktop', className }: Globa
                     const Icon = item.icon
                     const isActive = pathname === item.href || (pathname?.startsWith(item.href + '/') ?? false)
                     return (
-                        <Link
+                        <LocaleLink
                             key={item.href}
                             href={item.href}
                             className={cn(
@@ -246,12 +250,12 @@ export function GlobalNavigation({ user, variant = 'desktop', className }: Globa
                         >
                             {Icon && <Icon className="h-4 w-4" />}
                             <span className="hidden sm:block">{item.title.split(' ')[0]}</span>
-                        </Link>
+                        </LocaleLink>
                     )
                 })}
 
                 {/* Universal Settings link */}
-                <Link
+                <LocaleLink
                     href="/settings"
                     className={cn(
                         "flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-all duration-200",
@@ -262,7 +266,7 @@ export function GlobalNavigation({ user, variant = 'desktop', className }: Globa
                 >
                     <Settings className="h-4 w-4" />
                     <span className="hidden sm:block">Settings</span>
-                </Link>
+                </LocaleLink>
             </div>
         </nav>
     )

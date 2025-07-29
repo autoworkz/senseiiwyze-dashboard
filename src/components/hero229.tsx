@@ -2,11 +2,15 @@
 
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import { LocaleLink } from "@/components/locale-link";
 import React from "react";
+import { useTranslations } from 'next-intl';
 
 import { Button } from "@/components/ui/button";
 
 const Hero229 = () => {
+  const t = useTranslations('hero');
+  
   return (
     <section className="relative h-[100dvh] w-[100dvw] overflow-hidden border bg-background py-32">
       <div className="relative z-20 container flex flex-col items-center justify-center gap-4 text-center">
@@ -15,30 +19,31 @@ const Hero229 = () => {
           className="group text-md mt-42 flex w-fit items-center justify-center gap-3 rounded-full bg-muted/60 px-5 py-1 tracking-tight"
         >
           <span className="size-2 rounded-full bg-foreground" />
-          <span>See Pricing</span>
+          <span>{t('readinessIndex')}</span>
         </Button>
         <h1 className="max-w-3xl text-5xl font-medium tracking-tighter text-foreground md:text-7xl">
-          Blocks Built <br /> With Shadcn & Tailwind.
+          {t('headline')}
         </h1>
         <p className="mt-5 max-w-xl text-muted-foreground/80">
-          Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ipsum animi,
-          ipsam provident optio delectus neque aliquid cumque. Beatae, odio!
+          {t('description')}
         </p>
         <div className="flex gap-4">
           <Button
             variant="secondary"
             className="group text-md flex w-fit items-center justify-center gap-2 rounded-full px-4 py-1 tracking-tight"
           >
-            <span>Documentation</span>
+            <span>{t('learnMore')}</span>
             <ArrowRight className="size-4 -rotate-45 transition-all ease-out group-hover:ml-3 group-hover:rotate-0" />
           </Button>
-          <Button
-            variant="default"
-            className="group text-md flex w-fit items-center justify-center gap-2 rounded-full px-4 py-1 tracking-tight"
-          >
-            <span>Get Started</span>
-            <ArrowRight className="size-4 -rotate-45 transition-all ease-out group-hover:ml-3 group-hover:rotate-0" />
-          </Button>
+          <LocaleLink href="/login">
+            <Button
+              variant="default"
+              className="group text-md flex w-fit items-center justify-center gap-2 rounded-full px-4 py-1 tracking-tight"
+            >
+              <span>{t('getStarted')}</span>
+              <ArrowRight className="size-4 -rotate-45 transition-all ease-out group-hover:ml-3 group-hover:rotate-0" />
+            </Button>
+          </LocaleLink>
         </div>
       </div>
 

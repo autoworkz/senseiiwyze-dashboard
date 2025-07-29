@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useLocale } from 'next-intl'
+import { useTranslations } from 'next-intl'
 import { authClient } from '@/lib/auth-client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -9,6 +11,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { SocialLogin } from '@/components/auth/social-login'
+import { LocaleLink } from '@/components/locale-link'
 
 export function LoginForm() {
   const [email, setEmail] = useState('')
@@ -18,6 +21,8 @@ export function LoginForm() {
   const [message, setMessage] = useState('')
   const router = useRouter()
   const searchParams = useSearchParams()
+  const locale = useLocale()
+  const t = useTranslations('auth')
 
   useEffect(() => {
     // Check for messages from URL params
@@ -46,7 +51,8 @@ export function LoginForm() {
 
       // If successful, the user will be redirected by Better Auth
       // For now, let's manually redirect based on role if we need custom logic
-      router.push('/dashboard')
+      const dashboardUrl = locale === 'en' ? '/dashboard' : `/${locale}/dashboard`
+      router.push(dashboardUrl)
 
     } catch (error) {
       console.error('Login error:', error)
@@ -67,9 +73,9 @@ export function LoginForm() {
               alt="SenseiiWyze Logo"
             />
           </div>
-          <CardTitle className="text-2xl text-foreground">Welcome to SenseiiWyze</CardTitle>
+          <CardTitle className="text-2xl text-foreground">{t('loginTitle')}</CardTitle>
           <CardDescription className="text-muted-foreground">
-            Sign in to access your personalized tech coaching dashboard
+            {t('loginDescription')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -83,7 +89,7 @@ export function LoginForm() {
               </div>
               <div className="relative flex justify-center text-xs uppercase">
                 <span className="bg-background px-2 text-muted-foreground">
-                  Or continue with email
+                  {t('orDivider')}
                 </span>
               </div>
             </div>
@@ -103,49 +109,49 @@ export function LoginForm() {
 
           <form onSubmit={handleSubmit} className="space-y-4 mt-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('email')}</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="Enter your email"
+                placeholder={t('email')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t('password')}</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="Enter your password"
+                placeholder={t('password')}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
             </div>
             <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={isLoading}>
-              {isLoading ? 'Signing in...' : 'Sign In'}
+              {isLoading ? t('loading', {defaultValue: 'Loading...'}) : t('login')}
             </Button>
           </form>
 
           <div className="mt-6 pt-6 border-t">
             <div className="space-y-4">
               <div className="text-center">
-                <a
+                <LocaleLink
                   href="/auth/forgot-password"
                   className="text-sm text-primary hover:underline"
                 >
-                  Forgot your password?
-                </a>
+                  {t('forgotPassword')}
+                </LocaleLink>
               </div>
 
               <div className="text-center">
                 <p className="text-sm text-muted-foreground">
-                  Don't have an account?{' '}
-                  <a href="/auth/signup" className="text-primary hover:underline">
-                    Sign up
-                  </a>
+                  {t('dontHaveAccount')}{' '}
+                  <LocaleLink href="/auth/signup" className="text-primary hover:underline">
+                    {t('signup')}
+                  </LocaleLink>
                 </p>
               </div>
             </div>

@@ -1,15 +1,8 @@
 import type React from "react"
-import type { Metadata } from "next"
 import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
-
-export const metadata: Metadata = {
-  title: "v0 App",
-  description: "Created with v0",
-  generator: "v0.dev",
-}
+import { LingoProvider, loadDictionary } from "lingo.dev/react/rsc";
 
 export default function RootLayout({
   children,
@@ -17,7 +10,10 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    
+
+    
+    <html suppressHydrationWarning>
       <head>
         <style>{`
 html {
@@ -27,9 +23,11 @@ html {
 }
         `}</style>
       </head>
-      <body>
-        <ThemeProvider>{children}</ThemeProvider>
+      <body suppressHydrationWarning>
+        {children}
       </body>
     </html>
+    
   )
+
 }

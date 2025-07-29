@@ -1,13 +1,12 @@
 import type { NextConfig } from "next";
+import createNextIntlPlugin from 'next-intl/plugin';
+import lingoCompiler from "lingo.dev/compiler";
+
+const withNextIntl = createNextIntlPlugin('./src/i18n.ts');
 
 const nextConfig: NextConfig = {
   turbopack: {
-    rules: {
-      '*.svg': {
-        loaders: ['@svgr/webpack'],
-        as: '*.js',
-      },
-    },
+
   },
   experimental: {
     // nodeMiddleware: true,
@@ -15,9 +14,18 @@ const nextConfig: NextConfig = {
   /* config options here */
 
 };
+export default lingoCompiler.next({
+  turbopack: {
+    enabled: "auto",
+  },
+  sourceLocale: "en",
+  targetLocales: ["es", "fr", "de", "it", "pt", "nl", "sv"],
+  models: {
+    "*:*": "groq:qwen/qwen3-32b",
+  },
+  rsc: true,
+  debug: true,
+  useDirective: true,
 
-export default nextConfig;
+})(withNextIntl(nextConfig));
 
-// // added by create cloudflare to enable calling `getCloudflareContext()` in `next dev`
-// import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
-// initOpenNextCloudflareForDev({experimental: {remoteBindings: true}});

@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server'
 import { SkillFitCard } from '@/components/me/SkillFitCard'
 import { PersonalityRadar } from '@/components/me/PersonalityRadar'
 import { ProgressGrid } from '@/components/me/ProgressGrid'
@@ -5,13 +6,14 @@ import { CoachingSection } from '@/components/me/CoachingSection'
 import { getMyMetrics } from '@/lib/api/metrics'
 
 export default async function MyProgressPage() {
+  const t = await getTranslations('learner')
   const metrics = await getMyMetrics()
   
   return (
     <div className="space-y-8">
       {/* Page header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">My Progress</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t('myProgress')}</h1>
         <p className="text-muted-foreground mt-2">
           Track your journey to tech mastery and see how you&apos;re progressing
         </p>

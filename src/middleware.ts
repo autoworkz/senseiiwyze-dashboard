@@ -1,19 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
+import createMiddleware from 'next-intl/middleware';
+import { locales } from '@/i18n';
 
-// /**
-//  * B2B2C Engine Middleware with Better Auth Integration
-//  * 
-//  * Provides authentication and role-based route protection for the three user types:
-//  * - CEO (learner): /me/* routes - Personal development and learning
-//  * - Worker (admin): /team/* routes - Team management and coordination  
-//  * - Frontliner (executive): /org/* routes - Organization oversight and strategy
-//  */
+/**
+ * B2B2C Engine Middleware with Better Auth Integration & i18n
+ * 
+ * Provides authentication and role-based route protection with full internationalization:
+ * - CEO (learner): /me/* routes - Personal development and learning
+ * - Worker (admin): /team/* routes - Team management and coordination  
+ * - Frontliner (executive): /org/* routes - Organization oversight and strategy
+ * 
+ * All routes are locale-aware and properly redirect with locale prefixes.
+ */
 
-// /**
-//  * Public routes that don't require authentication
-//  */
+/**
+ * Public routes that don't require authentication (without locale prefix)
+ */
 const publicRoutes = [
     '/login',
     '/signup', 
@@ -24,6 +28,47 @@ const publicRoutes = [
     '/verify-email',
     '/unauthorized'
 ];
+
+// Create next-intl middleware
+const intlMiddleware = createMiddleware({
+    locales,
+    defaultLocale: 'en',
+    localePrefix: 'as-needed'
+});
+
+/**
+ * Extract locale from pathname and return both locale and pathname without locale
+ */
+function parseLocaleFromPath(pathname: string): { locale: string | null; pathnameWithoutLocale: string } {
+    const segments = pathname.split('/').filter(Boolean);
+    const firstSegment = segments[0];
+    
+    if (firstSegment && locales.includes(firstSegment as any)) {
+        return {
+            locale: firstSegment,
+            pathnameWithoutLocale: '/' + segments.slice(1).join('/') || '/'
+        };
+    }
+    
+    return {
+        locale: null,
+        pathnameWithoutLocale: pathname
+    };
+}
+
+/**
+ * Create a locale-aware URL
+ */
+function createLocalizedUrl(path: string, locale: string | null, baseUrl: string): string {
+    // If no locale or it's the default locale, return path as-is for 'as-needed' strategy
+    if (!locale || locale === 'en') {
+        return new URL(path, baseUrl).toString();
+    }
+    
+    // Add locale prefix for non-default locales
+    const localizedPath = path.startsWith('/') ? `/${locale}${path}` : `/${locale}/${path}`;
+    return new URL(localizedPath, baseUrl).toString();
+}
 
 /**
  * Check if a route is public (doesn't require authentication)
@@ -70,7 +115,7 @@ function canAccessRoute(userRole: string | undefined | null, pathname: string): 
 }
 
 /**
- * Get default route for user role
+ * Get default route for user role (without locale prefix)
  */
 function getDefaultRouteForRole(userRole: string | undefined | null): string {
     if (!userRole) {
@@ -101,22 +146,34 @@ export async function middleware(request: NextRequest) {
     
     console.log('🚀 Middleware running for:', pathname);
     
-    // return NextResponse.next();
-    // // Skip middleware for static files and API routes
+    // Skip middleware for static files and API routes
     if (pathname.startsWith('/_next') || 
         pathname.startsWith('/api') || 
         pathname === '/favicon.ico') {
         return NextResponse.next();
     }
-    
-    // Skip middleware for public routes
-    if (isPublicRoute(pathname)) {
-        console.log('✅ Public route, allowing access');
-        return NextResponse.next();
-    }
-    
 
-    // console.log('🔐 Protected route detected, checking authentication...');
+    // Handle internationalization first
+    const intlResponse = intlMiddleware(request);
+    
+    // If intl middleware redirects, return that response
+    if (intlResponse.status === 302 || intlResponse.status === 307) {
+        return intlResponse;
+    }
+
+    // Parse locale from pathname using helper function
+    const { locale, pathnameWithoutLocale } = parseLocaleFromPath(pathname);
+    
+    console.log('🌍 Detected locale:', locale || 'none (default)');
+    console.log('🛣️  Path without locale:', pathnameWithoutLocale);
+    
+    // Skip middleware for public routes (check without locale)
+    if (isPublicRoute(pathnameWithoutLocale)) {
+        console.log('✅ Public route, allowing access');
+        return intlResponse;
+    }
+
+    console.log('🔐 Protected route detected, checking authentication...');
     
     try {
         // Get session using Better Auth's recommended approach for Next.js 15+
@@ -126,34 +183,48 @@ export async function middleware(request: NextRequest) {
 
         if (!session) {
             console.log('❌ No session found, redirecting to login');
-            return NextResponse.redirect(new URL('/login', request.url));
+            const loginUrl = createLocalizedUrl('/login', locale, request.url);
+            return NextResponse.redirect(loginUrl);
         }
 
         console.log('✅ Session found for user:', session.user.email);
         console.log('👤 User role:', session.user.role);
 
-        // Handle auth routes (login/signup) - redirect authenticated users
-        const authRoutes = ['/login', '/signup'];
-        if (authRoutes.includes(pathname)) {
+        // Handle root route redirect - redirect to appropriate dashboard
+        if (pathnameWithoutLocale === '/' || pathnameWithoutLocale === '') {
             const defaultRoute = getDefaultRouteForRole(session.user.role);
-            console.log('🔄 Authenticated user accessing auth route, redirecting to:', defaultRoute);
-            return NextResponse.redirect(new URL(defaultRoute, request.url));
+            const dashboardUrl = createLocalizedUrl(defaultRoute, locale, request.url);
+            console.log('🔄 Root route access, redirecting to user dashboard:', dashboardUrl);
+            return NextResponse.redirect(dashboardUrl);
         }
 
-        // Check role-based access for protected routes
-        if (!canAccessRoute(session.user.role, pathname)) {
+        // Handle auth routes (login/signup) - redirect authenticated users to their dashboard
+        const authRoutes = ['/login', '/signup'];
+        if (authRoutes.includes(pathnameWithoutLocale)) {
+            const defaultRoute = getDefaultRouteForRole(session.user.role);
+            const dashboardUrl = createLocalizedUrl(defaultRoute, locale, request.url);
+            console.log('🔄 Authenticated user accessing auth route, redirecting to:', dashboardUrl);
+            return NextResponse.redirect(dashboardUrl);
+        }
+
+        // Check role-based access for protected routes (check without locale)
+        if (!canAccessRoute(session.user.role, pathnameWithoutLocale)) {
             console.log('🚫 User does not have permission for this route');
             const defaultRoute = getDefaultRouteForRole(session.user.role);
-            return NextResponse.redirect(new URL(defaultRoute, request.url));
+            const unauthorizedRedirectUrl = createLocalizedUrl(defaultRoute, locale, request.url);
+            console.log('🔄 Redirecting to authorized route:', unauthorizedRedirectUrl);
+            return NextResponse.redirect(unauthorizedRedirectUrl);
         }
 
         console.log('✅ User has permission for this route');
-        return NextResponse.next();
+        return intlResponse;
 
     } catch (error) {
         console.error('❌ Error in middleware:', error);
         // On error, redirect to login for safety
-        return NextResponse.redirect(new URL('/login', request.url));
+        const loginUrl = createLocalizedUrl('/login', locale, request.url);
+        console.log('🔄 Error occurred, redirecting to login:', loginUrl);
+        return NextResponse.redirect(loginUrl);
     }
 }
 

@@ -1,3 +1,6 @@
+"use client"
+"use lingo"
+
 export default function AnalyticsPage() {
   return (
     <div className="flex flex-col gap-6">
