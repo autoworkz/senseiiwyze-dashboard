@@ -4,7 +4,8 @@
     "headline": "Predice el Éxito del Entrenamiento Antes de Comenzar",
     "description": "Plataforma de coaching impulsada por IA que predice y optimiza el éxito del entrenamiento en habilidades técnicas. Logra una adquisición de habilidades 2-3x más rápida con nuestro algoritmo patentado Índice de Preparación.",
     "learnMore": "Saber Más",
-    "getStarted": "Comenzar"
+    "getStarted": "Comenzar",
+    "goToDashboard": "Ir al Panel"
   },
   "nav": {
     "dashboard": "Panel",

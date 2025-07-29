@@ -5,8 +5,8 @@ import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { locales } from '@/i18n';
 import { ThemeProvider } from "@/components/theme-provider"
-import { LingoProvider } from 'lingo.dev/react/rsc';
-import { loadDictionary } from 'lingo.dev/react/rsc';
+// import { LingoProvider } from 'lingo.dev/react/rsc';
+// import { loadDictionary } from 'lingo.dev/react/rsc';
 
 type Props = {
   children: React.ReactNode;
@@ -47,14 +47,11 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <body suppressHydrationWarning>
-        <LingoProvider loadDictionary={(locale) => loadDictionary(locale)}>
-        
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider>
             {children}
           </ThemeProvider>
-          </NextIntlClientProvider>
-        </LingoProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

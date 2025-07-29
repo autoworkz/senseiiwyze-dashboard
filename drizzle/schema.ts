@@ -23,7 +23,7 @@ export const tasktype = pgEnum("tasktype", ['GAME', 'QUIZ', 'FLASHCARD'])
 export const answersIdSeq1 = pgSequence("answers_id_seq1", {  startWith: "1", increment: "1", minValue: "1", maxValue: "2147483647", cache: "1", cycle: false })
 
 const authSchema = pgSchema("auth");
-const authUser = authSchema.table("user", {
+export const authUsers = authSchema.table("users", {
 	id: text().primaryKey().notNull(),
 	email: text().notNull()
 });
@@ -109,7 +109,7 @@ export const profiles = pgTable("profiles", {
 	uniqueIndex("profiles_email_key").using("btree", table.email.asc().nullsLast().op("text_ops")),
 	foreignKey({
 			columns: [table.id],
-			foreignColumns: [authUser.id],
+			foreignColumns: [authUsers.id],
 			name: "profiles_id_fkey"
 		}).onDelete("cascade"),
 	foreignKey({
@@ -236,7 +236,7 @@ export const profilesCopy = pgTable("profiles_copy", {
 	uniqueIndex("profiles_copy_email_idx").using("btree", table.email.asc().nullsLast().op("text_ops")),
 	foreignKey({
 			columns: [table.id],
-			foreignColumns: [authUser.id],
+			foreignColumns: [authUsers.id],
 			name: "profiles_copy_id_fkey"
 		}),
 	foreignKey({
@@ -592,17 +592,17 @@ export const accounts = pgTable("accounts", {
 	uniqueIndex("unique_personal_account").using("btree", table.primaryOwnerUserId.asc().nullsLast().op("uuid_ops")).where(sql`(is_personal_account = true)`),
 	foreignKey({
 			columns: [table.createdBy],
-			foreignColumns: [authUser.id],
+			foreignColumns: [authUsers.id],
 			name: "accounts_created_by_fkey"
 		}),
 	foreignKey({
 			columns: [table.primaryOwnerUserId],
-			foreignColumns: [authUser.id],
+			foreignColumns: [authUsers.id],
 			name: "accounts_primary_owner_user_id_fkey"
 		}).onDelete("cascade"),
 	foreignKey({
 			columns: [table.updatedBy],
-			foreignColumns: [authUser.id],
+			foreignColumns: [authUsers.id],
 			name: "accounts_updated_by_fkey"
 		}),
 	unique("accounts_slug_key").on(table.slug),
@@ -662,7 +662,7 @@ export const invitations = pgTable("invitations", {
 		}).onDelete("cascade"),
 	foreignKey({
 			columns: [table.invitedBy],
-			foreignColumns: [authUser.id],
+			foreignColumns: [authUsers.id],
 			name: "invitations_invited_by_fkey"
 		}).onDelete("cascade"),
 	foreignKey({
@@ -1009,7 +1009,7 @@ export const nonces = pgTable("nonces", {
 	index("idx_nonces_status").using("btree", table.clientToken.asc().nullsLast().op("text_ops"), table.userId.asc().nullsLast().op("uuid_ops"), table.purpose.asc().nullsLast().op("timestamptz_ops"), table.expiresAt.asc().nullsLast().op("uuid_ops")).where(sql`((used_at IS NULL) AND (revoked = false))`),
 	foreignKey({
 			columns: [table.userId],
-			foreignColumns: [authUser.id],
+			foreignColumns: [authUsers.id],
 			name: "nonces_user_id_fkey"
 		}).onDelete("cascade"),
 	pgPolicy("Users can read their own nonces", { as: "permissive", for: "select", to: ["public"], using: sql`(user_id = ( SELECT auth.uid() AS uid))` }),
@@ -1090,17 +1090,17 @@ export const accountsMemberships = pgTable("accounts_memberships", {
 		}),
 	foreignKey({
 			columns: [table.createdBy],
-			foreignColumns: [authUser.id],
+			foreignColumns: [authUsers.id],
 			name: "accounts_memberships_created_by_fkey"
 		}),
 	foreignKey({
 			columns: [table.updatedBy],
-			foreignColumns: [authUser.id],
+			foreignColumns: [authUsers.id],
 			name: "accounts_memberships_updated_by_fkey"
 		}),
 	foreignKey({
 			columns: [table.userId],
-			foreignColumns: [authUser.id],
+			foreignColumns: [authUsers.id],
 			name: "accounts_memberships_user_id_fkey"
 		}).onDelete("cascade"),
 	primaryKey({ columns: [table.userId, table.accountId], name: "accounts_memberships_pkey"}),

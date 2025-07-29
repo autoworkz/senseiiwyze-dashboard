@@ -15,7 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { LocaleLocaleLink } from "@/components/locale-link"
+import { LocaleLink } from "@/components/locale-link"
 
 interface User {
   id: string
@@ -161,7 +161,7 @@ export default function UserListPage() {
                 {currentUsers.map((user) => (
                   <TableRow key={user.id}>
                     <TableCell className="font-medium">
-                      <LocaleLink href={`/dashboard/users/${user.id}`} className="hover:underline">
+                      <LocaleLink href={`/platform/users/${user.id}`} className="hover:underline">
                         {user.name}
                       </LocaleLink>
                     </TableCell>
@@ -190,7 +190,7 @@ export default function UserListPage() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuItem asChild>
-                            <LocaleLink href={`/dashboard/users/${user.id}`}>View details</LocaleLink>
+                            <LocaleLink href={`/platform/users/${user.id}`}>View details</LocaleLink>
                           </DropdownMenuItem>
                           <DropdownMenuItem>Edit user</DropdownMenuItem>
                           <DropdownMenuSeparator />

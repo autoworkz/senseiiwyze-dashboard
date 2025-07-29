@@ -161,7 +161,7 @@ export default function UserDetailPage() {
           <h2 className="text-2xl font-semibold">User not found</h2>
           <p className="text-muted-foreground mt-2">The user with ID {userId} does not exist.</p>
           <Button asChild className="mt-4">
-            <LocaleLink href="/dashboard/users/list">Back to Users</LocaleLink>
+            <LocaleLink href="/platform/users/list">Back to Users</LocaleLink>
           </Button>
         </div>
       </div>
@@ -172,7 +172,7 @@ export default function UserDetailPage() {
     <div className="container mx-auto p-6">
       <div className="mb-8">
         <Button variant="ghost" size="sm" asChild className="mb-4">
-          <LocaleLink href="/dashboard/users/list">
+          <LocaleLink href="/platform/users/list">
             <ChevronLeft className="mr-2 h-4 w-4" />
             Back to Users
           </LocaleLink>

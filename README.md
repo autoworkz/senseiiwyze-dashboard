@@ -32,12 +32,44 @@ https://senseii-web-app-tsaw.vercel.app/dashboard/user-dashboard
 
 ## Development
 
+### Development Server
+
+This project offers two development modes:
+
+#### Simple Mode (Default)
 ```bash
-# Start development server
+# Start development server with Turbo
 pnpm dev
 
+# Or use the watch script for automatic restarts
+pnpm dev:watch-simple
+```
+
+The simple mode uses `watchexec` to monitor file changes and automatically restart the Next.js development server when needed.
+
+#### Robust Mode (Advanced)
+```bash
+pnpm dev:watch-robust
+```
+
+The robust mode uses Node.js with `chokidar` and `execa` to provide more granular control:
+- Hot-reload for source files (src/**, pages/**, components/**)
+- Full restart for dependency changes (node_modules/**, package.json, .next/**)
+- Better process management and error handling
+
+**Note**: The robust mode will fall back to simple mode if `scripts/robust-watcher.sh` is not found. To use the robust watcher, run:
+```bash
+node scripts/watch.js
+```
+
+### Build & Production
+
+```bash
 # Build for production
 pnpm build
+
+# Start production server
+pnpm start
 
 # Run linting
 pnpm lint
@@ -45,6 +77,13 @@ pnpm lint
 # Run tests
 pnpm test
 ```
+
+### Development Dependencies
+
+The development watch scripts require the following dependencies:
+- **watchexec-cli**: For the simple watch mode (must be installed globally or via system package manager)
+- **chokidar**: File system watcher (Node.js package, included in devDependencies)
+- **execa**: Process execution utility (Node.js package, included in devDependencies)
 
 ## Package Management
 
@@ -88,3 +127,62 @@ src/
 - **State Management**: Zustand
 - **Validation**: Zod
 - **Testing**: Jest + React Testing Library
+
+## Troubleshooting
+
+### Development Server Issues
+
+#### Port Already in Use
+If you encounter "Port 3000 is already in use" errors:
+
+1. **Verify `lsof` is available** (macOS/Linux):
+   ```bash
+   which lsof
+   ```
+   If not available, install it via your system package manager.
+
+2. **Manual port cleanup**:
+   ```bash
+   # macOS/Linux
+   lsof -i tcp:3000 | awk 'NR>1 {print $2}' | xargs kill -9
+   
+   # Alternative using npx
+   npx kill-port 3000
+   ```
+
+3. **Port-kill behavior on macOS**: The dev script uses `lsof` to find and kill processes on port 3000. On macOS, this requires no special permissions, but ensure no critical services are using this port.
+
+#### Watch Mode Not Working
+
+1. **For simple mode**: Ensure `watchexec` is installed:
+   ```bash
+   # macOS
+   brew install watchexec
+   
+   # Linux
+   # Check your distribution's package manager
+   ```
+
+2. **For robust mode**: The required Node.js dependencies (`chokidar` and `execa`) are already included in devDependencies.
+
+#### .next Directory Issues
+
+The dev script checks for the `.next` directory and runs an initial build if missing. If you experience issues:
+
+1. **Clear the build cache**:
+   ```bash
+   pnpm clean
+   ```
+
+2. **Ensure `.next` is in sync**:
+   ```bash
+   rm -rf .next
+   pnpm build
+   ```
+
+### Script Permissions
+
+Ensure the dev script is executable:
+```bash
+chmod +x scripts/dev.sh
+```

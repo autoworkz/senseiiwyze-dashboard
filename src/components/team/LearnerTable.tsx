@@ -1,7 +1,7 @@
 'use client'
 
 
-import { LocaleLocaleLink } from '@/components/locale-link'
+import { LocaleLink } from '@/components/locale-link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { ExternalLocaleLink, AlertTriangle } from 'lucide-react'
+import { ExternalLink, AlertTriangle } from 'lucide-react'
 
 interface Learner {
   id: string
@@ -126,7 +126,7 @@ export function LearnerTable({ learners }: LearnerTableProps) {
               <TableCell>
                 <Button variant="ghost" size="sm" asChild>
                   <LocaleLink href={`/team/profile/${learner.id}`} className="gap-1">
-                    <ExternalLocaleLink className="h-3 w-3" />
+                    <ExternalLink className="h-3 w-3" />
                     View
                   </LocaleLink>
                 </Button>

@@ -1,5 +1,4 @@
 "use client"
-"use lingo"
 
 import { LoginForm } from '@/components/auth/login-form'
 

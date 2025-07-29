@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { User, Settings, LogOut } from 'lucide-react'
-import { LocaleLocaleLink } from '@/components/locale-link'
+import { LocaleLink } from '@/components/locale-link'
 
 interface User {
   role: 'learner' | 'admin' | 'executive'

@@ -4,7 +4,8 @@
     "headline": "Vorhersage des Trainingserfolgs Vor dem Start",
     "description": "KI-gestützte Coaching-Plattform, die den Erfolg des technischen Kompetenztrainings vorhersagt und optimiert. Erreichen Sie 2-3x schnellere Kompetenzentwicklung mit unserem proprietären Bereitschaftsindex-Algorithmus.",
     "learnMore": "Mehr Erfahren",
-    "getStarted": "Loslegen"
+    "getStarted": "Loslegen",
+    "goToDashboard": "Zum Dashboard"
   },
   "auth": {
     "login": "Anmelden",
@@ -23,5 +24,13 @@
     "progress": "Fortschritt",
     "team": "Team",
     "settings": "Einstellungen"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "settings": "Einstellungen",
+    "profile": "Profil",
+    "logout": "Abmelden",
+    "switchRole": "Rolle wechseln",
+    "home": "Startseite"
   }
 }

@@ -49,7 +49,7 @@ describe('DashboardLayout', () => {
     );
     
     const mainElement = container.querySelector('main');
-    expect(mainElement).toHaveClass('px-4', 'sm:px-6', 'lg:px-8');
+    expect(mainElement).toHaveClass('px-4 sm:px-6 lg:px-8');
   });
 
   it('renders with full width when specified', () => {

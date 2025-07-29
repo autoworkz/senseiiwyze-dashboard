@@ -21,8 +21,9 @@ import { locales } from '@/i18n';
  * Public routes that don't require authentication (without locale prefix)
  */
 const publicRoutes = [
-    '/login',
-    '/signup', 
+    '/',                // Landing page - accessible to everyone
+    '/auth/login',
+    '/auth/signup', 
     '/auth',
     '/api/auth',
     '/forgot-password',
@@ -35,7 +36,7 @@ const publicRoutes = [
 const intlMiddleware = createMiddleware({
     locales,
     defaultLocale: 'en',
-    localePrefix: 'as-needed'
+    localePrefix: 'always'
 });
 
 /**
@@ -62,13 +63,11 @@ function parseLocaleFromPath(pathname: string): { locale: string | null; pathnam
  * Create a locale-aware URL
  */
 function createLocalizedUrl(path: string, locale: string | null, baseUrl: string): string {
-    // If no locale or it's the default locale, return path as-is for 'as-needed' strategy
-    if (!locale || locale === 'en') {
-        return new URL(path, baseUrl).toString();
-    }
+    // Use default locale if none provided
+    const targetLocale = locale || 'en';
     
-    // Add locale prefix for non-default locales
-    const localizedPath = path.startsWith('/') ? `/${locale}${path}` : `/${locale}/${path}`;
+    // Always add locale prefix for 'always' strategy
+    const localizedPath = path.startsWith('/') ? `/${targetLocale}${path}` : `/${targetLocale}/${path}`;
     return new URL(localizedPath, baseUrl).toString();
 }
 
@@ -239,23 +238,18 @@ export async function middleware(request: NextRequest) {
 
         if (!session) {
             console.log('❌ No session found, redirecting to login');
-            const loginUrl = createLocalizedUrl('/login', locale, request.url);
+            const loginUrl = createLocalizedUrl('/auth/login', locale, request.url);
             return NextResponse.redirect(loginUrl);
         }
 
         console.log('✅ Session found for user:', session.user.email);
         console.log('👤 User role:', session.user.role);
 
-        // Handle root route redirect - redirect to appropriate dashboard
-        if (pathnameWithoutLocale === '/' || pathnameWithoutLocale === '') {
-            const defaultRoute = getDefaultRouteForRole(session.user.role);
-            const dashboardUrl = createLocalizedUrl(defaultRoute, locale, request.url);
-            console.log('🔄 Root route access, redirecting to user dashboard:', dashboardUrl);
-            return NextResponse.redirect(dashboardUrl);
-        }
+        // Root route is now public - authenticated users can visit landing page
+        // Remove automatic redirect to dashboard for root route
 
         // Handle auth routes (login/signup) - redirect authenticated users to their dashboard
-        const authRoutes = ['/login', '/signup'];
+        const authRoutes = ['/auth/login', '/auth/signup'];
         if (authRoutes.includes(pathnameWithoutLocale)) {
             const defaultRoute = getDefaultRouteForRole(session.user.role);
             const dashboardUrl = createLocalizedUrl(defaultRoute, locale, request.url);
@@ -278,7 +272,7 @@ export async function middleware(request: NextRequest) {
     } catch (error) {
         console.error('❌ Error in middleware:', error);
         // On error, redirect to login for safety
-        const loginUrl = createLocalizedUrl('/login', locale, request.url);
+        const loginUrl = createLocalizedUrl('/auth/login', locale, request.url);
         console.log('🔄 Error occurred, redirecting to login:', loginUrl);
         return NextResponse.redirect(loginUrl);
     }

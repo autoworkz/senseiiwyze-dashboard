@@ -14,11 +14,11 @@ export default function LogoutPage() {
         await authService.logout()
         // Redirect to login after a brief delay
         setTimeout(() => {
-          router.push('/login')
+          router.push('/auth/login')
         }, 2000)
       } catch (error) {
         console.error('Logout error:', error)
-        router.push('/login')
+        router.push('/auth/login')
       }
     }
 

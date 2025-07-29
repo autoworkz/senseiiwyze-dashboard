@@ -4,7 +4,8 @@
     "headline": "Predict Training Success Before You Start",
     "description": "AI-powered coaching platform that predicts and optimizes tech skill training success. Achieve 2-3x faster skill acquisition with our proprietary Readiness Index algorithm.",
     "learnMore": "Learn More",
-    "getStarted": "Get Started"
+    "getStarted": "Get Started",
+    "goToDashboard": "Go to Dashboard"
   },
   "nav": {
     "dashboard": "Dashboard",

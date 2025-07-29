@@ -1,5 +1,4 @@
 "use client"
-"use lingo"
 
 export default function AnalyticsPage() {
   return (

@@ -67,6 +67,7 @@
   ],
   "exclude": [
     "node_modules",
-    "react-email"
+    "react-email",
+    "scripts"
   ]
 }

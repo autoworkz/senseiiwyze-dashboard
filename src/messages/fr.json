@@ -4,7 +4,8 @@
     "headline": "Prédisez le Succès de la Formation Avant de Commencer",
     "description": "Plateforme de coaching alimentée par l'IA qui prédit et optimise le succès de la formation aux compétences techniques. Obtenez une acquisition de compétences 2-3x plus rapide avec notre algorithme propriétaire Indice de Préparation.",
     "learnMore": "En Savoir Plus",
-    "getStarted": "Commencer"
+    "getStarted": "Commencer",
+    "goToDashboard": "Aller au Tableau de Bord"
   },
   "nav": {
     "dashboard": "Tableau de Bord",

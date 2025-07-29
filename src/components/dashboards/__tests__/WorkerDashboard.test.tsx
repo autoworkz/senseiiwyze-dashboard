@@ -84,7 +84,7 @@ describe('WorkerDashboard', () => {
     const { container } = render(<WorkerDashboard />);
     
     const metricsGrid = container.querySelector('.grid');
-    expect(metricsGrid).toHaveClass('gap-4', 'sm:grid-cols-2', 'lg:grid-cols-4');
+    expect(metricsGrid).toHaveClass('gap-4 sm:grid-cols-2 lg:grid-cols-4');
   });
 
   it('renders metric cards with proper styling', () => {
@@ -94,7 +94,7 @@ describe('WorkerDashboard', () => {
     expect(cards).toHaveLength(4);
     
     cards.forEach(card => {
-      expect(card).toHaveClass('bg-card', 'p-6');
+      expect(card).toHaveClass('bg-card p-6');
     });
   });
 

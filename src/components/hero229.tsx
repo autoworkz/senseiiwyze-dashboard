@@ -3,13 +3,70 @@
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { LocaleLink } from "@/components/locale-link";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslations } from 'next-intl';
 
 import { Button } from "@/components/ui/button";
 
 const Hero229 = () => {
   const t = useTranslations('hero');
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  
+  useEffect(() => {
+    // Check authentication status
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/session');
+        if (response.ok) {
+          const session = await response.json() as { user?: { role?: string } };
+          setIsAuthenticated(!!session?.user);
+          setUserRole(session?.user?.role || null);
+        } else {
+          setIsAuthenticated(false);
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        setIsAuthenticated(false);
+      }
+    };
+    
+    checkAuth();
+  }, []);
+
+  // Get appropriate dashboard route based on user role
+  const getDashboardRoute = (role: string | null): string => {
+    if (!role) return '/learner';
+    
+    const roles = role.split(',').map(r => r.trim());
+    const primaryRole = roles[0];
+    
+    switch (primaryRole) {
+      case 'admin':
+      case 'platform-admin':
+      case 'super-admin':
+        return '/platform';
+      case 'enterprise':
+      case 'corporate':
+      case 'l&d-director':
+      case 'executive':
+      case 'frontliner':
+      case 'ceo':
+        return '/enterprise';
+      case 'coach':
+      case 'mentor':
+      case 'team-lead':
+      case 'worker':
+        return '/coach';
+      case 'institution':
+      case 'academic':
+      case 'program-director':
+      case 'university':
+        return '/institution';
+      default:
+        return '/learner';
+    }
+  };
   
   return (
     <section className="relative h-[100dvh] w-[100dvw] overflow-hidden border bg-background py-32">
@@ -35,15 +92,38 @@ const Hero229 = () => {
             <span>{t('learnMore')}</span>
             <ArrowRight className="size-4 -rotate-45 transition-all ease-out group-hover:ml-3 group-hover:rotate-0" />
           </Button>
-          <LocaleLink href="/login">
+          {isAuthenticated === null ? (
+            // Loading state
             <Button
               variant="default"
               className="group text-md flex w-fit items-center justify-center gap-2 rounded-full px-4 py-1 tracking-tight"
+              disabled
             >
-              <span>{t('getStarted')}</span>
-              <ArrowRight className="size-4 -rotate-45 transition-all ease-out group-hover:ml-3 group-hover:rotate-0" />
+              <span>Loading...</span>
             </Button>
-          </LocaleLink>
+          ) : isAuthenticated ? (
+            // Authenticated - show dashboard button
+            <LocaleLink href={getDashboardRoute(userRole)}>
+              <Button
+                variant="default"
+                className="group text-md flex w-fit items-center justify-center gap-2 rounded-full px-4 py-1 tracking-tight"
+              >
+                <span>{t('goToDashboard') || 'Go to Dashboard'}</span>
+                <ArrowRight className="size-4 -rotate-45 transition-all ease-out group-hover:ml-3 group-hover:rotate-0" />
+              </Button>
+            </LocaleLink>
+          ) : (
+            // Not authenticated - show login button
+            <LocaleLink href="/auth/login">
+              <Button
+                variant="default"
+                className="group text-md flex w-fit items-center justify-center gap-2 rounded-full px-4 py-1 tracking-tight"
+              >
+                <span>{t('getStarted')}</span>
+                <ArrowRight className="size-4 -rotate-45 transition-all ease-out group-hover:ml-3 group-hover:rotate-0" />
+              </Button>
+            </LocaleLink>
+          )}
         </div>
       </div>
 
