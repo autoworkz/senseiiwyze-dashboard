@@ -2,18 +2,19 @@ import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import { visualizer } from 'rollup-plugin-visualizer';
-import eslint from 'vite-plugin-eslint';
 import { VitePWA } from 'vite-plugin-pwa';
+import eslintPlugin from '@nabla/vite-plugin-eslint';
 
 export default defineConfig({
   plugins: [
     react(),
     
-    // 🐛 Real-time ESLint feedback in dev server
-    eslint({
-      cache: false,
-      include: ['src/**/*.{ts,tsx}'],
-      exclude: ['node_modules', 'dist'],
+    // 🔍 ESLint integration for development feedback
+    eslintPlugin({
+      eslintOptions: {
+        fix: true,
+      },
+      formatter: 'stylish',
     }),
     
     // 📊 Bundle analysis and visualization
@@ -59,7 +60,7 @@ export default defineConfig({
   // Optimized for Next.js + Turbopack compatibility  
   css: {
     modules: false,
-    postcss: true, // Keep PostCSS for shadcn/Tailwind
+    postcss: {},
   },
   
   test: {
@@ -122,7 +123,7 @@ export default defineConfig({
     hookTimeout: process.env.VITEST_DEBUG ? 60000 : 10000,
     
     // Reporter configuration
-    reporter: process.env.CI 
+    reporters: process.env.CI 
       ? ['verbose', 'junit', 'json-summary'] 
       : ['verbose', 'html'],
     
