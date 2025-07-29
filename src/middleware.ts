@@ -5,12 +5,14 @@ import createMiddleware from 'next-intl/middleware';
 import { locales } from '@/i18n';
 
 /**
- * B2B2C Engine Middleware with Better Auth Integration & i18n
+ * B2B2C Stakeholder-Based Middleware with Better Auth Integration & i18n
  * 
  * Provides authentication and role-based route protection with full internationalization:
- * - CEO (learner): /me/* routes - Personal development and learning
- * - Worker (admin): /team/* routes - Team management and coordination  
- * - Frontliner (executive): /org/* routes - Organization oversight and strategy
+ * - Platform Admins: /platform/* routes - Internal platform operations
+ * - Enterprise L&D: /enterprise/* routes - Corporate learning and ROI management  
+ * - Coaches: /coach/* routes - Team management and learner coaching
+ * - Learners: /learner/* routes - Individual learning and skill development
+ * - Institutions: /institution/* routes - Academic program management
  * 
  * All routes are locale-aware and properly redirect with locale prefixes.
  */
@@ -79,29 +81,57 @@ function isPublicRoute(pathname: string): boolean {
     );
 }
 
-// /**
-//  * Check if user role can access the requested route
-//  */
+/**
+ * Check if user role can access the requested route
+ */
 function canAccessRoute(userRole: string | undefined | null, pathname: string): boolean {
     if (!userRole) return false;
     
     // Handle multiple roles (comma-separated)
     const userRoles = userRole.split(',').map(r => r.trim());
     
-    // Import role mapping from auth.ts
+    // Stakeholder-based role mapping
     const roleRouteMapping = {
-        // CEO/learner routes - personal development
-        learner: ['/me'],
-        ceo: ['/me'],
+        // Platform administration
+        'admin': ['/platform'],
+        'platform-admin': ['/platform'], 
+        'super-admin': ['/platform'],
         
-        // Worker/admin routes - team management  
-        admin: ['/team'],
-        worker: ['/team'],
+        // Enterprise/Corporate L&D
+        'enterprise': ['/enterprise'],
+        'corporate': ['/enterprise'],
+        'l&d-director': ['/enterprise'],
+        'executive': ['/enterprise'],
+        'frontliner': ['/enterprise'],
+        'ceo': ['/enterprise'],
         
-        // Frontliner/executive routes - organizational oversight
-        executive: ['/org'],
-        frontliner: ['/org'],
+        // Coaching
+        'coach': ['/coach'],
+        'mentor': ['/coach'],
+        'team-lead': ['/coach'],
+        'worker': ['/coach'],
+        
+        // Learning (all roles can access their personal learning)
+        'learner': ['/learner'],
+        'student': ['/learner'],
+        'professional': ['/learner'],
+        
+        // Academic institutions
+        'institution': ['/institution'],
+        'academic': ['/institution'],
+        'program-director': ['/institution'],
+        'university': ['/institution'],
     };
+    
+    // Special access: Allow all authenticated users to access shared routes
+    if (pathname.startsWith('/shared')) {
+        return true;
+    }
+    
+    // Special access: All roles can access learner routes for personal development
+    if (pathname.startsWith('/learner')) {
+        return true;
+    }
     
     // Check if any of the user's roles allow access to this route
     for (const role of userRoles) {
@@ -119,23 +149,49 @@ function canAccessRoute(userRole: string | undefined | null, pathname: string): 
  */
 function getDefaultRouteForRole(userRole: string | undefined | null): string {
     if (!userRole) {
-        return '/me'; // Default to CEO/learner dashboard
+        return '/learner'; // Default to learner dashboard
     }
     const roles = userRole.split(',').map(r => r.trim());
     const primaryRole = roles[0];
     
     switch (primaryRole) {
-        case 'ceo':
-        case 'learner':
-            return '/me';
-        case 'worker':
+        // Platform administration
         case 'admin':
-            return '/team';
-        case 'frontliner':
+        case 'platform-admin':
+        case 'super-admin':
+            return '/platform';
+            
+        // Enterprise/Corporate L&D
+        case 'enterprise':
+        case 'corporate':
+        case 'l&d-director':
         case 'executive':
-            return '/org';
+        case 'frontliner':
+        case 'ceo':
+            return '/enterprise';
+            
+        // Coaching
+        case 'coach':
+        case 'mentor':
+        case 'team-lead':
+        case 'worker':
+            return '/coach';
+            
+        // Learning
+        case 'learner':
+        case 'student':
+        case 'professional':
+            return '/learner';
+            
+        // Academic institutions
+        case 'institution':
+        case 'academic':
+        case 'program-director':
+        case 'university':
+            return '/institution';
+            
         default:
-            return '/me'; // Default to CEO/learner dashboard
+            return '/learner'; // Default to learner dashboard
     }
 }
 
