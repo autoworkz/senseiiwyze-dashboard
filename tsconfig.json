@@ -54,7 +54,7 @@
     "types": [
       "./env.d.ts",
       "node",
-      "jest",
+      "vitest/globals",
       "@testing-library/jest-dom"
     ]
   },
@@ -63,7 +63,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "src/emails/**/*.tsx"
+    "src/emails/**/*.tsx",
+    "src/types/jest-compat.d.ts"
   ],
   "exclude": [
     "node_modules",

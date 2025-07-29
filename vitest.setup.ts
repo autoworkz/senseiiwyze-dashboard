@@ -9,6 +9,26 @@ import { vi, beforeAll, afterEach, afterAll } from 'vitest';
 import '@testing-library/jest-dom';
 import { server } from '@/mocks/server';
 
+// Jest compatibility layer - make Vitest APIs available as Jest globals
+(globalThis as any).jest = {
+  fn: vi.fn,
+  mock: vi.mock,
+  unmock: vi.unmock,
+  clearAllMocks: vi.clearAllMocks,
+  resetAllMocks: vi.resetAllMocks,
+  restoreAllMocks: vi.restoreAllMocks,
+  clearAllTimers: vi.clearAllTimers,
+  useFakeTimers: vi.useFakeTimers,
+  useRealTimers: vi.useRealTimers,
+  advanceTimersByTime: vi.advanceTimersByTime,
+  spyOn: vi.spyOn,
+};
+
+// Add fail function for tests
+(globalThis as any).fail = (message?: string) => {
+  throw new Error(message || 'Test failed');
+};
+
 // Mock Next.js navigation functions
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
@@ -56,7 +76,10 @@ vi.mock('@/lib/auth', () => ({
 }));
 
 // Mock environment variables
-process.env.NODE_ENV = 'test';
+Object.defineProperty(process.env, 'NODE_ENV', {
+  value: 'test',
+  writable: true,
+});
 process.env.NEXTAUTH_SECRET = 'test-secret';
 process.env.NEXTAUTH_URL = 'http://localhost:3000';
 

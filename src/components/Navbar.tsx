@@ -371,10 +371,10 @@ const Navbar7 = () => {
             </NavigationMenuList>
             <div className="hidden items-center gap-4 lg:flex">
               <Button variant="ghost" asChild>
-                <a href="/auth/login">Sign in</a>
+                <Link href="/auth/login">Sign in</Link>
               </Button>
               <Button asChild>
-                <a href="/auth/signup">Get Started</a>
+                <Link href="/auth/signup">Get Started</Link>
               </Button>
             </div>
             <div className="flex items-center gap-4 lg:hidden">
@@ -435,10 +435,10 @@ const Navbar7 = () => {
               </div>
               <div className="mx-[2rem] mt-auto flex flex-col gap-4 py-12">
                 <span className="text-center">
-                  Existing Customer? <a href="/auth/login" className="font-bold hover:underline">Login</a>
+                  Existing Customer? <Link href="/auth/login" className="font-bold hover:underline">Login</Link>
                 </span>
                 <Button className="relative" size="lg" asChild>
-                  <a href="/auth/signup">Start now</a>
+                  <Link href="/auth/signup">Start now</Link>
                 </Button>
               </div>
             </div>

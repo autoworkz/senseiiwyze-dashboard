@@ -127,6 +127,20 @@ src/
 - **State Management**: Zustand
 - **Validation**: Zod
 - **Testing**: Jest + React Testing Library
+- **Code Quality**: ESLint with [@nabla/vite-plugin-eslint](https://github.com/nabla/vite-plugin-eslint)
+
+## Recent Changes
+
+### ESLint Plugin Migration
+
+We've migrated from the deprecated `vite-plugin-eslint` to `@nabla/vite-plugin-eslint` for better ESLint integration in our Vite-based build process. This change:
+
+- Maintains the same ESLint functionality during development
+- Uses a maintained fork with ongoing support and updates
+- Ensures compatibility with modern Vite versions
+- No changes required to existing ESLint configuration
+
+For more information about the new plugin, see the [@nabla/vite-plugin-eslint documentation](https://github.com/nabla/vite-plugin-eslint).
 
 ## Troubleshooting
 

@@ -39,7 +39,7 @@ export function LoginForm() {
 
     try {
       // Use Better Auth to sign in
-      const { data, error: authError } = await authClient.signIn.email({
+      const { data: _data, error: authError } = await authClient.signIn.email({
         email,
         password,
         callbackURL: '/dashboard',

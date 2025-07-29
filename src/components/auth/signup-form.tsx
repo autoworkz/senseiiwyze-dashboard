@@ -46,7 +46,7 @@ export function SignupForm() {
 
     try {
       // Use Better Auth to sign up
-      const { data, error: authError } = await authClient.signUp.email({
+      const { data: _data, error: authError } = await authClient.signUp.email({
         email: formData.email,
         password: formData.password,
         name: formData.name,
