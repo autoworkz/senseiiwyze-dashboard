@@ -47,18 +47,34 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Setup Node.js
+      - name: Setup Node.js (Linux)
         uses: actions/setup-node@v4
         with:
           node-version: "18"
+          architecture: "x64"
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9.0.0
 
-      - name: Install dependencies
-        run: pnpm install
+      - name: Clean previous builds and lock files
+        run: |
+          echo "🧹 Cleaning previous builds and platform-specific files..."
+          rm -rf node_modules || true
+          rm -f pnpm-lock.yaml || true
+          rm -f package-lock.json || true
+          rm -f yarn.lock || true
+          rm -rf .next || true
+          rm -rf dist || true
+          rm -rf build || true
+          echo "✅ Cleanup completed"
+
+      - name: Install dependencies (fresh for Linux)
+        run: |
+          echo "📦 Installing dependencies fresh for Linux environment..."
+          pnpm install --no-frozen-lockfile --prefer-offline=false
+          echo "✅ Dependencies installed successfully"
 
       - name: Analyze codebase structure
         id: codebase-analysis

@@ -41,31 +41,48 @@ jobs:
           # Use the head ref if this is from a PR, otherwise use the default branch
           ref: ${{ github.event.pull_request.head.ref || github.ref }}
 
-      - name: Setup Node.js
+      - name: Setup Node.js (Linux)
         uses: actions/setup-node@v4
         with:
           node-version: "18"
+          architecture: "x64"
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9.0.0
 
+      - name: Clean previous builds and lock files
+        run: |
+          echo "🧹 Cleaning previous builds and platform-specific files..."
+          rm -rf node_modules || true
+          rm -f pnpm-lock.yaml || true
+          rm -f package-lock.json || true
+          rm -f yarn.lock || true
+          rm -rf .next || true
+          rm -rf dist || true
+          rm -rf build || true
+          echo "✅ Cleanup completed"
+
       - name: Get pnpm store directory
         shell: bash
         run: |
           echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
 
-      - name: Setup pnpm cache
+      - name: Setup pnpm cache (Linux-specific)
         uses: actions/cache@v4
         with:
           path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: linux-x64-pnpm-store-${{ hashFiles('**/package.json') }}-${{ runner.os }}-${{ runner.arch }}
           restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+            linux-x64-pnpm-store-${{ hashFiles('**/package.json') }}-
+            linux-x64-pnpm-store-
 
-      - name: Install dependencies
-        run: pnpm install
+      - name: Install dependencies (fresh for Linux)
+        run: |
+          echo "📦 Installing dependencies fresh for Linux environment..."
+          pnpm install --no-frozen-lockfile --prefer-offline=false
+          echo "✅ Dependencies installed successfully"
 
       - name: Run diagnostic checks and capture errors
         id: diagnostics
@@ -192,7 +209,9 @@ jobs:
             - Use incremental approach: Start Small → Validate → Expand → Scale
             - Fix one category of errors at a time (types → lint → tests → build)
             - Run diagnostics after each fix to validate improvements
-            - ALWAYS use pnpm (never npm or yarn)
+            - ALWAYS use pnpm with --no-frozen-lockfile (never npm or yarn)
+            - Target Linux environment (ubuntu-latest with x64 architecture)
+            - Clean node_modules and lock files when needed for platform compatibility
             - Follow shadcn/ui semantic color patterns
             - Use @/ imports from src directory
             - Maintain 'use client' directives for interactive components
