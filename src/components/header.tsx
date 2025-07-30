@@ -3,7 +3,7 @@
 import { useId, useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ClockIcon, PowerIcon, PowerOffIcon, ZapIcon } from "lucide-react"
+import { ClockIcon, PowerIcon, PowerOffIcon, ZapIcon, User, Settings, LogOut } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -16,6 +16,16 @@ import {
 } from "@/components/ui/navigation-menu"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Switch } from "@/components/ui/switch"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { useSession, signOut } from "@/lib/auth-client"
 
 // Navigation links array to be used in both desktop and mobile menus
 const navigationLinks = [
@@ -24,12 +34,53 @@ const navigationLinks = [
   { href: "/backups", label: "Backups" },
 ]
 
+interface User {
+  role: 'learner' | 'admin' | 'executive' | 'ceo' | 'worker' | 'frontliner'
+  name: string
+  email: string
+  id: string
+}
+
 export default function Header() {
   const id = useId()
   const pathname = usePathname()
+  const { data: session, isPending } = useSession()
   const [checked, setChecked] = useState<boolean>(true)
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 })
-  const navRef = useRef<HTMLDivElement>(null)
+  const [user, setUser] = useState<User | null>(null)
+  const navRef = useRef<HTMLUListElement>(null)
+
+  // Helper function to get user initials
+  const getInitials = (name: string) => {
+    if (!name?.trim()) return "U"
+    return name.split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2)
+  }
+
+  // Handle logout
+  const handleLogout = async () => {
+    try {
+      await signOut()
+      // Better Auth will handle the redirect
+    } catch (error) {
+      console.error('Logout failed:', error)
+    }
+  }
+
+  // Update user state when session changes
+  useEffect(() => {
+    if (session?.user) {
+      setUser({
+        role: (session.user.role as User['role']) || 'learner',
+        name: session.user.name,
+        email: session.user.email,
+        id: session.user.id
+      })
+    }
+  }, [session])
 
   useEffect(() => {
     const updateIndicator = () => {
@@ -176,6 +227,50 @@ export default function Header() {
               Power
             </Label>
           </div>
+          
+          {/* Profile Menu */}
+          {user && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src="" alt={user.name} />
+                    <AvatarFallback className="bg-primary text-primary-foreground">
+                      {getInitials(user.name)}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">{user.name}</p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {user.email}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/profile" className="flex items-center">
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/settings" className="flex items-center">
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Settings</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} className="flex items-center">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </div>
     </header>
