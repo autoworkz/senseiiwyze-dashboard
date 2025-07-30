@@ -23,6 +23,20 @@ jobs:
             exit 1
           fi
           echo "✅ No forbidden lock files found"
+      
+      - name: Check script permissions
+        run: |
+          # Check if scripts/dev.sh exists and is executable
+          if [ -f "scripts/dev.sh" ]; then
+            if [ -x "scripts/dev.sh" ]; then
+              echo "✅ scripts/dev.sh is executable"
+            else
+              echo "❌ scripts/dev.sh is not executable! Run: chmod +x scripts/dev.sh"
+              exit 1
+            fi
+          else
+            echo "⚠️  scripts/dev.sh not found"
+          fi
 
   test:
     runs-on: ubuntu-latest

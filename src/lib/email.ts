@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import { emailLogger } from '@/lib/logger';
 
 // Initialize Resend client lazily to avoid API key errors during build time
 type ResendLike = { emails: { send: (opts: any) => Promise<{ data: any; error: any }> } };
@@ -12,12 +13,12 @@ function getResendClient(): ResendLike {
       emails: {
         async send(opts: any) {
            
-          console.log('\n================ EMAIL (console provider) ================');
-          console.log('From:', opts.from);
-          console.log('To:', opts.to);
-          console.log('Subject:', opts.subject);
-          console.log('HTML Preview:\n', opts.html?.slice(0, 500));
-          console.log('==========================================================\n');
+          emailLogger.info('Email sent via console provider', {
+            from: opts.from,
+            to: opts.to,
+            subject: opts.subject,
+            htmlPreview: opts.html?.slice(0, 200)
+          });
           return { data: { preview: true }, error: null };
         },
       },
@@ -113,14 +114,14 @@ export async function sendOtpEmail({
     });
 
     if (error) {
-      console.error('Error sending OTP email:', error);
+      emailLogger.error('Error sending OTP email', error instanceof Error ? error : new Error(String(error)));
       throw new Error('Failed to send OTP email');
     }
 
-    console.log('OTP email sent successfully:', data);
+    emailLogger.info('OTP email sent successfully', { to: email, type });
     return data;
   } catch (error) {
-    console.error('Error sending OTP email:', error);
+    emailLogger.error('Failed to send OTP email', error instanceof Error ? error : new Error(String(error)));
     throw error;
   }
 }
@@ -191,14 +192,14 @@ export async function sendMagicLinkEmail({
     });
 
     if (error) {
-      console.error('Error sending magic link email:', error);
+      emailLogger.error('Error sending magic link email', error instanceof Error ? error : new Error(String(error)));
       throw new Error('Failed to send magic link email');
     }
 
-    console.log('Magic link email sent successfully:', data);
+    emailLogger.info('Magic link email sent successfully', { to: email });
     return data;
   } catch (error) {
-    console.error('Error sending magic link email:', error);
+    emailLogger.error('Failed to send magic link email', error instanceof Error ? error : new Error(String(error)));
     throw error;
   }
 }
@@ -267,14 +268,14 @@ export async function sendVerificationEmail({
     });
 
     if (error) {
-      console.error('Error sending verification email:', error);
+      emailLogger.error('Error sending verification email', error instanceof Error ? error : new Error(String(error)));
       throw new Error('Failed to send verification email');
     }
 
-    console.log('Verification email sent successfully:', data);
+    emailLogger.info('Verification email sent successfully', { to: email });
     return data;
   } catch (error) {
-    console.error('Error sending verification email:', error);
+    emailLogger.error('Failed to send verification email', error instanceof Error ? error : new Error(String(error)));
     throw error;
   }
 }
@@ -354,14 +355,14 @@ export async function sendWelcomeEmail({
     });
 
     if (error) {
-      console.error('Error sending welcome email:', error);
+      emailLogger.error('Error sending welcome email', error instanceof Error ? error : new Error(String(error)));
       throw new Error('Failed to send welcome email');
     }
 
-    console.log('Welcome email sent successfully:', data);
+    emailLogger.info('Welcome email sent successfully', { to: email, name });
     return data;
   } catch (error) {
-    console.error('Error sending welcome email:', error);
+    emailLogger.error('Failed to send welcome email', error instanceof Error ? error : new Error(String(error)));
     throw error;
   }
 }

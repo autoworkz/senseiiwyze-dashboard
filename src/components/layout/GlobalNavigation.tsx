@@ -135,7 +135,7 @@ export function GlobalNavigation({ user, variant = 'desktop', className }: Globa
                 </nav>
 
                 {/* Universal Settings Footer */}
-                <div className="p-4 border-t">
+                <div className="p-4 border-t space-y-2">
                     <Link
                         href="/settings"
                         className={cn(

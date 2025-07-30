@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { SocialLogin } from '@/components/auth/social-login'
+import Link from 'next/link'
 
 export function SignupForm() {
   const [formData, setFormData] = useState({
@@ -45,7 +46,7 @@ export function SignupForm() {
 
     try {
       // Use Better Auth to sign up
-      const { data, error: authError } = await authClient.signUp.email({
+      const { data: _data, error: authError } = await authClient.signUp.email({
         email: formData.email,
         password: formData.password,
         name: formData.name,
@@ -197,9 +198,9 @@ export function SignupForm() {
           <div className="mt-6 pt-6 border-t text-center">
             <p className="text-sm text-muted-foreground">
               Already have an account?{' '}
-              <a href="/auth/login" className="text-primary hover:underline">
+              <Link href="/auth/login" className="text-primary hover:underline">
                 Sign in
-              </a>
+              </Link>
             </p>
           </div>
         </CardContent>

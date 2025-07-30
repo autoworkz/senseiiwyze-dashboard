@@ -1,29 +1,38 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { useDebouncedSettingsStore } from "@/stores/debounced-settings-store"
-import { User } from "lucide-react"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useDebouncedSettingsStore } from "@/stores/debounced-settings-store";
+import { User } from "lucide-react";
 
 export function ProfileSection() {
-  const { profile, pendingChanges, updateProfile, isSaving, isDebouncing } = useDebouncedSettingsStore()
+  const { profile, pendingChanges, updateProfile, isSaving, isDebouncing } =
+    useDebouncedSettingsStore();
 
   const currentProfile = {
     ...profile,
     ...pendingChanges.profile,
-  }
+  };
 
   const handleProfileChange = (field: keyof typeof profile, value: string) => {
-    updateProfile({ [field]: value })
-  }
+    updateProfile({ [field]: value });
+  };
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-foreground">Profile Settings</h1>
-        <p className="text-muted-foreground">Manage your personal information and profile details</p>
+        <p className="text-muted-foreground">
+          Manage your personal information and profile details
+        </p>
       </div>
 
       <Card className={pendingChanges.profile ? "ring-2 ring-primary/20" : ""}>
@@ -37,7 +46,9 @@ export function ProfileSection() {
               </span>
             )}
           </CardTitle>
-          <CardDescription>Update your personal information and profile details</CardDescription>
+          <CardDescription>
+            Update your personal information and profile details
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -67,12 +78,14 @@ export function ProfileSection() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="bio">Bio</Label>
-              <Textarea
-                id="bio"
-                name="bio"
-                value={currentProfile.bio}
-                onChange={(e) => handleProfileChange("bio", e.target.value)}
+              <Label htmlFor="workplace">Bio</Label>
+              <Input
+                id="workplace"
+                name="workplace"
+                value={currentProfile.workplace}
+                onChange={(e) =>
+                  handleProfileChange("workplace", e.target.value)
+                }
                 placeholder="Tell us about yourself"
                 className="min-h-[100px]"
                 disabled={isSaving}
@@ -82,5 +95,5 @@ export function ProfileSection() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

@@ -2,43 +2,126 @@
 
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import React from "react";
+import Link from "next/link";
+import React, { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 
 const Hero229 = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  
+  useEffect(() => {
+    // Check authentication status
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/session');
+        if (response.ok) {
+          const session = await response.json() as { user?: { role?: string } };
+          setIsAuthenticated(!!session?.user);
+          setUserRole(session?.user?.role || null);
+        } else {
+          setIsAuthenticated(false);
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        setIsAuthenticated(false);
+      }
+    };
+    
+    checkAuth();
+  }, []);
+
+  // Get appropriate dashboard route based on user role
+  const getDashboardRoute = (role: string | null): string => {
+    if (!role) return '/learner';
+    
+    const roles = role.split(',').map(r => r.trim());
+    const primaryRole = roles[0];
+    
+    switch (primaryRole) {
+      case 'admin':
+      case 'platform-admin':
+      case 'super-admin':
+        return '/platform';
+      case 'enterprise':
+      case 'corporate':
+      case 'l&d-director':
+      case 'executive':
+      case 'frontliner':
+      case 'ceo':
+        return '/enterprise';
+      case 'coach':
+      case 'mentor':
+      case 'team-lead':
+      case 'worker':
+        return '/coach';
+      case 'institution':
+      case 'academic':
+      case 'program-director':
+      case 'university':
+        return '/institution';
+      default:
+        return '/learner';
+    }
+  };
+  
   return (
     <section className="relative h-[100dvh] w-[100dvw] overflow-hidden border bg-background py-32">
-      <div className="relative z-20 container flex flex-col items-center justify-center gap-4 text-center">
+      <div className="relative z-20 flex flex-col items-center justify-center gap-4 text-center px-4 max-w-6xl mx-auto">
         <Button
           variant="secondary"
           className="group text-md mt-42 flex w-fit items-center justify-center gap-3 rounded-full bg-muted/60 px-5 py-1 tracking-tight"
         >
           <span className="size-2 rounded-full bg-foreground" />
-          <span>See Pricing</span>
+          <span>Readiness Index</span>
         </Button>
         <h1 className="max-w-3xl text-5xl font-medium tracking-tighter text-foreground md:text-7xl">
-          Blocks Built <br /> With Shadcn & Tailwind.
+          Predict Training Success with AI-Powered Skill Assessments
         </h1>
         <p className="mt-5 max-w-xl text-muted-foreground/80">
-          Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ipsum animi,
-          ipsam provident optio delectus neque aliquid cumque. Beatae, odio!
+          SenseiiWyze's proprietary algorithm predicts training success with 87% accuracy, delivering 2-3x faster skill acquisition for technical professionals.
         </p>
         <div className="flex gap-4">
           <Button
             variant="secondary"
             className="group text-md flex w-fit items-center justify-center gap-2 rounded-full px-4 py-1 tracking-tight"
           >
-            <span>Documentation</span>
+            <span>Learn More</span>
             <ArrowRight className="size-4 -rotate-45 transition-all ease-out group-hover:ml-3 group-hover:rotate-0" />
           </Button>
-          <Button
-            variant="default"
-            className="group text-md flex w-fit items-center justify-center gap-2 rounded-full px-4 py-1 tracking-tight"
-          >
-            <span>Get Started</span>
-            <ArrowRight className="size-4 -rotate-45 transition-all ease-out group-hover:ml-3 group-hover:rotate-0" />
-          </Button>
+          {isAuthenticated === null ? (
+            // Loading state
+            <Button
+              variant="default"
+              className="group text-md flex w-fit items-center justify-center gap-2 rounded-full px-4 py-1 tracking-tight"
+              disabled
+            >
+              <span>Loading...</span>
+            </Button>
+          ) : isAuthenticated ? (
+            // Authenticated - show dashboard button
+            <Link href={getDashboardRoute(userRole)}>
+              <Button
+                variant="default"
+                className="group text-md flex w-fit items-center justify-center gap-2 rounded-full px-4 py-1 tracking-tight"
+              >
+                <span>Go to Dashboard</span>
+                <ArrowRight className="size-4 -rotate-45 transition-all ease-out group-hover:ml-3 group-hover:rotate-0" />
+              </Button>
+            </Link>
+          ) : (
+            // Not authenticated - show login button
+            <Link href="/auth/login">
+              <Button
+                variant="default"
+                className="group text-md flex w-fit items-center justify-center gap-2 rounded-full px-4 py-1 tracking-tight"
+              >
+                <span>Get Started</span>
+                <ArrowRight className="size-4 -rotate-45 transition-all ease-out group-hover:ml-3 group-hover:rotate-0" />
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
 

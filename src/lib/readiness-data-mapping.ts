@@ -437,6 +437,8 @@ export class ReadinessDataService {
 /**
  * Example of how to use the data mapping service
  */
+import { logInfo, logError } from '@/lib/logger';
+
 export async function exampleUsage() {
   // Initialize data service
   const dataService = new ReadinessDataService(
@@ -453,13 +455,15 @@ export async function exampleUsage() {
     const { calculateComprehensiveReadinessScore } = await import('./readiness-score-calculation')
     const result = calculateComprehensiveReadinessScore(readinessInput)
     
-    console.log('Organizational Readiness Score:', result.overallScore)
-    console.log('Component Breakdown:', result.components)
-    console.log('Recommendations:', result.recommendations)
+    logInfo('Readiness score calculation completed', {
+      overallScore: result.overallScore,
+      components: result.components,
+      recommendations: result.recommendations
+    })
     
     return result
   } catch (error) {
-    console.error('Error calculating readiness score:', error)
+    logError('Error calculating readiness score', error)
     throw error
   }
 } 

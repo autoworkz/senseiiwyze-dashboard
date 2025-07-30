@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { SocialLogin } from '@/components/auth/social-login'
+import Link from 'next/link'
 
 export function LoginForm() {
   const [email, setEmail] = useState('')
@@ -34,7 +35,7 @@ export function LoginForm() {
 
     try {
       // Use Better Auth to sign in
-      const { data, error: authError } = await authClient.signIn.email({
+      const { data: _data, error: authError } = await authClient.signIn.email({
         email,
         password,
         callbackURL: '/dashboard',
@@ -67,9 +68,9 @@ export function LoginForm() {
               alt="SenseiiWyze Logo"
             />
           </div>
-          <CardTitle className="text-2xl text-foreground">Welcome to SenseiiWyze</CardTitle>
+          <CardTitle className="text-2xl text-foreground">Sign In</CardTitle>
           <CardDescription className="text-muted-foreground">
-            Sign in to access your personalized tech coaching dashboard
+            Enter your email and password to sign in to your account
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -125,27 +126,27 @@ export function LoginForm() {
               />
             </div>
             <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={isLoading}>
-              {isLoading ? 'Signing in...' : 'Sign In'}
+              {isLoading ? 'Loading...' : 'Sign In'}
             </Button>
           </form>
 
           <div className="mt-6 pt-6 border-t">
             <div className="space-y-4">
               <div className="text-center">
-                <a
+                <Link
                   href="/auth/forgot-password"
                   className="text-sm text-primary hover:underline"
                 >
                   Forgot your password?
-                </a>
+                </Link>
               </div>
 
               <div className="text-center">
                 <p className="text-sm text-muted-foreground">
                   Don't have an account?{' '}
-                  <a href="/auth/signup" className="text-primary hover:underline">
+                  <Link href="/auth/signup" className="text-primary hover:underline">
                     Sign up
-                  </a>
+                  </Link>
                 </p>
               </div>
             </div>
