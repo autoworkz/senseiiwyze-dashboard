@@ -73,7 +73,7 @@ jobs:
       - name: Install dependencies (fresh for Linux)
         run: |
           echo "📦 Installing dependencies fresh for Linux environment..."
-          pnpm install --no-frozen-lockfile --prefer-offline=false
+          pnpm install --no-frozen-lockfile --prefer-offline=false --ignore-platform-errors
           echo "✅ Dependencies installed successfully"
 
       - name: Analyze codebase structure
