@@ -1,23 +1,30 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { useDebouncedSettingsStore } from "@/stores/debounced-settings-store"
-import { User } from "lucide-react"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useDebouncedSettingsStore } from "@/stores/debounced-settings-store";
+import { User } from "lucide-react";
 
 export function ProfileSection() {
-  const { profile, pendingChanges, updateProfile, isSaving, isDebouncing } = useDebouncedSettingsStore()
+  const { profile, pendingChanges, updateProfile, isSaving, isDebouncing } =
+    useDebouncedSettingsStore();
 
   const currentProfile = {
     ...profile,
     ...pendingChanges.profile,
-  }
+  };
 
   const handleProfileChange = (field: keyof typeof profile, value: string) => {
-    updateProfile({ [field]: value })
-  }
+    updateProfile({ [field]: value });
+  };
 
   return (
     <div className="space-y-6">

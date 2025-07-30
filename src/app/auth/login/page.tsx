@@ -4,14 +4,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import { FaGithub } from 'react-icons/fa';
-import { FcGoogle } from 'react-icons/fc';
 import { z } from 'zod';
 import { useState, Suspense } from 'react';
+import { FaGithub } from 'react-icons/fa';
+import { FcGoogle } from 'react-icons/fc';
 
-import Logo from '@/components/layout/logo';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
   Form,
   FormControl,
@@ -34,7 +32,6 @@ const formSchema = z.object({
     .string()
     .min(1, 'Password is required')
     .min(8, 'Password must be at least 8 characters'),
-  rememberMe: z.boolean(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -52,7 +49,6 @@ export default function LoginPage() {
     defaultValues: {
       email: '',
       password: '',
-      rememberMe: false,
     },
   });
 
@@ -105,182 +101,136 @@ export default function LoginPage() {
   };
 
   return (
-    <section className="container">
+    <section className="bg-background h-screen">
       <Suspense fallback={<div>Loading...</div>}>
         <SearchParamsHandler onMessageParam={handleMessageParam} />
       </Suspense>
       
-      <div className="border-x border-b p-12 md:p-20" />
-
-      <div className="p-6 md:p-12 border-x">
-        <div className="mx-auto max-w-3xl space-y-10">
-          <div className="space-y-6">
-            <Logo />
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tighter">
-              Log In to SenseiiWyze
-            </h1>
-          </div>
-
-          {error && (
-            <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
-          {message && (
-            <Alert>
-              <AlertDescription>{message}</AlertDescription>
-            </Alert>
-          )}
-
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="mt-10 space-y-6"
-            >
-              {/* Email Input */}
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="nick@site.com"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+      <div className="flex h-full items-center justify-center">
+        <div className="flex flex-col items-center gap-6 lg:justify-start">
+          <div className="min-w-sm flex w-full max-w-sm flex-col items-center gap-y-4 px-6 py-12">
+            {/* Logo */}
+            <a href="/">
+              <img
+                src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/shadcnblockscom-icon.svg"
+                alt="SenseiiWyze Logo"
+                title="SenseiiWyze"
+                className="h-10 dark:invert"
               />
+            </a>
+            <h1 className="text-2xl font-semibold">Login</h1>
 
-              {/* Password Input */}
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="••••••••"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            {error && (
+              <Alert variant="destructive" className="w-full">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
 
-              {/* Remember Me & Forgot Password */}
-              <div className="flex items-center justify-between">
-                <FormField
-                  control={form.control}
-                  name="rememberMe"
-                  render={({ field }) => (
-                    <div className="flex items-center space-x-3">
-                      <Checkbox
-                        id="remember"
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                      <Label htmlFor="remember">Remember me</Label>
-                    </div>
-                  )}
-                />
-                <Link
-                  href="/auth/forgot-password"
-                  className="text-secondary text-sm font-medium hover:underline"
-                >
-                  Forgot password?
-                </Link>
+            {message && (
+              <Alert className="w-full">
+                <AlertDescription>{message}</AlertDescription>
+              </Alert>
+            )}
+
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="w-full space-y-4"
+              >
+                <div className="flex w-full flex-col gap-2">
+                  <Label>Email</Label>
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            type="email"
+                            placeholder="Email"
+                            className="text-sm"
+                            {...field}
+                            required
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="flex w-full flex-col gap-2">
+                  <Label>Password</Label>
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            type="password"
+                            placeholder="Password"
+                            className="text-sm"
+                            {...field}
+                            required
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? 'Logging in...' : 'Login'}
+                </Button>
+              </form>
+            </Form>
+
+            {/* OAuth Options */}
+            <div className="relative w-full">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
               </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  Or continue with
+                </span>
+              </div>
+            </div>
 
-              {/* Login Button */}
-              <Button type="submit" className="w-full rounded-sm" disabled={isLoading}>
-                {isLoading ? 'Logging in...' : 'Log in'}
-              </Button>
-            </form>
-          </Form>
-
-          {/* Social Logins */}
-          <div className="flex flex-wrap gap-5">
-            <Button
-              variant="outline"
-              className="flex-1 rounded-sm"
-              type="button"
-              onClick={() => handleSocialLogin('github')}
-              disabled={loadingProvider === 'github'}
-            >
-              <FaGithub className="size-5" />
-              {loadingProvider === 'github' ? 'Connecting...' : 'Continue with Github'}
-            </Button>
-            <Button
-              variant="outline"
-              className="flex-1 rounded-sm"
-              type="button"
-              onClick={() => handleSocialLogin('google')}
-              disabled={loadingProvider === 'google'}
-            >
-              <FcGoogle className="size-5" />
-              {loadingProvider === 'google' ? 'Connecting...' : 'Continue with Google'}
-            </Button>
-          </div>
-
-          {/* Sign Up Link */}
-          <div className="text-center text-sm font-medium">
-            Don&apos;t have an account?{' '}
-            <Link href="/auth/signup" className="text-secondary hover:underline">
-              Sign Up
-            </Link>
-          </div>
-
-          {/* Demo login buttons for testing */}
-          <div className="mt-6 pt-6 border-t">
-            <p className="text-sm text-muted-foreground text-center mb-3">
-              Demo Accounts (for testing):
-            </p>
-            <div className="space-y-2">
+            <div className="flex w-full gap-2">
               <Button
                 variant="outline"
-                size="sm"
-                className="w-full"
-                onClick={() => {
-                  form.setValue('email', 'learner@demo.com');
-                  form.setValue('password', 'Demo@123456710');
-                }}
+                className="flex-1"
+                type="button"
+                onClick={() => handleSocialLogin('github')}
+                disabled={loadingProvider === 'github'}
               >
-                👨‍🎓 Learner Demo
+                <FaGithub className="size-4" />
+                {loadingProvider === 'github' ? 'Connecting...' : 'GitHub'}
               </Button>
               <Button
                 variant="outline"
-                size="sm"
-                className="w-full"
-                onClick={() => {
-                  form.setValue('email', 'admin@demo.com');
-                  form.setValue('password', 'Demo@123456710');
-                }}
+                className="flex-1"
+                type="button"
+                onClick={() => handleSocialLogin('google')}
+                disabled={loadingProvider === 'google'}
               >
-                👥 Admin Demo
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full"
-                onClick={() => {
-                  form.setValue('email', 'executive@demo.com');
-                  form.setValue('password', 'Demo@123456710');
-                }}
-              >
-                📊 Executive Demo
+                <FcGoogle className="size-4" />
+                {loadingProvider === 'google' ? 'Connecting...' : 'Google'}
               </Button>
             </div>
           </div>
+          <div className="text-muted-foreground flex justify-center gap-1 text-sm">
+            <p>Need an account?</p>
+            <Link
+              href="/auth/signup"
+              className="text-primary font-medium hover:underline"
+            >
+              Sign up
+            </Link>
+          </div>
         </div>
       </div>
-      <div className="border-x border-t p-12 md:p-20" />
     </section>
   );
 }

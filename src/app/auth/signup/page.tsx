@@ -4,14 +4,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import { FaGithub } from 'react-icons/fa';
-import { FcGoogle } from 'react-icons/fc';
 import { z } from 'zod';
 import { useState } from 'react';
+import { FaGithub } from 'react-icons/fa';
+import { FcGoogle } from 'react-icons/fc';
 
-import Logo from '@/components/layout/logo';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
   Form,
   FormControl,
@@ -22,6 +20,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { authClient } from '@/lib/auth-client';
 
 const formSchema = z.object({
@@ -41,7 +40,7 @@ const formSchema = z.object({
     .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
     .regex(/[0-9]/, 'Password must contain at least one number')
     .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character'),
-  rememberMe: z.boolean(),
+  role: z.enum(['admin', 'team']),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -60,7 +59,7 @@ export default function SignUpPage() {
       fullName: '',
       email: '',
       password: '',
-      rememberMe: false,
+      role: undefined,
     },
   });
 
@@ -101,7 +100,7 @@ export default function SignUpPage() {
     try {
       setLoadingProvider(provider);
       
-      // Use Better Auth's signIn.social method
+      // Use Better Auth's signIn.social method for signup
       await authClient.signIn.social({
         provider,
         callbackURL: '/dashboard',
@@ -114,147 +113,179 @@ export default function SignUpPage() {
   };
 
   return (
-    <section className="container">
-      <div className="border-x border-b p-12 md:p-20" />
-
-      <div className="p-6 md:p-12 border-x">
-        <div className="mx-auto max-w-3xl space-y-10">
-          <div className="space-y-6">
-            <Logo />
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tighter">
-              Start your free trial
-            </h1>
-          </div>
-
-          {error && (
-            <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
-          {success && (
-            <Alert>
-              <AlertDescription>{success}</AlertDescription>
-            </Alert>
-          )}
-
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="mt-10 space-y-6"
-            >
-              {/* Full Name Input */}
-              <FormField
-                control={form.control}
-                name="fullName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input type="text" placeholder="John Doe" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+    <section className="bg-background h-screen">
+      <div className="flex h-full items-center justify-center">
+        <div className="flex flex-col items-center gap-6 lg:justify-start">
+          <div className="min-w-sm flex w-full max-w-sm flex-col items-center gap-y-4 px-6 py-12">
+            {/* Logo */}
+            <a href="/">
+              <img
+                src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/shadcnblockscom-icon.svg"
+                alt="SenseiiWyze Logo"
+                title="SenseiiWyze"
+                className="h-10 dark:invert"
               />
+            </a>
+            <h1 className="text-2xl font-semibold">Sign Up</h1>
 
-              {/* Email Input */}
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="nick@site.com"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            {error && (
+              <Alert variant="destructive" className="w-full">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
 
-              {/* Password Input */}
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="••••••••"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Password must contain at least 8 characters with uppercase, lowercase, number, and special character.
-                    </p>
-                  </FormItem>
-                )}
-              />
+            {success && (
+              <Alert className="w-full">
+                <AlertDescription>{success}</AlertDescription>
+              </Alert>
+            )}
 
-              {/* Remember Me */}
-              <div className="flex items-center">
-                <FormField
-                  control={form.control}
-                  name="rememberMe"
-                  render={({ field }) => (
-                    <div className="flex items-center space-x-3">
-                      <Checkbox
-                        id="remember"
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                      <Label htmlFor="remember">Remember me</Label>
-                    </div>
-                  )}
-                />
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="w-full space-y-4"
+              >
+                <div className="flex w-full flex-col gap-2">
+                  <Label>Full Name</Label>
+                  <FormField
+                    control={form.control}
+                    name="fullName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            type="text"
+                            placeholder="John Doe"
+                            className="text-sm"
+                            {...field}
+                            required
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="flex w-full flex-col gap-2">
+                  <Label>Email</Label>
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            type="email"
+                            placeholder="Email"
+                            className="text-sm"
+                            {...field}
+                            required
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="flex w-full flex-col gap-2">
+                  <Label>Role</Label>
+                  <FormField
+                    control={form.control}
+                    name="role"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <SelectTrigger className="text-sm">
+                              <SelectValue placeholder="Select your role" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="admin">👥 Admin (Executive)</SelectItem>
+                              <SelectItem value="team">🛠️ Team Member</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="flex w-full flex-col gap-2">
+                  <Label>Password</Label>
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            type="password"
+                            placeholder="Password"
+                            className="text-sm"
+                            {...field}
+                            required
+                          />
+                        </FormControl>
+                        <FormMessage />
+                        <p className="text-xs text-muted-foreground">
+                          Must contain 8+ characters with uppercase, lowercase, number, and special character.
+                        </p>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? 'Creating account...' : 'Create account'}
+                </Button>
+              </form>
+            </Form>
+
+            {/* OAuth Options */}
+            <div className="relative w-full">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
               </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  Or continue with
+                </span>
+              </div>
+            </div>
 
-              {/* Sign Up Button */}
-              <Button type="submit" className="w-full rounded-sm" disabled={isLoading}>
-                {isLoading ? 'Creating account...' : 'Create an account'}
+            <div className="flex w-full gap-2">
+              <Button
+                variant="outline"
+                className="flex-1"
+                type="button"
+                onClick={() => handleSocialLogin('github')}
+                disabled={loadingProvider === 'github'}
+              >
+                <FaGithub className="size-4" />
+                {loadingProvider === 'github' ? 'Connecting...' : 'GitHub'}
               </Button>
-            </form>
-          </Form>
-
-          {/* Social Logins */}
-          <div className="flex flex-wrap gap-5">
-            <Button
-              variant="outline"
-              className="flex-1 rounded-sm"
-              type="button"
-              onClick={() => handleSocialLogin('github')}
-              disabled={loadingProvider === 'github'}
-            >
-              <FaGithub className="size-5" />
-              {loadingProvider === 'github' ? 'Connecting...' : 'Continue with Github'}
-            </Button>
-            <Button
-              variant="outline"
-              className="flex-1 rounded-sm"
-              type="button"
-              onClick={() => handleSocialLogin('google')}
-              disabled={loadingProvider === 'google'}
-            >
-              <FcGoogle className="size-5" />
-              {loadingProvider === 'google' ? 'Connecting...' : 'Continue with Google'}
-            </Button>
+              <Button
+                variant="outline"
+                className="flex-1"
+                type="button"
+                onClick={() => handleSocialLogin('google')}
+                disabled={loadingProvider === 'google'}
+              >
+                <FcGoogle className="size-4" />
+                {loadingProvider === 'google' ? 'Connecting...' : 'Google'}
+              </Button>
+            </div>
           </div>
-
-          {/* Login Link */}
-          <div className="text-center text-sm font-medium">
-            Already have an account?{' '}
-            <Link href="/auth/login" className="text-secondary hover:underline">
+          <div className="text-muted-foreground flex justify-center gap-1 text-sm">
+            <p>Already have an account?</p>
+            <Link
+              href="/auth/login"
+              className="text-primary font-medium hover:underline"
+            >
               Log in
             </Link>
           </div>
         </div>
       </div>
-      <div className="border-x border-t p-12 md:p-20" />
     </section>
   );
 }
