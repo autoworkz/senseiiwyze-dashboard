@@ -15,15 +15,22 @@ jest.mock('framer-motion', () => ({
   },
 }));
 
-// Mock the auth API call
-global.fetch = jest.fn();
+// Mock the auth client module completely
+const mockGetSession = jest.fn();
+
+jest.mock('@/lib/auth-client', () => ({
+  authClient: {
+    getSession: mockGetSession,
+  },
+}));
 
 describe('Hero229 Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (fetch as jest.Mock).mockResolvedValue({
-      ok: false,
-      status: 401,
+    // Default to unauthenticated state
+    mockGetSession.mockResolvedValue({
+      data: null,
+      error: null,
     });
   });
 
@@ -49,9 +56,9 @@ describe('Hero229 Component', () => {
   });
 
   it('handles unauthenticated state correctly', async () => {
-    (fetch as jest.Mock).mockResolvedValue({
-      ok: false,
-      status: 401,
+    mockGetSession.mockResolvedValue({
+      data: null,
+      error: null,
     });
     
     render(<Hero229 />);
@@ -63,18 +70,19 @@ describe('Hero229 Component', () => {
   });
 
   it('handles authenticated state correctly', async () => {
-    (fetch as jest.Mock).mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({
-        user: { role: 'learner' }
-      }),
+    mockGetSession.mockResolvedValue({
+      data: {
+        user: { id: '1', role: 'learner', email: 'test@example.com' },
+        session: { id: 'session-1' }
+      },
+      error: null,
     });
     
     render(<Hero229 />);
     
     // Should show dashboard link for authenticated users
     await waitFor(() => {
-      expect(screen.getByText(/Go to Dashboard/)).toBeInTheDocument();
+      expect(screen.getByText(/Dashboard/)).toBeInTheDocument();
     });
   });
 
@@ -91,14 +99,14 @@ describe('Hero229 Component', () => {
     expect(section).toBeInTheDocument();
   });
 
-  it('calls auth API on mount', () => {
+  it('calls auth client on mount', () => {
     render(<Hero229 />);
     
-    expect(fetch).toHaveBeenCalledWith('/api/auth/session');
+    expect(mockGetSession).toHaveBeenCalled();
   });
 
-  it('handles API errors gracefully', async () => {
-    (fetch as jest.Mock).mockRejectedValue(new Error('Network error'));
+  it('handles auth client errors gracefully', async () => {
+    mockGetSession.mockRejectedValue(new Error('Network error'));
     
     render(<Hero229 />);
     
