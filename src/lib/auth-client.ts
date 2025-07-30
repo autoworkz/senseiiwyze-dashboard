@@ -13,6 +13,7 @@ import {
     // phoneNumberClient
 } from "better-auth/client/plugins";
 import type { auth } from "./auth";
+import { authLogger } from '@/lib/logger-client';
 
 // Import B2B2C access control system for client-side usage
 import { 
@@ -49,17 +50,17 @@ export const authClient = createAuthClient({
             // Handle rate limiting
             if (response.status === 429) {
                 const retryAfter = response.headers.get("X-Retry-After");
-                console.warn(`Rate limit exceeded. Retry after ${retryAfter} seconds`);
+                authLogger.warn('Rate limit exceeded', { retryAfter, url: request.url });
             }
             
             // Handle authentication errors
             if (response.status === 401) {
-                console.warn("Authentication failed:", request.url);
+                authLogger.warn('Authentication failed', { url: request.url });
             }
             
             // Handle server errors
             if (response.status >= 500) {
-                console.error("Server error:", response.status, request.url);
+                authLogger.error('Server error during auth request', { status: response.status, url: request.url });
             }
         },
         onSuccess: async (context) => {
@@ -67,7 +68,7 @@ export const authClient = createAuthClient({
             
             // Log successful auth operations in development
             if (process.env.NODE_ENV === "development") {
-                console.log("Auth operation successful:", response.url);
+                authLogger.info('Auth operation successful', { url: response.url });
             }
         },
     },
@@ -278,14 +279,14 @@ export async function checkPermission(resource: string, action: string): Promise
     });
 
     if (!response.ok) {
-      console.warn('Permission check failed:', response.status);
+      authLogger.warn('Permission check failed', { status: response.status, resource, action });
       return false;
     }
 
     const result = await response.json() as { hasPermission?: boolean };
     return result.hasPermission || false;
   } catch (error) {
-    console.warn('Permission check failed:', error);
+    authLogger.error('Permission check error', error instanceof Error ? error : new Error(String(error)));
     return false;
   }
 }
@@ -318,7 +319,7 @@ export async function checkMultiplePermissions(
     });
 
     if (!response.ok) {
-      console.warn('Batch permission check failed:', response.status);
+      authLogger.warn('Batch permission check failed', { status: response.status, permissions: permissions.length });
       // Return false for all permissions on error
       return Object.keys(permissions).reduce((acc, resource) => {
         permissions[resource].forEach(action => {
@@ -331,7 +332,7 @@ export async function checkMultiplePermissions(
     const result = await response.json() as { permissions?: Record<string, boolean> };
     return result.permissions || {};
   } catch (error) {
-    console.warn('Batch permission check failed:', error);
+    authLogger.error('Batch permission check error', error instanceof Error ? error : new Error(String(error)));
     // Return false for all permissions on error
     return Object.keys(permissions).reduce((acc, resource) => {
       permissions[resource].forEach(action => {
@@ -550,11 +551,11 @@ export const clientPermissions = {
         
         default:
           // Default to allowing access for unknown resources
-          console.warn(`Unknown resource: ${resource}, action: ${action}`);
+          authLogger.warn('Unknown resource or action in permission check', { resource, action });
           return true;
       }
     } catch (error) {
-      console.error("Error checking user permission (client):", error);
+      authLogger.error('Client-side permission check error', error instanceof Error ? error : new Error(String(error)));
       return false;
     }
   },

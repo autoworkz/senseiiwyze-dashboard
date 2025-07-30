@@ -19,6 +19,7 @@ import { headers } from "next/headers";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "../../lib/db";
 import * as schema from "../../lib/db/schema";
+import { authLogger } from '@/lib/logger';
 
 // Import our B2B2C access control system
 import { 
@@ -122,13 +123,13 @@ export const auth = betterAuth({
         emailOTP({
             async sendVerificationOTP({ email, otp, type }, request) {
                 // Send email with OTP
-                console.log(`Sending OTP ${otp} to ${email} for ${type}`);
+                authLogger.info('Sending OTP via email', { email, type, otpLength: otp.length });
             },
         }),
         magicLink({
             sendMagicLink({ email, token, url }, request) {
                 // Send email with magic link
-                console.log(`Sending magic link to ${email}: ${url}`);
+                authLogger.info('Sending magic link via email', { email, url });
             },
         }),
         anonymous(),
@@ -167,7 +168,7 @@ export async function getCurrentUser() {
             organizationId: session.session.activeOrganizationId,
         };
     } catch (error) {
-        console.error("Error getting current user:", error);
+        authLogger.error('Error getting current user', error instanceof Error ? error : new Error(String(error)));
         return null;
     }
 }
@@ -194,7 +195,7 @@ export async function checkUserPermission(
         
         return result.success;
     } catch (error) {
-        console.error("Error checking user permission:", error);
+        authLogger.error('Error checking user permission', error instanceof Error ? error : new Error(String(error)));
         return false;
     }
 }
@@ -211,7 +212,7 @@ export async function checkUserRole(expectedRole: string): Promise<boolean> {
         const userRoles = user.role?.split(',').map(r => r.trim()) || [];
         return userRoles.includes(expectedRole);
     } catch (error) {
-        console.error("Error checking user role:", error);
+        authLogger.error('Error checking user role', error instanceof Error ? error : new Error(String(error)));
         return false;
     }
 }
@@ -253,7 +254,7 @@ export async function canAccessRoute(pathname: string): Promise<boolean> {
         
         return false;
     } catch (error) {
-        console.error("Error checking route access:", error);
+        authLogger.error('Error checking route access', error instanceof Error ? error : new Error(String(error)));
         return false;
     }
 }

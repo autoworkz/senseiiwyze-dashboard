@@ -16,7 +16,7 @@ describe('🎉 Magical Plugin Integration', () => {
   it('should demonstrate MSW API mocking in action', async () => {
     // Test the mock API we created
     const response = await fetch('/api/users');
-    const users = await response.json();
+    const users = await response.json() as any[];
     
     expect(response.status).toBe(200);
     expect(users).toHaveLength(2);
@@ -41,7 +41,7 @@ describe('🎉 Magical Plugin Integration', () => {
     );
 
     const response = await fetch('/api/test-endpoint');
-    const data = await response.json();
+    const data = await response.json() as { message: string; timestamp: number };
     
     expect(data.message).toBe('Custom test handler working!');
     expect(data.timestamp).toBeGreaterThan(0);
@@ -60,7 +60,7 @@ describe('🎉 Magical Plugin Integration', () => {
       }),
     });
     
-    const loginData = await loginResponse.json();
+    const loginData = await loginResponse.json() as { user: { role: string }; token: string };
     expect(loginResponse.status).toBe(200);
     expect(loginData.user.role).toBe('admin');
     expect(loginData.token).toBe('mock-jwt-token');
@@ -89,7 +89,7 @@ describe('🎉 Magical Plugin Integration', () => {
       }),
     });
     
-    const chatData = await chatResponse.json();
+    const chatData = await chatResponse.json() as { response: string; suggestions: string[] };
     expect(chatResponse.status).toBe(200);
     expect(chatData.response).toContain('How do I learn React hooks?');
     expect(chatData.suggestions).toHaveLength(3);
@@ -107,7 +107,7 @@ describe('🎉 Magical Plugin Integration', () => {
       }),
     });
     
-    const assessment = await assessmentResponse.json();
+    const assessment = await assessmentResponse.json() as { readinessScore: number; successProbability: number; recommendations: any[] };
     expect(assessmentResponse.status).toBe(200);
     expect(assessment.readinessScore).toBe(82);
     expect(assessment.successProbability).toBe(87);

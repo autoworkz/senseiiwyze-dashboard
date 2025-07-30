@@ -32,7 +32,7 @@ describe('Live Middleware Execution Tests', () => {
           console.log('🔄 Server responding but with status:', response.status);
         }
       } catch (error) {
-        console.log('❌ Server not responding:', error.message);
+        console.log('❌ Server not responding:', error instanceof Error ? error.message : String(error));
         fail('Server is not responding - ensure dev server is running');
       }
     });
@@ -64,7 +64,7 @@ describe('Live Middleware Execution Tests', () => {
         console.log('   ✅ Public route, allowing access');
         
       } catch (error) {
-        console.log('Request failed:', error.message);
+        console.log('Request failed:', error instanceof Error ? error.message : String(error));
       }
     });
   });
@@ -236,7 +236,7 @@ describe('Live Middleware Execution Tests', () => {
           results.push({
             route,
             status: 'ERROR',
-            error: error.message
+            error: error instanceof Error ? error.message : String(error)
           });
         }
       }
@@ -244,7 +244,7 @@ describe('Live Middleware Execution Tests', () => {
       console.log('\n📈 RESULTS SUMMARY:');
       const errorCount = results.filter(r => r.hasError).length;
       const successCount = results.filter(r => r.status === 200).length;
-      const redirectCount = results.filter(r => r.status >= 300 && r.status < 400).length;
+      const redirectCount = results.filter(r => typeof r.status === 'number' && r.status >= 300 && r.status < 400).length;
       
       console.log(`   ✅ Success (200): ${successCount}`);
       console.log(`   🔄 Redirects (3xx): ${redirectCount}`);  

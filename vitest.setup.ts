@@ -24,9 +24,39 @@ import { server } from '@/mocks/server';
   spyOn: vi.spyOn,
 };
 
+// Mock function types for better compatibility
+type MockFunction<T = any, Y extends any[] = any[]> = {
+  (...args: Y): T;
+  mockImplementation: (fn: (...args: Y) => T) => MockFunction<T, Y>;
+  mockResolvedValue: (value: T) => MockFunction<T, Y>;
+  mockRejectedValue: (value: any) => MockFunction<T, Y>;
+  mockReturnValue: (value: T) => MockFunction<T, Y>;
+};
+
+// Global mock function creator - removed as types can't be assigned as values
+
 // Add fail function for tests
 (globalThis as any).fail = (message?: string) => {
   throw new Error(message || 'Test failed');
+};
+
+// Helper function for safe error message extraction
+(globalThis as any).getErrorMessage = (error: unknown): string => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (typeof error === 'string') {
+    return error;
+  }
+  return 'Unknown error';
+};
+
+// Helper function for safe error name extraction
+(globalThis as any).getErrorName = (error: unknown): string => {
+  if (error instanceof Error) {
+    return error.name;
+  }
+  return 'Error';
 };
 
 // Mock Next.js navigation functions
@@ -75,11 +105,18 @@ vi.mock('@/lib/auth', () => ({
   },
 }));
 
-// Mock environment variables
-Object.defineProperty(process.env, 'NODE_ENV', {
-  value: 'test',
-  writable: true,
-});
+// Mock environment variables (safely)
+// Note: NODE_ENV is read-only in Node.js, so we use Object.defineProperty for testing
+if (typeof process.env.NODE_ENV === 'undefined') {
+  Object.defineProperty(process.env, 'NODE_ENV', {
+    value: 'test',
+    writable: false,
+    enumerable: true,
+    configurable: true
+  });
+}
+
+// Set other environment variables for testing
 process.env.NEXTAUTH_SECRET = 'test-secret';
 process.env.NEXTAUTH_URL = 'http://localhost:3000';
 
@@ -143,8 +180,16 @@ if (process.env.VITEST_DEBUG) {
 
 // Setup Mock Service Worker for API testing
 beforeAll(() => {
-  // Start MSW server before all tests
-  server.listen({ onUnhandledRequest: 'error' });
+  // Start MSW server before all tests, but allow bypass for localhost requests
+  server.listen({ 
+    onUnhandledRequest: (req) => {
+      // Allow real requests to localhost (dev server)
+      if (req.url.includes('localhost:3000')) {
+        return 'bypass'
+      }
+      return 'error'
+    }
+  });
 });
 
 afterEach(() => {

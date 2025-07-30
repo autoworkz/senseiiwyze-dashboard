@@ -19,7 +19,8 @@ describe('Auth Login Route TDD', () => {
   
   beforeAll(() => {
     // Ensure we're testing against the correct environment
-    process.env.NODE_ENV = 'test';
+    // Note: NODE_ENV is read-only in Node.js, handled by test setup
+    expect(process.env.NODE_ENV).toBeDefined();
   });
 
   describe('/en/auth/login route accessibility', () => {
@@ -109,7 +110,7 @@ describe('Auth Login Route TDD', () => {
       const fs = require('fs');
       const path = require('path');
       
-      const i18nPath = path.join(process.cwd(), 'src/i18n.ts');
+      const i18nPath = path.join(process.cwd(), 'src/i18n/request.ts');
       const content = fs.readFileSync(i18nPath, 'utf-8');
       
       // Should export locales array
@@ -133,7 +134,7 @@ describe('Auth Login Route TDD', () => {
       
       // Should have next-intl plugin
       expect(content).toContain('createNextIntlPlugin');
-      expect(content).toContain('./src/i18n.ts');
+      expect(content).toContain('./src/i18n/request.ts');
       expect(content).toContain('withNextIntl');
       
       // Should not have conflicting configurations (allowing commented code)
@@ -147,12 +148,12 @@ describe('Auth Login Route TDD', () => {
       const middlewarePath = path.join(process.cwd(), 'src/middleware.ts');
       const content = fs.readFileSync(middlewarePath, 'utf-8');
       
-      // Should import locales from i18n
-      expect(content).toContain("import { locales } from '@/i18n'");
+      // Should import routing from i18n
+      expect(content).toContain("import { routing } from '@/i18n/routing'");
       
       // Should create intl middleware correctly
       expect(content).toContain('createMiddleware');
-      expect(content).toContain('locales,');
+      expect(content).toContain('routing.locales,');
       expect(content).toContain("defaultLocale: 'en'");
       
       // Should handle auth routes as public
@@ -169,7 +170,8 @@ describe('Auth Login Route TDD', () => {
         expect(enMessages.default.auth.login).toBe('Login');
       } catch (error) {
         // If this fails, it shows the import path issue
-        fail(`Could not import en.json: ${error.message}`);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        fail(`Could not import en.json: ${errorMessage}`);
       }
     });
 
@@ -203,7 +205,7 @@ describe('Auth Login Route TDD', () => {
         'src/app/[locale]/page.tsx',
         'src/app/[locale]/auth/login/page.tsx',
         'src/middleware.ts',
-        'src/i18n.ts',
+        'src/i18n/request.ts',
         'next.config.ts'
       ];
       

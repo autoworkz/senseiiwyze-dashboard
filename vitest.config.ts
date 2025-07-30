@@ -75,6 +75,7 @@ export default defineConfig({
     include: [
       'src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
       'src/**/__tests__/**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+      'tests/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}', // Include tests/ directory
     ],
     exclude: [
       'node_modules',
@@ -83,6 +84,7 @@ export default defineConfig({
       'coverage',
       '**/*.config.*',
       'e2e/**', // Keep e2e separate (Playwright)
+      'tests/**/*.e2e.{js,mjs,cjs,ts,mts,cts,jsx,tsx}', // Exclude e2e tests from Vitest
     ],
     
     // Coverage configuration - optimized for CI/CD

@@ -96,10 +96,10 @@ describe('Simple Next-Intl Isolation', () => {
         expect(typeof response.status).toBe('number');
         
       } catch (error) {
-        if (error.name === 'AbortError') {
+        if (error instanceof Error && error.name === 'AbortError') {
           console.log('🔄 Server not responding - restart needed');
         } else {
-          console.log('❌ Server error:', error.message);
+          console.log('❌ Server error:', error instanceof Error ? error.message : String(error));
         }
         
         // Don't fail test - just log the state
@@ -129,7 +129,7 @@ describe('Simple Next-Intl Isolation', () => {
         expect(typeof response.status).toBe('number');
         
       } catch (error) {
-        console.log('API test error:', error.message);
+        console.log('API test error:', error instanceof Error ? error.message : String(error));
         expect(true).toBe(true); // Don't fail
       }
     });

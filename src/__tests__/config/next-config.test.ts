@@ -11,7 +11,7 @@ import fs from 'fs';
 
 describe('Next.js Configuration', () => {
   const configPath = path.join(process.cwd(), 'next.config.ts');
-  const i18nPath = path.join(process.cwd(), 'src/i18n.ts');
+  const i18nPath = path.join(process.cwd(), 'src/i18n/request.ts');
 
   it('should have a valid next.config.ts file', () => {
     expect(fs.existsSync(configPath)).toBe(true);
@@ -22,7 +22,7 @@ describe('Next.js Configuration', () => {
     expect(configContent).toContain("import createNextIntlPlugin from 'next-intl/plugin'");
     
     // Should create the plugin with correct path
-    expect(configContent).toContain("createNextIntlPlugin('./src/i18n.ts')");
+    expect(configContent).toContain("createNextIntlPlugin('./src/i18n/request.ts')");
     
     // Should export the wrapped config
     expect(configContent).toContain('export default withNextIntl(nextConfig)');
@@ -42,8 +42,8 @@ describe('Next.js Configuration', () => {
     expect(i18nContent).toContain("import { notFound } from 'next/navigation'");
     expect(i18nContent).toContain("import { getRequestConfig } from 'next-intl/server'");
     
-    // Should export locales array
-    expect(i18nContent).toContain("export const locales = ['en', 'es', 'fr', 'de', 'ja']");
+    // Should export routing object
+    expect(i18nContent).toContain("export const routing = createNavigation({");
     
     // Should have getRequestConfig function
     expect(i18nContent).toContain('export default getRequestConfig');
@@ -56,12 +56,12 @@ describe('Next.js Configuration', () => {
 
   it('should be able to import and validate the i18n configuration', async () => {
     // Dynamically import the i18n configuration
-    const i18nModule = await import('@/i18n');
+    const i18nModule = await import('@/i18n/routing');
     
-    // Should export locales
-    expect(i18nModule.locales).toBeDefined();
-    expect(Array.isArray(i18nModule.locales)).toBe(true);
-    expect(i18nModule.locales).toEqual(['en', 'es', 'fr', 'de', 'ja']);
+    // Should export routing
+    expect(i18nModule.routing).toBeDefined();
+    expect(Array.isArray(i18nModule.routing.locales)).toBe(true);
+    expect(i18nModule.routing.locales).toEqual(['en', 'es', 'fr', 'de', 'ja']);
     
     // Note: default export is a server-only function that can't be tested in Node environment
     // This is expected behavior - the function exists but isn't accessible in test environment
@@ -69,9 +69,9 @@ describe('Next.js Configuration', () => {
   });
 
   it('should load message data for all supported locales', async () => {
-    const { locales } = await import('@/i18n');
+    const { routing } = await import('@/i18n/routing');
     
-    for (const locale of locales) {
+    for (const locale of routing.locales) {
       try {
         // Test that we can load messages for each locale
         const messages = await import(`@/messages/${locale}.json`);
@@ -95,11 +95,11 @@ describe('Next.js Configuration', () => {
     // Note: getRequestConfig is server-only and cannot be directly tested in Jest client environment
     // This test validates the configuration structure instead
     
-    const i18nPath = path.join(process.cwd(), 'src/i18n.ts');
+    const i18nPath = path.join(process.cwd(), 'src/i18n/request.ts');
     const i18nContent = fs.readFileSync(i18nPath, 'utf-8');
     
     // Validate proper locale validation logic
-    expect(i18nContent).toContain('if (!locale || !locales.includes(locale as any)) notFound()');
+    expect(i18nContent).toContain('if (!locale || !routing.locales.includes(locale as any)) notFound()');
     
     // Validate message loading pattern
     expect(i18nContent).toContain('messages: (await import(`./messages/${locale}.json`)).default');
@@ -111,21 +111,21 @@ describe('Next.js Configuration', () => {
   });
 
   it('should validate locale array completeness', async () => {
-    const { locales } = await import('@/i18n');
+    const { routing } = await import('@/i18n/routing');
     
     // Check that all expected locales are present
-    expect(locales).toContain('en');
-    expect(locales).toContain('es');
-    expect(locales).toContain('fr');
-    expect(locales).toContain('de');
-    expect(locales).toContain('ja');
-    expect(locales.length).toBe(5);
+    expect(routing.locales).toContain('en');
+    expect(routing.locales).toContain('es');
+    expect(routing.locales).toContain('fr');
+    expect(routing.locales).toContain('de');
+    expect(routing.locales).toContain('ja');
+    expect(routing.locales.length).toBe(5);
     
     console.log('✅ All required locales are present in configuration');
   });
 
   it('should test message structure consistency across locales', async () => {
-    const { locales } = await import('@/i18n');
+    const { routing } = await import('@/i18n/routing');
     
     // Load English as baseline
     const enMessages = await import('@/messages/en.json');
@@ -157,18 +157,18 @@ describe('Next.js Configuration', () => {
     expect(configContent).toContain('withNextIntl(nextConfig)');
     
     // Should point to correct i18n file
-    expect(configContent).toContain('./src/i18n.ts');
+    expect(configContent).toContain('./src/i18n/request.ts');
     
     console.log('✅ next-intl plugin integration is correct');
   });
 
   it('should validate message file accessibility', async () => {
     const messagesDir = path.join(process.cwd(), 'src/messages');
-    const { locales } = await import('@/i18n');
+    const { routing } = await import('@/i18n/routing');
     
     expect(fs.existsSync(messagesDir)).toBe(true);
     
-    for (const locale of locales) {
+    for (const locale of routing.locales) {
       const filePath = path.join(messagesDir, `${locale}.json`);
       
       // File should exist
@@ -188,9 +188,9 @@ describe('Next.js Configuration', () => {
 
   it('should validate message loading can happen via direct import', async () => {
     // Since we can't test getRequestConfig directly, test that message loading works
-    const { locales } = await import('@/i18n');
+    const { routing } = await import('@/i18n/routing');
     
-    for (const locale of locales) {
+    for (const locale of routing.locales) {
       // Test direct message loading (same pattern used in i18n.ts)
       const messages = await import(`@/messages/${locale}.json`);
       

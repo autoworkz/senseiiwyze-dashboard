@@ -11,7 +11,7 @@ import path from 'path';
 describe('Next-intl Comprehensive Configuration Audit', () => {
   describe('Core Configuration Files', () => {
     it('should have valid i18n.ts configuration', () => {
-      const i18nPath = path.join(process.cwd(), 'src/i18n.ts');
+      const i18nPath = path.join(process.cwd(), 'src/i18n/request.ts');
       expect(fs.existsSync(i18nPath)).toBe(true);
       
       const content = fs.readFileSync(i18nPath, 'utf-8');
@@ -20,8 +20,8 @@ describe('Next-intl Comprehensive Configuration Audit', () => {
       expect(content).toContain("import { notFound } from 'next/navigation'");
       expect(content).toContain("import { getRequestConfig } from 'next-intl/server'");
       
-      // Check for exported locales
-      expect(content).toContain("export const locales = ['en', 'es', 'fr', 'de', 'ja']");
+      // Check for exported routing object
+      expect(content).toContain("export const routing = createNavigation({");
       
       // Check for proper getRequestConfig setup
       expect(content).toContain('getRequestConfig');
@@ -42,7 +42,7 @@ describe('Next-intl Comprehensive Configuration Audit', () => {
       
       // Check for next-intl plugin
       expect(content).toContain("import createNextIntlPlugin from 'next-intl/plugin'");
-      expect(content).toContain("const withNextIntl = createNextIntlPlugin('./src/i18n.ts')");
+      expect(content).toContain("const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')");
       expect(content).toContain('export default withNextIntl(nextConfig)');
       
       // Verify lingo is properly disabled
@@ -61,7 +61,7 @@ describe('Next-intl Comprehensive Configuration Audit', () => {
       // Check for required imports
       expect(content).toContain("import { NextIntlClientProvider } from 'next-intl'");
       expect(content).toContain("import { getMessages } from 'next-intl/server'");
-      expect(content).toContain("import { locales } from '@/i18n'");
+      expect(content).toContain("import { routing } from '@/i18n/routing'");
       
       // Check for proper setup
       expect(content).toContain('generateStaticParams');
@@ -134,7 +134,7 @@ describe('Next-intl Comprehensive Configuration Audit', () => {
       
       // Check for next-intl middleware setup
       expect(content).toContain("import createMiddleware from 'next-intl/middleware'");
-      expect(content).toContain("import { locales } from '@/i18n'");
+      expect(content).toContain("import { routing } from '@/i18n/routing'");
       expect(content).toContain('const intlMiddleware = createMiddleware');
       expect(content).toContain("localePrefix: 'always'");
       expect(content).toContain("defaultLocale: 'en'");
@@ -193,7 +193,7 @@ describe('Next-intl Comprehensive Configuration Audit', () => {
       const content = fs.readFileSync(switcherPath, 'utf-8');
       
       expect(content).toContain("import { useLocale } from 'next-intl'");
-      expect(content).toContain("import { locales } from '@/i18n'");
+      expect(content).toContain("import { routing } from '@/i18n/routing'");
       expect(content).toContain('const currentLocale = useLocale()');
       expect(content).toContain('handleLocaleChange');
       
@@ -216,7 +216,7 @@ describe('Next-intl Comprehensive Configuration Audit', () => {
   describe('Integration Validation', () => {
     it('should have no conflicting lingo references', () => {
       const filesToCheck = [
-        'src/i18n.ts',
+        'src/i18n/request.ts',
         'src/app/[locale]/layout.tsx',
         'src/app/layout.tsx',
         'next.config.ts'
@@ -240,15 +240,15 @@ describe('Next-intl Comprehensive Configuration Audit', () => {
 
     it('should have consistent locale handling', () => {
       // All locale arrays should match
-      const i18nPath = path.join(process.cwd(), 'src/i18n.ts');
+      const i18nPath = path.join(process.cwd(), 'src/i18n/request.ts');
       const switcherPath = path.join(process.cwd(), 'src/components/locale-switcher.tsx');
       
       const i18nContent = fs.readFileSync(i18nPath, 'utf-8');
       const switcherContent = fs.readFileSync(switcherPath, 'utf-8');
       
       // Both should reference the same locales
-      expect(i18nContent).toContain("['en', 'es', 'fr', 'de', 'ja']");
-      expect(switcherContent).toContain("import { locales } from '@/i18n'");
+      expect(i18nContent).toContain("locales: ['en', 'es', 'fr', 'de', 'ja']");
+      expect(switcherContent).toContain("import { routing } from '@/i18n/routing'");
       
       console.log('✅ Locale definitions are consistent across components');
     });

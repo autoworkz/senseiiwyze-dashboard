@@ -12,11 +12,11 @@ describe('Next-Intl Isolation Test', () => {
   describe('Core next-intl functionality', () => {
     it('should validate i18n.ts configuration in isolation', async () => {
       // Test the core i18n config without server dependencies
-      const { locales } = await import('../../i18n');
+      const { routing } = await import('../../i18n/routing');
       
-      expect(locales).toEqual(['en', 'es', 'fr', 'de', 'ja']);
-      expect(locales).toContain('en');
-      expect(locales.length).toBe(5);
+      expect(routing.locales).toEqual(['en', 'es', 'fr', 'de', 'ja']);
+      expect(routing.locales).toContain('en');
+      expect(routing.locales.length).toBe(5);
     });
 
     it('should load message files directly', async () => {
@@ -78,7 +78,7 @@ describe('Next-Intl Isolation Test', () => {
       // Verify middleware is properly configured for next-intl
       expect(content).toContain('createMiddleware');
       expect(content).toContain('next-intl/middleware');
-      expect(content).toContain('locales');
+      expect(content).toContain('routing.locales');
       expect(content).toContain("defaultLocale: 'en'");
       
       // Check that public routes include auth paths
@@ -203,7 +203,7 @@ export default function MinimalTestPage() {
           results.push({
             locale,
             status: 'ERROR',
-            error: error.message
+            error: error instanceof Error ? error.message : String(error)
           });
         }
       }

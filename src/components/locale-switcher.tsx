@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { locales } from '@/i18n';
+import { routing } from '@/i18n/routing';
 
 const localeNames = {
   en: 'English',
@@ -40,7 +40,7 @@ export function LocaleSwitcher() {
       const segments = pathname.split('/');
       
       // If the first segment is a locale, remove it
-      if (locales.includes(segments[1] as any)) {
+      if (routing.locales.includes(segments[1] as any)) {
         segments.splice(1, 1);
       }
       
@@ -66,7 +66,7 @@ export function LocaleSwitcher() {
         </SelectValue>
       </SelectTrigger>
       <SelectContent>
-        {locales.map((locale) => (
+        {routing.locales.map((locale) => (
           <SelectItem key={locale} value={locale}>
             <div className="flex items-center gap-2">
               <span>{localeFlags[locale as keyof typeof localeFlags]}</span>

@@ -3,11 +3,14 @@ import type { NextConfig } from "next";
 import createNextIntlPlugin from 'next-intl/plugin';
 // import lingoCompiler from "lingo.dev/compiler"; // Disabled for build performance
 
-const withNextIntl = createNextIntlPlugin('./src/i18n.ts');
+const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const nextConfig: NextConfig = {
   turbopack: {
-
+    // Enable Turbo Pack specific optimizations
+    resolveAlias: {
+      // Add any module resolution aliases if needed
+    },
   },
   experimental: {
     // nodeMiddleware: true,

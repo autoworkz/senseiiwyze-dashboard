@@ -1,5 +1,6 @@
 import winston from 'winston'
 import { format } from 'winston'
+import * as Sentry from '@sentry/nextjs'
 
 // Define log levels
 const levels = {
@@ -110,29 +111,59 @@ export const stream = {
 // Export the logger instance
 export default logger
 
-// Export convenience methods
+// Sentry integration helper
+const sendToSentry = (level: string, message: string, meta?: any, error?: Error) => {
+    const isDevelopment = process.env.NODE_ENV === 'development'
+    
+    if (!isDevelopment) {
+        if (error) {
+            Sentry.captureException(error, {
+                extra: { message, ...meta }
+            })
+        } else {
+            const sentryLevel = level === 'warn' ? 'warning' : level as 'info' | 'error' | 'debug'
+            if (level === 'error' || level === 'warn') {
+                Sentry.captureMessage(message, sentryLevel)
+            }
+            
+            Sentry.addBreadcrumb({
+                message,
+                level: sentryLevel,
+                data: meta
+            })
+        }
+    }
+}
+
+// Export convenience methods with Sentry integration
 export const logError = (message: string, error?: Error | unknown) => {
     if (error instanceof Error) {
         logger.error(`${message}: ${error.message}`, { stack: error.stack })
+        sendToSentry('error', message, { stack: error.stack }, error)
     } else {
         logger.error(message, { error })
+        sendToSentry('error', message, { error })
     }
 }
 
 export const logWarn = (message: string, meta?: any) => {
     logger.warn(message, meta)
+    sendToSentry('warn', message, meta)
 }
 
 export const logInfo = (message: string, meta?: any) => {
     logger.info(message, meta)
+    sendToSentry('info', message, meta)
 }
 
 export const logHttp = (message: string, meta?: any) => {
     logger.http(message, meta)
+    sendToSentry('info', message, meta)
 }
 
 export const logDebug = (message: string, meta?: any) => {
     logger.debug(message, meta)
+    sendToSentry('debug', message, meta)
 }
 
 // Export a function to create a child logger with context
@@ -153,6 +184,37 @@ export const createChildLogger = (context: string) => {
         debug: (message: string, meta?: any) => {
             logDebug(`[${context}] ${message}`, meta)
         },
+    }
+}
+
+// Specialized loggers for common contexts
+export const middlewareLogger = createChildLogger('MIDDLEWARE')
+export const authLogger = createChildLogger('AUTH')
+export const emailLogger = createChildLogger('EMAIL')
+
+// Sentry user context helpers
+export const setUserContext = (user: { id: string; email?: string; role?: string }) => {
+    const isDevelopment = process.env.NODE_ENV === 'development'
+    if (!isDevelopment) {
+        Sentry.setUser({
+            id: user.id,
+            email: user.email,
+            role: user.role,
+        })
+    }
+}
+
+export const clearUserContext = () => {
+    const isDevelopment = process.env.NODE_ENV === 'development'
+    if (!isDevelopment) {
+        Sentry.setUser(null)
+    }
+}
+
+export const setTag = (key: string, value: string) => {
+    const isDevelopment = process.env.NODE_ENV === 'development'
+    if (!isDevelopment) {
+        Sentry.setTag(key, value)
     }
 }
 

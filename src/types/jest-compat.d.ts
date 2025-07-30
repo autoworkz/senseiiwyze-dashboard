@@ -7,22 +7,27 @@
 
 declare global {
   namespace jest {
-    interface Mock<T = unknown> {
-      mockReturnValue(value: unknown): this;
-      mockResolvedValue(value: unknown): this;
-      mockRejectedValue(value: unknown): this;
-      mockImplementation(fn: (...args: unknown[]) => unknown): this;
-      mockReturnValueOnce(value: unknown): this;
-      mockResolvedValueOnce(value: unknown): this;
-      mockRejectedValueOnce(value: unknown): this;
-      mockImplementationOnce(fn: (...args: unknown[]) => unknown): this;
+    interface Mock<T = any> {
+      (...args: any[]): T;
+      mockReturnValue(value: T): this;
+      mockResolvedValue(value: T): this;
+      mockRejectedValue(value: any): this;
+      mockImplementation(fn?: (...args: any[]) => T): this;
+      mockReturnValueOnce(value: T): this;
+      mockResolvedValueOnce(value: T): this;
+      mockRejectedValueOnce(value: any): this;
+      mockImplementationOnce(fn: (...args: any[]) => T): this;
       mockClear(): void;
       mockReset(): void;
       mockRestore(): void;
+      mock: {
+        calls: any[][];
+        results: Array<{ type: 'return' | 'throw'; value: any }>;
+      };
     }
     
-    interface MockedFunction<T = unknown> extends Mock<T> {
-      (...args: T extends (...args: infer A) => unknown ? A : never): T extends (...args: unknown[]) => infer R ? R : never;
+    interface MockedFunction<T extends (...args: any[]) => any> extends Mock<ReturnType<T>> {
+      (...args: Parameters<T>): ReturnType<T>;
     }
     
     const fn: typeof vi.fn;
