@@ -69,7 +69,10 @@ jobs:
             ${{ runner.os }}-pnpm-store-
             
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --ignore-platform
+        env:
+          # Skip optional dependencies that may cause platform issues
+          SKIP_OPTIONAL: true
         
       - name: Run type checking
         run: pnpm run typecheck
