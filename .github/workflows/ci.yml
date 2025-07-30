@@ -2,16 +2,16 @@ name: CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
 
 jobs:
   pnpm-check:
-    runs-on: depot-ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Check for forbidden lock files
         run: |
           if [ -f "package-lock.json" ]; then
@@ -23,7 +23,7 @@ jobs:
             exit 1
           fi
           echo "✅ No forbidden lock files found"
-      
+
       - name: Check script permissions
         run: |
           # Check if scripts/dev.sh exists and is executable
@@ -39,29 +39,27 @@ jobs:
           fi
 
   test:
-    runs-on: depot-ubuntu-24.04
+    runs-on: ubuntu-latest
     needs: pnpm-check
-    env:
-      DEPOT_TOKEN: ${{ secrets.DEPOT_TOKEN }}
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          
+          node-version: "18"
+
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9.0.0
-          
+
       - name: Get pnpm store directory
         shell: bash
         run: |
           echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-          
+
       - name: Setup pnpm cache
         uses: actions/cache@v4
         with:
@@ -69,27 +67,26 @@ jobs:
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
-            
+
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-        # Note: Depot runners are fast and reliable, may not need --ignore-platform
-        
+        run: pnpm install --frozen-lockfile --ignore-platform
+
       - name: Run type checking
         run: pnpm run typecheck
         continue-on-error: true
-        
+
       - name: Run linting
         run: pnpm run lint
         continue-on-error: true
-        
+
       - name: Run tests
         run: pnpm run test
         continue-on-error: true
-        
+
       - name: Build project
         run: pnpm run build
         continue-on-error: true
-        
+
       - name: CI Summary
         run: |
           echo "✅ CI pipeline completed - all steps attempted"

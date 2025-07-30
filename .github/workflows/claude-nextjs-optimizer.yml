@@ -33,9 +33,7 @@ jobs:
       (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude-optimize')) ||
       github.event_name == 'workflow_dispatch'
     
-    runs-on: depot-ubuntu-24.04
-    env:
-      DEPOT_TOKEN: ${{ secrets.DEPOT_TOKEN }}
+    runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
@@ -60,8 +58,7 @@ jobs:
           version: 9.0.0
           
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-        # Note: Depot runners are fast and reliable, may not need --ignore-platform
+        run: pnpm install --frozen-lockfile --ignore-platform
 
       - name: Analyze codebase structure
         id: codebase-analysis

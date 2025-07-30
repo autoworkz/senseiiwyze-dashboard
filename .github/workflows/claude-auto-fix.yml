@@ -25,9 +25,7 @@ jobs:
       (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude-fix')) ||
       (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude-fix'))
     
-    runs-on: depot-ubuntu-24.04
-    env:
-      DEPOT_TOKEN: ${{ secrets.DEPOT_TOKEN }}
+    runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
@@ -67,8 +65,7 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-        # Note: Depot runners are fast and reliable, may not need --ignore-platform
+        run: pnpm install --frozen-lockfile --ignore-platform
 
       - name: Run diagnostic checks and capture errors
         id: diagnostics
