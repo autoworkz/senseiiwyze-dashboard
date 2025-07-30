@@ -1,9 +1,5 @@
 import {withSentryConfig} from "@sentry/nextjs";
 import type { NextConfig } from "next";
-import createNextIntlPlugin from 'next-intl/plugin';
-// import lingoCompiler from "lingo.dev/compiler"; // Disabled for build performance
-
-const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const nextConfig: NextConfig = {
   turbopack: {
@@ -19,22 +15,7 @@ const nextConfig: NextConfig = {
 
 };
 
-// Lingo compiler disabled for build performance
-// export default lingoCompiler.next({
-//   turbopack: {
-//     enabled: "auto",
-//   },
-//   sourceLocale: "en",
-//   targetLocales: ["es", "fr", "de", "it", "pt", "nl", "sv"],
-//   models: {
-//     "*:*": "groq:qwen/qwen3-32b",
-//   },
-//   rsc: true,
-//   debug: true,
-//   useDirective: true,
-// })(withNextIntl(nextConfig));
-
-export default withSentryConfig(withNextIntl(nextConfig), {
+export default withSentryConfig(nextConfig, {
 // For all available options, see:
 // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 

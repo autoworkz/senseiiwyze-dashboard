@@ -2,14 +2,12 @@
 
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import { LocaleLink } from "@/components/locale-link";
+import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import { useTranslations } from 'next-intl';
 
 import { Button } from "@/components/ui/button";
 
 const Hero229 = () => {
-  const t = useTranslations('hero');
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   
@@ -70,26 +68,26 @@ const Hero229 = () => {
   
   return (
     <section className="relative h-[100dvh] w-[100dvw] overflow-hidden border bg-background py-32">
-      <div className="relative z-20 container flex flex-col items-center justify-center gap-4 text-center">
+      <div className="relative z-20 flex flex-col items-center justify-center gap-4 text-center px-4 max-w-6xl mx-auto">
         <Button
           variant="secondary"
           className="group text-md mt-42 flex w-fit items-center justify-center gap-3 rounded-full bg-muted/60 px-5 py-1 tracking-tight"
         >
           <span className="size-2 rounded-full bg-foreground" />
-          <span>{t('readinessIndex')}</span>
+          <span>Readiness Index</span>
         </Button>
         <h1 className="max-w-3xl text-5xl font-medium tracking-tighter text-foreground md:text-7xl">
-          {t('headline')}
+          Predict Training Success with AI-Powered Skill Assessments
         </h1>
         <p className="mt-5 max-w-xl text-muted-foreground/80">
-          {t('description')}
+          SenseiiWyze's proprietary algorithm predicts training success with 87% accuracy, delivering 2-3x faster skill acquisition for technical professionals.
         </p>
         <div className="flex gap-4">
           <Button
             variant="secondary"
             className="group text-md flex w-fit items-center justify-center gap-2 rounded-full px-4 py-1 tracking-tight"
           >
-            <span>{t('learnMore')}</span>
+            <span>Learn More</span>
             <ArrowRight className="size-4 -rotate-45 transition-all ease-out group-hover:ml-3 group-hover:rotate-0" />
           </Button>
           {isAuthenticated === null ? (
@@ -103,26 +101,26 @@ const Hero229 = () => {
             </Button>
           ) : isAuthenticated ? (
             // Authenticated - show dashboard button
-            <LocaleLink href={getDashboardRoute(userRole)}>
+            <Link href={getDashboardRoute(userRole)}>
               <Button
                 variant="default"
                 className="group text-md flex w-fit items-center justify-center gap-2 rounded-full px-4 py-1 tracking-tight"
               >
-                <span>{t('goToDashboard') || 'Go to Dashboard'}</span>
+                <span>Go to Dashboard</span>
                 <ArrowRight className="size-4 -rotate-45 transition-all ease-out group-hover:ml-3 group-hover:rotate-0" />
               </Button>
-            </LocaleLink>
+            </Link>
           ) : (
             // Not authenticated - show login button
-            <LocaleLink href="/auth/login">
+            <Link href="/auth/login">
               <Button
                 variant="default"
                 className="group text-md flex w-fit items-center justify-center gap-2 rounded-full px-4 py-1 tracking-tight"
               >
-                <span>{t('getStarted')}</span>
+                <span>Get Started</span>
                 <ArrowRight className="size-4 -rotate-45 transition-all ease-out group-hover:ml-3 group-hover:rotate-0" />
               </Button>
-            </LocaleLink>
+            </Link>
           )}
         </div>
       </div>

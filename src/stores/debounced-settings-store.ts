@@ -11,7 +11,8 @@ interface NotificationSettings {
 interface UserProfile {
   name: string
   email: string
-  bio: string
+  workplace: string
+  jobTitle: string
 }
 
 type Theme = "light" | "dark" | "system"
@@ -53,7 +54,8 @@ export const useDebouncedSettingsStore = create<DebouncedSettingsStore>()(
       profile: {
         name: "John Doe",
         email: "john@example.com",
-        bio: "Software developer passionate about creating great user experiences.",
+        workplace: "",
+        jobTitle: "",
       },
       notifications: {
         email: true,
