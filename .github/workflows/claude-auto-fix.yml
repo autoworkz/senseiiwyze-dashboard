@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       force_analysis:
-        description: 'Force analysis even if CI passed'
+        description: "Force analysis even if CI passed"
         required: false
         default: false
         type: boolean
@@ -24,7 +24,7 @@ jobs:
       github.event.inputs.force_analysis == 'true' ||
       (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude-fix')) ||
       (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude-fix'))
-    
+
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -32,7 +32,7 @@ jobs:
       issues: write
       actions: read
       id-token: write
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -44,18 +44,18 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          
+          node-version: "18"
+
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9.0.0
-          
+
       - name: Get pnpm store directory
         shell: bash
         run: |
           echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-          
+
       - name: Setup pnpm cache
         uses: actions/cache@v4
         with:
@@ -65,7 +65,7 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: Run diagnostic checks and capture errors
         id: diagnostics
@@ -77,14 +77,14 @@ jobs:
           echo "Commit: ${{ github.sha }}" >> diagnostic_report.txt
           echo "Triggered by: ${{ github.event_name }}" >> diagnostic_report.txt
           echo "" >> diagnostic_report.txt
-          
+
           # Initialize error flags and counters
           HAS_ERRORS=false
           TYPE_ERRORS=0
           LINT_ERRORS=0
           TEST_ERRORS=0
           BUILD_ERRORS=0
-          
+
           # Type checking with detailed output
           echo "=== TYPE CHECK ANALYSIS ===" >> diagnostic_report.txt
           echo "Running: pnpm run typecheck" >> diagnostic_report.txt
@@ -97,9 +97,9 @@ jobs:
             TYPE_ERRORS=1
           fi
           echo "" >> diagnostic_report.txt
-          
+
           # Linting with detailed output
-          echo "=== LINT ANALYSIS ===" >> diagnostic_report.txt  
+          echo "=== LINT ANALYSIS ===" >> diagnostic_report.txt
           echo "Running: pnpm run lint" >> diagnostic_report.txt
           echo "----------------------------------------" >> diagnostic_report.txt
           if pnpm run lint >> diagnostic_report.txt 2>&1; then
@@ -110,7 +110,7 @@ jobs:
             LINT_ERRORS=1
           fi
           echo "" >> diagnostic_report.txt
-          
+
           # Testing with detailed output
           echo "=== TEST ANALYSIS ===" >> diagnostic_report.txt
           echo "Running: pnpm run test" >> diagnostic_report.txt
@@ -123,7 +123,7 @@ jobs:
             TEST_ERRORS=1
           fi
           echo "" >> diagnostic_report.txt
-          
+
           # Build with detailed output
           echo "=== BUILD ANALYSIS ===" >> diagnostic_report.txt
           echo "Running: pnpm run build" >> diagnostic_report.txt
@@ -136,20 +136,20 @@ jobs:
             BUILD_ERRORS=1
           fi
           echo "" >> diagnostic_report.txt
-          
+
           # Package.json analysis for available scripts
           echo "=== AVAILABLE SCRIPTS ===" >> diagnostic_report.txt
           echo "Available pnpm scripts:" >> diagnostic_report.txt
           pnpm run --list >> diagnostic_report.txt 2>&1 || echo "Could not list scripts" >> diagnostic_report.txt
           echo "" >> diagnostic_report.txt
-          
+
           # Set outputs for next steps
           echo "has_errors=$HAS_ERRORS" >> $GITHUB_OUTPUT
           echo "type_errors=$TYPE_ERRORS" >> $GITHUB_OUTPUT
           echo "lint_errors=$LINT_ERRORS" >> $GITHUB_OUTPUT
           echo "test_errors=$TEST_ERRORS" >> $GITHUB_OUTPUT
           echo "build_errors=$BUILD_ERRORS" >> $GITHUB_OUTPUT
-          
+
           # Final summary
           echo "=== COMPREHENSIVE SUMMARY ===" >> diagnostic_report.txt
           echo "Total error categories found: $((TYPE_ERRORS + LINT_ERRORS + TEST_ERRORS + BUILD_ERRORS))" >> diagnostic_report.txt
@@ -158,7 +158,7 @@ jobs:
           echo "Test errors: $TEST_ERRORS" >> diagnostic_report.txt
           echo "Build errors: $BUILD_ERRORS" >> diagnostic_report.txt
           echo "" >> diagnostic_report.txt
-          
+
           if [ "$HAS_ERRORS" = "true" ]; then
             echo "🔍 Issues detected - proceeding with Claude Auto-Fix analysis" >> diagnostic_report.txt
             echo "💡 Claude will analyze all errors and attempt automated fixes" >> diagnostic_report.txt
@@ -174,20 +174,20 @@ jobs:
         uses: anthropics/claude-code-action@beta
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          
+
           # Enable tools for Claude to run diagnostics and make fixes
           allowed_tools: "Bash(pnpm install),Bash(pnpm run build),Bash(pnpm run test),Bash(pnpm run lint),Bash(pnpm run typecheck),Read,Write,Edit,MultiEdit"
-          
+
           # Custom instructions for error analysis and fixing
           custom_instructions: |
             You are an expert TypeScript/Next.js developer tasked with analyzing and fixing code issues.
-            
+
             ANALYSIS PHASE:
             1. Read the diagnostic_report.txt file to understand all errors
             2. Examine the codebase to understand the root causes
             3. Identify patterns in the errors (missing imports, type issues, etc.)
             4. Prioritize fixes by impact (build-breaking issues first)
-            
+
             FIXING APPROACH:
             - Use incremental approach: Start Small → Validate → Expand → Scale
             - Fix one category of errors at a time (types → lint → tests → build)
@@ -196,15 +196,15 @@ jobs:
             - Follow shadcn/ui semantic color patterns
             - Use @/ imports from src directory
             - Maintain 'use client' directives for interactive components
-            
+
             REPORTING:
             Create a detailed report with:
             1. Summary of issues found
-            2. Root cause analysis  
+            2. Root cause analysis
             3. List of fixes applied
             4. Validation results
             5. Any remaining issues that need manual attention
-            
+
             PROJECT CONTEXT:
             - Next.js 15 with App Router
             - TypeScript with strict mode
@@ -212,24 +212,24 @@ jobs:
             - Better Auth for authentication
             - Zustand for state management
             - Jest + React Testing Library for testing
-          
+
           # Direct prompt for the analysis
           direct_prompt: |
             I need you to analyze and fix code issues in this Next.js project.
-            
+
             PHASE 1 - ANALYSIS:
             1. Read the diagnostic_report.txt file to see what errors were detected
             2. If errors exist, analyze the codebase to understand root causes
             3. Create a comprehensive fix plan
-            
+
             PHASE 2 - FIXING (only if errors found):
             1. Implement fixes incrementally, validating each step
             2. Run pnpm run typecheck, pnpm run lint, pnpm run test, pnpm run build after changes
             3. Continue until all issues are resolved or you identify issues requiring manual intervention
-            
+
             PHASE 3 - REPORTING:
             Create a detailed report of what was found and fixed.
-            
+
             If no errors were found, just confirm everything is working correctly.
 
       - name: Create fix summary comment
@@ -238,7 +238,7 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            
+
             // Read diagnostic report
             let diagnosticContent = '';
             try {
@@ -246,26 +246,26 @@ jobs:
             } catch (error) {
               diagnosticContent = 'Diagnostic report not found';
             }
-            
+
             // Create comment body
             const commentBody = `## 🔧 Claude Auto-Fix Analysis
-            
+
             **Trigger**: ${context.eventName}
             **Timestamp**: ${new Date().toISOString()}
             **Workflow Run**: [${context.runId}](${context.payload.repository.html_url}/actions/runs/${context.runId})
-            
+
             ### Diagnostic Results
             \`\`\`
             ${diagnosticContent}
             \`\`\`
-            
-            ${steps.diagnostics.outputs.has_errors === 'true' ? 
-              '### Analysis Complete\nClaude has analyzed the errors and applied fixes. Check the workflow logs for detailed information about changes made.' : 
+
+            ${steps.diagnostics.outputs.has_errors === 'true' ?
+              '### Analysis Complete\nClaude has analyzed the errors and applied fixes. Check the workflow logs for detailed information about changes made.' :
               '### No Issues Detected\nAll checks passed successfully! 🎉'}
-            
+
             ---
             *Triggered by Claude Auto-Fix workflow*`;
-            
+
             // Post comment to PR or issue
             if (context.payload.pull_request) {
               await github.rest.issues.createComment({
@@ -294,12 +294,12 @@ jobs:
             git commit -m "fix: automated fixes applied by Claude Auto-Fix workflow
 
             - Fixed TypeScript errors
-            - Resolved linting issues  
+            - Resolved linting issues
             - Updated test configurations
             - Applied code quality improvements
-            
+
             Co-authored-by: Claude Auto-Fix <claude@anthropic.com>"
-            
+
             # Try to push the changes
             git push || echo "Push failed - may need manual intervention"
           else

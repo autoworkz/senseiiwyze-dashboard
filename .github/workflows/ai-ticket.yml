@@ -16,10 +16,10 @@ jobs:
         with:
           version: 8
       - name: Install deps
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
       - name: Run open-source LLM (placeholder)
         run: |
           echo "## TODO: Run LLM container to generate patch" >> $GITHUB_STEP_SUMMARY
           # docker run -v ${{ github.workspace }}:/repo ghcr.io/your/llm-image:latest /repo .github/issue-context.json
       - name: Placeholder commit
-        run: echo "No-op; implementation pending" 
+        run: echo "No-op; implementation pending"

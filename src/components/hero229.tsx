@@ -6,20 +6,21 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { authClient } from "@/lib/auth-client";
+import { Navbar1 } from "@/components/navigation/Navbar1";
 
 const Hero229 = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   
   useEffect(() => {
-    // Check authentication status
+    // Check authentication status using Better Auth client
     const checkAuth = async () => {
       try {
-        const response = await fetch('/api/auth/session');
-        if (response.ok) {
-          const session = await response.json() as { user?: { role?: string } };
-          setIsAuthenticated(!!session?.user);
-          setUserRole(session?.user?.role || null);
+        const session = await authClient.getSession();
+        if (session.data?.user) {
+          setIsAuthenticated(true);
+          setUserRole(session.data.user.role || null);
         } else {
           setIsAuthenticated(false);
         }
@@ -67,8 +68,13 @@ const Hero229 = () => {
   };
   
   return (
-    <section className="relative h-[100dvh] w-[100dvw] overflow-hidden border bg-background py-32">
-      <div className="relative z-20 flex flex-col items-center justify-center gap-4 text-center px-4 max-w-6xl mx-auto">
+    <div className="relative h-[100dvh] w-[100dvw] overflow-hidden bg-background">
+      {/* Navigation Bar */}
+      <Navbar1 />
+      
+      {/* Hero Section */}
+      <section className="relative h-full w-full overflow-hidden">
+        <div className="relative z-20 flex flex-col items-center justify-center gap-4 text-center px-4 max-w-6xl mx-auto h-full pt-16">
         <Button
           variant="secondary"
           className="group text-md mt-42 flex w-fit items-center justify-center gap-3 rounded-full bg-muted/60 px-5 py-1 tracking-tight"
@@ -149,7 +155,8 @@ const Hero229 = () => {
         transition={{ duration: 1, ease: [0, 0, 0, 1.12] }}
         className="absolute top-1/2 right-0 z-99 hidden -translate-y-1/2 scale-x-[-1] md:block"
       />
-    </section>
+      </section>
+    </div>
   );
 };
 
