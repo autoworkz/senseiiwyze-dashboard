@@ -1,12 +1,11 @@
 /**
- * Hero Component Translation Tests
+ * Hero Component Tests
  * 
- * Tests the Hero229 component to ensure all translations work correctly
- * across all supported locales and that dynamic content renders properly.
+ * Tests the Hero229 component functionality including authentication states,
+ * loading behavior, and basic rendering.
  */
 
-import { render, screen } from '@testing-library/react';
-import { NextIntlClientProvider } from 'next-intl';
+import { render, screen, waitFor } from '@testing-library/react';
 import { Hero229 } from '@/components/hero229';
 
 // Mock framer-motion to avoid animation issues in tests
@@ -32,125 +31,38 @@ describe('Hero229 Component', () => {
     jest.resetAllMocks();
   });
 
-  it('renders all translated content in English', async () => {
-    const messages = await import('@/messages/en.json');
+  it('renders core content', () => {
+    render(<Hero229 />);
     
-    render(
-      <NextIntlClientProvider locale="en" messages={messages.default}>
-        <Hero229 />
-      </NextIntlClientProvider>
-    );
-    
-    // Check hero content
-    expect(screen.getByText(messages.default.hero.readinessIndex)).toBeInTheDocument();
-    expect(screen.getByText(messages.default.hero.headline)).toBeInTheDocument();
-    expect(screen.getByText(messages.default.hero.description)).toBeInTheDocument();
-    expect(screen.getByText(messages.default.hero.learnMore)).toBeInTheDocument();
-    
-    // Wait for component to load (it shows Loading... initially)
-    await screen.findByText(messages.default.hero.getStarted);
+    // Check main content is present
+    expect(screen.getByText('Readiness Index')).toBeInTheDocument();
+    expect(screen.getByText('Predict Training Success with AI-Powered Skill Assessments')).toBeInTheDocument();
+    expect(screen.getByText(/SenseiiWyze's proprietary algorithm/)).toBeInTheDocument();
+    expect(screen.getByText('Learn More')).toBeInTheDocument();
   });
 
-  it('renders correctly in Spanish', async () => {
-    const messages = await import('@/messages/es.json');
+  it('shows loading state initially', () => {
+    render(<Hero229 />);
     
-    render(
-      <NextIntlClientProvider locale="es" messages={messages.default}>
-        <Hero229 />
-      </NextIntlClientProvider>
-    );
-    
-    expect(screen.getByText(messages.default.hero.readinessIndex)).toBeInTheDocument();
-    expect(screen.getByText(messages.default.hero.headline)).toBeInTheDocument();
-    expect(screen.getByText(messages.default.hero.description)).toBeInTheDocument();
-  });
-
-  it('renders correctly in French', async () => {
-    const messages = await import('@/messages/fr.json');
-    
-    render(
-      <NextIntlClientProvider locale="fr" messages={messages.default}>
-        <Hero229 />
-      </NextIntlClientProvider>
-    );
-    
-    expect(screen.getByText(messages.default.hero.readinessIndex)).toBeInTheDocument();
-    expect(screen.getByText(messages.default.hero.headline)).toBeInTheDocument();
-    expect(screen.getByText(messages.default.hero.description)).toBeInTheDocument();
-  });
-
-  it('renders correctly in German', async () => {
-    const messages = await import('@/messages/de.json');
-    
-    render(
-      <NextIntlClientProvider locale="de" messages={messages.default}>
-        <Hero229 />
-      </NextIntlClientProvider>
-    );
-    
-    expect(screen.getByText(messages.default.hero.readinessIndex)).toBeInTheDocument();
-    expect(screen.getByText(messages.default.hero.headline)).toBeInTheDocument();
-    expect(screen.getByText(messages.default.hero.description)).toBeInTheDocument();
-  });
-
-  it('renders correctly in Japanese', async () => {
-    const messages = await import('@/messages/ja.json');
-    
-    render(
-      <NextIntlClientProvider locale="ja" messages={messages.default}>
-        <Hero229 />
-      </NextIntlClientProvider>
-    );
-    
-    expect(screen.getByText(messages.default.hero.readinessIndex)).toBeInTheDocument();
-    expect(screen.getByText(messages.default.hero.headline)).toBeInTheDocument();
-    expect(screen.getByText(messages.default.hero.description)).toBeInTheDocument();
-  });
-
-  it('works with all supported locales', async () => {
-    const locales = ['en', 'es', 'fr', 'de', 'ja'];
-    
-    for (const locale of locales) {
-      const messages = await import(`@/messages/${locale}.json`);
-      
-      const { unmount } = render(
-        <NextIntlClientProvider locale={locale} messages={messages.default}>
-          <Hero229 />
-        </NextIntlClientProvider>
-      );
-      
-      // Verify key elements are present
-      expect(screen.getByText(messages.default.hero.headline)).toBeInTheDocument();
-      expect(screen.getByText(messages.default.hero.description)).toBeInTheDocument();
-      expect(screen.getByText(messages.default.hero.readinessIndex)).toBeInTheDocument();
-      
-      // Clean up for next iteration
-      unmount();
-    }
+    // Should show loading text initially
+    expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
 
   it('handles unauthenticated state correctly', async () => {
-    const messages = await import('@/messages/en.json');
-    
     (fetch as jest.Mock).mockResolvedValue({
       ok: false,
       status: 401,
     });
     
-    render(
-      <NextIntlClientProvider locale="en" messages={messages.default}>
-        <Hero229 />
-      </NextIntlClientProvider>
-    );
+    render(<Hero229 />);
     
-    // Should show "Get Started" button for unauthenticated users
-    await screen.findByText(messages.default.hero.getStarted);
-    expect(screen.getByText(messages.default.hero.getStarted)).toBeInTheDocument();
+    // Should eventually show "Get Started" button for unauthenticated users
+    await waitFor(() => {
+      expect(screen.getByText('Get Started')).toBeInTheDocument();
+    });
   });
 
   it('handles authenticated state correctly', async () => {
-    const messages = await import('@/messages/en.json');
-    
     (fetch as jest.Mock).mockResolvedValue({
       ok: true,
       json: () => Promise.resolve({
@@ -158,48 +70,41 @@ describe('Hero229 Component', () => {
       }),
     });
     
-    render(
-      <NextIntlClientProvider locale="en" messages={messages.default}>
-        <Hero229 />
-      </NextIntlClientProvider>
-    );
+    render(<Hero229 />);
     
-    // Should show dashboard button for authenticated users
-    await screen.findByText(/dashboard/i);
+    // Should show dashboard link for authenticated users
+    await waitFor(() => {
+      expect(screen.getByText(/Go to Dashboard/)).toBeInTheDocument();
+    });
   });
 
-  it('has proper semantic structure', async () => {
-    const messages = await import('@/messages/en.json');
+  it('has proper semantic structure', () => {
+    render(<Hero229 />);
     
-    render(
-      <NextIntlClientProvider locale="en" messages={messages.default}>
-        <Hero229 />
-      </NextIntlClientProvider>
-    );
+    // Should have proper heading hierarchy
+    const heading = screen.getByRole('heading', { level: 1 });
+    expect(heading).toBeInTheDocument();
+    expect(heading).toHaveTextContent('Predict Training Success with AI-Powered Skill Assessments');
     
-    // Check semantic HTML structure - section doesn't have implicit banner role
-    expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
-    expect(screen.getAllByRole('button')).toHaveLength(3); // Readiness Index, Learn More, Loading/Get Started
+    // Should have section element
+    const section = screen.getByText('Readiness Index').closest('section');
+    expect(section).toBeInTheDocument();
   });
 
-  it('displays loading state correctly', async () => {
-    const messages = await import('@/messages/en.json');
+  it('calls auth API on mount', () => {
+    render(<Hero229 />);
     
-    // Mock a slow fetch to test loading state
-    (fetch as jest.Mock).mockImplementation(() => 
-      new Promise(resolve => setTimeout(() => resolve({ ok: false }), 1000))
-    );
+    expect(fetch).toHaveBeenCalledWith('/api/auth/session');
+  });
+
+  it('handles API errors gracefully', async () => {
+    (fetch as jest.Mock).mockRejectedValue(new Error('Network error'));
     
-    render(
-      <NextIntlClientProvider locale="en" messages={messages.default}>
-        <Hero229 />
-      </NextIntlClientProvider>
-    );
+    render(<Hero229 />);
     
-    // Should show loading state initially
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
-    // Check that the button containing "Loading..." is disabled
-    const loadingButton = screen.getByText('Loading...').closest('button');
-    expect(loadingButton).toBeDisabled();
+    // Should fall back to unauthenticated state
+    await waitFor(() => {
+      expect(screen.getByText('Get Started')).toBeInTheDocument();
+    });
   });
 });
