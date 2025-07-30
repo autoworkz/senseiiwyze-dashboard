@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { User, Settings, LogOut } from 'lucide-react'
-import { LocaleLocaleLink } from '@/components/locale-link'
+import Link from 'next/link'
 
 interface User {
   role: 'learner' | 'admin' | 'executive'
@@ -56,23 +56,23 @@ export function UserMenu({ user }: UserMenuProps) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <LocaleLink href="/profile" className="flex items-center">
+          <Link href="/profile" className="flex items-center">
             <User className="mr-2 h-4 w-4" />
             <span>Profile</span>
-          </LocaleLink>
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <LocaleLink href="/settings" className="flex items-center">
+          <Link href="/settings" className="flex items-center">
             <Settings className="mr-2 h-4 w-4" />
             <span>Settings</span>
-          </LocaleLink>
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <LocaleLink href="/logout" className="flex items-center">
+          <Link href="/logout" className="flex items-center">
             <LogOut className="mr-2 h-4 w-4" />
             <span>Log out</span>
-          </LocaleLink>
+          </Link>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

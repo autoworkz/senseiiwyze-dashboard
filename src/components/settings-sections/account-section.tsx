@@ -83,14 +83,25 @@ export function AccountSection() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="bio">Bio</Label>
-              <Textarea
-                id="bio"
-                name="bio"
-                value={currentProfile.bio}
-                onChange={(e) => handleProfileChange("bio", e.target.value)}
-                placeholder="Tell us about yourself"
-                className="min-h-[120px]"
+              <Label htmlFor="workplace">Workplace</Label>
+              <Input
+                id="workplace"
+                name="workplace"
+                value={currentProfile.workplace}
+                onChange={(e) => handleProfileChange("workplace", e.target.value)}
+                placeholder="Enter your workplace"
+                disabled={isSaving}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="jobTitle">Job Title</Label>
+              <Input
+                id="jobTitle"
+                name="jobTitle"
+                value={currentProfile.jobTitle}
+                onChange={(e) => handleProfileChange("jobTitle", e.target.value)}
+                placeholder="Enter your job title"
                 disabled={isSaving}
               />
             </div>

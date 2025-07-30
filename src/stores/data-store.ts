@@ -111,6 +111,7 @@ interface DataTimestamps {
     readinessScore: number | null;
     readinessMetrics: number | null;
     readinessBreakdown: number | null;
+    teamReadiness: number | null;
   };
 }
 
@@ -173,6 +174,7 @@ interface DataStore {
   fetchOrganizationInsights: () => Promise<void>;
   fetchOrganizationReports: () => Promise<void>;
   fetchOrganizationStrategy: () => Promise<void>;
+  fetchOrganizationTeamReadiness: () => Promise<void>;
   fetchAllOrganizationData: () => Promise<void>;
 
   // Invalidation Actions
@@ -902,6 +904,7 @@ export const useDataStore = create<DataStore>()(
                 readinessScore: null,
                 readinessMetrics: null,
                 readinessBreakdown: null,
+                teamReadiness: null,
               },
             },
           }));

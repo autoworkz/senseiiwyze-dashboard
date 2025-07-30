@@ -444,9 +444,6 @@ export function calculatePsychometricReadinessScore(
     riskMitigation: calculateRiskMitigation(departments, users, organization)
   }
   
-  // Calculate new psychometric component
-  const psychometricReadiness = calculatePsychometricReadiness(users)
-  
   // Calculate psychometric sub-components for detailed analysis
   const psychometricComponents = {
     personalityAlignment: users.reduce((sum, user) => {
@@ -468,6 +465,14 @@ export function calculatePsychometricReadinessScore(
       sum + calculateBehavioralPredictors(user), 0
     ) / users.length
   }
+
+  // Calculate combined psychometric readiness score
+  const psychometricReadiness = (
+    psychometricComponents.personalityAlignment +
+    psychometricComponents.cognitiveReadiness +
+    psychometricComponents.motivationalAlignment +
+    psychometricComponents.behavioralPredictors
+  ) / 4
   
   // Calculate overall score with new weights
   const weights = PSYCHOMETRIC_CALCULATION_CONFIG.weights
@@ -492,7 +497,7 @@ export function calculatePsychometricReadinessScore(
   // Generate enhanced insights
   const insights = generatePsychometricInsights(
     overallScore,
-    { ...traditionalComponents, psychometricReadiness },
+    traditionalComponents,
     psychometricComponents,
     dataCompleteness
   )
@@ -505,8 +510,7 @@ export function calculatePsychometricReadinessScore(
   return {
     overallScore: Math.round(overallScore * 100) / 100,
     components: {
-      ...traditionalComponents,
-      psychometricReadiness
+      ...traditionalComponents
     },
     psychometricComponents,
     gradeLevel: determineGradeLevel(overallScore),
@@ -668,7 +672,7 @@ export function generateMockPsychometricData(): PsychometricCalculationInput {
   const baseData = generateMockCalculationData()
   
   // Enhance users with psychometric data
-  const enhancedUsers: PsychometricUserData[] = baseData.users.map((user, index) => ({
+  const enhancedUsers: PsychometricUserData[] = baseData.users.map((user: any, index: number) => ({
     ...user,
     
     // Big Five profile (70% of users have this data)

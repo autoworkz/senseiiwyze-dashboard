@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm/relations";
-import { categories, activities, usersInAuth, profiles, workplaces, assessments, answers, evaluations, questions, sizes, goals, visionBoards, profilesCopy, lcaInvitations, gameInfo, activityProgress, user, session, account, gameTasks, taskCompletion, userTasks, scores, status, visionLog, accounts, roles, rolePermissions, invitations, billingCustomers, subscriptions, subscriptionItems, orders, orderItems, accountUser, notifications, chats, tasks, chatMessages, creditsUsage, userSkills, userPrograms, personalityExams, userSkillDetails, nonces, examTraits, examStrengths, examGrowthAreas, programSkillRequirements, accountsMemberships } from "./schema";
+import { categories, activities, profiles, workplaces, assessments, answers, evaluations, questions, sizes, goals, visionBoards, profilesCopy, lcaInvitations, gameInfo, activityProgress, user, session, account, gameTasks, taskCompletion, userTasks, scores, status, visionLog, accounts, roles, rolePermissions, invitations, billingCustomers, subscriptions, subscriptionItems, orders, orderItems, accountUser, notifications, chats, tasks, chatMessages, creditsUsage, userSkills, userPrograms, personalityExams, userSkillDetails, nonces, examTraits, examStrengths, examGrowthAreas, programSkillRequirements, accountsMemberships, authUsers } from "./schema";
 
 export const activitiesRelations = relations(activities, ({one, many}) => ({
 	category: one(categories, {
@@ -15,9 +15,9 @@ export const categoriesRelations = relations(categories, ({many}) => ({
 }));
 
 export const profilesRelations = relations(profiles, ({one, many}) => ({
-	usersInAuth: one(usersInAuth, {
+	authUser: one(authUsers, {
 		fields: [profiles.id],
-		references: [usersInAuth.id]
+		references: [authUsers.id]
 	}),
 	workplace_institutionRef: one(workplaces, {
 		fields: [profiles.institutionRef],
@@ -43,28 +43,28 @@ export const profilesRelations = relations(profiles, ({one, many}) => ({
 	personalityExams: many(personalityExams),
 }));
 
-export const usersInAuthRelations = relations(usersInAuth, ({many}) => ({
+export const authUsersRelations = relations(authUsers, ({many}) => ({
 	profiles: many(profiles),
 	profilesCopies: many(profilesCopy),
 	accounts_createdBy: many(accounts, {
-		relationName: "accounts_createdBy_usersInAuth_id"
+		relationName: "accounts_createdBy_authUsers_id"
 	}),
 	accounts_primaryOwnerUserId: many(accounts, {
-		relationName: "accounts_primaryOwnerUserId_usersInAuth_id"
+		relationName: "accounts_primaryOwnerUserId_authUsers_id"
 	}),
 	accounts_updatedBy: many(accounts, {
-		relationName: "accounts_updatedBy_usersInAuth_id"
+		relationName: "accounts_updatedBy_authUsers_id"
 	}),
 	invitations: many(invitations),
 	nonces: many(nonces),
 	accountsMemberships_createdBy: many(accountsMemberships, {
-		relationName: "accountsMemberships_createdBy_usersInAuth_id"
+		relationName: "accountsMemberships_createdBy_authUsers_id"
 	}),
 	accountsMemberships_updatedBy: many(accountsMemberships, {
-		relationName: "accountsMemberships_updatedBy_usersInAuth_id"
+		relationName: "accountsMemberships_updatedBy_authUsers_id"
 	}),
 	accountsMemberships_userId: many(accountsMemberships, {
-		relationName: "accountsMemberships_userId_usersInAuth_id"
+		relationName: "accountsMemberships_userId_authUsers_id"
 	}),
 }));
 
@@ -162,9 +162,9 @@ export const visionBoardsRelations = relations(visionBoards, ({one, many}) => ({
 }));
 
 export const profilesCopyRelations = relations(profilesCopy, ({one}) => ({
-	usersInAuth: one(usersInAuth, {
+	authUser: one(authUsers, {
 		fields: [profilesCopy.id],
-		references: [usersInAuth.id]
+		references: [authUsers.id]
 	}),
 	workplace_institutionRef: one(workplaces, {
 		fields: [profilesCopy.institutionRef],
@@ -276,20 +276,20 @@ export const visionLogRelations = relations(visionLog, ({one}) => ({
 }));
 
 export const accountsRelations = relations(accounts, ({one, many}) => ({
-	usersInAuth_createdBy: one(usersInAuth, {
+	authUser_createdBy: one(authUsers, {
 		fields: [accounts.createdBy],
-		references: [usersInAuth.id],
-		relationName: "accounts_createdBy_usersInAuth_id"
+		references: [authUsers.id],
+		relationName: "accounts_createdBy_authUsers_id"
 	}),
-	usersInAuth_primaryOwnerUserId: one(usersInAuth, {
+	authUser_primaryOwnerUserId: one(authUsers, {
 		fields: [accounts.primaryOwnerUserId],
-		references: [usersInAuth.id],
-		relationName: "accounts_primaryOwnerUserId_usersInAuth_id"
+		references: [authUsers.id],
+		relationName: "accounts_primaryOwnerUserId_authUsers_id"
 	}),
-	usersInAuth_updatedBy: one(usersInAuth, {
+	authUser_updatedBy: one(authUsers, {
 		fields: [accounts.updatedBy],
-		references: [usersInAuth.id],
-		relationName: "accounts_updatedBy_usersInAuth_id"
+		references: [authUsers.id],
+		relationName: "accounts_updatedBy_authUsers_id"
 	}),
 	invitations: many(invitations),
 	billingCustomers: many(billingCustomers),
@@ -321,9 +321,9 @@ export const invitationsRelations = relations(invitations, ({one}) => ({
 		fields: [invitations.accountId],
 		references: [accounts.id]
 	}),
-	usersInAuth: one(usersInAuth, {
+	authUser: one(authUsers, {
 		fields: [invitations.invitedBy],
-		references: [usersInAuth.id]
+		references: [authUsers.id]
 	}),
 	role: one(roles, {
 		fields: [invitations.role],
@@ -466,9 +466,9 @@ export const userSkillDetailsRelations = relations(userSkillDetails, ({one}) => 
 }));
 
 export const noncesRelations = relations(nonces, ({one}) => ({
-	usersInAuth: one(usersInAuth, {
+	authUser: one(authUsers, {
 		fields: [nonces.userId],
-		references: [usersInAuth.id]
+		references: [authUsers.id]
 	}),
 }));
 
@@ -509,19 +509,19 @@ export const accountsMembershipsRelations = relations(accountsMemberships, ({one
 		fields: [accountsMemberships.accountRole],
 		references: [roles.name]
 	}),
-	usersInAuth_createdBy: one(usersInAuth, {
+	authUser_createdBy: one(authUsers, {
 		fields: [accountsMemberships.createdBy],
-		references: [usersInAuth.id],
-		relationName: "accountsMemberships_createdBy_usersInAuth_id"
+		references: [authUsers.id],
+		relationName: "accountsMemberships_createdBy_authUsers_id"
 	}),
-	usersInAuth_updatedBy: one(usersInAuth, {
+	authUser_updatedBy: one(authUsers, {
 		fields: [accountsMemberships.updatedBy],
-		references: [usersInAuth.id],
-		relationName: "accountsMemberships_updatedBy_usersInAuth_id"
+		references: [authUsers.id],
+		relationName: "accountsMemberships_updatedBy_authUsers_id"
 	}),
-	usersInAuth_userId: one(usersInAuth, {
+	authUser_userId: one(authUsers, {
 		fields: [accountsMemberships.userId],
-		references: [usersInAuth.id],
-		relationName: "accountsMemberships_userId_usersInAuth_id"
+		references: [authUsers.id],
+		relationName: "accountsMemberships_userId_authUsers_id"
 	}),
 }));
