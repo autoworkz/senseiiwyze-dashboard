@@ -50,13 +50,22 @@ jobs:
           # assignee_trigger: "claude-bot"
           
           # Optional: Allow Claude to run specific commands
-          # allowed_tools: "Bash(npm install),Bash(npm run build),Bash(npm run test:*),Bash(npm run lint:*)"
+          allowed_tools: "Bash(pnpm install),Bash(pnpm run build),Bash(pnpm run test),Bash(pnpm run test:*),Bash(pnpm run lint),Bash(pnpm run typecheck)"
           
           # Optional: Add custom instructions for Claude to customize its behavior for your project
-          # custom_instructions: |
-          #   Follow our coding standards
-          #   Ensure all new code has tests
-          #   Use TypeScript for new files
+          custom_instructions: |
+            This is a Next.js 15 project with App Router using TypeScript and shadcn/ui components.
+            
+            Key requirements:
+            - ALWAYS use pnpm as package manager (never npm or yarn)
+            - Use shadcn/ui semantic color utilities (bg-background, text-foreground, etc.) instead of hardcoded colors
+            - Follow the incremental approach: Start Small → Validate → Expand → Scale
+            - All new components should use 'use client' directive and shadcn/ui patterns
+            - Import using @/ alias from src directory
+            - Write tests using Jest and React Testing Library before implementation (TDD)
+            - Run pnpm build, pnpm lint, and pnpm test before suggesting completion
+            
+            Check CLAUDE.md and .agent-os/product/ files for detailed project context and standards.
           
           # Optional: Custom environment variables for Claude
           # claude_env: |
