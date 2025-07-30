@@ -1,12 +1,24 @@
-import type React from "react"
-import "./globals.css"
+import type React from "react";
+import type { Metadata } from "next";
+import { ThemeProvider } from "@/components/theme-provider";
+import "./globals.css";
 
-// Root layout in next-intl App Router should NOT contain HTML structure
-// All HTML should be in the [locale] layout
+export const metadata: Metadata = {
+  title: "SenseiiWyze Dashboard",
+  description: "AI-powered tech skill coaching platform",
+  generator: "Next.js",
+};
+
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
-  return children
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body>
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
+    </html>
+  );
 }

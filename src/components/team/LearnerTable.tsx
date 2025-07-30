@@ -1,7 +1,7 @@
 'use client'
 
 
-import { LocaleLink } from '@/components/locale-link'
+import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -125,10 +125,10 @@ export function LearnerTable({ learners }: LearnerTableProps) {
               </TableCell>
               <TableCell>
                 <Button variant="ghost" size="sm" asChild>
-                  <LocaleLink href={`/team/profile/${learner.id}`} className="gap-1">
+                  <Link href={`/team/profile/${learner.id}`} className="gap-1">
                     <ExternalLink className="h-3 w-3" />
                     View
-                  </LocaleLink>
+                  </Link>
                 </Button>
               </TableCell>
             </TableRow>

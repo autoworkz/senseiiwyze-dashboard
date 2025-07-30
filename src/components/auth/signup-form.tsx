@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { SocialLogin } from '@/components/auth/social-login'
-import { LocaleLink } from '@/components/locale-link'
+import Link from 'next/link'
 
 export function SignupForm() {
   const [formData, setFormData] = useState({
@@ -198,9 +198,9 @@ export function SignupForm() {
           <div className="mt-6 pt-6 border-t text-center">
             <p className="text-sm text-muted-foreground">
               Already have an account?{' '}
-              <LocaleLink href="/auth/login" className="text-primary hover:underline">
+              <Link href="/auth/login" className="text-primary hover:underline">
                 Sign in
-              </LocaleLink>
+              </Link>
             </p>
           </div>
         </CardContent>
