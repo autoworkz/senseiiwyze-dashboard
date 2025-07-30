@@ -1,0 +1,368 @@
+name: Claude Next.js 15 Optimizer
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      analysis_type:
+        description: 'Type of optimization analysis'
+        required: false
+        default: 'comprehensive'
+        type: choice
+        options:
+          - comprehensive
+          - server-components
+          - suspense-streaming
+          - performance
+          - caching
+          - app-router
+      target_directory:
+        description: 'Specific directory to analyze (optional)'
+        required: false
+        default: 'src/'
+        type: string
+
+jobs:
+  nextjs-optimization-analysis:
+    # Trigger on @claude-optimize comments or manual dispatch
+    if: |
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude-optimize')) ||
+      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude-optimize')) ||
+      github.event_name == 'workflow_dispatch'
+    
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      actions: read
+      id-token: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.0.0
+          
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Analyze codebase structure
+        id: codebase-analysis
+        run: |
+          echo "=== NEXT.JS 15 CODEBASE ANALYSIS ===" > nextjs_analysis_report.txt
+          echo "Timestamp: $(date)" >> nextjs_analysis_report.txt
+          echo "Repository: ${{ github.repository }}" >> nextjs_analysis_report.txt
+          echo "Branch: ${{ github.ref_name }}" >> nextjs_analysis_report.txt
+          echo "Analysis Type: ${{ github.event.inputs.analysis_type || 'comprehensive' }}" >> nextjs_analysis_report.txt
+          echo "Target Directory: ${{ github.event.inputs.target_directory || 'src/' }}" >> nextjs_analysis_report.txt
+          echo "" >> nextjs_analysis_report.txt
+          
+          # Next.js version and configuration analysis
+          echo "=== NEXT.JS CONFIGURATION ANALYSIS ===" >> nextjs_analysis_report.txt
+          echo "Next.js version:" >> nextjs_analysis_report.txt
+          grep '"next"' package.json >> nextjs_analysis_report.txt 2>&1 || echo "Next.js version not found in package.json" >> nextjs_analysis_report.txt
+          echo "" >> nextjs_analysis_report.txt
+          
+          echo "Next.js config files:" >> nextjs_analysis_report.txt
+          ls -la next.config.* 2>/dev/null >> nextjs_analysis_report.txt || echo "No next.config files found" >> nextjs_analysis_report.txt
+          echo "" >> nextjs_analysis_report.txt
+          
+          # App Router structure analysis  
+          echo "=== APP ROUTER STRUCTURE ANALYSIS ===" >> nextjs_analysis_report.txt
+          echo "App directory structure:" >> nextjs_analysis_report.txt
+          find src/app -type f -name "*.tsx" -o -name "*.ts" -o -name "*.jsx" -o -name "*.js" 2>/dev/null | head -50 >> nextjs_analysis_report.txt || echo "App directory not found or no files" >> nextjs_analysis_report.txt
+          echo "" >> nextjs_analysis_report.txt
+          
+          # Component analysis
+          echo "=== COMPONENT ANALYSIS ===" >> nextjs_analysis_report.txt
+          echo "Client components ('use client' directive):" >> nextjs_analysis_report.txt
+          grep -r "use client" src/ --include="*.tsx" --include="*.ts" --include="*.jsx" --include="*.js" 2>/dev/null | wc -l >> nextjs_analysis_report.txt || echo "0" >> nextjs_analysis_report.txt
+          echo "" >> nextjs_analysis_report.txt
+          
+          echo "Server components (no 'use client'):" >> nextjs_analysis_report.txt
+          find src/components -name "*.tsx" -o -name "*.jsx" 2>/dev/null | xargs grep -L "use client" 2>/dev/null | wc -l >> nextjs_analysis_report.txt || echo "0" >> nextjs_analysis_report.txt
+          echo "" >> nextjs_analysis_report.txt
+          
+          # API routes analysis
+          echo "=== API ROUTES ANALYSIS ===" >> nextjs_analysis_report.txt
+          echo "API routes found:" >> nextjs_analysis_report.txt
+          find src/app -path "*/api/*" -name "route.ts" -o -name "route.js" 2>/dev/null >> nextjs_analysis_report.txt || echo "No API routes found" >> nextjs_analysis_report.txt
+          echo "" >> nextjs_analysis_report.txt
+          
+          # Layout and loading analysis
+          echo "=== LAYOUTS AND LOADING ANALYSIS ===" >> nextjs_analysis_report.txt
+          echo "Layout files:" >> nextjs_analysis_report.txt
+          find src/app -name "layout.tsx" -o -name "layout.js" 2>/dev/null >> nextjs_analysis_report.txt || echo "No layout files found" >> nextjs_analysis_report.txt
+          echo "" >> nextjs_analysis_report.txt
+          
+          echo "Loading UI files:" >> nextjs_analysis_report.txt
+          find src/app -name "loading.tsx" -o -name "loading.js" 2>/dev/null >> nextjs_analysis_report.txt || echo "No loading files found" >> nextjs_analysis_report.txt
+          echo "" >> nextjs_analysis_report.txt
+          
+          echo "Error UI files:" >> nextjs_analysis_report.txt
+          find src/app -name "error.tsx" -o -name "error.js" -o -name "not-found.tsx" 2>/dev/null >> nextjs_analysis_report.txt || echo "No error files found" >> nextjs_analysis_report.txt
+          echo "" >> nextjs_analysis_report.txt
+          
+          # Suspense usage analysis
+          echo "=== SUSPENSE USAGE ANALYSIS ===" >> nextjs_analysis_report.txt
+          echo "Suspense boundaries found:" >> nextjs_analysis_report.txt
+          grep -r "Suspense" src/ --include="*.tsx" --include="*.jsx" 2>/dev/null | wc -l >> nextjs_analysis_report.txt || echo "0" >> nextjs_analysis_report.txt
+          echo "" >> nextjs_analysis_report.txt
+          
+          # Data fetching patterns
+          echo "=== DATA FETCHING PATTERNS ANALYSIS ===" >> nextjs_analysis_report.txt
+          echo "Server-side data fetching (async components):" >> nextjs_analysis_report.txt
+          grep -r "export default async function" src/app --include="*.tsx" --include="*.jsx" 2>/dev/null | wc -l >> nextjs_analysis_report.txt || echo "0" >> nextjs_analysis_report.txt
+          echo "" >> nextjs_analysis_report.txt
+          
+          echo "Client-side data fetching patterns:" >> nextjs_analysis_report.txt
+          grep -r -E "(useEffect|useSWR|useQuery|fetch)" src/ --include="*.tsx" --include="*.jsx" 2>/dev/null | wc -l >> nextjs_analysis_report.txt || echo "0" >> nextjs_analysis_report.txt
+          echo "" >> nextjs_analysis_report.txt
+          
+          # Performance and caching indicators
+          echo "=== PERFORMANCE INDICATORS ===" >> nextjs_analysis_report.txt
+          echo "Dynamic imports found:" >> nextjs_analysis_report.txt
+          grep -r "dynamic(" src/ --include="*.tsx" --include="*.jsx" --include="*.ts" --include="*.js" 2>/dev/null | wc -l >> nextjs_analysis_report.txt || echo "0" >> nextjs_analysis_report.txt
+          echo "" >> nextjs_analysis_report.txt
+          
+          echo "Image optimization usage:" >> nextjs_analysis_report.txt
+          grep -r "next/image" src/ --include="*.tsx" --include="*.jsx" 2>/dev/null | wc -l >> nextjs_analysis_report.txt || echo "0" >> nextjs_analysis_report.txt
+          echo "" >> nextjs_analysis_report.txt
+          
+          echo "Metadata API usage:" >> nextjs_analysis_report.txt
+          grep -r -E "(generateMetadata|metadata)" src/app --include="*.tsx" --include="*.jsx" 2>/dev/null | wc -l >> nextjs_analysis_report.txt || echo "0" >> nextjs_analysis_report.txt
+          echo "" >> nextjs_analysis_report.txt
+          
+          # Package.json analysis for Next.js related packages
+          echo "=== NEXT.JS ECOSYSTEM PACKAGES ===" >> nextjs_analysis_report.txt
+          echo "Next.js related packages:" >> nextjs_analysis_report.txt
+          grep -E "(next|react|@next)" package.json >> nextjs_analysis_report.txt 2>&1 || echo "No Next.js packages found" >> nextjs_analysis_report.txt
+          echo "" >> nextjs_analysis_report.txt
+
+      - name: Run Next.js 15 Optimization Analysis
+        id: claude-optimization
+        uses: anthropics/claude-code-action@beta
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          
+          # Enable comprehensive tools for analysis and optimization
+          allowed_tools: "Bash(pnpm run build),Bash(pnpm run typecheck),Bash(pnpm run lint),Read,Write,Edit,MultiEdit,Glob,Grep"
+          
+          # Specialized Next.js 15 optimization instructions
+          custom_instructions: |
+            You are a Next.js 15 expert specializing in modern React patterns, server-side rendering, and performance optimization.
+            
+            ANALYSIS FOCUS AREAS:
+            
+            1. **Server Components Optimization**:
+               - Identify client components that could be server components
+               - Find data fetching that should move to server-side
+               - Analyze component boundaries for optimal server/client split
+               - Suggest async server component opportunities
+            
+            2. **Suspense & Streaming Patterns**:
+               - Identify loading states that could use Suspense boundaries
+               - Find opportunities for streaming UI with loading.tsx
+               - Suggest parallel data fetching with Suspense
+               - Analyze error boundaries and error.tsx usage
+            
+            3. **App Router Best Practices**:
+               - Review route organization and layout nesting
+               - Analyze metadata generation opportunities
+               - Check for proper route handlers vs. API routes
+               - Suggest route groups and parallel routes where beneficial
+            
+            4. **Performance Optimizations**:
+               - Identify bundle size reduction opportunities
+               - Find images that need next/image optimization
+               - Suggest dynamic imports for code splitting
+               - Analyze caching strategies (app directory features)
+            
+            5. **Modern Data Fetching**:
+               - Replace client-side data fetching with server components
+               - Identify opportunities for revalidation strategies
+               - Suggest fetch() with caching and revalidation
+               - Find use cases for server actions
+            
+            6. **Real-time & Interactivity**:
+               - Identify where server actions could replace API calls
+               - Find opportunities for optimistic updates
+               - Suggest streaming data patterns
+               - Analyze form submissions and mutations
+            
+            OPTIMIZATION APPROACH:
+            - Follow incremental migration strategy
+            - Prioritize high-impact, low-risk changes
+            - Provide specific code examples for each suggestion
+            - Consider SEO and Core Web Vitals impact
+            - Maintain existing functionality while improving patterns
+            
+            PROJECT CONTEXT:
+            - Next.js 15 with App Router
+            - shadcn/ui components
+            - Better Auth authentication
+            - TypeScript with strict mode
+            - Current architecture analysis available in nextjs_analysis_report.txt
+          
+          # Main optimization prompt
+          direct_prompt: |
+            I need a comprehensive Next.js 15 optimization analysis for this codebase.
+            
+            PHASE 1 - CURRENT STATE ANALYSIS:
+            1. Read the nextjs_analysis_report.txt to understand current architecture
+            2. Examine the codebase structure, focusing on:
+               - Component architecture (server vs client components)
+               - Data fetching patterns
+               - Route structure and layouts
+               - Performance characteristics
+               - Usage of Next.js 15 features
+            
+            PHASE 2 - OPTIMIZATION OPPORTUNITIES:
+            1. **Server-Side Rendering Opportunities**:
+               - Identify client components that should be server components
+               - Find data fetching that can move server-side
+               - Suggest async server component patterns
+            
+            2. **Suspense & Streaming Improvements**:
+               - Identify loading states for Suspense boundaries
+               - Suggest streaming UI with loading.tsx files
+               - Find parallel data fetching opportunities
+               - Recommend error boundary improvements
+            
+            3. **Modern Next.js 15 Patterns**:
+               - App Router optimizations
+               - Metadata API improvements
+               - Route handler vs API route decisions
+               - Server actions implementation
+               - Caching and revalidation strategies
+            
+            4. **Performance Enhancements**:
+               - Bundle size optimizations
+               - Image optimization opportunities
+               - Dynamic import suggestions
+               - Core Web Vitals improvements
+            
+            PHASE 3 - IMPLEMENTATION ROADMAP:
+            Create a prioritized roadmap with:
+            1. High-impact, low-risk optimizations (immediate wins)
+            2. Medium-impact improvements (next sprint)
+            3. Large architectural changes (future planning)
+            4. Specific code examples for each suggestion
+            5. Migration strategies for each optimization
+            
+            Focus on practical, implementable suggestions that leverage Next.js 15's full potential while maintaining code quality and user experience.
+
+      - name: Create optimization summary comment
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            
+            // Read analysis report
+            let analysisContent = '';
+            try {
+              analysisContent = fs.readFileSync('nextjs_analysis_report.txt', 'utf8');
+            } catch (error) {
+              analysisContent = 'Analysis report not found';
+            }
+            
+            // Create comment body
+            const commentBody = `## 🚀 Next.js 15 Optimization Analysis
+            
+            **Trigger**: ${context.eventName === 'workflow_dispatch' ? 'Manual Dispatch' : '@claude-optimize comment'}
+            **Analysis Type**: ${{ github.event.inputs.analysis_type || 'comprehensive' }}
+            **Target Directory**: ${{ github.event.inputs.target_directory || 'src/' }}
+            **Timestamp**: ${new Date().toISOString()}
+            **Workflow Run**: [${context.runId}](${context.payload.repository.html_url}/actions/runs/${context.runId})
+            
+            ### 📊 Codebase Analysis Summary
+            <details>
+            <summary>Click to view detailed analysis</summary>
+            
+            \`\`\`
+            ${analysisContent}
+            \`\`\`
+            </details>
+            
+            ### 🎯 Optimization Analysis
+            Claude has completed a comprehensive analysis of your Next.js 15 codebase focusing on:
+            
+            - **Server Components**: Opportunities to move logic server-side
+            - **Suspense & Streaming**: Improved loading states and UI streaming
+            - **App Router Patterns**: Modern routing and layout optimizations
+            - **Performance**: Bundle size, caching, and Core Web Vitals
+            - **Data Fetching**: Server-side data fetching and real-time patterns
+            
+            Check the workflow logs for detailed recommendations and implementation roadmap.
+            
+            ---
+            
+            ### 💡 Quick Usage Tips:
+            - **Comment \`@claude-optimize\`** on any PR/issue for full analysis
+            - **Use workflow dispatch** for targeted analysis types
+            - **Target specific directories** with the directory parameter
+            
+            *Powered by Claude Next.js 15 Optimizer*`;
+            
+            // Post comment to PR or issue
+            if (context.payload.pull_request) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body: commentBody
+              });
+            } else if (context.payload.issue) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.issue.number,
+                body: commentBody
+              });
+            }
+
+      - name: Create optimization branch (if significant changes suggested)
+        if: steps.claude-optimization.conclusion == 'success'
+        run: |
+          # Check if Claude made any file changes during analysis
+          if [ -n "$(git status --porcelain)" ]; then
+            # Create a new branch for optimizations
+            BRANCH_NAME="nextjs-optimization-$(date +%Y%m%d-%H%M%S)"
+            git checkout -b "$BRANCH_NAME"
+            
+            git config --local user.email "action@github.com"
+            git config --local user.name "Claude Next.js Optimizer"
+            git add .
+            git commit -m "feat: Next.js 15 optimizations suggested by Claude
+
+            🚀 Optimizations applied:
+            - Server component conversions
+            - Suspense boundary improvements  
+            - App Router pattern enhancements
+            - Performance optimizations
+            - Data fetching modernization
+            
+            Co-authored-by: Claude Next.js Optimizer <claude@anthropic.com>"
+            
+            # Push the new branch
+            git push -u origin "$BRANCH_NAME" || echo "Push failed - may need manual intervention"
+            
+            echo "✅ Created optimization branch: $BRANCH_NAME"
+          else
+            echo "ℹ️  No file changes made - analysis was informational only"
+          fi

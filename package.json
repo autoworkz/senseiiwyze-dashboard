@@ -141,6 +141,7 @@
     "test:components": "vitest src/components/",
     "test:parallel": "vitest --reporter=verbose --threads",
     "test:ci": "vitest run --coverage --reporter=verbose --reporter=junit",
+    "typecheck": "tsc --noEmit",
     "test:e2e": "pnpm exec playwright test",
     "analyze": "pnpm build && open dist/stats.html",
     "analyze:size": "rollup-plugin-visualizer --template=treemap --open",
