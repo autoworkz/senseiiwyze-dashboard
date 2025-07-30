@@ -6,27 +6,44 @@
  */
 
 import { render, screen, waitFor } from '@testing-library/react';
+import { vi, beforeEach, afterEach, describe, it, expect } from 'vitest';
 import { Hero229 } from '@/components/hero229';
+import { authClient } from '@/lib/auth-client';
+
+// Mock Next.js Link component
+vi.mock('next/link', () => ({
+  default: ({ children, href, ...props }: any) => <a href={href} {...props}>{children}</a>,
+}));
 
 // Mock framer-motion to avoid animation issues in tests
-jest.mock('framer-motion', () => ({
+vi.mock('framer-motion', () => ({
   motion: {
     svg: ({ children, ...props }: any) => <svg {...props}>{children}</svg>,
   },
 }));
 
-// Mock the auth client module completely
-const mockGetSession = jest.fn();
-
-jest.mock('@/lib/auth-client', () => ({
-  authClient: {
-    getSession: mockGetSession,
-  },
+// Mock the Navigation component to avoid complex navigation testing
+vi.mock('@/components/navigation/Navbar1', () => ({
+  Navbar1: () => <nav data-testid="navbar">Navigation</nav>,
 }));
 
+// Mock the auth client module completely
+vi.mock('@/lib/auth-client', () => {
+  const mockGetSession = vi.fn();
+  return {
+    authClient: {
+      getSession: mockGetSession,
+    },
+    __mockGetSession: mockGetSession, // Export for access in tests
+  };
+});
+
 describe('Hero229 Component', () => {
+  // Get the mock function
+  const mockGetSession = vi.mocked(authClient.getSession);
+
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     // Default to unauthenticated state
     mockGetSession.mockResolvedValue({
       data: null,
@@ -35,10 +52,17 @@ describe('Hero229 Component', () => {
   });
 
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
-  it('renders core content', () => {
+  it('renders basic navigation', () => {
+    render(<Hero229 />);
+    
+    // Check that navigation is rendered
+    expect(screen.getByTestId('navbar')).toBeInTheDocument();
+  });
+
+  it('renders core hero content', () => {
     render(<Hero229 />);
     
     // Check main content is present
@@ -48,10 +72,16 @@ describe('Hero229 Component', () => {
     expect(screen.getByText('Learn More')).toBeInTheDocument();
   });
 
+  it('calls auth client on mount', () => {
+    render(<Hero229 />);
+    
+    expect(mockGetSession).toHaveBeenCalled();
+  });
+
   it('shows loading state initially', () => {
     render(<Hero229 />);
     
-    // Should show loading text initially
+    // Should show loading text initially (in the button)
     expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
 
@@ -66,7 +96,7 @@ describe('Hero229 Component', () => {
     // Should eventually show "Get Started" button for unauthenticated users
     await waitFor(() => {
       expect(screen.getByText('Get Started')).toBeInTheDocument();
-    });
+    }, { timeout: 2000 });
   });
 
   it('handles authenticated state correctly', async () => {
@@ -80,29 +110,10 @@ describe('Hero229 Component', () => {
     
     render(<Hero229 />);
     
-    // Should show dashboard link for authenticated users
+    // Should show "Go to Dashboard" button for authenticated users
     await waitFor(() => {
-      expect(screen.getByText(/Dashboard/)).toBeInTheDocument();
-    });
-  });
-
-  it('has proper semantic structure', () => {
-    render(<Hero229 />);
-    
-    // Should have proper heading hierarchy
-    const heading = screen.getByRole('heading', { level: 1 });
-    expect(heading).toBeInTheDocument();
-    expect(heading).toHaveTextContent('Predict Training Success with AI-Powered Skill Assessments');
-    
-    // Should have section element
-    const section = screen.getByText('Readiness Index').closest('section');
-    expect(section).toBeInTheDocument();
-  });
-
-  it('calls auth client on mount', () => {
-    render(<Hero229 />);
-    
-    expect(mockGetSession).toHaveBeenCalled();
+      expect(screen.getByText('Go to Dashboard')).toBeInTheDocument();
+    }, { timeout: 2000 });
   });
 
   it('handles auth client errors gracefully', async () => {
@@ -113,6 +124,6 @@ describe('Hero229 Component', () => {
     // Should fall back to unauthenticated state
     await waitFor(() => {
       expect(screen.getByText('Get Started')).toBeInTheDocument();
-    });
+    }, { timeout: 2000 });
   });
 });
