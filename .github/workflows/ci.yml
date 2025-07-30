@@ -8,7 +8,7 @@ on:
 
 jobs:
   pnpm-check:
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       
@@ -39,8 +39,10 @@ jobs:
           fi
 
   test:
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-22.04
     needs: pnpm-check
+    env:
+      DEPOT_TOKEN: ${{ secrets.DEPOT_TOKEN }}
     
     steps:
       - uses: actions/checkout@v4
@@ -69,10 +71,8 @@ jobs:
             ${{ runner.os }}-pnpm-store-
             
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-platform
-        env:
-          # Skip optional dependencies that may cause platform issues
-          SKIP_OPTIONAL: true
+        run: pnpm install --frozen-lockfile
+        # Note: Depot runners are fast and reliable, may not need --ignore-platform
         
       - name: Run type checking
         run: pnpm run typecheck
