@@ -81,7 +81,7 @@ export default function DashboardPage() {
             <div className="text-2xl font-bold">Coming Soon</div>
             <p className="text-xs text-muted-foreground">Skill analytics and readiness tracking</p>
             <Button asChild size="sm" className="mt-3" variant="outline">
-              <Link href="/dashboard/analytics">View Analytics</Link>
+              <Link href="/analytics">View Analytics</Link>
             </Button>
           </CardContent>
         </Card>
