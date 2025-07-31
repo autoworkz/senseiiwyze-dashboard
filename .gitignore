@@ -129,3 +129,7 @@ i18n.cache
 
 # Sentry Config File
 .env.sentry-build-plugin
+
+# Context Portal database files (contains API keys)
+.context-portal/
+**/context-portal/

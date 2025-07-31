@@ -1,0 +1,35 @@
+node_id,node_name,category,description
+content_model_reference,content_model_reference,core_reference,Master taxonomy system with hierarchical element IDs for O*NET data model
+scales_reference,scales_reference,core_reference,Measurement scales defining min/max values for rating systems
+level_scale_anchors,level_scale_anchors,core_reference,Human-readable descriptions for specific scale values
+iwa_reference,iwa_reference,core_reference,Intermediate work activities - mid-level activity descriptions
+dwa_reference,dwa_reference,core_reference,Detailed work activities - granular task-level descriptions
+unspsc_reference,unspsc_reference,core_reference,UN Standard Products and Services Code for technology classification
+job_zone_reference,job_zone_reference,core_reference,Education and experience level classifications
+abilities,abilities,assessment,Cognitive and physical abilities assessment data
+skills,skills,assessment,Technical skills with proficiency ratings
+knowledge,knowledge,assessment,Domain knowledge and subject expertise requirements
+interests,interests,assessment,Occupational interests using RIASEC model
+education_training_experience,education_training_experience,assessment,Education and training requirements
+work_activities,work_activities,work_system,General work activities and job functions
+work_context,work_context,work_system,Work environment and contextual factors
+work_styles,work_styles,work_system,Work preferences and behavioral styles
+work_values,work_values,work_system,Work values and motivational factors
+job_zones,job_zones,work_system,Job complexity zone assignments
+technology_skills,technology_skills,support,Technology proficiency and tool skills
+tools_used,tools_used,support,Tools and equipment usage data
+riasec_keywords,riasec_keywords,support,Keywords for RIASEC interest mapping
+interests_illus_activities,interests_illus_activities,support,Illustrative activities for interests
+interests_illus_occupations,interests_illus_occupations,support,Example occupations for interests
+task_categories,task_categories,support,Task classification categories
+task_ratings,task_ratings,support,Task importance rating system
+task_statements,task_statements,support,Specific task descriptions
+survey_booklet_locations,survey_booklet_locations,support,Survey structure and organization
+work_context_categories,work_context_categories,support,Work environment category groupings
+ete_categories,ete_categories,support,Education and training category classifications
+abilities_to_work_activities,abilities_to_work_activities,bridge,Links abilities to work activities
+abilities_to_work_context,abilities_to_work_context,bridge,Links abilities to work context factors
+skills_to_work_activities,skills_to_work_activities,bridge,Links skills to work activities
+skills_to_work_context,skills_to_work_context,bridge,Links skills to work context factors
+basic_interests_to_riasec,basic_interests_to_riasec,bridge,Maps basic interests to RIASEC categories
+tasks_to_dwas,tasks_to_dwas,bridge,Links task statements to detailed work activities

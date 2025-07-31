@@ -46,6 +46,14 @@ pnpm test:watch       # Watch mode for TDD
 pnpm test -- <pattern> # Run specific tests
 ```
 
+## ⚠️ HANDS-OFF DIRECTORIES
+
+**DO NOT MODIFY THESE DIRECTORIES - THEY ARE MANAGED BY EXTERNAL SYSTEMS:**
+
+- `src/app/api/auth/[...all]/` - Better Auth auto-generated API routes
+- Any files with `// @generated` comments
+- `.next/` build directory
+
 ## Architecture Overview
 
 This is a Next.js 15 application using the App Router pattern with TypeScript and shadcn/ui components.
@@ -161,6 +169,46 @@ When asked to work on this codebase:
 **See:** `cursor-rules/07-incremental-testing-approach.md` for detailed guidelines.
 
 **Why:** Complexity is the enemy of reliability. This approach catches issues early, provides measurable progress, and ensures working deliverables.
+
+## Development Workflow Guidelines
+
+### Background Process Restrictions
+
+**⚠️ IMPORTANT: Claude cannot run background processes yet.**
+
+- **DO NOT run `pnpm dev`** - Claude cannot monitor background processes or get their status
+- **Avoid long-running processes** - This prevents ghost processes and getting stuck
+- **Use iterative development** - User will provide state information and feedback
+- **Test incrementally** - Build, test specific functionality, then iterate
+
+### Browser Testing with MCP Tools
+
+**Use `browser-tools-mcp` for real-time validation:**
+- Take screenshots to verify UI changes
+- Check console logs for errors
+- Test user interactions and navigation
+- Validate responsive design
+- Debug runtime issues
+
+**Example Browser Testing Workflow:**
+```typescript
+// 1. Take screenshot to see current state
+await mcp__browser-tools-mcp__takeScreenshot();
+
+// 2. Check for console errors
+await mcp__browser-tools-mcp__getConsoleErrors();
+
+// 3. Navigate and test functionality
+await mcp__chrome-mcp-server__chrome_navigate({ url: "http://localhost:3000/dashboard" });
+await mcp__chrome-mcp-server__chrome_screenshot({ filename: "dashboard-test.png" });
+```
+
+### Development Cycle
+1. **Make changes** to code
+2. **Run build** to check for errors (`pnpm build`)
+3. **User starts dev server** and provides feedback
+4. **Use browser MCP tools** to validate changes
+5. **Iterate** based on feedback and browser testing
 
 ## Available MCP Tools
 

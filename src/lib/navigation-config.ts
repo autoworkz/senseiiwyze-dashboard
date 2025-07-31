@@ -12,7 +12,8 @@ import {
   Presentation,
   UserCheck,
   BookOpen,
-  Settings
+  Settings,
+  CreditCard
 } from 'lucide-react'
 
 export interface NavigationItem {
@@ -27,15 +28,22 @@ export interface NavigationItem {
 }
 
 export interface NavigationContext {
-  key: 'platform' | 'enterprise' | 'coach' | 'learner' | 'institution';
+  key: 'dashboard' | 'platform' | 'enterprise' | 'coach' | 'learner' | 'institution';
   title: string;
   description: string;
   basePath: string;
   roles: string[];
 }
 
-// Define the five stakeholder-based dashboard contexts
+// Define the navigation contexts including unified dashboard
 export const navigationContexts: NavigationContext[] = [
+  {
+    key: 'dashboard',
+    title: 'Dashboard',
+    description: 'Unified dashboard for all users',
+    basePath: '/dashboard',
+    roles: ['learner', 'admin', 'executive', 'ceo', 'worker', 'frontliner', 'coach', 'platform-admin'] // All roles
+  },
   {
     key: 'platform',
     title: 'Platform Operations',
@@ -70,6 +78,64 @@ export const navigationContexts: NavigationContext[] = [
     description: 'Academic program management and student outcomes',
     basePath: '/institution',
     roles: ['institution', 'academic', 'program-director', 'university']
+  }
+];
+
+// Unified Dashboard Navigation (Main app navigation)
+export const dashboardNavigation: NavigationItem[] = [
+  {
+    title: "Dashboard",
+    href: "/dashboard",
+    icon: BarChart3,
+    description: "Executive overview and key metrics"
+  },
+  {
+    title: "Analytics",
+    href: "/analytics",  
+    icon: BarChart3,
+    description: "Detailed analytics and insights"
+  },
+  {
+    title: "Team",
+    href: "/team",
+    icon: Users,
+    description: "Team management and oversight"
+  },
+  {
+    title: "Learning",
+    href: "/learning",
+    icon: BookOpen,
+    description: "Learning paths and progress"
+  },
+  {
+    title: "Coaching",
+    href: "/coaching",
+    icon: MessageSquare,
+    description: "AI coaching and support"
+  },
+  {
+    title: "Assessment",
+    href: "/assessment",
+    icon: Target,
+    description: "Readiness assessment and evaluation"
+  },
+  {
+    title: "Billing",
+    href: "/billing",
+    icon: CreditCard,
+    description: "Subscription and usage billing"
+  },
+  {
+    title: "Notifications",
+    href: "/notifications",
+    icon: FileText,
+    description: "Alerts and system notifications"
+  },
+  {
+    title: "Help",
+    href: "/help",
+    icon: FileText,
+    description: "Help center and support"
   }
 ];
 
@@ -285,6 +351,7 @@ export const globalSettingsNavigation: NavigationItem[] = [
 
 // Map navigation items by context
 export const navigationByContext = {
+  dashboard: dashboardNavigation,
   platform: platformNavigation,
   enterprise: enterpriseNavigation,
   coach: coachNavigation,
@@ -325,14 +392,14 @@ export const roleToContextMapping = {
   'university': 'institution',
 } as const;
 
-// Legacy role mapping for backward compatibility
+// Legacy role mapping for backward compatibility - now defaults to unified dashboard
 export const legacyRoleMapping = {
-  'learner': 'learner',
-  'admin': 'coach', 
-  'executive': 'enterprise',
-  'ceo': 'enterprise',
-  'worker': 'coach',
-  'frontliner': 'enterprise',
+  'learner': 'dashboard',
+  'admin': 'dashboard', 
+  'executive': 'dashboard',
+  'ceo': 'dashboard',
+  'worker': 'dashboard',
+  'frontliner': 'dashboard',
 } as const;
 
 /**

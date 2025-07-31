@@ -1,9 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { ChevronDown, Settings } from 'lucide-react'
+import { ChevronDown, Settings, LogOut, User } from 'lucide-react'
+import { signOut } from '@/lib/auth-client'
 import {
     getCurrentContext,
     getNavigationForContext,
@@ -33,6 +34,7 @@ interface GlobalNavigationProps {
 
 export function GlobalNavigation({ user, variant = 'desktop', className }: GlobalNavigationProps) {
     const pathname = usePathname()
+    const router = useRouter()
     const currentContext = getCurrentContext(pathname)
     const accessibleContexts = getAccessibleContexts(user.role)
     const defaultContext = getDashboardContextForRole(user.role)
@@ -40,6 +42,15 @@ export function GlobalNavigation({ user, variant = 'desktop', className }: Globa
     // Use current context or fall back to user's default
     const activeContext = currentContext || defaultContext
     const navigationItems = getNavigationForContext(activeContext.key, user.role)
+
+    const handleLogout = async () => {
+        try {
+            await signOut()
+            router.push('/')
+        } catch (error) {
+            console.error('Logout failed:', error)
+        }
+    }
 
     if (variant === 'sidebar') {
         return (
@@ -134,8 +145,50 @@ export function GlobalNavigation({ user, variant = 'desktop', className }: Globa
                     })}
                 </nav>
 
-                {/* Universal Settings Footer */}
+                {/* User Profile & Settings Footer */}
                 <div className="p-4 border-t space-y-2">
+                    {/* User Profile Section */}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button 
+                                variant="ghost" 
+                                className="w-full justify-start gap-3 px-3 py-2.5 h-auto text-left"
+                            >
+                                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+                                    <span className="text-primary-foreground font-medium text-sm">
+                                        {user.name.charAt(0).toUpperCase()}
+                                    </span>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <div className="font-medium text-foreground truncate">
+                                        {user.name}
+                                    </div>
+                                    <div className="text-xs text-muted-foreground capitalize">
+                                        {user.role}
+                                    </div>
+                                </div>
+                                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-56" align="start">
+                            <DropdownMenuItem asChild>
+                                <Link href="/dashboard/profile" className="flex items-center gap-2">
+                                    <User className="h-4 w-4" />
+                                    Profile Settings
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                                onClick={handleLogout}
+                                className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950"
+                            >
+                                <LogOut className="h-4 w-4 mr-2" />
+                                Sign Out
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    {/* Settings Link */}
                     <Link
                         href="/settings"
                         className={cn(

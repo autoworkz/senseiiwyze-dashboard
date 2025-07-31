@@ -1,8 +1,7 @@
 "use client";
 
 import { Book, Menu, Sunset, Trees, Zap } from "lucide-react";
-import { useEffect, useState } from "react";
-import { authClient } from "@/lib/auth-client";
+import { useSession } from "@/lib/auth-client";
 
 import {
   Accordion,
@@ -141,61 +140,14 @@ const Navbar1 = ({
     dashboard: { title: "Dashboard" },
   },
 }: Navbar1Props) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const [userRole, setUserRole] = useState<string | null>(null);
+  const { data: session, isPending } = useSession();
+  
+  const isAuthenticated = isPending ? null : !!session?.user;
+  const userRole = session?.user?.role || null;
 
-  useEffect(() => {
-    // Check authentication status using Better Auth client
-    const checkAuth = async () => {
-      try {
-        const session = await authClient.getSession();
-        if (session.data?.user) {
-          setIsAuthenticated(true);
-          setUserRole(session.data.user.role || null);
-        } else {
-          setIsAuthenticated(false);
-        }
-      } catch (error) {
-        console.error('Auth check failed:', error);
-        setIsAuthenticated(false);
-      }
-    };
-    
-    checkAuth();
-  }, []);
-
-  // Get appropriate dashboard route based on user role
+  // Get appropriate dashboard route - now unified for all users
   const getDashboardRoute = (role: string | null): string => {
-    if (!role) return '/learner';
-    
-    const roles = role.split(',').map(r => r.trim());
-    const primaryRole = roles[0];
-    
-    switch (primaryRole) {
-      case 'admin':
-      case 'platform-admin':
-      case 'super-admin':
-        return '/platform';
-      case 'enterprise':
-      case 'corporate':
-      case 'l&d-director':
-      case 'executive':
-      case 'frontliner':
-      case 'ceo':
-        return '/enterprise';
-      case 'coach':
-      case 'mentor':
-      case 'team-lead':
-      case 'worker':
-        return '/coach';
-      case 'institution':
-      case 'academic':
-      case 'program-director':
-      case 'university':
-        return '/institution';
-      default:
-        return '/learner';
-    }
+    return '/dashboard'; // Unified dashboard for all users
   };
 
   const renderAuthButtons = () => {

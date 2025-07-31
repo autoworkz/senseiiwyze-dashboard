@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { useState, Suspense } from 'react';
+import { useState, Suspense, useEffect } from 'react';
 import { FaGithub } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
 
@@ -20,7 +20,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { authClient } from '@/lib/auth-client';
+import { authClient, useSession } from '@/lib/auth-client';
 import { SearchParamsHandler } from '@/components/auth/search-params-handler';
 
 const formSchema = z.object({
@@ -43,6 +43,14 @@ export default function LoginPage() {
   const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
   
   const router = useRouter();
+  const { data: session, isPending } = useSession();
+
+  // Auto-redirect if already authenticated
+  useEffect(() => {
+    if (!isPending && session?.user) {
+      router.push('/dashboard');
+    }
+  }, [session, isPending, router]);
   
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -99,6 +107,20 @@ export default function LoginPage() {
       setLoadingProvider(null);
     }
   };
+
+  // Show loading while checking authentication
+  if (isPending) {
+    return (
+      <section className="bg-background h-screen">
+        <div className="flex h-full items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Checking authentication...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="bg-background h-screen">
@@ -184,6 +206,16 @@ export default function LoginPage() {
                 </Button>
               </form>
             </Form>
+
+            {/* Forgot Password Link */}
+            <div className="text-center">
+              <Link
+                href="/auth/reset-password"
+                className="text-sm text-primary hover:underline"
+              >
+                Forgot your password?
+              </Link>
+            </div>
 
             {/* OAuth Options */}
             <div className="relative w-full">

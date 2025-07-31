@@ -200,57 +200,58 @@ export { authClient as client };
 
 /**
  * Get the current user's role from the session
+ * NOTE: This function is deprecated. Use useSession hook directly in components.
  */
 export function getCurrentUserRole(): string | null {
-  const session = authClient.useSession();
-  return session.data?.user?.role || null;
+  // This function should not be used directly as it calls hooks outside React components
+  // Use useSession() hook directly in React components instead
+  return null;
 }
 
 /**
  * Check if the current user has a specific role
+ * DEPRECATED: Use useSession hook directly in components
  */
 export function hasRole(role: string): boolean {
-  const currentRole = getCurrentUserRole();
-  if (!currentRole) return false;
-  
-  // Handle comma-separated roles (multi-role support)
-  const userRoles = currentRole.split(',').map(r => r.trim());
-  return userRoles.includes(role);
+  return false;
 }
 
 /**
  * Check if the current user has any of the specified roles
+ * DEPRECATED: Use useSession hook directly in components
  */
 export function hasAnyRole(roles: string[]): boolean {
-  return roles.some(role => hasRole(role));
+  return false;
 }
 
 /**
  * Check if the current user has all of the specified roles
+ * DEPRECATED: Use useSession hook directly in components
  */
 export function hasAllRoles(roles: string[]): boolean {
-  return roles.every(role => hasRole(role));
+  return false;
 }
 
 /**
  * B2B2C Role Checking Functions
+ * DEPRECATED: Use useSession hook directly in components
  */
 export const roleCheckers = {
   // Primary B2B2C roles
-  isCEO: () => hasRole('ceo') || hasRole('learner'),
-  isWorker: () => hasRole('worker') || hasRole('admin'),
-  isFrontliner: () => hasRole('frontliner') || hasRole('executive'),
+  isCEO: () => false,
+  isWorker: () => false,
+  isFrontliner: () => false,
   
   // Legacy compatibility
-  isLearner: () => hasRole('learner') || hasRole('ceo'),
-  isAdmin: () => hasRole('admin') || hasRole('worker'),
-  isExecutive: () => hasRole('executive') || hasRole('frontliner'),
+  isLearner: () => false,
+  isAdmin: () => false,
+  isExecutive: () => false,
   
   // Permission-based checks
-  canManageTeam: () => hasAnyRole(['worker', 'admin', 'frontliner', 'executive']),
-  canViewOrganization: () => hasAnyRole(['frontliner', 'executive']),
-  canManageUsers: () => hasAnyRole(['worker', 'admin', 'frontliner', 'executive']),
-  canAccessPersonalData: () => hasAnyRole(['ceo', 'learner', 'worker', 'admin', 'frontliner', 'executive']),
+  canManageTeam: () => false,
+  canViewOrganization: () => false,
+  canManageUsers: () => false,
+  canAccessPersonalData: () => false,
 };
 
 /**
@@ -260,11 +261,11 @@ export const roleCheckers = {
 
 /**
  * Check a single permission by calling the server
+ * NOTE: This function should be called from components with session context
  */
-export async function checkPermission(resource: string, action: string): Promise<boolean> {
+export async function checkPermission(resource: string, action: string, userId?: string): Promise<boolean> {
   try {
-    const session = authClient.useSession();
-    if (!session.data?.user?.id) return false;
+    if (!userId) return false;
 
     // Make API call to your server's permission endpoint
     const response = await fetch('/api/auth/permissions/check', {
@@ -295,11 +296,11 @@ export async function checkPermission(resource: string, action: string): Promise
  * Check multiple permissions in a single server call for efficiency
  */
 export async function checkMultiplePermissions(
-  permissions: Record<string, string[]>
+  permissions: Record<string, string[]>,
+  userId?: string
 ): Promise<Record<string, boolean>> {
   try {
-    const session = authClient.useSession();
-    if (!session.data?.user?.id) {
+    if (!userId) {
       // Return false for all permissions if not authenticated
       return Object.keys(permissions).reduce((acc, resource) => {
         permissions[resource].forEach(action => {
@@ -319,7 +320,7 @@ export async function checkMultiplePermissions(
     });
 
     if (!response.ok) {
-      authLogger.warn('Batch permission check failed', { status: response.status, permissions: permissions.length });
+      authLogger.warn('Batch permission check failed', { status: response.status, permissions: Object.keys(permissions).length });
       // Return false for all permissions on error
       return Object.keys(permissions).reduce((acc, resource) => {
         permissions[resource].forEach(action => {
@@ -461,128 +462,61 @@ export const navigation = {
 
 /**
  * Session utilities
+ * NOTE: These are deprecated - use useSession hook directly in components
  */
 export const sessionUtils = {
   /**
    * Get the current user's organization ID
+   * DEPRECATED: Use useSession hook directly in components
    */
   getOrganizationId(): string | null {
-    const session = authClient.useSession();
-    return session.data?.session?.activeOrganizationId || null;
+    return null;
   },
   
   /**
    * Get the current user's full profile
+   * DEPRECATED: Use useSession hook directly in components
    */
   getCurrentUser() {
-    const session = authClient.useSession();
-    if (!session.data?.user) return null;
-    
-    return {
-      id: session.data.user.id,
-      name: session.data.user.name,
-      email: session.data.user.email,
-      role: session.data.user.role || 'learner',
-      organizationId: session.data.session?.activeOrganizationId,
-      isAuthenticated: true,
-    };
+    return null;
   },
   
   /**
    * Check if the user is authenticated
+   * DEPRECATED: Use useSession hook directly in components
    */
   isAuthenticated(): boolean {
-    const session = authClient.useSession();
-    return !!session.data?.user?.id;
+    return false;
   },
 };
 
 /**
  * Client-side permission checking utilities
- * Safe for use in Zustand stores and client components
+ * DEPRECATED: Use useSession hook directly in components for now
  */
 export const clientPermissions = {
   /**
    * Check if the current user has specific permissions (client-side)
-   * This is a simplified version that uses role-based checks
+   * DEPRECATED: Use useSession hook directly in components
    */
   checkUserPermission(resource: string, action: string): boolean {
-    try {
-      const user = sessionUtils.getCurrentUser();
-      if (!user) return false;
-
-      // Map common resource/action combinations to role checks
-      switch (resource) {
-        case 'personal':
-          return roleCheckers.canAccessPersonalData();
-        
-        case 'team':
-          if (action === 'view' || action === 'analytics' || action === 'courses' || action === 'messages') {
-            return roleCheckers.canManageTeam();
-          }
-          return false;
-        
-        case 'organization':
-          if (action === 'view' || action === 'reports' || action === 'strategy') {
-            return roleCheckers.canViewOrganization();
-          }
-          return false;
-        
-        case 'user':
-          if (action === 'update') {
-            return roleCheckers.canManageUsers();
-          }
-          return false;
-        
-        case 'system':
-          if (action === 'audit') {
-            return roleCheckers.isCEO() || roleCheckers.isAdmin();
-          }
-          return false;
-        
-        case 'analytics':
-          if (action === 'dashboard') {
-            return roleCheckers.canAccessPersonalData();
-          }
-          if (action === 'export') {
-            return roleCheckers.canViewOrganization();
-          }
-          return false;
-        
-        default:
-          // Default to allowing access for unknown resources
-          authLogger.warn('Unknown resource or action in permission check', { resource, action });
-          return true;
-      }
-    } catch (error) {
-      authLogger.error('Client-side permission check error', error instanceof Error ? error : new Error(String(error)));
-      return false;
-    }
+    return false;
   },
 
   /**
    * Batch check multiple permissions at once
+   * DEPRECATED: Use useSession hook directly in components
    */
   checkMultiplePermissions(checks: Array<{resource: string, action: string}>): boolean[] {
-    return checks.map(({resource, action}) => 
-      this.checkUserPermission(resource, action)
-    );
+    return checks.map(() => false);
   },
 
   /**
    * Check if user can access a specific dashboard section
+   * DEPRECATED: Use useSession hook directly in components
    */
   canAccessDashboard(section: 'personal' | 'team' | 'organization'): boolean {
-    switch (section) {
-      case 'personal':
-        return this.checkUserPermission('personal', 'view');
-      case 'team':
-        return this.checkUserPermission('team', 'view');
-      case 'organization':
-        return this.checkUserPermission('organization', 'view');
-      default:
-        return false;
-    }
+    return false;
   },
 };
 
