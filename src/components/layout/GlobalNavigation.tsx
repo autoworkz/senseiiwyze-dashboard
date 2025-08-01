@@ -11,12 +11,6 @@ import {
   type NavigationItem
 } from '@/lib/navigation-config'
 import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-} from '@/components/ui/navigation-menu'
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -65,22 +59,25 @@ export function GlobalNavigation({ className }: GlobalNavigationProps) {
       return (
         <DropdownMenu key={item.href}>
           <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
+            <button
               className={cn(
-                "flex items-center gap-2 h-9 px-3",
-                isActive && "bg-accent text-accent-foreground"
+                "relative flex items-center gap-2 h-16 px-4 transition-all duration-200",
+                "hover:bg-accent/50",
+                isActive && "text-primary bg-accent/10"
               )}
             >
-              {Icon && <Icon className="h-4 w-4" />}
-              <span>{item.title}</span>
-              <ChevronDown className="h-3 w-3 ml-1" />
-            </Button>
+              {Icon && <Icon className={cn("h-4 w-4", isActive && "text-primary")} />}
+              <span className="font-medium">{item.title}</span>
+              <ChevronDown className={cn("h-3 w-3 ml-1 transition-transform", isActive && "rotate-180")} />
+              {isActive && (
+                <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-primary" />
+              )}
+            </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-56">
             <DropdownMenuLabel>{item.title}</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            {item.children.map((child) => {
+            {item.children?.map((child) => {
               const ChildIcon = child.icon
               const childActive = isNavigationItemActive(child, pathname)
               return (
@@ -132,30 +129,27 @@ export function GlobalNavigation({ className }: GlobalNavigationProps) {
 
     // Desktop simple item
     return (
-      <NavigationMenuItem key={item.href}>
-        <NavigationMenuLink
-          asChild
-          active={isActive}
-        >
-          <Link
-            href={item.href}
-            className={cn(
-              "flex items-center gap-2 h-9 px-3 rounded-md transition-colors",
-              "hover:bg-accent hover:text-accent-foreground",
-              isActive && "bg-accent text-accent-foreground"
-            )}
-          >
-            {Icon && <Icon className="h-4 w-4" />}
-            <span>{item.title}</span>
-          </Link>
-        </NavigationMenuLink>
-      </NavigationMenuItem>
+      <Link
+        key={item.href}
+        href={item.href}
+        className={cn(
+          "relative flex items-center gap-2 h-16 px-4 transition-all duration-200",
+          "hover:bg-accent/50",
+          isActive && "text-primary bg-accent/10"
+        )}
+      >
+        {Icon && <Icon className={cn("h-4 w-4", isActive && "text-primary")} />}
+        <span className="font-medium">{item.title}</span>
+        {isActive && (
+          <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-primary" />
+        )}
+      </Link>
     )
   }
 
   return (
-    <header className={cn("border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60", className)}>
-      <div className="container flex h-14 items-center px-4 md:px-6">
+    <header className={cn("bg-background/80 backdrop-blur-md border-b sticky top-0 z-50", className)}>
+      <div className="container flex h-16 items-center px-4 md:px-6">
         {/* Left side - Logo and main nav */}
         <div className="flex items-center gap-6 flex-1">
           {/* Mobile menu trigger */}
@@ -203,28 +197,28 @@ export function GlobalNavigation({ className }: GlobalNavigationProps) {
           </Link>
 
           {/* Desktop Navigation */}
-          <NavigationMenu className="hidden md:flex">
-            <NavigationMenuList className="gap-1">
-              {dashboardNavigation.map((item) => renderNavigationItem(item))}
-            </NavigationMenuList>
-          </NavigationMenu>
+          <nav className="hidden md:flex items-center h-full">
+            {dashboardNavigation.map((item) => renderNavigationItem(item))}
+          </nav>
         </div>
 
         {/* Right side - User menu and actions */}
         <div className="flex items-center gap-2">
           {/* Upgrade button */}
-          <Button size="sm" variant="ghost" className="hidden sm:flex gap-2">
-            <Sparkles className="h-4 w-4" />
+          <Button size="sm" variant="default" className="hidden sm:flex gap-2 shadow-sm">
+            <Sparkles className="h-4 w-4 animate-pulse" />
             <span className="hidden lg:inline">Upgrade</span>
           </Button>
 
           {/* User menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative rounded-full">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src={user?.image} alt={user?.name || ''} />
-                  <AvatarFallback>{userInitials}</AvatarFallback>
+              <Button variant="ghost" size="icon" className="relative rounded-full hover:ring-2 hover:ring-primary/20 hover:ring-offset-2 transition-all">
+                <Avatar className="h-10 w-10 hover:scale-105 transition-transform">
+                  <AvatarImage src={user?.image || undefined} alt={user?.name || ''} />
+                  <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
+                    {userInitials}
+                  </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>

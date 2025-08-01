@@ -234,13 +234,14 @@ export function getBreadcrumbTrail(path: string): NavigationItem[] {
  * Helper function to check if a navigation item is active
  */
 export function isNavigationItemActive(item: NavigationItem, currentPath: string): boolean {
+  // Exact match always wins
   if (item.href === currentPath) return true;
   
-  // Check if any child is active
-  if (item.children) {
+  // For items with children, check if any child is active
+  if (item.children && item.children.length > 0) {
     return item.children.some(child => isNavigationItemActive(child, currentPath));
   }
   
-  // Check if current path starts with item href (for nested routes)
-  return currentPath.startsWith(item.href) && item.href !== '/';
+  // No fuzzy matching - only exact matches or active children
+  return false;
 }
