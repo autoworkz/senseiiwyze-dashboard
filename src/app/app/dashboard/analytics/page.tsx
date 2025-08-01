@@ -1,6 +1,5 @@
 'use client'
 
-import { GlobalNavigation } from '@/components/layout/GlobalNavigation'
 import { useSession } from '@/lib/auth-client'
 import { useEffect, useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -81,12 +80,7 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="flex">
-        <GlobalNavigation user={user} variant="sidebar" />
-        
-        <div className="flex-1">
-          <main className="p-8">
+    <main className="p-8">
             {/* Header */}
             <div className="mb-8">
               <div className="flex items-center justify-between">
@@ -265,8 +259,5 @@ export default function AnalyticsPage() {
               </Card>
             </div>
           </main>
-        </div>
-      </div>
-    </div>
   )
 }

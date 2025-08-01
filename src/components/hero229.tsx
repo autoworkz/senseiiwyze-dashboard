@@ -17,7 +17,7 @@ const Hero229 = () => {
 
   // Get appropriate dashboard route - now unified for all users
   const getDashboardRoute = (role: string | null): string => {
-    return '/dashboard'; // Unified dashboard for all users
+    return '/app'; // Unified dashboard for all users
   };
   
   return (

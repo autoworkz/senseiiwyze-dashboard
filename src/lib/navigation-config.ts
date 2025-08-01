@@ -2,18 +2,11 @@ import { LucideIcon } from "lucide-react";
 import {
   BarChart3,
   Users,
-  FileText,
   UserCircle,
-  Target,
-  Gamepad2,
-  GraduationCap,
   MessageSquare,
   CheckSquare,
-  Presentation,
-  UserCheck,
   BookOpen,
-  Settings,
-  CreditCard
+  Settings
 } from 'lucide-react'
 
 export interface NavigationItem {
@@ -41,43 +34,8 @@ export const navigationContexts: NavigationContext[] = [
     key: 'dashboard',
     title: 'Dashboard',
     description: 'Unified dashboard for all users',
-    basePath: '/dashboard',
+    basePath: '/app',
     roles: ['learner', 'admin', 'executive', 'ceo', 'worker', 'frontliner', 'coach', 'platform-admin'] // All roles
-  },
-  {
-    key: 'platform',
-    title: 'Platform Operations',
-    description: 'Internal platform management and analytics',
-    basePath: '/platform',
-    roles: ['admin', 'platform-admin', 'super-admin']
-  },
-  {
-    key: 'enterprise',
-    title: 'Enterprise Dashboard',
-    description: 'Corporate L&D and organizational oversight',
-    basePath: '/enterprise',
-    roles: ['enterprise', 'corporate', 'l&d-director', 'executive', 'frontliner', 'ceo']
-  },
-  {
-    key: 'coach',
-    title: 'Coach Dashboard',
-    description: 'Team management and learner coaching',
-    basePath: '/coach',
-    roles: ['coach', 'mentor', 'team-lead', 'admin', 'worker']
-  },
-  {
-    key: 'learner',
-    title: 'Learning Dashboard',
-    description: 'Individual learning and skill development',
-    basePath: '/learner',
-    roles: ['learner', 'student', 'professional', 'ceo', 'admin', 'executive'] // All roles can access personal learning
-  },
-  {
-    key: 'institution',
-    title: 'Institution Dashboard',
-    description: 'Academic program management and student outcomes',
-    basePath: '/institution',
-    roles: ['institution', 'academic', 'program-director', 'university']
   }
 ];
 
@@ -85,339 +43,110 @@ export const navigationContexts: NavigationContext[] = [
 export const dashboardNavigation: NavigationItem[] = [
   {
     title: "Dashboard",
-    href: "/dashboard",
+    href: "/app",
     icon: BarChart3,
     description: "Executive overview and key metrics"
   },
   {
     title: "Analytics",
-    href: "/analytics",  
+    href: "/app/analytics",  
     icon: BarChart3,
     description: "Detailed analytics and insights"
   },
   {
+    title: "Users",
+    href: "/app/users",
+    icon: Users,
+    description: "User management and oversight"
+  },
+  {
     title: "Team",
-    href: "/team",
+    href: "/app/team",
     icon: Users,
-    description: "Team management and oversight"
+    description: "Team management and oversight",
+    children: [
+      {
+        title: "Team Overview",
+        href: "/app/team",
+        icon: Users,
+        description: "Team dashboard and overview"
+      },
+      {
+        title: "Team Profile",
+        href: "/app/team/profile",
+        icon: UserCircle,
+        description: "Team member profiles"
+      },
+      {
+        title: "Courses",
+        href: "/app/team/courses",
+        icon: BookOpen,
+        description: "Course management"
+      },
+      {
+        title: "Tasks",
+        href: "/app/team/tasks",
+        icon: CheckSquare,
+        description: "Team tasks and assignments"
+      },
+      {
+        title: "Messages",
+        href: "/app/team/messages",
+        icon: MessageSquare,
+        description: "Team communication"
+      }
+    ]
   },
-  {
-    title: "Learning",
-    href: "/learning",
-    icon: BookOpen,
-    description: "Learning paths and progress"
-  },
-  {
-    title: "Coaching",
-    href: "/coaching",
-    icon: MessageSquare,
-    description: "AI coaching and support"
-  },
-  {
-    title: "Assessment",
-    href: "/assessment",
-    icon: Target,
-    description: "Readiness assessment and evaluation"
-  },
-  {
-    title: "Billing",
-    href: "/billing",
-    icon: CreditCard,
-    description: "Subscription and usage billing"
-  },
-  {
-    title: "Notifications",
-    href: "/notifications",
-    icon: FileText,
-    description: "Alerts and system notifications"
-  },
-  {
-    title: "Help",
-    href: "/help",
-    icon: FileText,
-    description: "Help center and support"
-  }
-];
-
-// Platform Dashboard Navigation (Internal operations)
-export const platformNavigation: NavigationItem[] = [
-  {
-    title: "Platform Overview",
-    href: "/platform",
-    icon: BarChart3,
-    description: "Platform-wide analytics and operations"
-  },
-  {
-    title: "User Management",
-    href: "/platform/users",
-    icon: Users,
-    description: "Manage all platform users and organizations"
-  },
-  {
-    title: "System Analytics",
-    href: "/platform/analytics",
-    icon: BarChart3,
-    description: "Platform usage and performance metrics"
-  },
-  {
-    title: "Data Overview",
-    href: "/platform/data-overview",
-    icon: FileText,
-    description: "Comprehensive data insights and reporting"
-  }
-];
-
-// Enterprise Dashboard Navigation (Corporate L&D focus)
-export const enterpriseNavigation: NavigationItem[] = [
-  {
-    title: "Enterprise Overview",
-    href: "/enterprise",
-    icon: BarChart3,
-    description: "Corporate learning and organizational insights"
-  },
-  {
-    title: "Organization Metrics",
-    href: "/enterprise/org",
-    icon: Users,
-    description: "Team readiness and organizational performance"
-  },
-  {
-    title: "Program Readiness",
-    href: "/enterprise/program-readiness-dashboard",
-    icon: Target,
-    description: "Training program effectiveness and ROI"
-  },
-  {
-    title: "Training Programs",
-    href: "/enterprise/programs",
-    icon: BookOpen,
-    description: "Manage and track training initiatives"
-  },
-  {
-    title: "Performance Reports",
-    href: "/enterprise/org/reports",
-    icon: FileText,
-    description: "Comprehensive performance analysis"
-  },
-  {
-    title: "Board Presentation",
-    href: "/enterprise/org/presentation",
-    icon: Presentation,
-    description: "Executive presentation mode"
-  }
-];
-
-// Coach Dashboard Navigation (Coaching and team management)
-export const coachNavigation: NavigationItem[] = [
-  {
-    title: "Coach Overview",
-    href: "/coach",
-    icon: Users,
-    description: "Coaching dashboard and learner insights"
-  },
-  {
-    title: "My Learners",
-    href: "/coach/team",
-    icon: UserCheck,
-    description: "Manage assigned learners and progress"
-  },
-  {
-    title: "Learner Profiles",
-    href: "/coach/team/profile",
-    icon: UserCircle,
-    description: "Individual learner profiles and details"
-  },
-  {
-    title: "User Management",
-    href: "/coach/team/users",
-    icon: UserCheck,
-    description: "Manage team members and assignments"
-  },
-  {
-    title: "Coaching Tasks",
-    href: "/coach/team/tasks",
-    icon: CheckSquare,
-    description: "Support tasks and interventions"
-  },
-  {
-    title: "Course Management",
-    href: "/coach/team/courses",
-    icon: BookOpen,
-    description: "Course content and learning paths"
-  },
-  {
-    title: "Communication",
-    href: "/coach/team/messages",
-    icon: MessageSquare,
-    description: "Team messaging and announcements"
-  }
-];
-
-// Learner Dashboard Navigation (Individual learning focus)
-export const learnerNavigation: NavigationItem[] = [
-  {
-    title: "Learning Dashboard",
-    href: "/learner",
-    icon: UserCircle,
-    description: "Your learning dashboard and progress"
-  },
-  {
-    title: "Personal Overview",
-    href: "/learner/me",
-    icon: UserCircle,
-    description: "Your personal learning journey"
-  },
-  {
-    title: "Goals & Objectives",
-    href: "/learner/me/goals",
-    icon: Target,
-    description: "Track your learning objectives"
-  },
-  {
-    title: "Learning Path",
-    href: "/learner/me/learn",
-    icon: BookOpen,
-    description: "Courses and educational content"
-  },
-  {
-    title: "Games & Engagement",
-    href: "/learner/me/games",
-    icon: Gamepad2,
-    description: "Learning through gamification"
-  },
-  {
-    title: "User Dashboard",
-    href: "/learner/user-dashboard",
-    icon: BarChart3,
-    description: "Individual performance and achievements"
-  }
-];
-
-// Institution Dashboard Navigation (Academic focus)
-export const institutionNavigation: NavigationItem[] = [
-  {
-    title: "Institution Overview",
-    href: "/institution",
-    icon: GraduationCap,
-    description: "Academic program overview and metrics"
-  },
-  {
-    title: "Student Progress",
-    href: "/institution/students",
-    icon: Users,
-    description: "Track student learning outcomes"
-  },
-  {
-    title: "Program Management",
-    href: "/institution/programs",
-    icon: BookOpen,
-    description: "Manage academic programs and curriculum"
-  },
-  {
-    title: "Placement Outcomes",
-    href: "/institution/outcomes",
-    icon: Target,
-    description: "Job placement and career readiness metrics"
-  }
-];
-
-// Global settings navigation (available to all roles)
-export const globalSettingsNavigation: NavigationItem[] = [
   {
     title: "Settings",
-    href: "/shared/settings",
+    href: "/app/settings",
     icon: Settings,
-    description: "General application settings"
-  },
-  {
-    title: "Skills",
-    href: "/shared/skills",
-    icon: GraduationCap,
-    description: "Skills tracking and development"
-  },
-  {
-    title: "Test Readiness",
-    href: "/shared/test-readiness",
-    icon: Target,
-    description: "Readiness assessments and testing"
-  },
-  {
-    title: "Support Tickets",
-    href: "/shared/tickets",
-    icon: MessageSquare,
-    description: "Help and support requests"
+    description: "Account settings and preferences"
   }
 ];
+
 
 // Map navigation items by context
 export const navigationByContext = {
   dashboard: dashboardNavigation,
-  platform: platformNavigation,
-  enterprise: enterpriseNavigation,
-  coach: coachNavigation,
-  learner: learnerNavigation,
-  institution: institutionNavigation,
 };
 
-// Role to stakeholder context mapping
+// Role to stakeholder context mapping - all roles use dashboard now
 export const roleToContextMapping = {
-  // Platform administration
-  'admin': 'platform',
-  'platform-admin': 'platform', 
-  'super-admin': 'platform',
-  
-  // Enterprise/Corporate L&D
-  'enterprise': 'enterprise',
-  'corporate': 'enterprise',
-  'l&d-director': 'enterprise',
-  'executive': 'enterprise',
-  'frontliner': 'enterprise',
-  'ceo': 'enterprise',
-  
-  // Coaching
-  'coach': 'coach',
-  'mentor': 'coach',
-  'team-lead': 'coach',
-  'worker': 'coach',
-  
-  // Learning
-  'learner': 'learner',
-  'student': 'learner',
-  'professional': 'learner',
-  
-  // Academic institutions
-  'institution': 'institution',
-  'academic': 'institution',
-  'program-director': 'institution',
-  'university': 'institution',
-} as const;
-
-// Legacy role mapping for backward compatibility - now defaults to unified dashboard
-export const legacyRoleMapping = {
-  'learner': 'dashboard',
-  'admin': 'dashboard', 
+  'admin': 'dashboard',
+  'platform-admin': 'dashboard', 
+  'super-admin': 'dashboard',
+  'enterprise': 'dashboard',
+  'corporate': 'dashboard',
+  'l&d-director': 'dashboard',
   'executive': 'dashboard',
-  'ceo': 'dashboard',
-  'worker': 'dashboard',
   'frontliner': 'dashboard',
+  'ceo': 'dashboard',
+  'coach': 'dashboard',
+  'mentor': 'dashboard',
+  'team-lead': 'dashboard',
+  'worker': 'dashboard',
+  'learner': 'dashboard',
+  'student': 'dashboard',
+  'professional': 'dashboard',
+  'institution': 'dashboard',
+  'academic': 'dashboard',
+  'program-director': 'dashboard',
+  'university': 'dashboard',
 } as const;
 
 /**
  * Get the appropriate dashboard context for a user's role
  */
 export function getDashboardContextForRole(role: string): NavigationContext {
-  const contextKey = roleToContextMapping[role as keyof typeof roleToContextMapping] || 
-                     legacyRoleMapping[role as keyof typeof legacyRoleMapping] || 
-                     'learner';
-  return navigationContexts.find(ctx => ctx.key === contextKey) || navigationContexts[3]; // fallback to learner
+  return navigationContexts[0]; // Always return the unified dashboard
 }
 
 /**
  * Get the default dashboard route for a user's role
  */
 export function getDefaultDashboardRoute(role: string): string {
-  const context = getDashboardContextForRole(role);
-  return context.basePath;
+  return '/app'; // Always return the unified dashboard route
 }
 
 /**
@@ -458,7 +187,7 @@ export function getAccessibleContexts(userRole: string): NavigationContext[] {
  */
 export function getNavigationItemByPath(
   path: string, 
-  items: NavigationItem[] = platformNavigation
+  items: NavigationItem[] = dashboardNavigation
 ): NavigationItem | null {
   for (const item of items) {
     if (item.href === path) {
@@ -483,17 +212,8 @@ export function getBreadcrumbTrail(path: string): NavigationItem[] {
   for (const segment of segments) {
     currentPath += `/${segment}`;
     
-    // Try to find in all navigation contexts
-    let item = null;
-    for (const navItems of Object.values(navigationByContext)) {
-      item = getNavigationItemByPath(currentPath, navItems);
-      if (item) break;
-    }
-    
-    // Also check in settings navigation
-    if (!item) {
-      item = getNavigationItemByPath(currentPath, globalSettingsNavigation);
-    }
+    // Try to find in dashboard navigation
+    let item = getNavigationItemByPath(currentPath, dashboardNavigation);
     
     if (item) {
       trail.push(item);

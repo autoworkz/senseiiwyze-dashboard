@@ -2,8 +2,8 @@
 
 import { ReactNode } from 'react'
 import { redirect } from 'next/navigation'
-import { GlobalNavigation } from '@/components/layout/GlobalNavigation'
 import { useSession } from '@/lib/auth-client'
+import { GlobalNavigation } from '@/components/layout/GlobalNavigation'
 
 interface AppLayoutProps {
   children: ReactNode
@@ -29,15 +29,11 @@ export default function AppLayout({ children }: AppLayoutProps) {
     redirect('/auth/login')
   }
 
-  const user = {
-    role: (session.user.role || 'admin') as 'learner' | 'admin' | 'executive' | 'ceo' | 'worker' | 'frontliner',
-    name: session.user.name || 'User'
-  }
-
+  // Layout with global navigation header
   return (
     <div className="min-h-screen bg-background">
-      <GlobalNavigation user={user} variant="sidebar" className="fixed top-0 left-0 h-full" />
-      <main className="ml-64 p-6">
+      <GlobalNavigation />
+      <main className="container mx-auto px-4 md:px-6 py-6">
         {children}
       </main>
     </div>

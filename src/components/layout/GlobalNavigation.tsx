@@ -1,322 +1,277 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { ChevronDown, Settings, LogOut, User } from 'lucide-react'
-import { signOut } from '@/lib/auth-client'
+import { ChevronDown, Menu, Sparkles, X } from 'lucide-react'
+import { signOut, useSession } from '@/lib/auth-client'
 import {
-    getCurrentContext,
-    getNavigationForContext,
-    getAccessibleContexts,
-    getDashboardContextForRole,
-    type NavigationContext
+  dashboardNavigation,
+  isNavigationItemActive,
+  type NavigationItem
 } from '@/lib/navigation-config'
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-    DropdownMenuSeparator,
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+} from '@/components/ui/navigation-menu'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import { Button } from '@/components/ui/button'
-
-interface User {
-    role: 'learner' | 'admin' | 'executive' | 'ceo' | 'worker' | 'frontliner'
-    name: string
-}
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { useState } from 'react'
 
 interface GlobalNavigationProps {
-    user: User
-    variant?: 'desktop' | 'mobile' | 'sidebar'
-    className?: string
+  className?: string
 }
 
-export function GlobalNavigation({ user, variant = 'desktop', className }: GlobalNavigationProps) {
-    const pathname = usePathname()
-    const router = useRouter()
-    const currentContext = getCurrentContext(pathname)
-    const accessibleContexts = getAccessibleContexts(user.role)
-    const defaultContext = getDashboardContextForRole(user.role)
+export function GlobalNavigation({ className }: GlobalNavigationProps) {
+  const pathname = usePathname()
+  const { data: session } = useSession()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  
+  const user = session?.user
+  const userInitials = user?.name
+    ?.split(' ')
+    .map(n => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2) || 'U'
 
-    // Use current context or fall back to user's default
-    const activeContext = currentContext || defaultContext
-    const navigationItems = getNavigationForContext(activeContext.key, user.role)
+  const handleSignOut = async () => {
+    await signOut()
+  }
 
-    const handleLogout = async () => {
-        try {
-            await signOut()
-            router.push('/')
-        } catch (error) {
-            console.error('Logout failed:', error)
-        }
-    }
+  // Render navigation item with optional dropdown
+  const renderNavigationItem = (item: NavigationItem, isMobile = false) => {
+    const Icon = item.icon
+    const isActive = isNavigationItemActive(item, pathname)
+    const hasChildren = item.children && item.children.length > 0
 
-    if (variant === 'sidebar') {
-        return (
-            <div className={cn("flex flex-col w-64 border-r bg-card", className)}>
-                {/* Header with Context Switcher */}
-                <div className="p-6 border-b">
-                    <div className="flex items-center gap-2 mb-4">
-                        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                            <span className="text-primary-foreground font-bold text-sm">S</span>
-                        </div>
-                        <div>
-                            <h2 className="text-lg font-semibold text-foreground">SenseiiWyze</h2>
-                        </div>
+    if (hasChildren && !isMobile) {
+      return (
+        <DropdownMenu key={item.href}>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className={cn(
+                "flex items-center gap-2 h-9 px-3",
+                isActive && "bg-accent text-accent-foreground"
+              )}
+            >
+              {Icon && <Icon className="h-4 w-4" />}
+              <span>{item.title}</span>
+              <ChevronDown className="h-3 w-3 ml-1" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-56">
+            <DropdownMenuLabel>{item.title}</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {item.children.map((child) => {
+              const ChildIcon = child.icon
+              const childActive = isNavigationItemActive(child, pathname)
+              return (
+                <DropdownMenuItem key={child.href} asChild>
+                  <Link
+                    href={child.href}
+                    className={cn(
+                      "flex items-center gap-2",
+                      childActive && "bg-accent"
+                    )}
+                  >
+                    {ChildIcon && <ChildIcon className="h-4 w-4" />}
+                    <div className="flex flex-col">
+                      <span>{child.title}</span>
+                      {child.description && (
+                        <span className="text-xs text-muted-foreground">
+                          {child.description}
+                        </span>
+                      )}
                     </div>
-
-                    {/* Context Switcher */}
-                    {accessibleContexts.length > 1 && (
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="outline" className="w-full justify-between">
-                                    <span className="font-medium">{activeContext.title}</span>
-                                    <ChevronDown className="h-4 w-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-56" align="start">
-                                {accessibleContexts.map((context) => (
-                                    <DropdownMenuItem key={context.key} asChild>
-                                        <Link
-                                            href={context.basePath}
-                                            className={cn(
-                                                "flex flex-col items-start py-2",
-                                                activeContext.key === context.key && "bg-accent"
-                                            )}
-                                        >
-                                            <span className="font-medium">{context.title}</span>
-                                            <span className="text-xs text-muted-foreground">{context.description}</span>
-                                        </Link>
-                                    </DropdownMenuItem>
-                                ))}
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    )}
-
-                    {accessibleContexts.length === 1 && (
-                        <div className="text-center">
-                            <div className="font-medium text-foreground">{activeContext.title}</div>
-                            <div className="text-xs text-muted-foreground">{activeContext.description}</div>
-                        </div>
-                    )}
-                </div>
-
-                {/* Navigation Items */}
-                <nav className="flex-1 p-4 space-y-1">
-                    {navigationItems.map((item) => {
-                        const Icon = item.icon
-                        const isActive = pathname === item.href || (pathname?.startsWith(item.href + '/') ?? false)
-                        return (
-                            <Link
-                                key={item.href}
-                                href={item.href}
-                                className={cn(
-                                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 group",
-                                    isActive
-                                        ? "bg-primary text-primary-foreground shadow-sm"
-                                        : "hover:bg-muted/50 text-muted-foreground hover:text-foreground"
-                                )}
-                            >
-                                {Icon && (
-                                    <Icon className={cn(
-                                        "h-4 w-4 shrink-0 transition-colors",
-                                        isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-foreground"
-                                    )} />
-                                )}
-                                <div className="flex-1 min-w-0">
-                                    <div className={cn(
-                                        "font-medium truncate",
-                                        isActive ? "text-primary-foreground" : "text-foreground"
-                                    )}>
-                                        {item.title}
-                                    </div>
-                                    {item.description && (
-                                        <div className={cn(
-                                            "text-xs truncate mt-0.5",
-                                            isActive ? "text-primary-foreground/80" : "text-muted-foreground"
-                                        )}>
-                                            {item.description}
-                                        </div>
-                                    )}
-                                </div>
-                            </Link>
-                        )
-                    })}
-                </nav>
-
-                {/* User Profile & Settings Footer */}
-                <div className="p-4 border-t space-y-2">
-                    {/* User Profile Section */}
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button 
-                                variant="ghost" 
-                                className="w-full justify-start gap-3 px-3 py-2.5 h-auto text-left"
-                            >
-                                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-                                    <span className="text-primary-foreground font-medium text-sm">
-                                        {user.name.charAt(0).toUpperCase()}
-                                    </span>
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <div className="font-medium text-foreground truncate">
-                                        {user.name}
-                                    </div>
-                                    <div className="text-xs text-muted-foreground capitalize">
-                                        {user.role}
-                                    </div>
-                                </div>
-                                <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-56" align="start">
-                            <DropdownMenuItem asChild>
-                                <Link href="/dashboard/profile" className="flex items-center gap-2">
-                                    <User className="h-4 w-4" />
-                                    Profile Settings
-                                </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem 
-                                onClick={handleLogout}
-                                className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950"
-                            >
-                                <LogOut className="h-4 w-4 mr-2" />
-                                Sign Out
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-
-                    {/* Settings Link */}
-                    <Link
-                        href="/settings"
-                        className={cn(
-                            "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200",
-                            pathname === '/settings' || pathname?.startsWith('/settings/')
-                                ? "bg-primary text-primary-foreground"
-                                : "hover:bg-muted/50 text-muted-foreground hover:text-foreground"
-                        )}
-                    >
-                        <Settings className="h-4 w-4 shrink-0" />
-                        <span className="font-medium">Settings</span>
-                    </Link>
-                </div>
-            </div>
-        )
+                  </Link>
+                </DropdownMenuItem>
+              )
+            })}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )
     }
 
-    if (variant === 'mobile') {
-        return (
-            <nav className={cn("flex justify-around py-2 bg-background border-t", className)}>
-                {navigationItems.slice(0, 4).map((item) => {
-                    const Icon = item.icon
-                    const isActive = pathname === item.href || (pathname?.startsWith(item.href + '/') ?? false)
-                    return (
-                        <Link
-                            key={item.href}
-                            href={item.href}
-                            className={cn(
-                                "flex flex-col items-center gap-1 px-3 py-2 text-xs transition-colors",
-                                isActive
-                                    ? "text-primary"
-                                    : "text-muted-foreground hover:text-foreground"
-                            )}
-                        >
-                            {Icon && <Icon className="h-4 w-4" />}
-                            <span className="truncate">{item.title.split(' ')[0]}</span>
-                        </Link>
-                    )
-                })}
-                <Link
-                    href="/settings"
-                    className={cn(
-                        "flex flex-col items-center gap-1 px-3 py-2 text-xs transition-colors",
-                        pathname === '/settings' || pathname?.startsWith('/settings/')
-                            ? "text-primary"
-                            : "text-muted-foreground hover:text-foreground"
-                    )}
-                >
-                    <Settings className="h-4 w-4" />
-                    <span className="truncate">Settings</span>
-                </Link>
-            </nav>
-        )
+    // Simple navigation item (mobile or no children)
+    if (isMobile) {
+      return (
+        <Link
+          key={item.href}
+          href={item.href}
+          onClick={() => setMobileMenuOpen(false)}
+          className={cn(
+            "flex items-center gap-3 py-2 px-4 rounded-md transition-colors",
+            isActive
+              ? "bg-accent text-accent-foreground"
+              : "hover:bg-accent/50"
+          )}
+        >
+          {Icon && <Icon className="h-4 w-4" />}
+          <span>{item.title}</span>
+        </Link>
+      )
     }
 
-    // Desktop navigation
+    // Desktop simple item
     return (
-        <nav className={cn("flex items-center gap-1", className)}>
-            {/* Context indicator */}
-            {accessibleContexts.length > 1 && (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="gap-1">
-                            <span className="font-medium">{activeContext.title}</span>
-                            <ChevronDown className="h-3 w-3" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start">
-                        {accessibleContexts.map((context) => (
-                            <DropdownMenuItem key={context.key} asChild>
-                                <Link href={context.basePath}>
-                                    {context.title}
-                                </Link>
-                            </DropdownMenuItem>
-                        ))}
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild>
-                            <Link href="/settings">
-                                <Settings className="h-4 w-4 mr-2" />
-                                Settings
-                            </Link>
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+      <NavigationMenuItem key={item.href}>
+        <NavigationMenuLink
+          asChild
+          active={isActive}
+        >
+          <Link
+            href={item.href}
+            className={cn(
+              "flex items-center gap-2 h-9 px-3 rounded-md transition-colors",
+              "hover:bg-accent hover:text-accent-foreground",
+              isActive && "bg-accent text-accent-foreground"
             )}
-
-            {accessibleContexts.length === 1 && (
-                <div className="px-3 py-1 text-sm font-medium text-muted-foreground">
-                    {activeContext.title}
-                </div>
-            )}
-
-            {/* Navigation items */}
-            <div className="flex items-center gap-1">
-                {navigationItems.slice(0, 5).map((item) => {
-                    const Icon = item.icon
-                    const isActive = pathname === item.href || (pathname?.startsWith(item.href + '/') ?? false)
-                    return (
-                        <Link
-                            key={item.href}
-                            href={item.href}
-                            className={cn(
-                                "flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-all duration-200",
-                                isActive
-                                    ? "bg-primary text-primary-foreground shadow-sm"
-                                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                            )}
-                        >
-                            {Icon && <Icon className="h-4 w-4" />}
-                            <span className="hidden sm:block">{item.title.split(' ')[0]}</span>
-                        </Link>
-                    )
-                })}
-
-                {/* Universal Settings link */}
-                <Link
-                    href="/settings"
-                    className={cn(
-                        "flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-all duration-200",
-                        pathname === '/settings' || pathname?.startsWith('/settings/')
-                            ? "bg-primary text-primary-foreground shadow-sm"
-                            : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                    )}
-                >
-                    <Settings className="h-4 w-4" />
-                    <span className="hidden sm:block">Settings</span>
-                </Link>
-            </div>
-        </nav>
+          >
+            {Icon && <Icon className="h-4 w-4" />}
+            <span>{item.title}</span>
+          </Link>
+        </NavigationMenuLink>
+      </NavigationMenuItem>
     )
-} 
+  }
+
+  return (
+    <header className={cn("border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60", className)}>
+      <div className="container flex h-14 items-center px-4 md:px-6">
+        {/* Left side - Logo and main nav */}
+        <div className="flex items-center gap-6 flex-1">
+          {/* Mobile menu trigger */}
+          <Popover open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden"
+              >
+                {mobileMenuOpen ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <Menu className="h-5 w-5" />
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent 
+              align="start" 
+              className="w-[300px] p-4 md:hidden"
+              sideOffset={12}
+            >
+              <nav className="flex flex-col gap-1">
+                {dashboardNavigation.map((item) => (
+                  <div key={item.href}>
+                    {renderNavigationItem(item, true)}
+                    {/* Render children in mobile */}
+                    {item.children && (
+                      <div className="ml-4 mt-1 space-y-1">
+                        {item.children.map((child) => renderNavigationItem(child, true))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </nav>
+            </PopoverContent>
+          </Popover>
+
+          {/* Logo */}
+          <Link href="/app" className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-sm">S</span>
+            </div>
+            <span className="font-semibold text-lg hidden sm:inline">SenseiiWyze</span>
+          </Link>
+
+          {/* Desktop Navigation */}
+          <NavigationMenu className="hidden md:flex">
+            <NavigationMenuList className="gap-1">
+              {dashboardNavigation.map((item) => renderNavigationItem(item))}
+            </NavigationMenuList>
+          </NavigationMenu>
+        </div>
+
+        {/* Right side - User menu and actions */}
+        <div className="flex items-center gap-2">
+          {/* Upgrade button */}
+          <Button size="sm" variant="ghost" className="hidden sm:flex gap-2">
+            <Sparkles className="h-4 w-4" />
+            <span className="hidden lg:inline">Upgrade</span>
+          </Button>
+
+          {/* User menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="relative rounded-full">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={user?.image} alt={user?.name || ''} />
+                  <AvatarFallback>{userInitials}</AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">{user?.name}</p>
+                  <p className="text-xs leading-none text-muted-foreground">
+                    {user?.email}
+                  </p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem asChild>
+                  <Link href="/app/settings?tab=profile">
+                    Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/app/settings?tab=billing">
+                    Billing
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/app/settings">
+                    Settings
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href="/support">
+                  Support
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                onClick={handleSignOut}
+                className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950"
+              >
+                Sign out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+    </header>
+  )
+}
