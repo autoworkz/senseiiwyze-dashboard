@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
+import { useTheme } from 'next-themes'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -70,12 +71,14 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
   
+  // Get theme from next-themes
+  const { theme: currentTheme, setTheme: setNextTheme } = useTheme()
+  
   // Form states - initialized with server data
   const [displayName, setDisplayName] = useState(initialSettings.displayName)
   const [workplace, setWorkplace] = useState(initialSettings.workplace)
   const [jobTitle, setJobTitle] = useState(initialSettings.jobTitle)
   const [bio, setBio] = useState(initialSettings.bio)
-  const [theme, setTheme] = useState(initialSettings.theme)
   const [language, setLanguage] = useState(initialSettings.language)
   
   // Notification states
@@ -132,7 +135,7 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
   const handleAppearanceSave = () => {
     startTransition(async () => {
       const formData = new FormData()
-      formData.append('theme', theme)
+      // Theme is now handled client-side by next-themes
       formData.append('language', language)
 
       const result = await updateAppearanceAction(formData)
@@ -154,7 +157,7 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
     setWorkplace(initialSettings.workplace)
     setJobTitle(initialSettings.jobTitle)
     setBio(initialSettings.bio)
-    setTheme(initialSettings.theme)
+    // Theme is now managed by next-themes
     setLanguage(initialSettings.language)
     setEmailNotifications(initialSettings.emailNotifications)
     setPushNotifications(initialSettings.pushNotifications)
@@ -325,9 +328,9 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
               <div className="space-y-3">
                 <Label>Theme</Label>
                 <RadioGroup 
-                  value={theme} 
+                  value={currentTheme || 'system'} 
                   onValueChange={(value) => {
-                    setTheme(value as 'light' | 'dark' | 'system')
+                    setNextTheme(value)
                     setHasUnsavedChanges(true)
                   }}
                   className="grid grid-cols-3 gap-4"
@@ -336,7 +339,7 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
                     htmlFor="light" 
                     className={cn(
                       "flex flex-col items-center justify-center rounded-md border-2 p-4 hover:bg-accent cursor-pointer transition-all",
-                      theme === 'light' && "border-primary bg-accent"
+                      currentTheme === 'light' && "border-primary bg-accent"
                     )}
                   >
                     <RadioGroupItem value="light" id="light" className="sr-only" />
@@ -348,7 +351,7 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
                     htmlFor="dark" 
                     className={cn(
                       "flex flex-col items-center justify-center rounded-md border-2 p-4 hover:bg-accent cursor-pointer transition-all",
-                      theme === 'dark' && "border-primary bg-accent"
+                      currentTheme === 'dark' && "border-primary bg-accent"
                     )}
                   >
                     <RadioGroupItem value="dark" id="dark" className="sr-only" />
@@ -360,7 +363,7 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
                     htmlFor="system" 
                     className={cn(
                       "flex flex-col items-center justify-center rounded-md border-2 p-4 hover:bg-accent cursor-pointer transition-all",
-                      theme === 'system' && "border-primary bg-accent"
+                      currentTheme === 'system' && "border-primary bg-accent"
                     )}
                   >
                     <RadioGroupItem value="system" id="system" className="sr-only" />
