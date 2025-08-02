@@ -1,0 +1,22 @@
+{
+  "fixes": {
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true,
+    "incompleteTypes": true,
+    "missingProperties": true
+  },
+  "include": [
+    "./src/**/*.ts",
+    "./src/**/*.tsx"
+  ],
+  "exclude": [
+    "./src/**/*.test.ts",
+    "./src/**/*.test.tsx",
+    "./src/**/*.spec.ts",
+    "./src/**/*.spec.tsx"
+  ],
+  "compilerOptions": {
+    "strictNullChecks": true
+  }
+}
