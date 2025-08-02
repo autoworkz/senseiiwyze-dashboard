@@ -7,6 +7,7 @@ import { ThemeProvider } from '@/components/theme/theme-provider'
 import { getThemeFromCookies } from '@/lib/actions/theme-actions'
 import { DashboardErrorBoundary } from '@/components/error/error-boundary'
 import { NavigationSkeleton } from '@/components/loading/loading-skeletons'
+import { Toaster } from '@/components/ui/sonner'
 
 interface AppLayoutProps {
   children: ReactNode
@@ -53,6 +54,7 @@ export default async function AppLayout({ children }: AppLayoutProps) {
           </DashboardErrorBoundary>
         </main>
       </div>
+      <Toaster />
     </ThemeProvider>
   )
 }
