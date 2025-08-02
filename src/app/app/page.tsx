@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { BarChart3, Users, TrendingUp, Settings, UserCheck } from 'lucide-react'
 import Link from 'next/link'
 import { CardSkeleton } from '@/components/loading/loading-skeletons'
+import { PageContainer, PageHeader } from '@/components/layout/PageContainer'
 
 interface User {
   role: 'learner' | 'admin' | 'executive' | 'ceo' | 'worker' | 'frontliner'
@@ -98,17 +99,13 @@ export default async function DashboardPage() {
     email: session.user.email || ''
   }
 
-  // Your exact UI layout preserved - now rendered server-side
+  // Your exact UI layout preserved - now rendered server-side with standardized container
   return (
-    <div className="p-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">
-          Welcome back, {user.name}
-        </h1>
-        <p className="text-muted-foreground mt-2">
-          Here's your dashboard overview
-        </p>
-      </div>
+    <PageContainer className="space-y-8">
+      <PageHeader 
+        title={`Welcome back, ${user.name}`}
+        description="Here's your dashboard overview"
+      />
 
       {/* Quick Actions Grid with Suspense */}
       <Suspense fallback={
@@ -151,6 +148,6 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </PageContainer>
   )
 }

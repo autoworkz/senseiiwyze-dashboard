@@ -45,7 +45,7 @@ export default async function AppLayout({ children }: AppLayoutProps) {
         <Suspense fallback={<NavigationSkeleton />}>
           <GlobalNavigation user={session.user} />
         </Suspense>
-        <main className="container mx-auto px-4 md:px-6 py-6">
+        <main className="min-h-0">
           <DashboardErrorBoundary>
             <Suspense fallback={<AuthLoadingFallback />}>
               {children}

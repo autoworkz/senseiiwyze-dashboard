@@ -2,11 +2,11 @@ import { Suspense } from 'react'
 import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { SettingsContent } from '@/components/settings/SettingsContent'
 import { getThemeFromCookies } from '@/lib/actions/theme-actions'
 import { SettingsErrorBoundary } from '@/components/error/error-boundary'
 import { SettingsSkeleton } from '@/components/loading/loading-skeletons'
+import { PageContainer, PageHeader } from '@/components/layout/PageContainer'
 
 interface User {
   role: 'learner' | 'admin' | 'executive' | 'ceo' | 'worker' | 'frontliner'
@@ -50,14 +50,11 @@ export default async function SettingsPage() {
   }
 
   return (
-    <div className="container max-w-4xl py-6 space-y-6">
-      {/* Header - Server-rendered */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-        <p className="text-muted-foreground">
-          Manage your account settings, preferences, and billing
-        </p>
-      </div>
+    <PageContainer maxWidth="4xl" className="space-y-8">
+      <PageHeader 
+        title="Settings"
+        description="Manage your account settings, preferences, and billing"
+      />
 
       {/* Settings content - Client component for interactivity */}
       <SettingsErrorBoundary>
@@ -65,6 +62,6 @@ export default async function SettingsPage() {
           <SettingsContent user={user} initialSettings={userSettings} />
         </Suspense>
       </SettingsErrorBoundary>
-    </div>
+    </PageContainer>
   )
 }

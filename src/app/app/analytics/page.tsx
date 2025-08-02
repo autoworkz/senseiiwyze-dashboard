@@ -4,6 +4,7 @@ import { useSession } from '@/lib/auth-client'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
+import { PageContainer, PageHeader } from '@/components/layout/PageContainer'
 import { 
   BarChart3, 
   TrendingUp, 
@@ -43,28 +44,20 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8">
-      {/* Header */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            Analytics & Insights
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            Track performance, measure success, and optimize learning outcomes
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" className="gap-2">
-            <Filter className="h-4 w-4" />
-            Filter
-          </Button>
-          <Button variant="outline" className="gap-2">
-            <Download className="h-4 w-4" />
-            Export
-          </Button>
-        </div>
-      </div>
+    <PageContainer maxWidth="7xl" className="space-y-8">
+      <PageHeader 
+        title="Analytics & Insights"
+        description="Track performance, measure success, and optimize learning outcomes"
+      >
+        <Button variant="outline" className="gap-2">
+          <Filter className="h-4 w-4" />
+          Filter
+        </Button>
+        <Button variant="outline" className="gap-2">
+          <Download className="h-4 w-4" />
+          Export
+        </Button>
+      </PageHeader>
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -290,6 +283,6 @@ export default function AnalyticsPage() {
           </div>
         </CardHeader>
       </Card>
-    </div>
+    </PageContainer>
   )
 }

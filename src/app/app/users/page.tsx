@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { PageContainer, PageHeader } from '@/components/layout/PageContainer'
 import { Users, UserPlus, Search, Filter, MoreHorizontal, UserCheck, AlertTriangle, Eye } from 'lucide-react'
 import Link from 'next/link'
 
@@ -201,30 +202,20 @@ export default function UsersPage() {
   }
 
   return (
-    <main className="p-8">
-            {/* Header */}
-            <div className="mb-8">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-3xl font-bold tracking-tight text-foreground">
-                    User Management
-                  </h1>
-                  <p className="text-muted-foreground mt-2">
-                    Manage team members, roles, and user profiles
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm">
-                    <Filter className="h-4 w-4 mr-2" />
-                    Filter
-                  </Button>
-                  <Button size="sm">
-                    <UserPlus className="h-4 w-4 mr-2" />
-                    Invite User
-                  </Button>
-                </div>
-              </div>
-            </div>
+    <PageContainer className="space-y-8">
+      <PageHeader 
+        title="User Management"
+        description="Manage team members, roles, and user profiles"
+      >
+        <Button variant="outline" size="sm">
+          <Filter className="h-4 w-4 mr-2" />
+          Filter
+        </Button>
+        <Button size="sm">
+          <UserPlus className="h-4 w-4 mr-2" />
+          Invite User
+        </Button>
+      </PageHeader>
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -388,6 +379,6 @@ export default function UsersPage() {
                 </div>
               </CardContent>
             </Card>
-          </main>
+    </PageContainer>
   )
 }
