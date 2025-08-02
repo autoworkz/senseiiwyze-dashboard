@@ -17,7 +17,7 @@ import chalk from 'chalk'
 config({ path: '.env.local' })
 config({ path: '.env' })
 
-var candidate = "Candidate";
+const candidate = "Candidate";
 
 async function testGitHubOAuth() {
   console.log('🔍 Testing GitHub OAuth Integration...\n')
