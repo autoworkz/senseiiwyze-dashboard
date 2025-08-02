@@ -30,14 +30,21 @@ import { useState } from 'react'
 
 interface GlobalNavigationProps {
   className?: string
+  user?: {
+    id: string
+    name?: string | null
+    email?: string | null
+    image?: string | null
+  }
 }
 
-export function GlobalNavigation({ className }: GlobalNavigationProps) {
+export function GlobalNavigation({ className, user: serverUser }: GlobalNavigationProps) {
   const pathname = usePathname()
   const { data: session } = useSession()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   
-  const user = session?.user
+  // Use server user prop if available, fallback to client session
+  const user = serverUser || session?.user
   const userInitials = user?.name
     ?.split(' ')
     .map(n => n[0])

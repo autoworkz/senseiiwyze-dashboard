@@ -16,6 +16,16 @@ export function useDebouncedTheme() {
     if (currentTheme === "system") {
       const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
       root.classList.add(systemTheme)
+      
+      // Listen for system theme changes
+      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)")
+      const handleSystemThemeChange = (e: MediaQueryListEvent) => {
+        root.classList.remove("light", "dark")
+        root.classList.add(e.matches ? "dark" : "light")
+      }
+      
+      mediaQuery.addEventListener("change", handleSystemThemeChange)
+      return () => mediaQuery.removeEventListener("change", handleSystemThemeChange)
     } else {
       root.classList.add(currentTheme)
     }

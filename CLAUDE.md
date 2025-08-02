@@ -54,6 +54,24 @@ pnpm test -- <pattern> # Run specific tests
 - Any files with `// @generated` comments
 - `.next/` build directory
 
+### Better Auth API Routes
+
+**⚠️ CRITICAL: DO NOT create manual authentication API routes.**
+
+Better Auth automatically handles ALL authentication endpoints through `src/app/api/auth/[...all]/route.ts`:
+- Sign in/up, OAuth, session management, password reset, etc.
+- Includes `/api/auth/get-session` for session retrieval
+- **Only use Server Actions for auth operations in forms**
+- **Never create `src/app/api/auth/login/route.ts` or similar manual auth endpoints**
+
+#### How to Use Better Auth (REQUIRED PATTERNS):
+
+**✅ Server-side:** Use `auth.api.getSession({ headers: await headers() })`
+**✅ Client-side:** Use `authClient.getSession()` from `@/lib/auth-client`
+**✅ Server Actions:** Use Better Auth server API for form submissions
+**❌ Never:** Call `/api/auth/*` endpoints directly with `fetch()`
+**❌ Never:** Create manual auth API routes that conflict with Better Auth
+
 ## Architecture Overview
 
 This is a Next.js 15 application using the App Router pattern with TypeScript and shadcn/ui components.
@@ -304,6 +322,297 @@ Always import from the master schema:
 import { db } from '@/lib/db'
 import { users, profiles } from '@/lib/db/schema'
 ```
+
+## Route Structure Preferences
+
+**⚠️ IMPORTANT: DO NOT use private route groups for auth and app routes.**
+
+The current route structure should be preserved as-is:
+- `src/app/auth/` - Authentication routes (login, signup, etc.) - KEEP AS IS
+- `src/app/app/` - Application routes (dashboard, settings, etc.) - KEEP AS IS
+- `src/app/` - Marketing/public routes - Route groups are acceptable here only
+
+**DO NOT** refactor `auth/` or `app/` into route groups like `(auth)` or `(dashboard)`. 
+**Route groups are only acceptable for marketing/public routes directly under `src/app/`.**
+
+## Better Auth Integration Rules
+
+**⚠️ CRITICAL: Follow these rules to prevent integration issues and ensure proper Better Auth functionality.**
+
+### Session Handling Rules
+
+1. **Server-Side Session Access**
+   ```typescript
+   // ✅ ALWAYS use auth.api.getSession with headers in server environments
+   import { auth } from '@/lib/auth'
+   import { headers } from 'next/headers'
+   
+   const session = await auth.api.getSession({
+     headers: await headers() // REQUIRED in Next.js 15
+   })
+   ```
+
+2. **Client-Side Session Access**
+   ```typescript
+   // ✅ Use authClient for client-side session management
+   import { authClient } from '@/lib/auth-client'
+   
+   const { data: session } = authClient.useSession()
+   // OR for one-time access:
+   const session = await authClient.getSession()
+   ```
+
+3. **Session Validation vs Cookie Check**
+   ```typescript
+   // ❌ NEVER use just cookie existence for security decisions
+   const cookieExists = request.cookies.get('better-auth.session_token')
+   
+   // ✅ ALWAYS validate full session for security-critical operations
+   const session = await auth.api.getSession({ headers })
+   if (!session?.user) {
+     return redirect('/auth/login')
+   }
+   ```
+
+### Middleware Security Rules
+
+4. **Middleware Limitations**
+   ```typescript
+   // ⚠️ Middleware has limited session validation capabilities
+   // Use for route protection only, NOT for user-specific data access
+   
+   export default function middleware(request: NextRequest) {
+     // ✅ Basic route protection is OK
+     const isAuthenticated = request.cookies.get('better-auth.session_token')
+     
+     if (!isAuthenticated && request.nextUrl.pathname.startsWith('/app')) {
+       return NextResponse.redirect('/auth/login')
+     }
+     
+     // ❌ NEVER make authorization decisions based on user roles in middleware
+     // ❌ NEVER access user data or permissions in middleware
+   }
+   ```
+
+5. **Full Session Validation Required**
+   ```typescript
+   // ✅ Use full session validation in page components for user data
+   import { auth } from '@/lib/auth'
+   import { headers } from 'next/headers'
+   
+   export default async function Page() {
+     const session = await auth.api.getSession({
+       headers: await headers()
+     })
+     
+     if (!session?.user) {
+       redirect('/auth/login')
+     }
+     
+     // Now safe to use session.user data
+     return <div>Welcome {session.user.name}</div>
+   }
+   ```
+
+### Database Schema Management Rules
+
+6. **NEVER Manually Modify Better Auth Schema**
+   ```bash
+   # ❌ NEVER run manual migrations on Better Auth tables
+   # ❌ NEVER modify Better Auth schema directly
+   
+   # ✅ ALWAYS use Better Auth CLI for schema changes
+   npx @better-auth/cli generate
+   npx @better-auth/cli migrate
+   ```
+
+7. **Schema Update Process**
+   ```typescript
+   // 1. Update Better Auth configuration in lib/auth.ts
+   // 2. Run Better Auth CLI to regenerate schema
+   // 3. Apply our ba_ prefix transformations via merge prompt
+   // 4. Test with pnpm build
+   ```
+
+### API Usage Rules
+
+8. **Client vs Server API Conflicts**
+   ```typescript
+   // ❌ NEVER mix client and server APIs in the same file
+   // This causes hydration mismatches and runtime errors
+   
+   // ✅ Server Components - use auth.api
+   const session = await auth.api.getSession({ headers: await headers() })
+   
+   // ✅ Client Components - use authClient
+   const { data: session } = authClient.useSession()
+   ```
+
+9. **Server Actions Authentication**
+   ```typescript
+   // ✅ Use auth.api in Server Actions
+   'use server'
+   
+   import { auth } from '@/lib/auth'
+   import { headers } from 'next/headers'
+   
+   export async function updateProfile(formData: FormData) {
+     const session = await auth.api.getSession({
+       headers: await headers()
+     })
+     
+     if (!session?.user) {
+       throw new Error('Unauthorized')
+     }
+     
+     // Safe to proceed with authenticated user
+   }
+   ```
+
+### Plugin Configuration Rules
+
+10. **nextCookies Plugin Order**
+    ```typescript
+    // ⚠️ CRITICAL: nextCookies plugin MUST be last in plugins array
+    import { betterAuth } from 'better-auth'
+    import { nextCookies } from 'better-auth/next-js'
+    
+    export const auth = betterAuth({
+      plugins: [
+        // Other plugins first
+        twoFactor(),
+        passkey(),
+        // ✅ nextCookies MUST be last
+        nextCookies()
+      ]
+    })
+    ```
+
+### Environment Variables Rules
+
+11. **Critical Environment Variables**
+    ```bash
+    # ✅ REQUIRED in all environments
+    BETTER_AUTH_SECRET=your-secret-key-min-32-chars
+    BETTER_AUTH_URL=http://localhost:3000  # or your domain
+    
+    # ⚠️ BETTER_AUTH_SECRET must be at least 32 characters
+    # ⚠️ BETTER_AUTH_URL must match your actual domain
+    # ⚠️ Missing these causes silent authentication failures
+    ```
+
+12. **OAuth Configuration Rules**
+    ```typescript
+    // ✅ OAuth providers require exact redirect URI matching
+    export const auth = betterAuth({
+      socialProviders: {
+        github: {
+          clientId: process.env.GITHUB_CLIENT_ID!,
+          clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+          // ⚠️ Redirect URI must EXACTLY match OAuth app settings
+          redirectURI: `${process.env.BETTER_AUTH_URL}/api/auth/callback/github`
+        }
+      }
+    })
+    
+    // ⚠️ Common OAuth issues:
+    // - Mismatched redirect URIs (localhost vs 127.0.0.1)
+    // - Missing trailing slashes
+    // - HTTP vs HTTPS mismatches
+    // - Port number differences
+    ```
+
+### Error Handling Rules
+
+13. **Better Auth Error Types**
+    ```typescript
+    import { APIError } from 'better-auth/api'
+    
+    // ✅ Handle Better Auth specific errors
+    try {
+      await auth.api.signInEmail({ email, password })
+    } catch (error) {
+      if (error instanceof APIError) {
+        // Handle Better Auth errors specifically
+        if (error.status === 401) {
+          return { error: 'Invalid credentials' }
+        }
+      }
+      throw error // Re-throw unknown errors
+    }
+    ```
+
+14. **Type Safety Rules**
+    ```typescript
+    // ✅ Always check session existence before accessing user data
+    const session = await auth.api.getSession({ headers: await headers() })
+    
+    if (session?.user) {
+      // ✅ Safe to access session.user properties
+      const userId = session.user.id
+      const email = session.user.email
+    }
+    
+    // ❌ NEVER assume session exists without checking
+    const userId = session.user.id // Could throw if session is null
+    ```
+
+### Integration Testing Rules
+
+15. **Session Testing Patterns**
+    ```typescript
+    // ✅ Test both authenticated and unauthenticated states
+    describe('Protected Route', () => {
+      it('redirects when not authenticated', async () => {
+        // Test without session
+      })
+      
+      it('renders content when authenticated', async () => {
+        // Test with valid session
+      })
+    })
+    ```
+
+### Common Pitfalls to Avoid
+
+16. **Authentication Anti-Patterns**
+    ```typescript
+    // ❌ Don't cache sessions across requests without validation
+    // ❌ Don't rely on client-side session state for security
+    // ❌ Don't use session data in middleware for authorization
+    // ❌ Don't mix Better Auth with other auth libraries
+    // ❌ Don't manually parse session tokens
+    // ❌ Don't store sensitive data in client-side session state
+    ```
+
+17. **Performance Considerations**
+    ```typescript
+    // ✅ Use React Suspense boundaries for session loading
+    // ✅ Implement proper loading states
+    // ✅ Cache session data appropriately on client-side
+    // ✅ Use Server Components when possible to reduce client bundles
+    ```
+
+**🎯 Key Takeaway:** Better Auth handles the complexity - follow its patterns rather than fighting them. When in doubt, check the session properly and use the appropriate API (server vs client) for your context.
+
+## User Management Rules
+
+**⚠️ IMPORTANT: NO ROLE SELECTION OR ROLE-BASED FEATURES**
+
+**What NOT to implement:**
+- **DO NOT** add role selection dropdowns in signup/login forms
+- **DO NOT** create role-based routing or access control systems
+- **DO NOT** add role-related fields to user profile interfaces
+- **DO NOT** implement role management dashboards or admin panels
+- **DO NOT** create "Admin", "User", "Manager" role hierarchies
+
+**What TO keep/implement:**
+- ✅ **Email signup/signin** with email/password authentication
+- ✅ **OAuth providers** (GitHub, Google, Discord, etc.)
+- ✅ **Basic user profile** (name, email, image, preferences)
+- ✅ **Session management** and authentication flows
+- ✅ **Email verification** and password reset
+- ✅ **User settings** and profile management
 
 ## Important Notes
 

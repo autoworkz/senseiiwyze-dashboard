@@ -1,200 +1,74 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { authClient } from '@/lib/auth-client'
+import { useState } from 'react'
+import { loginAction } from '@/lib/actions/auth-actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { SocialLogin } from '@/components/auth/social-login'
-import Link from 'next/link'
+import { Loader2 } from 'lucide-react'
 
 export function LoginForm() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [message, setMessage] = useState('')
-  const router = useRouter()
-  const searchParams = useSearchParams()
+  const [isPending, setIsPending] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    // Check for messages from URL params
-    const messageParam = searchParams?.get('message')
-    if (messageParam === 'verify-email') {
-      setMessage('Please check your email and click the verification link to activate your account.')
-    }
-  }, [searchParams])
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError('')
-
+  async function handleSubmit(formData: FormData) {
+    setIsPending(true)
+    setError(null)
+    
     try {
-      // Use Better Auth to sign in
-      const { data: _data, error: authError } = await authClient.signIn.email({
-        email,
-        password,
-        callbackURL: '/dashboard',
-      })
-
-      if (authError) {
-        throw new Error(authError.message || 'Invalid credentials')
+      const result = await loginAction(formData)
+      if (result?.error) {
+        setError(result.error)
       }
-
-      // If successful, the user will be redirected by Better Auth
-      // For now, let's manually redirect based on role if we need custom logic
-      router.push('/dashboard')
-
     } catch (error) {
-      console.error('Login error:', error)
-      setError(error instanceof Error ? error.message : 'Invalid credentials. Please try again.')
+      setError('Authentication failed')
     } finally {
-      setIsLoading(false)
+      setIsPending(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
-      <Card className="w-full max-w-md bg-card text-card-foreground">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <img
-              src="https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/shadcnblockscom-icon.svg"
-              className="h-12 w-12"
-              alt="SenseiiWyze Logo"
-            />
-          </div>
-          <CardTitle className="text-2xl text-foreground">Sign In</CardTitle>
-          <CardDescription className="text-muted-foreground">
-            Enter your email and password to sign in to your account
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {/* Social Login Options */}
-          <div className="space-y-4">
-            <SocialLogin callbackURL="/dashboard" />
-
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Or continue with email
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {error && (
-            <Alert className="mt-4" variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
-          {message && (
-            <Alert className="mt-4">
-              <AlertDescription>{message}</AlertDescription>
-            </Alert>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={isLoading}>
-              {isLoading ? 'Loading...' : 'Sign In'}
-            </Button>
-          </form>
-
-          <div className="mt-6 pt-6 border-t">
-            <div className="space-y-4">
-              <div className="text-center">
-                <Link
-                  href="/auth/forgot-password"
-                  className="text-sm text-primary hover:underline"
-                >
-                  Forgot your password?
-                </Link>
-              </div>
-
-              <div className="text-center">
-                <p className="text-sm text-muted-foreground">
-                  Don't have an account?{' '}
-                  <Link href="/auth/signup" className="text-primary hover:underline">
-                    Sign up
-                  </Link>
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Demo login buttons for testing */}
-          <div className="mt-6 pt-6 border-t">
-            <p className="text-sm text-muted-foreground text-center mb-3">
-              Demo Accounts (for testing):
-            </p>
-            <div className="space-y-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full"
-                onClick={() => {
-                  setEmail('learner@demo.com')
-                  setPassword('Demo@123456710')
-                }}
-              >
-                👨‍🎓 Learner Demo
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full"
-                onClick={() => {
-                  setEmail('admin@demo.com')
-                  setPassword('Demo@123456710')
-                }}
-              >
-                👥 Admin Demo
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full"
-                onClick={() => {
-                  setEmail('executive@demo.com')
-                  setPassword('Demo@123456710')
-                }}
-              >
-                📊 Executive Demo
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+    <form action={handleSubmit} className="space-y-4 w-full max-w-sm">
+      <div className="space-y-2">
+        <Label htmlFor="email">Email</Label>
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          placeholder="Enter your email"
+          required
+          disabled={isPending}
+        />
+      </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="password">Password</Label>
+        <Input
+          id="password"
+          name="password"
+          type="password"
+          placeholder="Enter your password"
+          required
+          disabled={isPending}
+        />
+      </div>
+      
+      {error && (
+        <div className="text-sm text-destructive">
+          {error}
+        </div>
+      )}
+      
+      <Button type="submit" className="w-full" disabled={isPending}>
+        {isPending ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Signing in...
+          </>
+        ) : (
+          'Sign in'
+        )}
+      </Button>
+    </form>
   )
-} 
+}

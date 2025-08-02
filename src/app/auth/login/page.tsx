@@ -48,7 +48,7 @@ export default function LoginPage() {
   // Auto-redirect if already authenticated
   useEffect(() => {
     if (!isPending && session?.user) {
-      router.push('/dashboard');
+      router.push('/app');
     }
   }, [session, isPending, router]);
   
@@ -71,19 +71,19 @@ export default function LoginPage() {
     setError('');
 
     try {
-      // Use Better Auth to sign in
+      // Use Better Auth to sign in with both client and server approach
       const { data: _data, error: authError } = await authClient.signIn.email({
         email: values.email,
         password: values.password,
-        callbackURL: '/dashboard',
+        callbackURL: '/app',  // Updated to match our app structure
       });
 
       if (authError) {
         throw new Error(authError.message || 'Invalid credentials');
       }
 
-      // If successful, redirect to dashboard
-      router.push('/dashboard');
+      // If successful, redirect to app
+      router.push('/app');
     } catch (error) {
       console.error('Login error:', error);
       setError(error instanceof Error ? error.message : 'Invalid credentials. Please try again.');
@@ -99,7 +99,7 @@ export default function LoginPage() {
       // Use Better Auth's signIn.social method
       await authClient.signIn.social({
         provider,
-        callbackURL: '/dashboard',
+        callbackURL: '/app',
       });
       
     } catch (error) {
