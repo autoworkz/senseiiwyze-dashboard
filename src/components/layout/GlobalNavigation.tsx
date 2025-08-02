@@ -26,6 +26,7 @@ import {
 } from '@/components/ui/popover'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { ThemeToggle } from '@/components/theme-toggle'
 import { useState } from 'react'
 
 interface GlobalNavigationProps {
@@ -211,6 +212,9 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
 
         {/* Right side - User menu and actions */}
         <div className="flex items-center gap-2">
+          {/* Theme toggle */}
+          <ThemeToggle />
+          
           {/* Upgrade button */}
           <Button size="sm" variant="default" className="hidden sm:flex gap-2 shadow-sm">
             <Sparkles className="h-4 w-4 animate-pulse" />
