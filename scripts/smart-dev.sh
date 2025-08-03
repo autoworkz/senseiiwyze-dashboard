@@ -38,16 +38,24 @@ log "🚀 Starting smart development server..."
 log "📁 Project: $PROJECT_ROOT"
 log "👀 Watching for build changes..."
 
-# Use watchexec to watch for build-related changes and restart dev server
+# Use watchexec to watch for source code changes and restart dev server
 exec watchexec \
   --restart \
-  --debounce 3000 \
-  --watch .next/BUILD_ID \
-  --watch .next/build-manifest.json \
-  --watch .next/static \
-  --watch .next/trace \
+  --debounce 2000 \
+  --watch src/ \
+  --watch app/ \
+  --watch components/ \
+  --watch lib/ \
+  --watch utils/ \
+  --watch hooks/ \
+  --watch services/ \
+  --watch package.json \
+  --watch next.config.js \
+  --watch tailwind.config.js \
+  --watch tsconfig.json \
   --ignore "**/*.log" \
   --ignore "**/node_modules/**" \
+  --ignore "**/.next/**" \
   --print-events \
   --shell bash \
-  -- 'echo "🔄 Build detected, restarting dev server..."; sleep 1; pnpm dev'
+  -- 'echo "🔄 Source change detected, restarting dev server..."; sleep 1; pnpm dev'
