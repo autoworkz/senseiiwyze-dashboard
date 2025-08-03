@@ -1,6 +1,8 @@
 import type React from "react";
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
+import { AutumnProvider } from "autumn-js/react";
+import { AutumnCustomerProvider } from "@/hooks/useAutumnCustomer";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -23,7 +25,14 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <AutumnProvider 
+            betterAuthUrl={process.env.NEXT_PUBLIC_BETTER_AUTH_URL || "http://localhost:3000"}
+            backendUrl={process.env.NEXT_PUBLIC_AUTUMN_BACKEND_URL}
+          >
+            <AutumnCustomerProvider>
+              {children}
+            </AutumnCustomerProvider>
+          </AutumnProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -148,6 +148,10 @@
     "dev": "pnpm next dev --turbo",
     "dev:webpack": "pnpm next dev",
     "lint": "pnpm next lint",
+    "biome": "biome check",
+    "biome:fix": "biome check --write",
+    "format": "biome format --write",
+    "format:check": "biome format",
     "preview": "pnpm build && pnpm start",
     "start": "pnpm next start",
     "test": "vitest run",
@@ -190,6 +194,10 @@
     "dev:comprehensive": "bash scripts/dev-comprehensive.sh",
     "dev:clean": "bash scripts/dev-comprehensive.sh clean",
     "dev:fast": "bash scripts/dev-comprehensive.sh fast",
-    "dev:lint": "bash scripts/dev-comprehensive.sh lint"
+    "dev:lint": "bash scripts/dev-comprehensive.sh lint",
+    "just": "just",
+    "j": "just",
+    "dev:ai": "just ai-dev",
+    "setup": "just setup"
   }
 }

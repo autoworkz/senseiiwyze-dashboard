@@ -20,6 +20,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "../../lib/db";
 import * as schema from "../../lib/db/schema";
 import { authLogger } from '@/lib/logger';
+import { autumn } from "autumn-js/better-auth";
 
 // Import our B2B2C access control system
 import { 
@@ -135,7 +136,8 @@ export const auth = betterAuth({
         anonymous(),
         username(),
         twoFactor(),
-        nextCookies(),
+        autumn(), // Billing and subscription management
+        nextCookies(), // Must be last
     ],
 });
 
