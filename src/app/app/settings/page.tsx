@@ -3,7 +3,6 @@ import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { SettingsContent } from '@/components/settings/SettingsContent'
-import { getThemeFromCookies } from '@/lib/actions/theme-actions'
 import { SettingsErrorBoundary } from '@/components/error/error-boundary'
 import { SettingsSkeleton } from '@/components/loading/loading-skeletons'
 import { PageContainer, PageHeader } from '@/components/layout/PageContainer'
@@ -32,9 +31,6 @@ export default async function SettingsPage() {
     email: session.user.email || ''
   }
 
-  // Get server-side theme preference
-  const serverTheme = await getThemeFromCookies()
-
   // TODO: Fetch user's current settings from database
   // For now, using default values that would come from the database
   const userSettings = {
@@ -42,7 +38,7 @@ export default async function SettingsPage() {
     workplace: '',
     jobTitle: '',
     bio: '',
-    theme: serverTheme,
+    theme: 'system' as const, // Default theme, will be managed client-side by next-themes
     language: 'en',
     emailNotifications: true,
     pushNotifications: false,

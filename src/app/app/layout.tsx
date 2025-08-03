@@ -3,10 +3,9 @@ import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
 import { auth } from '@/lib/auth'
 import { GlobalNavigation } from '@/components/layout/GlobalNavigation'
-import { ThemeProvider } from '@/components/theme/theme-provider'
-import { getThemeFromCookies } from '@/lib/actions/theme-actions'
 import { DashboardErrorBoundary } from '@/components/error/error-boundary'
 import { NavigationSkeleton } from '@/components/loading/loading-skeletons'
+import { Toaster } from '@/components/ui/sonner'
 
 interface AppLayoutProps {
   children: ReactNode
@@ -35,12 +34,9 @@ export default async function AppLayout({ children }: AppLayoutProps) {
     redirect('/auth/login')
   }
 
-  // Get server-side theme preference
-  const serverTheme = await getThemeFromCookies()
-
   // Layout with global navigation header - preserving your exact structure
   return (
-    <ThemeProvider serverTheme={serverTheme}>
+    <>
       <div className="min-h-screen bg-background">
         <Suspense fallback={<NavigationSkeleton />}>
           <GlobalNavigation user={session.user} />
@@ -53,6 +49,7 @@ export default async function AppLayout({ children }: AppLayoutProps) {
           </DashboardErrorBoundary>
         </main>
       </div>
-    </ThemeProvider>
+      <Toaster />
+    </>
   )
 }

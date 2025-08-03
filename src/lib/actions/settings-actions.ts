@@ -4,7 +4,6 @@ import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
-import { setThemeAction } from './theme-actions'
 
 interface ProfileUpdateData {
   displayName: string
@@ -98,9 +97,7 @@ export async function updateAppearanceAction(formData: FormData) {
       language: formData.get('language') as string,
     }
 
-    // Update theme cookie using theme action
-    await setThemeAction(settings.theme)
-
+    // Theme is now handled client-side by next-themes
     // TODO: Update language and other appearance settings in database
     console.log('Updating appearance settings:', settings)
 

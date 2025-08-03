@@ -1,0 +1,443 @@
+{
+  "timestamp": "2025-08-03T00:32:47.939Z",
+  "results": [
+    {
+      "bundler": "Webpack",
+      "buildTime": 68.765,
+      "success": true,
+      "output": "   ▲ Next.js 15.4.2-canary.18\n   - Environments: .env.local, .env\n   - Experiments (use with caution):\n     · clientTraceMetadata\n     · optimizePackageImports\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 35.0s\n   Linting and checking validity of types ...\n\n./src/__tests__/middleware/middleware-isolation.test.ts\n8:23  Warning: 'NextResponse' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/__tests__/plugins/plugin-integration.test.ts\n11:32  Warning: 'vi' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/__tests__/routes/auth-login.test.ts\n10:10  Warning: 'NextRequest' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n84:18  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n85:20  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n110:18  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n111:20  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n129:18  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n130:20  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n145:18  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n146:20  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n179:18  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n180:20  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n199:18  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n200:20  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n221:18  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n222:20  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n236:18  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n237:20  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n\n./src/__tests__/routes/simple-isolation.test.ts\n11:18  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n12:20  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n32:18  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n33:20  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n51:18  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n52:20  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n\n./src/app/app/analytics/page.tsx\n9:3  Warning: 'BarChart3' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/app/app/team/courses/page.tsx\n23:3  Warning: 'AlertCircle' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/app/app/team/messages/page.tsx\n10:10  Warning: 'Tabs' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n10:16  Warning: 'TabsContent' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n10:29  Warning: 'TabsList' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n10:39  Warning: 'TabsTrigger' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n19:3  Warning: 'Trash2' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/app/app/team/page.tsx\n28:3  Warning: 'Phone' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/app/app/team/profile/page.tsx\n13:3  Warning: 'Clock' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n16:3  Warning: 'Phone' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/app/auth/login/page.tsx\n135:13  Warning: Do not use an `<a>` element to navigate to `/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages\n\n./src/app/auth/reset-password/page.tsx\n167:13  Warning: Do not use an `<a>` element to navigate to `/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages\n\n./src/app/auth/signup/page.tsx\n143:13  Warning: Do not use an `<a>` element to navigate to `/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages\n\n./src/components/auth/login-form.tsx\n23:14  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars\n\n./src/components/cards/team-member-card.tsx\n14:3  Warning: 'Award' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/charts/bar-chart.tsx\n4:42  Warning: 'CHART_COLORS' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/charts/donut-chart.tsx\n3:48  Warning: 'ResponsiveContainer' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/charts/line-chart.tsx\n4:42  Warning: 'CHART_COLORS' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n6:10  Warning: 'cn' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/examples/zustand-usage-example.tsx\n108:11  Warning: 'invalidateTeamData' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/header.tsx\n47:26  Warning: 'isPending' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/hero/AstralHero.tsx\n11:10  Warning: 'cn' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n29:30  Warning: 'role' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/hero229.tsx\n19:30  Warning: 'role' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n118:1  Warning: Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any').\n236:1  Warning: Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any').\n\n./src/components/navigation/ModernNavbar.tsx\n153:30  Warning: 'role' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/navigation/Navbar1.tsx\n149:30  Warning: 'role' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/notifications/enhanced-notifications.tsx\n12:3  Warning: 'Mail' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n15:3  Warning: 'Download' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/org/ComplianceStatus.tsx\n13:36  Warning: 'data' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/org/FinancialSnapshot.tsx\n13:37  Warning: 'data' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/org/ReadinessDashboard.tsx\n20:5  Warning: 'calculateReadinessScore' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n21:5  Warning: 'getReadinessLevel' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n23:5  Warning: 'generateExecutiveInsights' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n149:8  Warning: React Hook useEffect has missing dependencies: 'mockDepartments' and 'mockPrograms'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps\n\n./src/components/org/RiskHeatmap.tsx\n13:31  Warning: 'data' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/org/StrategicOKRs.tsx\n14:33  Warning: 'data' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/org/individual/IndividualTrackingDashboard.tsx\n30:23  Warning: 'setIsLoading' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n113:8  Warning: React Hook useMemo has an unnecessary dependency: 'mockLearners'. Either exclude it or remove the dependency array. Outer scope values like 'mockLearners' aren't valid dependencies because mutating them doesn't re-render the component.  react-hooks/exhaustive-deps\n132:8  Warning: React Hook useMemo has an unnecessary dependency: 'mockLearners'. Either exclude it or remove the dependency array. Outer scope values like 'mockLearners' aren't valid dependencies because mutating them doesn't re-render the component.  react-hooks/exhaustive-deps\n\n./src/components/org/individual/SearchAndFilters.tsx\n3:18  Warning: 'Filter' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/org/individual/SummaryStatsCards.tsx\n6:10  Warning: 'TrendIcon' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/search/advanced-search.tsx\n27:3  Warning: 'CommandInput' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n43:3  Warning: 'Popover' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n44:3  Warning: 'PopoverContent' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n45:3  Warning: 'PopoverTrigger' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n47:10  Warning: 'Separator' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/settings/SettingsContent.tsx\n27:3  Warning: 'Globe' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n30:3  Warning: 'Calendar' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/settings-sections/account-section.tsx\n6:10  Warning: 'Textarea' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/settings-sections/profile-section.tsx\n12:10  Warning: 'Textarea' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/tables/data-table.tsx\n25:3  Warning: 'DropdownMenuLabel' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n377:39  Warning: 'TData' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n377:46  Warning: 'TValue' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/tables/table-example.tsx\n7:3  Warning: 'MoreHorizontal' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n9:3  Warning: 'Phone' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n17:10  Warning: 'Button' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n224:13  Warning: 'user' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n303:16  Warning: 'setData' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/theme/theme-provider.tsx\n25:3  Warning: 'defaultTheme' is assigned a value but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n94:6  Warning: React Hook useEffect has missing dependencies: 'applyTheme' and 'theme'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps\n99:6  Warning: React Hook useEffect has a missing dependency: 'applyTheme'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps\n\n./src/components/upload/file-upload.tsx\n76:43  Warning: Image elements must have an alt prop, either with meaningful text, or an empty string for decorative images.  jsx-a11y/alt-text\n\n./src/components/widgets/widget-system.tsx\n8:34  Warning: 'X' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n8:73  Warning: 'Calendar' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n52:34  Warning: 'onUpdate' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n67:24  Warning: 'config' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n67:32  Warning: 'onUpdate' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n78:23  Warning: 'config' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n78:31  Warning: 'onUpdate' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/emails/example-with-tokens.tsx\n16:10  Warning: 'colors' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n16:18  Warning: 'fonts' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/emails/stripe-welcome-with-tokens.tsx\n16:10  Warning: 'colors' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n16:18  Warning: 'fonts' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n16:34  Warning: 'borders' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/hooks/use-dashboard-data.ts\n69:6  Warning: React Hook useEffect has a missing dependency: 'filters'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps\n69:25  Warning: React Hook useEffect has a complex expression in the dependency array. Extract it to a separate variable so it can be statically checked.  react-hooks/exhaustive-deps\n\n./src/lib/actions/auth-actions.ts\n24:12  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars\n47:12  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars\n58:12  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars\n\n./src/lib/api-aggregation.ts\n161:36  Warning: 'userId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n298:43  Warning: 'userId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n305:41  Warning: 'userId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n311:42  Warning: 'userId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n317:44  Warning: 'userId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n322:49  Warning: 'userId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n327:42  Warning: 'organizationId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n347:40  Warning: 'organizationId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n356:39  Warning: 'organizationId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n361:40  Warning: 'userId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n366:44  Warning: 'organizationId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n372:45  Warning: 'organizationId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n382:44  Warning: 'organizationId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n387:44  Warning: 'organizationId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/lib/auth-client.ts\n215:25  Warning: 'role' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n223:28  Warning: 'roles' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n231:29  Warning: 'roles' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n502:23  Warning: 'resource' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n502:41  Warning: 'action' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n518:22  Warning: 'section' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/lib/auth.ts\n124:61  Warning: 'request' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n130:36  Warning: 'token' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n130:50  Warning: 'request' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/lib/navigation-config.ts\n141:44  Warning: 'role' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n148:42  Warning: 'role' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n167:61  Warning: 'userRole' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n216:9  Warning: 'item' is never reassigned. Use 'const' instead.  prefer-const\n\n./src/lib/permissions.ts\n94:3  Warning: 'resource' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n95:3  Warning: 'action' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n106:9  Warning: 'rolePermissions' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/lib/readiness-data-mapping.ts\n340:33  Warning: 'departmentId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/lib/readiness-score-psychometric.ts\n15:8  Warning: 'ReadinessCalculationInput' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n17:3  Warning: 'READINESS_CALCULATION_CONFIG' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n437:39  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n671:43  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n\n./src/services/mockLearnerData.ts\n1:84  Warning: 'CoachingRecommendation' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n1:108  Warning: 'ActivityEvent' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/stores/data-store.ts\n883:16  Warning: 'state' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/stores/slices/organization-slice.ts\n450:10  Warning: 'state' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/stores/slices/personal-slice.ts\n398:10  Warning: 'state' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/stores/slices/team-slice.ts\n464:10  Warning: 'state' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n\ninfo  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules\n   Collecting page data ...\n   Generating static pages (0/28) ...\n   Generating static pages (7/28) \r\n   Generating static pages (14/28) \r\n   Generating static pages (21/28) \r\n ✓ Generating static pages (28/28)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                    56.4 kB         314 kB\n├ ○ /_not-found                            344 B         225 kB\n├ ƒ /api/auth/[...all]                     345 B         225 kB\n├ ƒ /api/dashboard/ceo                     345 B         225 kB\n├ ƒ /api/dashboard/frontliner              345 B         225 kB\n├ ƒ /api/dashboard/performance             345 B         225 kB\n├ ƒ /api/dashboard/worker                  345 B         225 kB\n├ ƒ /api/debug/send-test-email             345 B         225 kB\n├ ƒ /api/sentry-example-api                344 B         225 kB\n├ ƒ /api/settings                          345 B         225 kB\n├ ƒ /app                                   339 B         227 kB\n├ ƒ /app/analytics                       3.57 kB         255 kB\n├ ƒ /app/backups                           345 B         225 kB\n├ ƒ /app/dashboard/analytics             3.36 kB         250 kB\n├ ƒ /app/settings                        11.9 kB         280 kB\n├ ƒ /app/team                            8.99 kB         293 kB\n├ ƒ /app/team/courses                     4.9 kB         259 kB\n├ ƒ /app/team/messages                   12.3 kB         259 kB\n├ ƒ /app/team/profile                     3.5 kB         253 kB\n├ ƒ /app/team/tasks                      6.29 kB         285 kB\n├ ƒ /app/users                           7.34 kB         254 kB\n├ ƒ /app/users/[id]                      5.72 kB         255 kB\n├ ○ /auth/login                          4.55 kB         309 kB\n├ ○ /auth/reset-password                 3.71 kB         306 kB\n├ ○ /auth/signup                         5.47 kB         339 kB\n├ ○ /sentry-example-page                 2.59 kB         228 kB\n├ ○ /simple-test                           954 B         226 kB\n└ ○ /theme-test                            344 B         225 kB\n+ First Load JS shared by all             225 kB\n  ├ chunks/1284-58068669f9149bc1.js       131 kB\n  ├ chunks/7b56ecce-5aa11d6c9129b70d.js  36.4 kB\n  ├ chunks/9b1413eb-6364bba87714f7b0.js  54.3 kB\n  └ other shared chunks (total)          2.81 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n",
+      "analysis": {
+        "staticSize": 2848428,
+        "chunks": [
+          {
+            "name": "1284-58068669f9149bc1.js",
+            "size": 424777,
+            "sizeKB": 414.82
+          },
+          {
+            "name": "main-bc7f1826819437e6.js",
+            "size": 401668,
+            "sizeKB": 392.25
+          },
+          {
+            "name": "7321-74b9d3f4a5350858.js",
+            "size": 244226,
+            "sizeKB": 238.5
+          },
+          {
+            "name": "framework-7eae831940314a4b.js",
+            "size": 183109,
+            "sizeKB": 178.82
+          },
+          {
+            "name": "9b1413eb-6364bba87714f7b0.js",
+            "size": 173103,
+            "sizeKB": 169.05
+          },
+          {
+            "name": "628-a425e66c970265de.js",
+            "size": 155728,
+            "sizeKB": 152.08
+          },
+          {
+            "name": "7b56ecce-5aa11d6c9129b70d.js",
+            "size": 115958,
+            "sizeKB": 113.24
+          },
+          {
+            "name": "polyfills-42372ed130431b0a.js",
+            "size": 112594,
+            "sizeKB": 109.96
+          },
+          {
+            "name": "6475-af0c19062edc5870.js",
+            "size": 51405,
+            "sizeKB": 50.2
+          },
+          {
+            "name": "9680-a694d06761845f98.js",
+            "size": 27724,
+            "sizeKB": 27.07
+          },
+          {
+            "name": "5932-d9f1f2e9b8dfd647.js",
+            "size": 27271,
+            "sizeKB": 26.63
+          },
+          {
+            "name": "9720-4a99170fc936ba71.js",
+            "size": 23747,
+            "sizeKB": 23.19
+          },
+          {
+            "name": "7674-0277673691736128.js",
+            "size": 23298,
+            "sizeKB": 22.75
+          },
+          {
+            "name": "5334-ce88c2086243a63d.js",
+            "size": 21963,
+            "sizeKB": 21.45
+          },
+          {
+            "name": "261-9b623bc021dd7dbb.js",
+            "size": 20918,
+            "sizeKB": 20.43
+          },
+          {
+            "name": "9571-6a0fe6e7ff0acf68.js",
+            "size": 19686,
+            "sizeKB": 19.22
+          },
+          {
+            "name": "4954-eec65f93fef08f53.js",
+            "size": 13347,
+            "sizeKB": 13.03
+          },
+          {
+            "name": "8909-a0f974f1ad3a6042.js",
+            "size": 10599,
+            "sizeKB": 10.35
+          },
+          {
+            "name": "2238-6d1cbaf3b5c1a527.js",
+            "size": 8522,
+            "sizeKB": 8.32
+          },
+          {
+            "name": "1271-76b7396acd2cc4b4.js",
+            "size": 8167,
+            "sizeKB": 7.98
+          },
+          {
+            "name": "6027-d91a55e06b84391c.js",
+            "size": 7812,
+            "sizeKB": 7.63
+          },
+          {
+            "name": "3224-d087677285256d47.js",
+            "size": 5091,
+            "sizeKB": 4.97
+          },
+          {
+            "name": "5415-236f3b087e6fe828.js",
+            "size": 4275,
+            "sizeKB": 4.17
+          },
+          {
+            "name": "webpack-0f4c8f26b0e569e8.js",
+            "size": 3789,
+            "sizeKB": 3.7
+          },
+          {
+            "name": "main-app-a1a8d52261c060a4.js",
+            "size": 2144,
+            "sizeKB": 2.09
+          },
+          {
+            "name": "3f731c04-88f63c76b277046e.js",
+            "size": 1918,
+            "sizeKB": 1.87
+          },
+          {
+            "name": "75fbeb73-df9e6e3414c8d33c.js",
+            "size": 1648,
+            "sizeKB": 1.61
+          }
+        ],
+        "totalJSSize": 2094487,
+        "cssFiles": [
+          {
+            "name": "929f3a9489dd1590.css",
+            "size": 181993,
+            "sizeKB": 177.73
+          }
+        ],
+        "totalCSSSize": 181993
+      }
+    },
+    {
+      "bundler": "Turbopack",
+      "buildTime": 30.362,
+      "success": true,
+      "output": "   ▲ Next.js 15.4.2-canary.18 (Turbopack)\n   - Environments: .env.local, .env\n   - Experiments (use with caution):\n     · clientTraceMetadata\n     · optimizePackageImports\n\n   Creating an optimized production build ...\n ✓ Finished writing to disk in 277ms\n ✓ Compiled successfully in 7.9s\n   Linting and checking validity of types ...\n\n./src/__tests__/middleware/middleware-isolation.test.ts\n8:23  Warning: 'NextResponse' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/__tests__/plugins/plugin-integration.test.ts\n11:32  Warning: 'vi' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/__tests__/routes/auth-login.test.ts\n10:10  Warning: 'NextRequest' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n84:18  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n85:20  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n110:18  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n111:20  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n129:18  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n130:20  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n145:18  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n146:20  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n179:18  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n180:20  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n199:18  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n200:20  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n221:18  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n222:20  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n236:18  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n237:20  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n\n./src/__tests__/routes/simple-isolation.test.ts\n11:18  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n12:20  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n32:18  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n33:20  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n51:18  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n52:20  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n\n./src/app/app/analytics/page.tsx\n9:3  Warning: 'BarChart3' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/app/app/team/courses/page.tsx\n23:3  Warning: 'AlertCircle' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/app/app/team/messages/page.tsx\n10:10  Warning: 'Tabs' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n10:16  Warning: 'TabsContent' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n10:29  Warning: 'TabsList' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n10:39  Warning: 'TabsTrigger' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n19:3  Warning: 'Trash2' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/app/app/team/page.tsx\n28:3  Warning: 'Phone' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/app/app/team/profile/page.tsx\n13:3  Warning: 'Clock' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n16:3  Warning: 'Phone' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/app/auth/login/page.tsx\n135:13  Warning: Do not use an `<a>` element to navigate to `/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages\n\n./src/app/auth/reset-password/page.tsx\n167:13  Warning: Do not use an `<a>` element to navigate to `/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages\n\n./src/app/auth/signup/page.tsx\n143:13  Warning: Do not use an `<a>` element to navigate to `/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages\n\n./src/components/auth/login-form.tsx\n23:14  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars\n\n./src/components/cards/team-member-card.tsx\n14:3  Warning: 'Award' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/charts/bar-chart.tsx\n4:42  Warning: 'CHART_COLORS' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/charts/donut-chart.tsx\n3:48  Warning: 'ResponsiveContainer' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/charts/line-chart.tsx\n4:42  Warning: 'CHART_COLORS' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n6:10  Warning: 'cn' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/examples/zustand-usage-example.tsx\n108:11  Warning: 'invalidateTeamData' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/header.tsx\n47:26  Warning: 'isPending' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/hero/AstralHero.tsx\n11:10  Warning: 'cn' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n29:30  Warning: 'role' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/hero229.tsx\n19:30  Warning: 'role' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n118:1  Warning: Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any').\n236:1  Warning: Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any').\n\n./src/components/navigation/ModernNavbar.tsx\n153:30  Warning: 'role' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/navigation/Navbar1.tsx\n149:30  Warning: 'role' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/notifications/enhanced-notifications.tsx\n12:3  Warning: 'Mail' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n15:3  Warning: 'Download' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/org/ComplianceStatus.tsx\n13:36  Warning: 'data' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/org/FinancialSnapshot.tsx\n13:37  Warning: 'data' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/org/ReadinessDashboard.tsx\n20:5  Warning: 'calculateReadinessScore' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n21:5  Warning: 'getReadinessLevel' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n23:5  Warning: 'generateExecutiveInsights' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n149:8  Warning: React Hook useEffect has missing dependencies: 'mockDepartments' and 'mockPrograms'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps\n\n./src/components/org/RiskHeatmap.tsx\n13:31  Warning: 'data' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/org/StrategicOKRs.tsx\n14:33  Warning: 'data' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/org/individual/IndividualTrackingDashboard.tsx\n30:23  Warning: 'setIsLoading' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n113:8  Warning: React Hook useMemo has an unnecessary dependency: 'mockLearners'. Either exclude it or remove the dependency array. Outer scope values like 'mockLearners' aren't valid dependencies because mutating them doesn't re-render the component.  react-hooks/exhaustive-deps\n132:8  Warning: React Hook useMemo has an unnecessary dependency: 'mockLearners'. Either exclude it or remove the dependency array. Outer scope values like 'mockLearners' aren't valid dependencies because mutating them doesn't re-render the component.  react-hooks/exhaustive-deps\n\n./src/components/org/individual/SearchAndFilters.tsx\n3:18  Warning: 'Filter' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/org/individual/SummaryStatsCards.tsx\n6:10  Warning: 'TrendIcon' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/search/advanced-search.tsx\n27:3  Warning: 'CommandInput' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n43:3  Warning: 'Popover' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n44:3  Warning: 'PopoverContent' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n45:3  Warning: 'PopoverTrigger' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n47:10  Warning: 'Separator' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/settings/SettingsContent.tsx\n27:3  Warning: 'Globe' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n30:3  Warning: 'Calendar' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/settings-sections/account-section.tsx\n6:10  Warning: 'Textarea' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/settings-sections/profile-section.tsx\n12:10  Warning: 'Textarea' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/tables/data-table.tsx\n25:3  Warning: 'DropdownMenuLabel' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n377:39  Warning: 'TData' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n377:46  Warning: 'TValue' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/tables/table-example.tsx\n7:3  Warning: 'MoreHorizontal' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n9:3  Warning: 'Phone' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n17:10  Warning: 'Button' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n224:13  Warning: 'user' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n303:16  Warning: 'setData' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/components/theme/theme-provider.tsx\n25:3  Warning: 'defaultTheme' is assigned a value but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n94:6  Warning: React Hook useEffect has missing dependencies: 'applyTheme' and 'theme'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps\n99:6  Warning: React Hook useEffect has a missing dependency: 'applyTheme'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps\n\n./src/components/upload/file-upload.tsx\n76:43  Warning: Image elements must have an alt prop, either with meaningful text, or an empty string for decorative images.  jsx-a11y/alt-text\n\n./src/components/widgets/widget-system.tsx\n8:34  Warning: 'X' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n8:73  Warning: 'Calendar' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n52:34  Warning: 'onUpdate' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n67:24  Warning: 'config' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n67:32  Warning: 'onUpdate' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n78:23  Warning: 'config' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n78:31  Warning: 'onUpdate' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/emails/example-with-tokens.tsx\n16:10  Warning: 'colors' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n16:18  Warning: 'fonts' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/emails/stripe-welcome-with-tokens.tsx\n16:10  Warning: 'colors' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n16:18  Warning: 'fonts' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n16:34  Warning: 'borders' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/hooks/use-dashboard-data.ts\n69:6  Warning: React Hook useEffect has a missing dependency: 'filters'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps\n69:25  Warning: React Hook useEffect has a complex expression in the dependency array. Extract it to a separate variable so it can be statically checked.  react-hooks/exhaustive-deps\n\n./src/lib/actions/auth-actions.ts\n24:12  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars\n47:12  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars\n58:12  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars\n\n./src/lib/api-aggregation.ts\n161:36  Warning: 'userId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n298:43  Warning: 'userId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n305:41  Warning: 'userId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n311:42  Warning: 'userId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n317:44  Warning: 'userId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n322:49  Warning: 'userId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n327:42  Warning: 'organizationId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n347:40  Warning: 'organizationId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n356:39  Warning: 'organizationId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n361:40  Warning: 'userId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n366:44  Warning: 'organizationId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n372:45  Warning: 'organizationId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n382:44  Warning: 'organizationId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n387:44  Warning: 'organizationId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/lib/auth-client.ts\n215:25  Warning: 'role' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n223:28  Warning: 'roles' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n231:29  Warning: 'roles' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n502:23  Warning: 'resource' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n502:41  Warning: 'action' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n518:22  Warning: 'section' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/lib/auth.ts\n124:61  Warning: 'request' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n130:36  Warning: 'token' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n130:50  Warning: 'request' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/lib/navigation-config.ts\n141:44  Warning: 'role' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n148:42  Warning: 'role' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n167:61  Warning: 'userRole' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n216:9  Warning: 'item' is never reassigned. Use 'const' instead.  prefer-const\n\n./src/lib/permissions.ts\n94:3  Warning: 'resource' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n95:3  Warning: 'action' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n106:9  Warning: 'rolePermissions' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/lib/readiness-data-mapping.ts\n340:33  Warning: 'departmentId' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/lib/readiness-score-psychometric.ts\n15:8  Warning: 'ReadinessCalculationInput' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n17:3  Warning: 'READINESS_CALCULATION_CONFIG' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n437:39  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n671:43  Warning: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports\n\n./src/services/mockLearnerData.ts\n1:84  Warning: 'CoachingRecommendation' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n1:108  Warning: 'ActivityEvent' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/stores/data-store.ts\n883:16  Warning: 'state' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/stores/slices/organization-slice.ts\n450:10  Warning: 'state' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/stores/slices/personal-slice.ts\n398:10  Warning: 'state' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n\n./src/stores/slices/team-slice.ts\n464:10  Warning: 'state' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars\n\ninfo  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules\n   Collecting page data ...\n   Generating static pages (0/28) ...\n   Generating static pages (7/28) \r\n   Generating static pages (14/28) \r\n   Generating static pages (21/28) \r\n ✓ Generating static pages (28/28)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                         Size  First Load JS\n┌ ○ /                            69.3 kB         328 kB\n├ ○ /_not-found                      0 B         249 kB\n├ ƒ /api/auth/[...all]               0 B            0 B\n├ ƒ /api/dashboard/ceo               0 B            0 B\n├ ƒ /api/dashboard/frontliner        0 B            0 B\n├ ƒ /api/dashboard/performance       0 B            0 B\n├ ƒ /api/dashboard/worker            0 B            0 B\n├ ƒ /api/debug/send-test-email       0 B            0 B\n├ ƒ /api/sentry-example-api          0 B            0 B\n├ ƒ /api/settings                    0 B            0 B\n├ ƒ /app                             0 B         320 kB\n├ ƒ /app/analytics                4.2 kB         324 kB\n├ ƒ /app/backups                     0 B         320 kB\n├ ƒ /app/dashboard/analytics     2.21 kB         322 kB\n├ ƒ /app/settings                7.93 kB         336 kB\n├ ƒ /app/team                    8.31 kB         337 kB\n├ ƒ /app/team/courses            5.42 kB         325 kB\n├ ƒ /app/team/messages            8.4 kB         328 kB\n├ ƒ /app/team/profile            3.55 kB         324 kB\n├ ƒ /app/team/tasks              5.94 kB         334 kB\n├ ƒ /app/users                   4.06 kB         324 kB\n├ ƒ /app/users/[id]              5.48 kB         326 kB\n├ ○ /auth/login                  4.61 kB         328 kB\n├ ○ /auth/reset-password         4.74 kB         326 kB\n├ ○ /auth/signup                 15.6 kB         359 kB\n├ ○ /sentry-example-page         2.65 kB         252 kB\n├ ○ /simple-test                   790 B         250 kB\n└ ○ /theme-test                      0 B         249 kB\n+ First Load JS shared by all     283 kB\n  ├ chunks/12acd9f67b71dba0.js   19.3 kB\n  ├ chunks/4fb783ed6203b9aa.js    154 kB\n  ├ chunks/73f9fe04a5f27f98.js   13.3 kB\n  ├ chunks/cf228432142ae111.js   11.6 kB\n  ├ chunks/db50d452d434c5c9.js   19.3 kB\n  ├ chunks/4cadd401fa52dbeb.css  33.1 kB\n  └ other shared chunks (total)    32 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n",
+      "analysis": {
+        "staticSize": 13931158,
+        "chunks": [
+          {
+            "name": "ae06883252f9c3c0.js",
+            "size": 567372,
+            "sizeKB": 554.07
+          },
+          {
+            "name": "4fb783ed6203b9aa.js",
+            "size": 501353,
+            "sizeKB": 489.6
+          },
+          {
+            "name": "dce9d9a4bb1a681d.js",
+            "size": 275283,
+            "sizeKB": 268.83
+          },
+          {
+            "name": "0a4aa804b047a0c8.js",
+            "size": 176343,
+            "sizeKB": 172.21
+          },
+          {
+            "name": "ec548c7ce307cf6d.js",
+            "size": 112594,
+            "sizeKB": 109.96
+          },
+          {
+            "name": "db50d452d434c5c9.js",
+            "size": 78296,
+            "sizeKB": 76.46
+          },
+          {
+            "name": "12acd9f67b71dba0.js",
+            "size": 71123,
+            "sizeKB": 69.46
+          },
+          {
+            "name": "607aa50e1d53ba4b.js",
+            "size": 50248,
+            "sizeKB": 49.07
+          },
+          {
+            "name": "73f9fe04a5f27f98.js",
+            "size": 39363,
+            "sizeKB": 38.44
+          },
+          {
+            "name": "cf228432142ae111.js",
+            "size": 34723,
+            "sizeKB": 33.91
+          },
+          {
+            "name": "cd25c263e6738b9f.js",
+            "size": 32563,
+            "sizeKB": 31.8
+          },
+          {
+            "name": "f1da614e4464b301.js",
+            "size": 31813,
+            "sizeKB": 31.07
+          },
+          {
+            "name": "6fce3d8c1b652c2f.js",
+            "size": 30735,
+            "sizeKB": 30.01
+          },
+          {
+            "name": "f1ca1fda0cfe44af.js",
+            "size": 30563,
+            "sizeKB": 29.85
+          },
+          {
+            "name": "2e59537d563860fc.js",
+            "size": 30425,
+            "sizeKB": 29.71
+          },
+          {
+            "name": "5c2b1c93257db130.js",
+            "size": 29661,
+            "sizeKB": 28.97
+          },
+          {
+            "name": "ef8319c46f357eda.js",
+            "size": 29661,
+            "sizeKB": 28.97
+          },
+          {
+            "name": "49b5e31613555a00.js",
+            "size": 26694,
+            "sizeKB": 26.07
+          },
+          {
+            "name": "4473abdd17e849ba.js",
+            "size": 24894,
+            "sizeKB": 24.31
+          },
+          {
+            "name": "017ed1c712b8d6ac.js",
+            "size": 23472,
+            "sizeKB": 22.92
+          },
+          {
+            "name": "5c4d45de5d18c220.js",
+            "size": 21866,
+            "sizeKB": 21.35
+          },
+          {
+            "name": "85cf4f9348b12476.js",
+            "size": 21606,
+            "sizeKB": 21.1
+          },
+          {
+            "name": "c014cfe815208ec8.js",
+            "size": 21406,
+            "sizeKB": 20.9
+          },
+          {
+            "name": "00f455c4071fa039.js",
+            "size": 21129,
+            "sizeKB": 20.63
+          },
+          {
+            "name": "9d6ea9bff6a59cda.js",
+            "size": 21129,
+            "sizeKB": 20.63
+          },
+          {
+            "name": "b676c6f38a29f32a.js",
+            "size": 21129,
+            "sizeKB": 20.63
+          },
+          {
+            "name": "b72ae3d278c37d8f.js",
+            "size": 20720,
+            "sizeKB": 20.23
+          },
+          {
+            "name": "044377dd65739ca3.js",
+            "size": 19437,
+            "sizeKB": 18.98
+          },
+          {
+            "name": "27236997b3b8cc6e.js",
+            "size": 19436,
+            "sizeKB": 18.98
+          },
+          {
+            "name": "2e98d4eb9963e41e.js",
+            "size": 18839,
+            "sizeKB": 18.4
+          },
+          {
+            "name": "f46fa75b9821e8b8.js",
+            "size": 15750,
+            "sizeKB": 15.38
+          },
+          {
+            "name": "b1a54d3bcab54dfc.js",
+            "size": 15005,
+            "sizeKB": 14.65
+          },
+          {
+            "name": "ba4398694bb1425e.js",
+            "size": 14738,
+            "sizeKB": 14.39
+          },
+          {
+            "name": "3b2f18bfd5aa24bc.js",
+            "size": 13683,
+            "sizeKB": 13.36
+          },
+          {
+            "name": "0fe8583130b34c50.js",
+            "size": 12458,
+            "sizeKB": 12.17
+          },
+          {
+            "name": "fa5eb2ee1f14ad2a.js",
+            "size": 12234,
+            "sizeKB": 11.95
+          },
+          {
+            "name": "876f1968a999aae4.js",
+            "size": 11842,
+            "sizeKB": 11.56
+          },
+          {
+            "name": "turbopack-59ff47a76c5d6b95.js",
+            "size": 9698,
+            "sizeKB": 9.47
+          },
+          {
+            "name": "turbopack-11d508c674ec1ca2.js",
+            "size": 9597,
+            "sizeKB": 9.37
+          },
+          {
+            "name": "turbopack-9bd7da55a84f4e49.js",
+            "size": 9596,
+            "sizeKB": 9.37
+          },
+          {
+            "name": "2d3be6cc25cec395.js",
+            "size": 9251,
+            "sizeKB": 9.03
+          },
+          {
+            "name": "f7009556902c5075.js",
+            "size": 8985,
+            "sizeKB": 8.77
+          },
+          {
+            "name": "73f970baa6282e19.js",
+            "size": 8660,
+            "sizeKB": 8.46
+          },
+          {
+            "name": "2d5622a5cbd2486a.js",
+            "size": 6908,
+            "sizeKB": 6.75
+          },
+          {
+            "name": "e6cb618efe86d9ce.js",
+            "size": 6758,
+            "sizeKB": 6.6
+          },
+          {
+            "name": "9ef90992d364682a.js",
+            "size": 6573,
+            "sizeKB": 6.42
+          },
+          {
+            "name": "6cba91467090f488.js",
+            "size": 5132,
+            "sizeKB": 5.01
+          },
+          {
+            "name": "ee00be62b229616e.js",
+            "size": 3495,
+            "sizeKB": 3.41
+          },
+          {
+            "name": "ee35e562a931a38f.js",
+            "size": 1994,
+            "sizeKB": 1.95
+          },
+          {
+            "name": "67a6c8cd799a09cb.js",
+            "size": 1576,
+            "sizeKB": 1.54
+          },
+          {
+            "name": "5f978968f0c4e306.js",
+            "size": 862,
+            "sizeKB": 0.84
+          },
+          {
+            "name": "cd6960da714a3124.js",
+            "size": 173,
+            "sizeKB": 0.17
+          },
+          {
+            "name": "4f55d7f28f175361.js",
+            "size": 171,
+            "sizeKB": 0.17
+          }
+        ],
+        "totalJSSize": 2589015
+      }
+    }
+  ],
+  "summary": {
+    "webpackBuildTime": 68.765,
+    "turbopackBuildTime": 30.362,
+    "webpackTotalJS": 2094487,
+    "turbopackTotalJS": 2589015
+  }
+}
