@@ -82,7 +82,8 @@ export function ComboChart({
   size = 'md'
 }: ComboChartProps) {
   const config = useChartConfig()
-  const colors = useChartColors(series.length)
+  const seriesCount = typeof series === 'number' ? series : series.length
+  const colors = useChartColors(seriesCount)
 
   // Determine height based on size if not provided
   const chartHeight = height || (size === 'sm' ? 200 : size === 'lg' ? 400 : 300)
@@ -93,9 +94,18 @@ export function ComboChart({
     : { top: 20, right: 20, bottom: 40, left: 0 }
 
   // Separate series by type for rendering
-  const barSeries = series.filter(s => s.type === 'bar')
-  const lineSeries = series.filter(s => s.type === 'line')
-  const areaSeries = series.filter(s => s.type === 'area')
+  const seriesArray = typeof series === 'number' 
+    ? Array.from({ length: series }, (_, i) => ({
+        type: i % 3 === 0 ? 'bar' : i % 3 === 1 ? 'line' : 'area',
+        dataKey: `value${i + 1}`,
+        name: `Series ${i + 1}`,
+        yAxisId: 'left'
+      } as ComboSeriesConfig))
+    : series
+  
+  const barSeries = seriesArray.filter(s => s.type === 'bar')
+  const lineSeries = seriesArray.filter(s => s.type === 'line')
+  const areaSeries = seriesArray.filter(s => s.type === 'area')
 
   return (
     <ChartContainer
@@ -204,7 +214,7 @@ export function ComboChart({
 
         {/* Area series (render first, behind other elements) */}
         {areaSeries.map((seriesConfig, index) => {
-          const seriesIndex = series.findIndex(s => s === seriesConfig)
+          const seriesIndex = seriesArray.findIndex(s => s === seriesConfig)
           return (
             <Area
               key={`area-${seriesConfig.dataKey}`}
@@ -223,7 +233,7 @@ export function ComboChart({
 
         {/* Bar series */}
         {barSeries.map((seriesConfig, index) => {
-          const seriesIndex = series.findIndex(s => s === seriesConfig)
+          const seriesIndex = seriesArray.findIndex(s => s === seriesConfig)
           return (
             <Bar
               key={`bar-${seriesConfig.dataKey}`}
@@ -240,7 +250,7 @@ export function ComboChart({
 
         {/* Line series (render last, on top) */}
         {lineSeries.map((seriesConfig, index) => {
-          const seriesIndex = series.findIndex(s => s === seriesConfig)
+          const seriesIndex = seriesArray.findIndex(s => s === seriesConfig)
           return (
             <Line
               key={`line-${seriesConfig.dataKey}`}

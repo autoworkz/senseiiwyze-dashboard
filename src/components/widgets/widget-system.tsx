@@ -132,6 +132,7 @@ function SortableWidget({
   onRemove: (id: string) => void
   isDragging?: boolean
 }) {
+  const widgetId = typeof widget === 'string' ? widget : widget.id;
   const {
     attributes,
     listeners,
@@ -139,12 +140,15 @@ function SortableWidget({
     transform,
     transition,
     isDragging: isSortableDragging,
-  } = useSortable({ id: widget.id })
+  } = useSortable({ id: widgetId })
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
   }
+
+  // If widget is just a string ID, we can't render it
+  if (typeof widget === 'string') return null;
 
   // Find widget type
   const widgetType = DEFAULT_WIDGET_TYPES.find(type => type.id === widget.type)
@@ -219,9 +223,9 @@ function SortableWidget({
 
 // Widget Dashboard Component
 interface WidgetDashboardProps {
-  widgets: WidgetConfig[] | T[] | WidgetConfig[]
+  widgets: WidgetConfig[]
   onWidgetsChange: (widgets: WidgetConfig[]) => void
-  availableWidgets?: WidgetType[] | WidgetType
+  availableWidgets?: WidgetType[]
   editable?: boolean
   className?: string
 }

@@ -33,6 +33,7 @@ next-env.d.ts
 # Testing
 coverage/
 .nyc_output/
+html/
 
 # IDE
 .vscode/

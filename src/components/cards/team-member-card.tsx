@@ -65,7 +65,7 @@ export interface TeamMember {
 }
 
 interface TeamMemberCardProps {
-  member: TeamMember | string | number | Date | TeamMember
+  member: TeamMember
   variant?: 'default' | 'compact' | 'detailed'
   showActions?: boolean
   showMetrics?: boolean

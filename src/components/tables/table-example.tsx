@@ -24,14 +24,14 @@ import { FilterConfig, FilterValue } from "./table-filters"
 // Sample data type
 export interface User {
   id: string
-  name: string | any[] | any[]
-  email: string | any[]
+  name: string
+  email: string
   role: 'admin' | 'user' | 'editor'
   status: 'active' | 'inactive' | 'pending'
   department: string
-  joinDate: string | string | number | Date
+  joinDate: string
   avatar?: string
-  phone?: string | any[]
+  phone?: string
   location?: string
 }
 

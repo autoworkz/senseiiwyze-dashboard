@@ -67,7 +67,8 @@ export function BarChart({
   size = 'md'
 }: BarChartProps) {
   const config = useChartConfig()
-  const colors = useChartColors(bars.length)
+  const barCount = typeof bars === 'number' ? bars : bars.length
+  const colors = useChartColors(barCount)
 
   // Determine height based on size if not provided
   const chartHeight = height || (size === 'sm' ? 200 : size === 'lg' ? 400 : 300)
@@ -166,17 +167,35 @@ export function BarChart({
         ))}
 
         {/* Data bars */}
-        {bars.map((barConfig, index) => (
-          <Bar
-            key={barConfig.dataKey}
-            dataKey={barConfig.dataKey}
-            name={barConfig.name}
-            fill={barConfig.color || colors[index]}
-            radius={barConfig.radius || [4, 4, 0, 0]}
-            stackId={barConfig.stackId}
-            animationDuration={config.animations.duration.slow + index * 100}
-          />
-        ))}
+        {typeof bars === 'number' ? (
+          // Generate bars based on data keys when bars is a number
+          Array.from({ length: bars }, (_, index) => {
+            const dataKeys = Object.keys(data[0] || {}).filter(key => key !== xAxisKey)
+            const dataKey = dataKeys[index] || `value${index + 1}`
+            return (
+              <Bar
+                key={dataKey}
+                dataKey={dataKey}
+                name={dataKey}
+                fill={colors[index]}
+                radius={[4, 4, 0, 0]}
+                animationDuration={config.animations.duration.slow + index * 100}
+              />
+            )
+          })
+        ) : (
+          bars.map((barConfig, index) => (
+            <Bar
+              key={barConfig.dataKey}
+              dataKey={barConfig.dataKey}
+              name={barConfig.name}
+              fill={barConfig.color || colors[index]}
+              radius={barConfig.radius || [4, 4, 0, 0]}
+              stackId={barConfig.stackId}
+              animationDuration={config.animations.duration.slow + index * 100}
+            />
+          ))
+        )}
       </RechartsBarChart>
     </ChartContainer>
   )

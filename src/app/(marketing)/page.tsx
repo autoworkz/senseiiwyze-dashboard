@@ -1,5 +1,11 @@
-import { Hero229 } from "@/components/hero229";
+import { AstralHero } from "@/components/hero/AstralHero";
+import { ModernNavbar } from "@/components/navigation/ModernNavbar";
 
 export default function LandingPage() {
-  return <Hero229 />
+  return (
+    <>
+      <ModernNavbar />
+      <AstralHero />
+    </>
+  );
 }

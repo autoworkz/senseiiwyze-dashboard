@@ -68,7 +68,8 @@ export function LineChart({
   size = 'md'
 }: LineChartProps) {
   const config = useChartConfig()
-  const colors = useChartColors(lines.length)
+  const lineCount = typeof lines === 'number' ? lines : lines.length
+  const colors = useChartColors(lineCount)
 
   // Determine height based on size if not provided
   const chartHeight = height || (size === 'sm' ? 200 : size === 'lg' ? 400 : 300)
@@ -163,26 +164,52 @@ export function LineChart({
         ))}
 
         {/* Data lines */}
-        {lines.map((lineConfig, index) => (
-          <Line
-            key={lineConfig.dataKey}
-            type="monotone"
-            dataKey={lineConfig.dataKey}
-            name={lineConfig.name}
-            stroke={lineConfig.color || colors[index]}
-            strokeWidth={lineConfig.strokeWidth || 2}
-            strokeDasharray={lineConfig.strokeDasharray}
-            dot={lineConfig.dot || false}
-            connectNulls={lineConfig.connectNulls}
-            animationDuration={config.animations.duration.slow + index * 200}
-            activeDot={{
-              r: size === 'sm' ? 3 : 4,
-              fill: lineConfig.color || colors[index],
-              strokeWidth: 2,
-              stroke: config.colors.background
-            }}
-          />
-        ))}
+        {typeof lines === 'number' ? (
+          // Generate lines based on data keys when lines is a number
+          Array.from({ length: lines }, (_, index) => {
+            const dataKeys = Object.keys(data[0] || {}).filter(key => key !== xAxisKey)
+            const dataKey = dataKeys[index] || `value${index + 1}`
+            return (
+              <Line
+                key={dataKey}
+                type="monotone"
+                dataKey={dataKey}
+                name={dataKey}
+                stroke={colors[index]}
+                strokeWidth={2}
+                dot={false}
+                animationDuration={config.animations.duration.slow + index * 200}
+                activeDot={{
+                  r: size === 'sm' ? 3 : 4,
+                  fill: colors[index],
+                  strokeWidth: 2,
+                  stroke: 'white'
+                }}
+              />
+            )
+          })
+        ) : (
+          lines.map((lineConfig, index) => (
+            <Line
+              key={lineConfig.dataKey}
+              type="monotone"
+              dataKey={lineConfig.dataKey}
+              name={lineConfig.name}
+              stroke={lineConfig.color || colors[index]}
+              strokeWidth={lineConfig.strokeWidth || 2}
+              strokeDasharray={lineConfig.strokeDasharray}
+              dot={lineConfig.dot || false}
+              connectNulls={lineConfig.connectNulls}
+              animationDuration={config.animations.duration.slow + index * 200}
+              activeDot={{
+                r: size === 'sm' ? 3 : 4,
+                fill: lineConfig.color || colors[index],
+                strokeWidth: 2,
+                stroke: config.colors.background
+              }}
+            />
+          ))
+        )}
       </RechartsLineChart>
     </ChartContainer>
   )

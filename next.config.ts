@@ -1,18 +1,101 @@
 import {withSentryConfig} from "@sentry/nextjs";
 import type { NextConfig } from "next";
 
+// Bundle analyzer configuration
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+});
+
 const nextConfig: NextConfig = {
+  // Production optimizations
+  productionBrowserSourceMaps: false, // Disable source maps in production for smaller bundles
+  poweredByHeader: false, // Remove X-Powered-By header
+  reactStrictMode: true,
+  
+  // Turbopack configuration
   turbopack: {
     // Enable Turbo Pack specific optimizations
     resolveAlias: {
       // Add any module resolution aliases if needed
     },
   },
+  
+  // Performance optimizations
   experimental: {
-    // nodeMiddleware: true,
+    // Enable optimized package imports
+    optimizePackageImports: [
+      'lucide-react',
+      '@radix-ui/react-accordion',
+      '@radix-ui/react-alert-dialog', 
+      '@radix-ui/react-avatar',
+      '@radix-ui/react-checkbox',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-dropdown-menu',
+      '@radix-ui/react-label',
+      '@radix-ui/react-popover',
+      '@radix-ui/react-select',
+      '@radix-ui/react-separator',
+      '@radix-ui/react-tabs',
+      '@radix-ui/react-tooltip',
+      'framer-motion',
+      'react-icons'
+    ],
   },
-  /* config options here */
-
+  
+  // Image optimization
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 31536000, // 1 year
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+  },
+  
+  // Webpack optimizations (when not using Turbopack)
+  webpack: (config, { dev, isServer, webpack }) => {
+    if (!dev) {
+      // Production-specific optimizations
+      config.optimization = {
+        ...config.optimization,
+        minimize: true,
+        sideEffects: false,
+      };
+      
+      // Add DefinePlugin to eliminate debug code
+      config.plugins.push(
+        new webpack.DefinePlugin({
+          __SENTRY_DEBUG__: false,
+          __SENTRY_TRACING__: false,
+          'process.env.NODE_ENV': JSON.stringify('production'),
+        })
+      );
+      
+      // Bundle analyzer in webpack mode (using @next/bundle-analyzer)
+      if (process.env.ANALYZE === 'true') {
+        const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
+        config.plugins.push(
+          new BundleAnalyzerPlugin({
+            analyzerMode: 'static',
+            openAnalyzer: true,
+            reportFilename: isServer
+              ? '../analyze/server.html'
+              : './analyze/client.html',
+          })
+        );
+      }
+    }
+    
+    return config;
+  },
+  
+  // Compiler options
+  compiler: {
+    removeConsole: {
+      exclude: ['error', 'warn'], // Keep error and warn logs
+    },
+  },
+  
+  // Output configuration
+  output: 'standalone', // For better deployment
 };
 
 export default withSentryConfig(nextConfig, {

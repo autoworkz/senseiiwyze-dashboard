@@ -69,14 +69,14 @@ export interface SearchResult {
 
 export interface SearchSuggestion {
   id: string
-  query: string | React.SetStateAction<string> | string | undefined | React.SetStateAction<string> | string | undefined
+  query: string
   type: 'recent' | 'popular' | 'suggested'
   count?: number
 }
 
 interface AdvancedSearchProps {
   placeholder?: string
-  filters?: SearchFilter[] | (S | (() => S))
+  filters?: SearchFilter[]
   suggestions?: SearchSuggestion[]
   results?: SearchResult[]
   onSearch: (query: string, filters: SearchFilter[]) => void

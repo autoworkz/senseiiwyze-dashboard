@@ -51,7 +51,17 @@ export function DonutChart({
   size = 'md'
 }: DonutChartProps) {
   const config = useChartConfig()
-  const colors = useChartColors(data.length)
+  const dataCount = typeof data === 'number' ? data : data.length
+  const colors = useChartColors(dataCount)
+  
+  // Generate data array if data is a number
+  const chartData = typeof data === 'number'
+    ? Array.from({ length: data }, (_, i) => ({
+        name: `Segment ${i + 1}`,
+        value: Math.floor(Math.random() * 100) + 1,
+        color: colors[i]
+      }))
+    : data
 
   // Determine dimensions based on size
   const chartHeight = height || (size === 'sm' ? 200 : size === 'lg' ? 400 : 300)
@@ -118,7 +128,7 @@ export function DonutChart({
           aria-label={config.accessibility.ariaLabel}
         >
           <Pie
-            data={data}
+            data={chartData}
             cx="50%"
             cy="50%"
             labelLine={false}
@@ -131,7 +141,7 @@ export function DonutChart({
             endAngle={endAngle}
             animationDuration={config.animations.duration.slow}
           >
-            {data.map((entry, index) => (
+            {chartData.map((entry, index) => (
               <Cell 
                 key={`cell-${index}`} 
                 fill={entry.color || colors[index]}

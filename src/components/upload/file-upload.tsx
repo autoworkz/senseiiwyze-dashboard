@@ -398,7 +398,7 @@ export function FileUpload({
                                   className="h-8 w-8 p-0"
                                   onClick={() => {
                                     const a = document.createElement('a')
-                                    a.href = file.url!
+                                    a.href = file.url!.toString()
                                     a.download = file.name
                                     a.click()
                                   }}

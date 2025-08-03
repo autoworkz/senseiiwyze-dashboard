@@ -67,7 +67,8 @@ export function AreaChart({
   size = 'md'
 }: AreaChartProps) {
   const config = useChartConfig()
-  const colors = useChartColors(areas.length)
+  const areaCount = typeof areas === 'number' ? areas : areas.length
+  const colors = useChartColors(areaCount)
 
   // Determine height based on size if not provided
   const chartHeight = height || (size === 'sm' ? 200 : size === 'lg' ? 400 : 300)
@@ -162,21 +163,42 @@ export function AreaChart({
         ))}
 
         {/* Data areas */}
-        {areas.map((areaConfig, index) => (
-          <Area
-            key={areaConfig.dataKey}
-            type="monotone"
-            dataKey={areaConfig.dataKey}
-            name={areaConfig.name}
-            stroke={areaConfig.color || colors[index]}
-            fill={areaConfig.color || colors[index]}
-            strokeWidth={areaConfig.strokeWidth || 2}
-            fillOpacity={areaConfig.fillOpacity || 0.1}
-            stackId={areaConfig.stackId}
-            connectNulls={areaConfig.connectNulls}
-            animationDuration={config.animations.duration.slow + index * 200}
-          />
-        ))}
+        {typeof areas === 'number' ? (
+          // Generate areas based on data keys when areas is a number
+          Array.from({ length: areas }, (_, index) => {
+            const dataKeys = Object.keys(data[0] || {}).filter(key => key !== xAxisKey)
+            const dataKey = dataKeys[index] || `value${index + 1}`
+            return (
+              <Area
+                key={dataKey}
+                type="monotone"
+                dataKey={dataKey}
+                name={dataKey}
+                stroke={colors[index]}
+                fill={colors[index]}
+                strokeWidth={2}
+                fillOpacity={0.1}
+                animationDuration={config.animations.duration.slow + index * 200}
+              />
+            )
+          })
+        ) : (
+          areas.map((areaConfig, index) => (
+            <Area
+              key={areaConfig.dataKey}
+              type="monotone"
+              dataKey={areaConfig.dataKey}
+              name={areaConfig.name}
+              stroke={areaConfig.color || colors[index]}
+              fill={areaConfig.color || colors[index]}
+              strokeWidth={areaConfig.strokeWidth || 2}
+              fillOpacity={areaConfig.fillOpacity || 0.1}
+              stackId={areaConfig.stackId}
+              connectNulls={areaConfig.connectNulls}
+              animationDuration={config.animations.duration.slow + index * 200}
+            />
+          ))
+        )}
       </RechartsAreaChart>
     </ChartContainer>
   )
