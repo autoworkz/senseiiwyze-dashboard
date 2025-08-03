@@ -49,6 +49,5 @@ exec watchexec \
   --ignore "**/*.log" \
   --ignore "**/node_modules/**" \
   --print-events \
-  --on-busy-update restart \
   --shell bash \
   -- 'echo "🔄 Build detected, restarting dev server..."; sleep 1; pnpm dev'
