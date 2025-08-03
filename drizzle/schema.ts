@@ -1121,3 +1121,19 @@ export const userAccounts = pgView("user_accounts", {	id: uuid(),
 	slug: text(),
 	role: varchar({ length: 50 }),
 }).with({"securityInvoker":true}).as(sql`SELECT account.id, account.name, account.picture_url, account.slug, membership.account_role AS role FROM accounts account JOIN accounts_memberships membership ON account.id = membership.account_id WHERE membership.user_id = (( SELECT auth.uid() AS uid)) AND account.is_personal_account = false AND (account.id IN ( SELECT accounts_memberships.account_id FROM accounts_memberships WHERE accounts_memberships.user_id = (( SELECT auth.uid() AS uid))))`);
+
+// Re-export usage tracking tables
+export { 
+  ba_usageTracking, 
+  ba_usageSummary, 
+  ba_creditBalance, 
+  ba_creditTransactions,
+  type UsageTracking,
+  type NewUsageTracking,
+  type UsageSummary,
+  type NewUsageSummary,
+  type CreditBalance,
+  type NewCreditBalance,
+  type CreditTransaction,
+  type NewCreditTransaction
+} from './usage-tracking-schema';
