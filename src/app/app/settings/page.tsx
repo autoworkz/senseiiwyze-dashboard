@@ -1,11 +1,11 @@
-import { Suspense } from 'react'
-import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { SettingsContent } from '@/components/settings/SettingsContent'
+import { Suspense } from 'react'
 import { SettingsErrorBoundary } from '@/components/error/error-boundary'
-import { SettingsSkeleton } from '@/components/loading/loading-skeletons'
 import { PageContainer, PageHeader } from '@/components/layout/PageContainer'
+import { SettingsSkeleton } from '@/components/loading/loading-skeletons'
+import { SettingsContent } from '@/components/settings/SettingsContent'
+import { auth } from '@/lib/auth'
 
 interface User {
   role: 'learner' | 'admin' | 'executive' | 'ceo' | 'worker' | 'frontliner'
@@ -13,11 +13,10 @@ interface User {
   email: string
 }
 
-
 export default async function SettingsPage() {
   // Server-side session retrieval
   const session = await auth.api.getSession({
-    headers: await headers()
+    headers: await headers(),
   })
 
   if (!session?.user) {
@@ -28,7 +27,7 @@ export default async function SettingsPage() {
   const user: User = {
     role: (session.user.role as User['role']) || 'learner',
     name: session.user.name || 'User',
-    email: session.user.email || ''
+    email: session.user.email || '',
   }
 
   // TODO: Fetch user's current settings from database
@@ -46,8 +45,8 @@ export default async function SettingsPage() {
   }
 
   return (
-    <PageContainer maxWidth="4xl" className="space-y-8">
-      <PageHeader 
+    <PageContainer maxWidth="narrow" className="space-y-8">
+      <PageHeader
         title="Settings"
         description="Manage your account settings, preferences, and billing"
       />

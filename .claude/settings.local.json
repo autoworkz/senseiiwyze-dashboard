@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__openmemory__search-memories",
+      "mcp__openmemory__add-memory",
+      "mcp__browser-tools-mcp__takeScreenshot"
+    ]
+  },
+  "enableAllProjectMcpServers": false
+}

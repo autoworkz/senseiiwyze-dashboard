@@ -1,20 +1,20 @@
 'use client'
 
-import { useSession } from '@/lib/auth-client'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Button } from '@/components/ui/button'
-import { PageContainer, PageHeader } from '@/components/layout/PageContainer'
-import { 
-  BarChart3, 
-  TrendingUp, 
-  Users,
-  Target,
+import {
   Activity,
+  BarChart3,
   Calendar,
   Download,
-  Filter
+  Filter,
+  Target,
+  TrendingUp,
+  Users,
 } from 'lucide-react'
+import { PageContainer, PageHeader } from '@/components/layout/PageContainer'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useSession } from '@/lib/auth-client'
 
 export default function AnalyticsPage() {
   const { data: session, isPending } = useSession()
@@ -44,8 +44,8 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <PageContainer maxWidth="7xl" className="space-y-8">
-      <PageHeader 
+    <PageContainer className="space-y-8">
+      <PageHeader
         title="Analytics & Insights"
         description="Track performance, measure success, and optimize learning outcomes"
       >
@@ -107,9 +107,7 @@ export default function AnalyticsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">2.3x</div>
-            <p className="text-xs text-muted-foreground">
-              Faster than industry average
-            </p>
+            <p className="text-xs text-muted-foreground">Faster than industry average</p>
           </CardContent>
         </Card>
       </div>
@@ -151,14 +149,12 @@ export default function AnalyticsPage() {
                       <span className="font-medium">{team}</span>
                       <div className="flex items-center gap-2">
                         <div className="w-32 bg-muted rounded-full h-2">
-                          <div 
-                            className="bg-primary h-2 rounded-full" 
+                          <div
+                            className="bg-primary h-2 rounded-full"
                             style={{ width: `${90 - index * 5}%` }}
                           />
                         </div>
-                        <span className="text-sm text-muted-foreground">
-                          {90 - index * 5}%
-                        </span>
+                        <span className="text-sm text-muted-foreground">{90 - index * 5}%</span>
                       </div>
                     </div>
                   ))}
@@ -177,20 +173,18 @@ export default function AnalyticsPage() {
                     { skill: 'Cloud Computing', progress: 85 },
                     { skill: 'Machine Learning', progress: 72 },
                     { skill: 'DevOps', progress: 90 },
-                    { skill: 'Data Engineering', progress: 78 }
+                    { skill: 'Data Engineering', progress: 78 },
                   ].map((item) => (
                     <div key={item.skill} className="flex items-center justify-between">
                       <span className="font-medium">{item.skill}</span>
                       <div className="flex items-center gap-2">
                         <div className="w-32 bg-muted rounded-full h-2">
-                          <div 
-                            className="bg-primary h-2 rounded-full" 
+                          <div
+                            className="bg-primary h-2 rounded-full"
                             style={{ width: `${item.progress}%` }}
                           />
                         </div>
-                        <span className="text-sm text-muted-foreground">
-                          {item.progress}%
-                        </span>
+                        <span className="text-sm text-muted-foreground">{item.progress}%</span>
                       </div>
                     </div>
                   ))}
@@ -204,9 +198,7 @@ export default function AnalyticsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Engagement Metrics</CardTitle>
-              <CardDescription>
-                User activity and participation rates
-              </CardDescription>
+              <CardDescription>User activity and participation rates</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="h-[400px] bg-muted/50 rounded-lg flex items-center justify-center">
@@ -220,9 +212,7 @@ export default function AnalyticsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Learning Outcomes</CardTitle>
-              <CardDescription>
-                Certification pass rates and skill demonstration
-              </CardDescription>
+              <CardDescription>Certification pass rates and skill demonstration</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="h-[400px] bg-muted/50 rounded-lg flex items-center justify-center">
@@ -236,9 +226,7 @@ export default function AnalyticsPage() {
           <Card>
             <CardHeader>
               <CardTitle>ROI Analysis</CardTitle>
-              <CardDescription>
-                Return on training investment and cost savings
-              </CardDescription>
+              <CardDescription>Return on training investment and cost savings</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
@@ -256,7 +244,7 @@ export default function AnalyticsPage() {
                     <p className="text-sm text-muted-foreground">Time to Productivity</p>
                   </div>
                 </div>
-                
+
                 <div className="h-[300px] bg-muted/50 rounded-lg flex items-center justify-center">
                   <p className="text-muted-foreground">ROI trend visualization</p>
                 </div>
@@ -275,10 +263,18 @@ export default function AnalyticsPage() {
               Time Period
             </CardTitle>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm">Last 7 days</Button>
-              <Button variant="outline" size="sm">Last 30 days</Button>
-              <Button variant="outline" size="sm">Last 90 days</Button>
-              <Button variant="outline" size="sm">Custom</Button>
+              <Button variant="outline" size="sm">
+                Last 7 days
+              </Button>
+              <Button variant="outline" size="sm">
+                Last 30 days
+              </Button>
+              <Button variant="outline" size="sm">
+                Last 90 days
+              </Button>
+              <Button variant="outline" size="sm">
+                Custom
+              </Button>
             </div>
           </div>
         </CardHeader>

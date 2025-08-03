@@ -23,6 +23,7 @@ import {
   InteractiveCardTitle,
 } from '@/components/interactive'
 import { InteractiveKPICard } from '@/components/interactive/standardized-interactive'
+import { PageContainer, PageHeader } from '@/components/layout/PageContainer'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -186,15 +187,12 @@ export default function AIInsightsPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <PageContainer className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">AI Business Insights</h1>
-          <p className="text-muted-foreground">
-            AI-powered recommendations to boost profitability and engagement
-          </p>
-        </div>
+      <PageHeader
+        title="AI Business Insights"
+        description="AI-powered recommendations to boost profitability and engagement"
+      >
         <InteractiveButton
           onClick={loadInsights}
           variant="outline"
@@ -205,7 +203,7 @@ export default function AIInsightsPage() {
           <Brain className="w-4 h-4" />
           Refresh Insights
         </InteractiveButton>
-      </div>
+      </PageHeader>
 
       {/* Health Score Overview */}
       <InteractiveCard effect="lift" className="border-2">
@@ -571,6 +569,6 @@ export default function AIInsightsPage() {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+    </PageContainer>
   )
 }

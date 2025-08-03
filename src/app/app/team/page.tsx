@@ -29,6 +29,7 @@ import {
   InteractiveCardTitle,
   InteractiveInput,
 } from '@/components/interactive'
+import { PageContainer, PageHeader } from '@/components/layout/PageContainer'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
@@ -317,28 +318,21 @@ export default function TeamManagementPage() {
   }
 
   return (
-    <main className="p-8">
+    <PageContainer className="space-y-6">
       {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">Team Management</h1>
-            <p className="text-muted-foreground mt-2">
-              Oversee your team's learning progress and performance
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <InteractiveButton effect="scale">
-              <UserPlus className="h-4 w-4 mr-2" />
-              Add Member
-            </InteractiveButton>
-            <InteractiveButton variant="outline" effect="scale">
-              <Settings className="h-4 w-4 mr-2" />
-              Team Settings
-            </InteractiveButton>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        title="Team Management"
+        description="Oversee your team's learning progress and performance"
+      >
+        <InteractiveButton effect="scale">
+          <UserPlus className="h-4 w-4 mr-2" />
+          Add Member
+        </InteractiveButton>
+        <InteractiveButton variant="outline" effect="scale">
+          <Settings className="h-4 w-4 mr-2" />
+          Team Settings
+        </InteractiveButton>
+      </PageHeader>
 
       {/* Stats Cards */}
       {teamStats && (
@@ -802,6 +796,6 @@ export default function TeamManagementPage() {
           </Card>
         </TabsContent>
       </Tabs>
-    </main>
+    </PageContainer>
   )
 }

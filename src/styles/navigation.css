@@ -20,7 +20,7 @@
   .nav-glow {
     background: radial-gradient(
       400px circle at var(--mouse-x) var(--mouse-y),
-      hsl(var(--primary) / 0.03),
+      oklch(from var(--primary) l c h / 0.03),
       transparent 50%
     );
     will-change: opacity;
@@ -39,7 +39,7 @@
     inset: 0;
     background: radial-gradient(
       150px circle at var(--mouse-x) var(--mouse-y),
-      hsl(var(--primary) / 0.04),
+      oklch(from var(--primary) l c h / 0.04),
       transparent 60%
     );
     opacity: 0;
@@ -61,7 +61,7 @@
   }
 
   .nav-item:hover .nav-icon {
-    background: hsl(var(--primary) / 0.08);
+    background: oklch(from var(--primary) l c h / 0.08);
     transform: translateY(-1px) scale(1.02);
   }
 
@@ -101,7 +101,7 @@
   .nav-glow {
     background: radial-gradient(
       400px circle at var(--mouse-x) var(--mouse-y),
-      hsl(var(--primary) / 0.02),
+      oklch(from var(--primary) l c h / 0.02),
       transparent 50%
     );
   }
@@ -109,13 +109,13 @@
   .nav-item::before {
     background: radial-gradient(
       150px circle at var(--mouse-x) var(--mouse-y),
-      hsl(var(--primary) / 0.03),
+      oklch(from var(--primary) l c h / 0.03),
       transparent 60%
     );
   }
 
   .nav-item:hover .nav-icon {
-    background: hsl(var(--primary) / 0.06);
+    background: oklch(from var(--primary) l c h / 0.06);
   }
 }
 
@@ -140,6 +140,6 @@
 
   /* Keep color changes but remove motion */
   .nav-item:hover .nav-icon {
-    background: hsl(var(--primary) / 0.08);
+    background: oklch(from var(--primary) l c h / 0.08);
   }
 }
