@@ -1,0 +1,345 @@
+/* Firegeo-inspired Micro-interactions */
+
+@layer components {
+  /* Enhanced Interactive Elements */
+  
+  /* Button Micro-interactions */
+  .btn-micro {
+    @apply transition-all duration-200 ease-out transform-gpu;
+  }
+  
+  .btn-micro:hover:not(:disabled) {
+    transform: translateY(-1px) scale(0.98);
+  }
+  
+  .btn-micro:active:not(:disabled) {
+    transform: translateY(0) scale(0.96);
+  }
+  
+  /* Card Hover Effects */
+  .card-micro {
+    @apply transition-all duration-200 ease-out transform-gpu;
+  }
+  
+  .card-micro:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px hsl(var(--primary) / 0.12);
+  }
+  
+  /* Input Enhancements */
+  .input-micro {
+    @apply transition-all duration-200 ease-out;
+  }
+  
+  .input-micro:focus {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px hsl(var(--primary) / 0.15);
+  }
+  
+  .input-micro:hover:not(:focus) {
+    border-color: hsl(var(--ring) / 0.3);
+  }
+  
+  /* Link Animations */
+  .link-micro {
+    @apply relative transition-all duration-200 ease-out;
+  }
+  
+  .link-micro::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: hsl(var(--primary));
+    transition: width 200ms ease-out;
+  }
+  
+  .link-micro:hover::after {
+    width: 100%;
+  }
+  
+  /* Badge Interactive */
+  .badge-micro {
+    @apply transition-all duration-200 ease-out cursor-pointer;
+  }
+  
+  .badge-micro:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px hsl(var(--primary) / 0.2);
+  }
+  
+  /* Switch/Toggle */
+  .switch-micro {
+    @apply transition-all duration-200 ease-out;
+  }
+  
+  .switch-micro:hover {
+    transform: scale(1.05);
+  }
+  
+  /* Checkbox */
+  .checkbox-micro {
+    @apply transition-all duration-200 ease-out;
+  }
+  
+  .checkbox-micro:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 6px hsl(var(--primary) / 0.2);
+  }
+  
+  /* Tab Enhancements */
+  .tab-micro {
+    @apply relative transition-all duration-200 ease-out;
+  }
+  
+  .tab-micro:hover:not([data-state="active"]) {
+    transform: translateY(-1px);
+    background-color: hsl(var(--accent) / 0.05);
+  }
+  
+  /* Dropdown/Select */
+  .select-micro {
+    @apply transition-all duration-200 ease-out;
+  }
+  
+  .select-micro:hover {
+    border-color: hsl(var(--ring) / 0.3);
+  }
+  
+  .select-micro:focus {
+    transform: translateY(-1px);
+  }
+  
+  /* Table Row Hover */
+  .table-row-micro {
+    @apply transition-all duration-200 ease-out;
+  }
+  
+  .table-row-micro:hover {
+    background-color: hsl(var(--accent) / 0.03);
+    transform: translateX(2px);
+  }
+  
+  /* Icon Button */
+  .icon-btn-micro {
+    @apply transition-all duration-200 ease-out transform-gpu;
+  }
+  
+  .icon-btn-micro:hover {
+    transform: scale(1.1);
+  }
+  
+  .icon-btn-micro:active {
+    transform: scale(0.95);
+  }
+  
+  /* Floating Action Button */
+  .fab-micro {
+    @apply transition-all duration-200 ease-out transform-gpu;
+    box-shadow: 0 4px 14px hsl(var(--primary) / 0.3);
+  }
+  
+  .fab-micro:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 8px 20px hsl(var(--primary) / 0.4);
+  }
+  
+  /* Navigation Items */
+  .nav-item-micro {
+    @apply relative transition-all duration-200 ease-out;
+  }
+  
+  .nav-item-micro:hover {
+    transform: translateX(2px);
+  }
+  
+  /* Responsive: Reduce animations on mobile */
+  @media (max-width: 768px) {
+    .card-micro:hover {
+      transform: translateY(-2px);
+    }
+    
+    .fab-micro:hover {
+      transform: translateY(-1px) scale(1.02);
+    }
+  }
+}
+
+/* Enhanced Interactive Utility Classes */
+@layer components {
+  /* Base interactive class for generic elements */
+  .interactive-base {
+    @apply transition-all duration-200 ease-out transform-gpu;
+  }
+
+  /* Intensity Variations */
+  .interactive-subtle {
+    transition-duration: 150ms;
+  }
+  
+  .interactive-subtle:hover {
+    transform: translateY(-0.5px);
+  }
+  
+  .interactive-strong {
+    transition-duration: 250ms;
+  }
+  
+  .interactive-strong:hover {
+    transform: translateY(-3px) scale(1.02);
+  }
+
+  /* Effect Classes */
+  .interactive-scale {
+    @apply transition-transform duration-200 ease-out;
+  }
+  
+  .interactive-scale:hover:not(:disabled) {
+    transform: scale(1.05);
+  }
+  
+  .interactive-scale:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  .interactive-lift {
+    @apply transition-all duration-200 ease-out;
+  }
+  
+  .interactive-lift:hover:not(:disabled) {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px hsl(var(--primary) / 0.15);
+  }
+
+  .interactive-glow {
+    @apply transition-all duration-200 ease-out;
+  }
+  
+  .interactive-glow:hover:not(:disabled) {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+  }
+  
+  .interactive-glow:focus:not(:disabled) {
+    box-shadow: 0 0 25px hsl(var(--primary) / 0.4);
+  }
+
+  .interactive-pulse {
+    animation: interactive-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .interactive-float {
+    animation: interactive-float 3s ease-in-out infinite;
+  }
+
+  .interactive-focus-ring:focus {
+    outline: 2px solid hsl(var(--primary) / 0.5);
+    outline-offset: 2px;
+  }
+
+  .interactive-clickable {
+    @apply cursor-pointer;
+  }
+  
+  .interactive-clickable:hover {
+    transform: translateY(-1px);
+  }
+  
+  .interactive-clickable:active {
+    transform: translateY(0);
+  }
+}
+
+/* Keyframe Animations */
+@keyframes interactive-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes interactive-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+/* Animation timing utilities */
+@layer utilities {
+  .animate-fast {
+    transition-duration: 150ms;
+  }
+  
+  .animate-normal {
+    transition-duration: 200ms;
+  }
+  
+  .animate-slow {
+    transition-duration: 300ms;
+  }
+  
+  .ease-spring {
+    transition-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+  
+  .ease-smooth {
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+/* Accessibility: Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .btn-micro,
+  .card-micro,
+  .input-micro,
+  .link-micro,
+  .badge-micro,
+  .switch-micro,
+  .checkbox-micro,
+  .tab-micro,
+  .select-micro,
+  .table-row-micro,
+  .icon-btn-micro,
+  .fab-micro,
+  .nav-item-micro,
+  .interactive-base,
+  .interactive-scale,
+  .interactive-lift,
+  .interactive-glow,
+  .interactive-clickable {
+    transition-duration: 0.01ms !important;
+    transform: none !important;
+    animation: none !important;
+  }
+  
+  .btn-micro:hover,
+  .card-micro:hover,
+  .input-micro:focus,
+  .badge-micro:hover,
+  .switch-micro:hover,
+  .checkbox-micro:hover,
+  .tab-micro:hover,
+  .select-micro:hover,
+  .icon-btn-micro:hover,
+  .fab-micro:hover,
+  .nav-item-micro:hover,
+  .interactive-base:hover,
+  .interactive-scale:hover,
+  .interactive-lift:hover,
+  .interactive-glow:hover,
+  .interactive-clickable:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  .interactive-pulse,
+  .interactive-float {
+    animation: none !important;
+  }
+}

@@ -1,0 +1,62 @@
+# Production-like watch override - disable HMR, enable full rebuild on changes
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.prod-watch.yml up
+
+version: "3.9"
+
+services:
+  app:
+    command: pnpm start
+    environment:
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
+      - TURBO_TELEMETRY_DISABLED=1
+    develop:
+      watch:
+        # Full rebuild on any source code change (production-like behavior)
+        - action: rebuild
+          path: ./src
+        - action: rebuild
+          path: ./pages
+        - action: rebuild
+          path: ./components
+        - action: rebuild
+          path: ./lib
+        - action: rebuild
+          path: ./styles
+        - action: rebuild
+          path: ./public
+        # Configuration changes trigger rebuild
+        - action: rebuild
+          path: ./package.json
+        - action: rebuild
+          path: ./next.config.ts
+        - action: rebuild
+          path: ./tailwind.config.js
+        - action: rebuild
+          path: ./drizzle.config.ts
+        - action: rebuild
+          path: ./tsconfig.json
+
+  # Production build service that runs before starting
+  build:
+    build: .
+    command: pnpm build
+    volumes:
+      - ./:/app
+    profiles: ["build"]
+
+  # Disable development watchers in production-like mode
+  watch-config:
+    profiles: ["disabled"]
+    
+  watch-frontend:
+    profiles: ["disabled"]
+    
+  watch-backend:
+    profiles: ["disabled"]
+    
+  watch-db:
+    profiles: ["disabled"]
+    
+  watch-env:
+    profiles: ["disabled"]

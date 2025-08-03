@@ -1,5 +1,5 @@
-import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 
 // Dashboard loading skeletons
 export function DashboardSkeleton() {
@@ -65,14 +65,14 @@ export function SettingsSkeleton() {
       {/* Header skeleton */}
       <div className="space-y-2">
         <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-4 w-96" />
+        <Skeleton className="h-4 w-64" />
       </div>
 
-      {/* Tabs skeleton */}
+      {/* Tabs skeleton - reduced height to match actual tabs */}
       <div className="space-y-6">
         <div className="flex space-x-1 bg-muted/50 p-1 rounded-lg">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-10 flex-1" />
+            <Skeleton key={i} className="h-8 flex-1" />
           ))}
         </div>
 
@@ -85,13 +85,13 @@ export function SettingsSkeleton() {
                   <Skeleton className="h-5 w-5" />
                   <Skeleton className="h-5 w-32" />
                 </div>
-                <Skeleton className="h-4 w-64" />
+                <Skeleton className="h-4 w-48" />
               </CardHeader>
               <CardContent className="space-y-4">
                 {Array.from({ length: 3 }).map((_, j) => (
                   <div key={j} className="space-y-2">
-                    <Skeleton className="h-4 w-24" />
-                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-4 w-20" />
+                    <Skeleton className="h-9 w-full" />
                   </div>
                 ))}
               </CardContent>
@@ -110,7 +110,7 @@ export function NavigationSkeleton() {
       <div className="flex items-center gap-6 flex-1">
         {/* Mobile menu skeleton */}
         <Skeleton className="h-9 w-9 md:hidden" />
-        
+
         {/* Logo skeleton */}
         <div className="flex items-center gap-2">
           <Skeleton className="h-8 w-8 rounded-lg" />
@@ -158,7 +158,7 @@ export function CardSkeleton({ className }: { className?: string }) {
 }
 
 // List loading skeleton
-export function ListSkeleton({ items = 5, className }: { items?: number, className?: string }) {
+export function ListSkeleton({ items = 5, className }: { items?: number; className?: string }) {
   return (
     <div className={`space-y-3 ${className}`}>
       {Array.from({ length: items }).map((_, i) => (
@@ -176,7 +176,7 @@ export function ListSkeleton({ items = 5, className }: { items?: number, classNa
 }
 
 // Table loading skeleton
-export function TableSkeleton({ rows = 5, columns = 4 }: { rows?: number, columns?: number }) {
+export function TableSkeleton({ rows = 5, columns = 4 }: { rows?: number; columns?: number }) {
   return (
     <div className="space-y-3">
       {/* Header */}
@@ -185,10 +185,14 @@ export function TableSkeleton({ rows = 5, columns = 4 }: { rows?: number, column
           <Skeleton key={i} className="h-4 w-full" />
         ))}
       </div>
-      
+
       {/* Rows */}
       {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="grid gap-4" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
+        <div
+          key={i}
+          className="grid gap-4"
+          style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
+        >
           {Array.from({ length: columns }).map((_, j) => (
             <Skeleton key={j} className="h-8 w-full" />
           ))}
@@ -212,7 +216,7 @@ export function ChartSkeleton({ className }: { className?: string }) {
         <div className="space-y-4">
           {/* Chart area */}
           <Skeleton className="h-64 w-full rounded-md" />
-          
+
           {/* Legend */}
           <div className="flex gap-4">
             {Array.from({ length: 3 }).map((_, i) => (

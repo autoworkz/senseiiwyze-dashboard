@@ -1,0 +1,95 @@
+# Test watch override - run tests in watch mode
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.test-watch.yml up
+
+version: "3.9"
+
+services:
+  app:
+    command: pnpm test:watch
+    environment:
+      - NODE_ENV=test
+      - NEXT_TELEMETRY_DISABLED=1
+      - TURBO_TELEMETRY_DISABLED=1
+    develop:
+      watch:
+        # Watch test files and source files for test reruns
+        - action: sync
+          path: ./src
+          target: /app/src
+          ignore:
+            - node_modules/
+            - "**/*.log"
+        - action: sync
+          path: ./tests
+          target: /app/tests
+          ignore:
+            - node_modules/
+        - action: sync
+          path: ./__tests__
+          target: /app/__tests__
+          ignore:
+            - node_modules/
+        - action: sync
+          path: ./components
+          target: /app/components
+          ignore:
+            - node_modules/
+        # Restart tests on config changes
+        - action: rebuild
+          path: ./package.json
+        - action: rebuild
+          path: ./vitest.config.ts
+        - action: rebuild
+          path: ./tsconfig.json
+        - action: rebuild
+          path: ./playwright.config.ts
+
+  # Test coverage service
+  test-coverage:
+    build: .
+    command: pnpm test:coverage
+    volumes:
+      - ./:/app
+    environment:
+      - NODE_ENV=test
+    profiles: ["coverage"]
+
+  # Test UI service
+  test-ui:
+    build: .
+    command: pnpm test:ui
+    volumes:
+      - ./:/app
+    ports:
+      - "51204:51204"
+    environment:
+      - NODE_ENV=test
+    profiles: ["ui"]
+
+  # E2E test service
+  test-e2e:
+    build: .
+    command: pnpm test:e2e
+    volumes:
+      - ./:/app
+    environment:
+      - NODE_ENV=test
+    profiles: ["e2e"]
+    depends_on:
+      - app
+
+  # Disable development watchers in test mode
+  watch-config:
+    profiles: ["disabled"]
+    
+  watch-frontend:
+    profiles: ["disabled"]
+    
+  watch-backend:
+    profiles: ["disabled"]
+    
+  watch-db:
+    profiles: ["test"]  # Keep database watcher for test database changes
+    
+  watch-env:
+    profiles: ["disabled"]

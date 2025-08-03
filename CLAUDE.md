@@ -46,6 +46,24 @@ pnpm test:watch       # Watch mode for TDD
 pnpm test -- <pattern> # Run specific tests
 ```
 
+### Docker Development
+```bash
+# Docker Compose with file watching (recommended)
+just compose-watch-dev  # Uses Docker Compose's built-in watch feature
+
+# Traditional Docker development commands
+just dev-docker         # Development with HMR + watchers enabled
+just dev-docker-detached # Start in detached mode
+just dev-docker-stop    # Stop all Docker services
+```
+
+**Docker Compose Watch Integration:**
+- Uses [Docker Compose watch](https://docs.docker.com/compose/file-watch/) for efficient file synchronization
+- Automatically syncs `src/`, `pages/`, and `components/` directories
+- Rebuilds container on configuration changes (`package.json`, `next.config.ts`, etc.)
+- **Requirements**: Docker Compose v2.22+ with `develop.watch` support
+- **External dependency**: Requires Docker Desktop or Docker Engine with Compose V2
+
 ## ⚠️ HANDS-OFF DIRECTORIES
 
 **DO NOT MODIFY THESE DIRECTORIES - THEY ARE MANAGED BY EXTERNAL SYSTEMS:**
@@ -614,9 +632,114 @@ The current route structure should be preserved as-is:
 - ✅ **Email verification** and password reset
 - ✅ **User settings** and profile management
 
+## shadcn/ui Component Modification Rules
+
+**⚠️ CRITICAL: NEVER EDIT SHADCN/UI COMPONENTS DIRECTLY**
+
+**Established Rule:** All shadcn/ui components in `src/components/ui/` are standardized and provide a solid foundation. **Everything must be additive, not modificative.**
+
+### What NOT to do:
+- ❌ **NEVER** edit files in `src/components/ui/` directly
+- ❌ **NEVER** modify shadcn/ui component internals
+- ❌ **NEVER** change existing shadcn/ui component APIs
+- ❌ **NEVER** add custom props to shadcn/ui components
+- ❌ **NEVER** alter shadcn/ui styling patterns
+
+### What TO do instead:
+- ✅ **CREATE wrapper components** that enhance shadcn/ui components
+- ✅ **CREATE additional utility classes** in globals.css for styling enhancements
+- ✅ **CREATE enhancement layers** like micro-interactions or visual effects
+- ✅ **CREATE custom components** that compose shadcn/ui primitives
+- ✅ **EXTEND functionality** through composition patterns
+
+### Examples of Proper Enhancement Patterns:
+
+#### ✅ Wrapper Component Pattern:
+```typescript
+// src/components/enhanced/InteractiveButton.tsx
+import { Button, ButtonProps } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+
+interface InteractiveButtonProps extends ButtonProps {
+  microInteraction?: boolean
+  glow?: boolean
+}
+
+export function InteractiveButton({ 
+  microInteraction, 
+  glow, 
+  className, 
+  ...props 
+}: InteractiveButtonProps) {
+  return (
+    <Button
+      className={cn(
+        microInteraction && 'transition-transform hover:scale-105',
+        glow && 'hover:shadow-lg hover:shadow-primary/25',
+        className
+      )}
+      {...props}
+    />
+  )
+}
+```
+
+#### ✅ Composition Pattern:
+```typescript
+// src/components/composed/GradientCard.tsx
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { cn } from '@/lib/utils'
+
+export function GradientCard({ className, ...props }) {
+  return (
+    <Card className={cn('bg-gradient-to-br from-primary/5 to-secondary/5', className)}>
+      <CardHeader className="pb-3">
+        <div className="h-1 w-12 bg-gradient-to-r from-primary to-secondary rounded-full" />
+      </CardHeader>
+      <CardContent {...props} />
+    </Card>
+  )
+}
+```
+
+#### ✅ Utility Extension Pattern:
+```css
+/* src/app/globals.css - Add to @layer utilities */
+@layer utilities {
+  .btn-glow {
+    @apply transition-all duration-200;
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0);
+  }
+  
+  .btn-glow:hover {
+    box-shadow: 0 0 20px 2px hsl(var(--primary) / 0.3);
+  }
+}
+```
+
+### File Organization for Enhancements:
+```
+src/components/
+├── ui/                    # ← NEVER TOUCH - shadcn/ui components
+├── enhanced/              # ← Wrapper components with additional features  
+├── composed/              # ← Custom components using shadcn/ui primitives
+├── effects/               # ← Visual effects and animations
+└── micro-interactions/    # ← Interaction enhancements
+```
+
+### Why This Rule Exists:
+1. **Maintainability:** shadcn/ui updates won't break our customizations
+2. **Standardization:** Consistent base components across the entire app
+3. **Debugging:** Clear separation between base components and enhancements
+4. **Team Collaboration:** Other developers can safely update shadcn/ui components
+5. **Best Practices:** Follows React composition over inheritance principles
+
+**🎯 Key Principle:** Always enhance through composition and wrapper patterns, never through direct modification of shadcn/ui components.
+
 ## Important Notes
 
 - Product-specific files in `.agent-os/product/` override any global standards
 - User's specific instructions override (or amend) instructions found in `.agent-os/specs/...`
 - Always adhere to established patterns, code style, and best practices documented above
 - **ALWAYS apply the incremental approach above to any complex task**
+- **NEVER edit shadcn/ui components directly - always use additive enhancement patterns**

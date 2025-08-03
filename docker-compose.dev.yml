@@ -1,0 +1,55 @@
+# Development override - HMR + watchers enabled
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+version: "3.9"
+
+services:
+  app:
+    command: pnpm dev --turbo
+    environment:
+      - NODE_ENV=development
+      - NEXT_TELEMETRY_DISABLED=1
+      - TURBO_TELEMETRY_DISABLED=1
+    develop:
+      watch:
+        # Enable live reload for development files
+        - action: sync
+          path: ./src
+          target: /app/src
+          ignore:
+            - node_modules/
+        - action: sync
+          path: ./pages
+          target: /app/pages
+          ignore:
+            - node_modules/
+        - action: sync
+          path: ./components
+          target: /app/components
+          ignore:
+            - node_modules/
+        # Rebuild on config changes
+        - action: rebuild
+          path: ./package.json
+        - action: rebuild
+          path: ./next.config.ts
+        - action: rebuild
+          path: ./tailwind.config.js
+        - action: rebuild
+          path: ./drizzle.config.ts
+
+  # Enable all watchers for development
+  watch-config:
+    profiles: ["dev"]
+    
+  watch-frontend:
+    profiles: ["dev"]
+    
+  watch-backend:
+    profiles: ["dev"]
+    
+  watch-db:
+    profiles: ["dev"]
+    
+  watch-env:
+    profiles: ["dev"]

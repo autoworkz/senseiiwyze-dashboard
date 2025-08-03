@@ -1,0 +1,78 @@
+version: "3.9"
+
+x-volumes: &volumes
+  - ./:/app
+
+x-watch-config: &watch-config
+  - "**/next.config.ts"
+  - "**/tailwind.config.js"
+  - "**/package.json"
+  - "**/drizzle.config.ts"
+
+x-watch-frontend: &watch-frontend
+  - "src/**/*.{js,jsx,ts,tsx,css,scss}"
+  - "pages/**/*.{js,jsx,ts,tsx}"
+  - "components/**/*.{js,jsx,ts,tsx}"
+
+x-watch-backend: &watch-backend
+  - "pages/api/**/*.ts"
+  - "lib/server/**/*.ts"
+  - "middleware/**/*.ts"
+
+x-watch-db: &watch-db
+  - "db/schema/**/*.{ts,sql}"
+  - "drizzle.config.ts"
+
+x-watch-env: &watch-env
+  - ".env"
+  - ".env.*"
+
+services:
+  app:
+    build: .
+    command: pnpm dev --turbo
+    volumes: *volumes
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+
+  watch-config:
+    image: docker/compose:cdn
+    volumes: 
+      - ./:/app
+      - ./scripts/watch-config.sh:/scripts/watch-config.sh:ro
+    working_dir: /app
+    entrypoint: ["/scripts/watch-config.sh"]
+
+  watch-frontend:
+    image: docker/compose:cdn
+    volumes: 
+      - ./:/app
+      - ./scripts/watch-frontend.sh:/scripts/watch-frontend.sh:ro
+    working_dir: /app
+    entrypoint: ["/scripts/watch-frontend.sh"]
+
+  watch-backend:
+    image: docker/compose:cdn
+    volumes: 
+      - ./:/app
+      - ./scripts/watch-backend.sh:/scripts/watch-backend.sh:ro
+    working_dir: /app
+    entrypoint: ["/scripts/watch-backend.sh"]
+
+  watch-db:
+    image: node:18-alpine
+    volumes: 
+      - ./:/app
+      - ./scripts/watch-db.sh:/scripts/watch-db.sh:ro
+    working_dir: /app
+    entrypoint: ["/scripts/watch-db.sh"]
+
+  watch-env:
+    image: docker/compose:cdn
+    volumes: 
+      - ./:/app
+      - ./scripts/watch-env.sh:/scripts/watch-env.sh:ro
+    working_dir: /app
+    entrypoint: ["/scripts/watch-env.sh"]
