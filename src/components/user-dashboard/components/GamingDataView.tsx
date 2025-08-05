@@ -31,6 +31,11 @@ interface GamingDataViewProps {
   onUserSelection: (userId: string) => void;
 }
 
+interface GamingDataApiResponse {
+  success: boolean;
+  users: UserGamingData[];
+}
+
 export const GamingDataView = ({
   selectedUserId,
   onUserSelection
@@ -43,7 +48,7 @@ export const GamingDataView = ({
     const fetchData = async () => {
       try {
         const response = await fetch('/api/gaming-data');
-        const result = await response.json();
+        const result: GamingDataApiResponse = await response.json();
         if (result.success) {
           setUsersData(result.users);
           if (result.users.length > 0 && !selectedUserId) {
