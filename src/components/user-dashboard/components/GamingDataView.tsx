@@ -15,6 +15,7 @@ interface GamingDataApiResponse {
   users: UserGamingData[];
 }
 
+
 export const GamingDataView = ({
   selectedUserId,
   onUserSelection
