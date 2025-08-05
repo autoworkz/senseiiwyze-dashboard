@@ -30,88 +30,36 @@ import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { RoleBadge, ScoreBadge, StatusBadge } from '@/components/ui/standardized/badge-variants'
 import { useSession } from '@/lib/auth-client'
-
-interface User {
-  id: string
-  role: 'learner' | 'admin' | 'executive' | 'ceo' | 'worker' | 'frontliner'
-  name: string
-  email: string
-  status: 'active' | 'inactive' | 'pending'
-  readinessScore: number
-  lastActive: string
-  avatar?: string
-}
-
-interface CurrentUser {
-  role: 'learner' | 'admin' | 'executive' | 'ceo' | 'worker' | 'frontliner'
-  name: string
-  email: string
-}
-
-// Mock users data
-const mockUsers: User[] = [
-  {
-    id: '1',
-    name: 'Sarah Chen',
-    email: 'sarah.chen@company.com',
-    role: 'admin',
-    status: 'active',
-    readinessScore: 92,
-    lastActive: '2 hours ago',
-  },
-  {
-    id: '2',
-    name: 'Marcus Thompson',
-    email: 'marcus.thompson@company.com',
-    role: 'learner',
-    status: 'active',
-    readinessScore: 78,
-    lastActive: '1 day ago',
-  },
-  {
-    id: '3',
-    name: 'Lisa Rodriguez',
-    email: 'lisa.rodriguez@company.com',
-    role: 'executive',
-    status: 'active',
-    readinessScore: 85,
-    lastActive: '3 hours ago',
-  },
-  {
-    id: '4',
-    name: 'David Kim',
-    email: 'david.kim@company.com',
-    role: 'worker',
-    status: 'inactive',
-    readinessScore: 45,
-    lastActive: '1 week ago',
-  },
-  {
-    id: '5',
-    name: 'Emily Johnson',
-    email: 'emily.johnson@company.com',
-    role: 'learner',
-    status: 'pending',
-    readinessScore: 0,
-    lastActive: 'Never',
-  },
-  {
-    id: '6',
-    name: 'Alex Rivera',
-    email: 'alex.rivera@company.com',
-    role: 'frontliner',
-    status: 'active',
-    readinessScore: 67,
-    lastActive: '5 minutes ago',
-  },
-]
+import { User, CurrentUser } from '@/types/user'
 
 export default function UsersPage() {
   const { data: session, isPending } = useSession()
   const [user, setUser] = useState<CurrentUser | null>(null)
-  const [users] = useState<User[]>(mockUsers)
-  const [filteredUsers, setFilteredUsers] = useState<User[]>(mockUsers)
+  const [users, setUsers] = useState<User[]>([])
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([])
   const [searchTerm, setSearchTerm] = useState('')
+  const [isLoading, setIsLoading] = useState(true)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [usersPerPage] = useState(10)
+
+  useEffect(() => {
+    async function fetchUsers() {
+      try {
+        const response = await fetch('/api/users')
+        if (!response.ok) {
+          throw new Error('Failed to fetch users')
+        }
+        const data = (await response.json()) as User[]
+        setUsers(data)
+        setFilteredUsers(data)
+      } catch (error) {
+        console.error(error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchUsers()
+  }, [])
 
   // Helper function to get user initials
   const getInitials = (name: string) => {
@@ -136,15 +84,23 @@ export default function UsersPage() {
       )
       setFilteredUsers(filtered)
     }
+    setCurrentPage(1) // Reset to first page on search
   }, [searchTerm, users])
 
   // Calculate stats
   const totalUsers = users.length
   const activeUsers = users.filter((u) => u.status === 'active').length
   const atRiskUsers = users.filter((u) => u.readinessScore < 60 && u.status !== 'pending').length
-  const avgCompletionRate = Math.round(
-    users.reduce((acc, u) => acc + u.readinessScore, 0) / users.length
-  )
+  const avgCompletionRate =
+    users.length > 0 ? Math.round(users.reduce((acc, u) => acc + u.readinessScore, 0) / users.length) : 0
+
+  // Pagination logic
+  const indexOfLastUser = currentPage * usersPerPage
+  const indexOfFirstUser = indexOfLastUser - usersPerPage
+  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser)
+  const totalPages = Math.ceil(filteredUsers.length / usersPerPage)
+
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber)
 
   useEffect(() => {
     if (session?.user) {
@@ -156,7 +112,7 @@ export default function UsersPage() {
     }
   }, [session])
 
-  if (isPending) {
+  if (isPending || isLoading) {
     return (
       <div className="min-h-screen bg-background">
         <div className="flex">
@@ -265,10 +221,6 @@ export default function UsersPage() {
                 intensity="subtle"
               />
             </div>
-            <InteractiveButton variant="outline" size="sm" effect="scale">
-              <Filter className="h-4 w-4 mr-2" />
-              Advanced Filters
-            </InteractiveButton>
           </div>
         </CardContent>
       </Card>
@@ -292,7 +244,7 @@ export default function UsersPage() {
             </div>
 
             {/* User Rows */}
-            {filteredUsers.map((user) => (
+            {currentUsers.map((user) => (
               <div
                 key={user.id}
                 className="grid grid-cols-12 gap-4 py-3 border-b border-dashed hover:bg-muted/50 transition-colors"
@@ -335,7 +287,7 @@ export default function UsersPage() {
             ))}
 
             {/* No users found */}
-            {filteredUsers.length === 0 && (
+            {currentUsers.length === 0 && (
               <div className="py-8 text-center">
                 <p className="text-sm text-muted-foreground">
                   No users found matching your search.
@@ -348,14 +300,29 @@ export default function UsersPage() {
           <div className="mt-6 pt-4 border-t">
             <div className="flex items-center justify-between">
               <p className="text-sm text-muted-foreground">
-                Showing {filteredUsers.length} of {totalUsers} users
+                Showing {currentUsers.length} of {filteredUsers.length} users
               </p>
-              <div className="flex gap-2">
-                <InteractiveButton variant="outline" size="sm" effect="scale">
-                  Invite New Users
+              <div className="flex items-center gap-2">
+                <InteractiveButton
+                  variant="outline"
+                  size="sm"
+                  effect="scale"
+                  onClick={() => paginate(currentPage - 1)}
+                  disabled={currentPage === 1}
+                >
+                  Previous
                 </InteractiveButton>
-                <InteractiveButton asChild variant="outline" size="sm" effect="scale">
-                  <Link href="/app/analytics">View Analytics</Link>
+                <span className="text-sm text-muted-foreground">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <InteractiveButton
+                  variant="outline"
+                  size="sm"
+                  effect="scale"
+                  onClick={() => paginate(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
                 </InteractiveButton>
               </div>
             </div>
