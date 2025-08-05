@@ -1,10 +1,22 @@
-import { Resend } from 'resend';
-import { emailLogger } from '@/lib/logger';
+import { Resend } from 'resend'
+import { emailLogger } from '@/lib/logger'
+import {
+  LoginCodeEmail,
+  MagicLinkEmail,
+  NewDeviceEmail,
+  PasswordResetEmail,
+  SecurityAlertEmail,
+  VerifyEmail,
+  WelcomeEmail,
+} from '../../emails'
 
 // Initialize Resend client lazily to avoid API key errors during build time
-type ResendLike = { emails: { send: (opts: any) => Promise<{ data: any; error: any }> } };
+type ResendLike = {
+  emails: { send: (opts: any) => Promise<{ data: any; error: any }> }
+  batch: { send: (emails: any[]) => Promise<{ data: any; error: any }> }
+}
 
-let resend: ResendLike | null = null;
+let resend: ResendLike | null = null
 
 function getResendClient(): ResendLike {
   // If EMAIL_PROVIDER=CONSOLE or we're in test env, return console logger implementation
@@ -12,271 +24,202 @@ function getResendClient(): ResendLike {
     return {
       emails: {
         async send(opts: any) {
-           
           emailLogger.info('Email sent via console provider', {
             from: opts.from,
             to: opts.to,
             subject: opts.subject,
-            htmlPreview: opts.html?.slice(0, 200)
-          });
-          return { data: { preview: true }, error: null };
+            htmlPreview: opts.html?.slice(0, 200),
+          })
+          return { data: { preview: true }, error: null }
         },
       },
-    } as ResendLike;
+      batch: {
+        async send(emails: any[]) {
+          emailLogger.info('Batch emails sent via console provider', {
+            count: emails.length,
+            subjects: emails.map((e) => e.subject),
+          })
+          return { data: { preview: true }, error: null }
+        },
+      },
+    } as ResendLike
   }
 
   if (!resend) {
-    const apiKey = process.env.RESEND_API_KEY;
+    const apiKey = process.env.RESEND_API_KEY
     if (!apiKey) {
-      throw new Error('RESEND_API_KEY environment variable is not set');
+      throw new Error('RESEND_API_KEY environment variable is not set')
     }
-    resend = new Resend(apiKey) as unknown as ResendLike;
+    resend = new Resend(apiKey) as unknown as ResendLike
   }
-  return resend;
+  return resend
 }
 
-export interface OtpEmailOptions {
-  email: string;
-  otp: string;
-  appName?: string;
+// Email configuration
+const FROM_EMAIL = 'SenseiiWyze <noreply@senseiwyze.com>'
+const REPLY_TO_EMAIL = 'support@senseiwyze.com'
+
+// Types
+export interface EmailResponse {
+  data?: { id: string }
+  error?: Error
 }
 
-export interface MagicLinkEmailOptions {
-  email: string;
-  url: string;
-  appName?: string;
+export interface PasswordResetEmailOptions {
+  email: string
+  resetLink: string
+}
+
+export interface LoginCodeEmailOptions {
+  email: string
+  code: string
 }
 
 export interface VerificationEmailOptions {
-  email: string;
-  url: string;
-  appName?: string;
+  email: string
+  verificationLink: string
 }
 
 export interface WelcomeEmailOptions {
-  email: string;
-  name: string;
-  appName?: string;
+  email: string
+  name?: string
 }
 
-// ==============================
-// OTP (One-Time Passcode) Emails
-// ==============================
+export interface NewDeviceEmailOptions {
+  email: string
+  loginDate?: string
+  loginDevice?: string
+  loginLocation?: string
+  loginIp?: string
+}
 
-export interface OtpEmailOptions {
-  email: string;
-  otp: string;
-  type?: string; // e.g. "sign_in", "verify_email"
-  appName?: string;
+export interface SecurityAlertEmailOptions {
+  email: string
+  userName?: string
+  alertType: 'suspicious_login' | 'password_changed' | 'failed_attempts'
+  ipAddress?: string
+  location?: string
+  device?: string
+  timestamp?: string
+  securityLink?: string
+}
+
+export interface MagicLinkEmailOptions {
+  email: string
+  magicLink: string
 }
 
 /**
- * Send a 6-digit OTP code for email-OTP authentication.
- * This reuses the Resend client just like the other helpers.
+ * Send password reset email
  */
-export async function sendOtpEmail({
+export async function sendPasswordResetEmail({
   email,
-  otp,
-  type = 'sign_in',
-  appName = 'SenseiiWyze',
-}: OtpEmailOptions) {
+  resetLink,
+}: PasswordResetEmailOptions): Promise<EmailResponse> {
   try {
-    const resendClient = getResendClient();
-
-    const subject = type === 'verify_email'
-      ? `Your ${appName} verification code`
-      : `Your ${appName} sign-in code`;
-
+    const resendClient = getResendClient()
     const { data, error } = await resendClient.emails.send({
-      from: `${appName} <auth@senseiiwyze.com>`,
-      to: [email],
-      subject,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; border-radius: 10px 10px 0 0; text-align: center;">
-            <h1 style="color: white; margin: 0; font-size: 28px;">${appName}</h1>
-            <p style="color: white; margin: 10px 0 0 0; opacity: 0.9;">Your verification code</p>
-          </div>
-          <div style="background: white; padding: 40px 20px; border: 1px solid #e1e5e9; border-top: none; text-align: center;">
-            <p style="color: #666; line-height: 1.5; margin: 0 0 30px 0;">
-              Use the code below to complete your ${type.replace('_', ' ')}.
-            </p>
-            <p style="font-size: 32px; letter-spacing: 4px; font-weight: bold; margin: 0 0 30px 0; color: #333;">
-              ${otp}
-            </p>
-            <p style="color: #999; font-size: 14px; margin: 0;">
-              This code expires in 10 minutes.
-            </p>
-          </div>
-        </div>
-      `,
-      text: `Your ${appName} verification code is ${otp}. It expires in 10 minutes.`,
-    });
+      from: FROM_EMAIL,
+      to: email,
+      subject: 'Reset your password',
+      react: PasswordResetEmail({ resetLink }),
+      headers: {
+        'X-Entity-Ref-ID': crypto.randomUUID(),
+      },
+    })
 
     if (error) {
-      emailLogger.error('Error sending OTP email', error instanceof Error ? error : new Error(String(error)));
-      throw new Error('Failed to send OTP email');
+      emailLogger.error(
+        'Error sending password reset email',
+        error instanceof Error ? error : new Error(String(error))
+      )
+      return { error: error as Error }
     }
 
-    emailLogger.info('OTP email sent successfully', { to: email, type });
-    return data;
+    emailLogger.info('Password reset email sent successfully', { to: email })
+    return { data }
   } catch (error) {
-    emailLogger.error('Failed to send OTP email', error instanceof Error ? error : new Error(String(error)));
-    throw error;
+    emailLogger.error(
+      'Failed to send password reset email',
+      error instanceof Error ? error : new Error(String(error))
+    )
+    return { error: error as Error }
   }
 }
 
 /**
- * Send magic link email for passwordless authentication
+ * Send login verification code email
  */
-export async function sendMagicLinkEmail({
+export async function sendLoginCodeEmail({
   email,
-  url,
-  appName = 'SenseiiWyze'
-}: MagicLinkEmailOptions) {
+  code,
+}: LoginCodeEmailOptions): Promise<EmailResponse> {
   try {
-    const resendClient = getResendClient();
+    const resendClient = getResendClient()
     const { data, error } = await resendClient.emails.send({
-      from: `${appName} <auth@senseiiwyze.com>`, // Replace with your verified domain
-      to: [email],
-      subject: `Sign in to ${appName}`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; border-radius: 10px 10px 0 0; text-align: center;">
-            <h1 style="color: white; margin: 0; font-size: 28px;">${appName}</h1>
-            <p style="color: white; margin: 10px 0 0 0; opacity: 0.9;">Your magic link is ready</p>
-          </div>
-          
-          <div style="background: white; padding: 40px 20px; border: 1px solid #e1e5e9; border-top: none;">
-            <h2 style="color: #333; margin: 0 0 20px 0;">Sign in to your account</h2>
-            <p style="color: #666; line-height: 1.5; margin: 0 0 30px 0;">
-              Click the button below to securely sign in to your ${appName} account. This link will expire in 10 minutes.
-            </p>
-            
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${url}" 
-                 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                        color: white; 
-                        text-decoration: none; 
-                        padding: 15px 30px; 
-                        border-radius: 8px; 
-                        font-weight: bold; 
-                        display: inline-block;
-                        font-size: 16px;">
-                Sign In to ${appName}
-              </a>
-            </div>
-            
-            <p style="color: #999; font-size: 14px; margin: 30px 0 0 0;">
-              If you didn't request this email, you can safely ignore it.
-            </p>
-          </div>
-          
-          <div style="background: #f8f9fa; padding: 20px; border-radius: 0 0 10px 10px; border: 1px solid #e1e5e9; border-top: none;">
-            <p style="color: #666; font-size: 12px; margin: 0; text-align: center;">
-              This email was sent by ${appName}. If you have questions, contact our support team.
-            </p>
-          </div>
-        </div>
-      `,
-      text: `
-        Sign in to ${appName}
-        
-        Click the link below to sign in to your account:
-        ${url}
-        
-        This link will expire in 10 minutes.
-        
-        If you didn't request this email, you can safely ignore it.
-      `
-    });
+      from: FROM_EMAIL,
+      to: email,
+      subject: 'Your login code',
+      react: LoginCodeEmail({ validationCode: code }),
+      headers: {
+        'X-Entity-Ref-ID': crypto.randomUUID(),
+      },
+    })
 
     if (error) {
-      emailLogger.error('Error sending magic link email', error instanceof Error ? error : new Error(String(error)));
-      throw new Error('Failed to send magic link email');
+      emailLogger.error(
+        'Error sending login code email',
+        error instanceof Error ? error : new Error(String(error))
+      )
+      return { error: error as Error }
     }
 
-    emailLogger.info('Magic link email sent successfully', { to: email });
-    return data;
+    emailLogger.info('Login code email sent successfully', { to: email })
+    return { data }
   } catch (error) {
-    emailLogger.error('Failed to send magic link email', error instanceof Error ? error : new Error(String(error)));
-    throw error;
+    emailLogger.error(
+      'Failed to send login code email',
+      error instanceof Error ? error : new Error(String(error))
+    )
+    return { error: error as Error }
   }
 }
 
 /**
- * Send email verification email
+ * Send email verification link
  */
 export async function sendVerificationEmail({
   email,
-  url,
-  appName = 'SenseiiWyze'
-}: VerificationEmailOptions) {
+  verificationLink,
+}: VerificationEmailOptions): Promise<EmailResponse> {
   try {
-    const resendClient = getResendClient();
+    const resendClient = getResendClient()
     const { data, error } = await resendClient.emails.send({
-      from: `${appName} <auth@senseiiwyze.com>`, // Replace with your verified domain
-      to: [email],
-      subject: `Verify your ${appName} account`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; border-radius: 10px 10px 0 0; text-align: center;">
-            <h1 style="color: white; margin: 0; font-size: 28px;">${appName}</h1>
-            <p style="color: white; margin: 10px 0 0 0; opacity: 0.9;">Welcome to the platform</p>
-          </div>
-          
-          <div style="background: white; padding: 40px 20px; border: 1px solid #e1e5e9; border-top: none;">
-            <h2 style="color: #333; margin: 0 0 20px 0;">Verify your email address</h2>
-            <p style="color: #666; line-height: 1.5; margin: 0 0 30px 0;">
-              Welcome to ${appName}! Please verify your email address to complete your account setup.
-            </p>
-            
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${url}" 
-                 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                        color: white; 
-                        text-decoration: none; 
-                        padding: 15px 30px; 
-                        border-radius: 8px; 
-                        font-weight: bold; 
-                        display: inline-block;
-                        font-size: 16px;">
-                Verify Email Address
-              </a>
-            </div>
-            
-            <p style="color: #999; font-size: 14px; margin: 30px 0 0 0;">
-              If you didn't create this account, you can safely ignore this email.
-            </p>
-          </div>
-          
-          <div style="background: #f8f9fa; padding: 20px; border-radius: 0 0 10px 10px; border: 1px solid #e1e5e9; border-top: none;">
-            <p style="color: #666; font-size: 12px; margin: 0; text-align: center;">
-              This email was sent by ${appName}. If you have questions, contact our support team.
-            </p>
-          </div>
-        </div>
-      `,
-      text: `
-        Welcome to ${appName}!
-        
-        Please verify your email address by clicking the link below:
-        ${url}
-        
-        If you didn't create this account, you can safely ignore this email.
-      `
-    });
+      from: FROM_EMAIL,
+      to: email,
+      subject: 'Verify your email address',
+      react: VerifyEmail({ verificationLink }),
+      headers: {
+        'X-Entity-Ref-ID': crypto.randomUUID(),
+      },
+    })
 
     if (error) {
-      emailLogger.error('Error sending verification email', error instanceof Error ? error : new Error(String(error)));
-      throw new Error('Failed to send verification email');
+      emailLogger.error(
+        'Error sending verification email',
+        error instanceof Error ? error : new Error(String(error))
+      )
+      return { error: error as Error }
     }
 
-    emailLogger.info('Verification email sent successfully', { to: email });
-    return data;
+    emailLogger.info('Verification email sent successfully', { to: email })
+    return { data }
   } catch (error) {
-    emailLogger.error('Failed to send verification email', error instanceof Error ? error : new Error(String(error)));
-    throw error;
+    emailLogger.error(
+      'Failed to send verification email',
+      error instanceof Error ? error : new Error(String(error))
+    )
+    return { error: error as Error }
   }
 }
 
@@ -286,88 +229,242 @@ export async function sendVerificationEmail({
 export async function sendWelcomeEmail({
   email,
   name,
-  appName = 'SenseiiWyze'
-}: WelcomeEmailOptions) {
+}: WelcomeEmailOptions): Promise<EmailResponse> {
   try {
-    const resendClient = getResendClient();
+    const resendClient = getResendClient()
     const { data, error } = await resendClient.emails.send({
-      from: `${appName} <welcome@senseiiwyze.com>`, // Replace with your verified domain
-      to: [email],
-      subject: `Welcome to ${appName}!`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; border-radius: 10px 10px 0 0; text-align: center;">
-            <h1 style="color: white; margin: 0; font-size: 28px;">${appName}</h1>
-            <p style="color: white; margin: 10px 0 0 0; opacity: 0.9;">Welcome aboard!</p>
-          </div>
-          
-          <div style="background: white; padding: 40px 20px; border: 1px solid #e1e5e9; border-top: none;">
-            <h2 style="color: #333; margin: 0 0 20px 0;">Welcome, ${name}!</h2>
-            <p style="color: #666; line-height: 1.5; margin: 0 0 20px 0;">
-              We're excited to have you join ${appName}. Your account has been successfully created and verified.
-            </p>
-            
-            <h3 style="color: #333; margin: 30px 0 15px 0;">What's next?</h3>
-            <ul style="color: #666; line-height: 1.6; padding-left: 20px;">
-              <li>Complete your profile setup</li>
-              <li>Explore your personalized dashboard</li>
-              <li>Set up your learning goals</li>
-              <li>Connect with your team members</li>
-            </ul>
-            
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="http://localhost:3000/dashboard" 
-                 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                        color: white; 
-                        text-decoration: none; 
-                        padding: 15px 30px; 
-                        border-radius: 8px; 
-                        font-weight: bold; 
-                        display: inline-block;
-                        font-size: 16px;">
-                Get Started
-              </a>
-            </div>
-          </div>
-          
-          <div style="background: #f8f9fa; padding: 20px; border-radius: 0 0 10px 10px; border: 1px solid #e1e5e9; border-top: none;">
-            <p style="color: #666; font-size: 12px; margin: 0; text-align: center;">
-              Need help? Contact us at support@senseiiwyze.com
-            </p>
-          </div>
-        </div>
-      `,
-      text: `
-        Welcome to ${appName}, ${name}!
-        
-        We're excited to have you join our platform. Your account has been successfully created and verified.
-        
-        What's next?
-        - Complete your profile setup
-        - Explore your personalized dashboard
-        - Set up your learning goals
-        - Connect with your team members
-        
-        Get started: http://localhost:3000/dashboard
-        
-        Need help? Contact us at support@senseiiwyze.com
-      `
-    });
+      from: FROM_EMAIL,
+      to: email,
+      subject: 'Welcome to SenseiiWyze!',
+      react: WelcomeEmail({ name }),
+      replyTo: REPLY_TO_EMAIL,
+      headers: {
+        'X-Entity-Ref-ID': crypto.randomUUID(),
+      },
+    })
 
     if (error) {
-      emailLogger.error('Error sending welcome email', error instanceof Error ? error : new Error(String(error)));
-      throw new Error('Failed to send welcome email');
+      emailLogger.error(
+        'Error sending welcome email',
+        error instanceof Error ? error : new Error(String(error))
+      )
+      return { error: error as Error }
     }
 
-    emailLogger.info('Welcome email sent successfully', { to: email, name });
-    return data;
+    emailLogger.info('Welcome email sent successfully', { to: email, name })
+    return { data }
   } catch (error) {
-    emailLogger.error('Failed to send welcome email', error instanceof Error ? error : new Error(String(error)));
-    throw error;
+    emailLogger.error(
+      'Failed to send welcome email',
+      error instanceof Error ? error : new Error(String(error))
+    )
+    return { error: error as Error }
+  }
+}
+
+/**
+ * Send new device login notification
+ */
+export async function sendNewDeviceEmail({
+  email,
+  loginDate,
+  loginDevice,
+  loginLocation,
+  loginIp,
+}: NewDeviceEmailOptions): Promise<EmailResponse> {
+  try {
+    const resendClient = getResendClient()
+    const { data, error } = await resendClient.emails.send({
+      from: FROM_EMAIL,
+      to: email,
+      subject: 'New device login',
+      react: NewDeviceEmail({
+        loginDate,
+        loginDevice,
+        loginLocation,
+        loginIp,
+      }),
+      headers: {
+        'X-Entity-Ref-ID': crypto.randomUUID(),
+      },
+    })
+
+    if (error) {
+      emailLogger.error(
+        'Error sending new device email',
+        error instanceof Error ? error : new Error(String(error))
+      )
+      return { error: error as Error }
+    }
+
+    emailLogger.info('New device email sent successfully', { to: email })
+    return { data }
+  } catch (error) {
+    emailLogger.error(
+      'Failed to send new device email',
+      error instanceof Error ? error : new Error(String(error))
+    )
+    return { error: error as Error }
+  }
+}
+
+/**
+ * Send security alert email
+ */
+export async function sendSecurityAlertEmail({
+  email,
+  userName,
+  alertType,
+  ipAddress,
+  location,
+  device,
+  timestamp,
+  securityLink,
+}: SecurityAlertEmailOptions): Promise<EmailResponse> {
+  try {
+    const resendClient = getResendClient()
+    const { data, error } = await resendClient.emails.send({
+      from: FROM_EMAIL,
+      to: email,
+      subject: 'Security alert for your account',
+      react: SecurityAlertEmail({
+        userEmail: email,
+        userName,
+        alertType,
+        ipAddress,
+        location,
+        device,
+        timestamp,
+        securityLink,
+      }),
+      headers: {
+        'X-Entity-Ref-ID': crypto.randomUUID(),
+      },
+    })
+
+    if (error) {
+      emailLogger.error(
+        'Error sending security alert email',
+        error instanceof Error ? error : new Error(String(error))
+      )
+      return { error: error as Error }
+    }
+
+    emailLogger.info('Security alert email sent successfully', { to: email, alertType })
+    return { data }
+  } catch (error) {
+    emailLogger.error(
+      'Failed to send security alert email',
+      error instanceof Error ? error : new Error(String(error))
+    )
+    return { error: error as Error }
+  }
+}
+
+/**
+ * Send magic link for passwordless login
+ */
+export async function sendMagicLinkEmail({
+  email,
+  magicLink,
+}: MagicLinkEmailOptions): Promise<EmailResponse> {
+  try {
+    const resendClient = getResendClient()
+    const { data, error } = await resendClient.emails.send({
+      from: FROM_EMAIL,
+      to: email,
+      subject: 'Sign in to SenseiiWyze',
+      react: MagicLinkEmail({ magicLink }),
+      headers: {
+        'X-Entity-Ref-ID': crypto.randomUUID(),
+      },
+    })
+
+    if (error) {
+      emailLogger.error(
+        'Error sending magic link email',
+        error instanceof Error ? error : new Error(String(error))
+      )
+      return { error: error as Error }
+    }
+
+    emailLogger.info('Magic link email sent successfully', { to: email })
+    return { data }
+  } catch (error) {
+    emailLogger.error(
+      'Failed to send magic link email',
+      error instanceof Error ? error : new Error(String(error))
+    )
+    return { error: error as Error }
+  }
+}
+
+/**
+ * Batch send emails (for notifications)
+ */
+export async function sendBatchEmails(
+  emails: Array<{
+    to: string
+    subject: string
+    react: React.ReactElement
+  }>
+): Promise<{ data?: any; error?: Error }> {
+  try {
+    const resendClient = getResendClient()
+    const { data, error } = await resendClient.batch.send(
+      emails.map((email) => ({
+        from: FROM_EMAIL,
+        ...email,
+        headers: {
+          'X-Entity-Ref-ID': crypto.randomUUID(),
+        },
+      }))
+    )
+
+    if (error) {
+      emailLogger.error(
+        'Error sending batch emails',
+        error instanceof Error ? error : new Error(String(error))
+      )
+      return { error: error as Error }
+    }
+
+    emailLogger.info('Batch emails sent successfully', { count: emails.length })
+    return { data }
+  } catch (error) {
+    emailLogger.error(
+      'Failed to send batch emails',
+      error instanceof Error ? error : new Error(String(error))
+    )
+    return { error: error as Error }
+  }
+}
+
+/**
+ * Validate email configuration
+ */
+export async function validateEmailConfig(): Promise<boolean> {
+  if (!process.env.RESEND_API_KEY) {
+    emailLogger.error('RESEND_API_KEY is not configured')
+    return false
+  }
+
+  try {
+    // Try to get API key info to validate configuration
+    const response = await fetch('https://api.resend.com/api-keys', {
+      headers: {
+        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+      },
+    })
+
+    return response.ok
+  } catch (error) {
+    emailLogger.error('Failed to validate Resend configuration:', error)
+    return false
   }
 }
 
 // Export a function to get the Resend client for other modules that might need it
 export function getResend() {
-  return getResendClient();
+  return getResendClient()
 }
