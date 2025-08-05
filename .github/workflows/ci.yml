@@ -85,7 +85,7 @@ jobs:
       - name: Install dependencies (fresh for Linux)
         run: |
           echo "📦 Installing dependencies fresh for Linux environment..."
-          pnpm install --no-frozen-lockfile --prefer-offline=false --ignore-platform-errors
+          pnpm install --no-frozen-lockfile --prefer-offline=false
           echo "✅ Dependencies installed successfully"
 
       - name: Run type checking

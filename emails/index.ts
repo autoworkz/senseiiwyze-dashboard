@@ -2,6 +2,7 @@
 export { PasswordResetEmail } from './password-reset';
 export { LoginCodeEmail } from './login-code';
 export { VerifyEmail } from './verify-email';
+export { MagicLinkEmail } from './magic-link';
 
 // Account management emails  
 export { WelcomeEmail } from './welcome-email';

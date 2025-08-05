@@ -3,7 +3,7 @@
 
 
 import { NextResponse } from 'next/server';
-import { sendMagicLinkEmail, sendVerificationEmail, sendOtpEmail } from '@/lib/email';
+import { sendMagicLinkEmail, sendVerificationEmail, sendLoginCodeEmail } from '@/lib/email';
 
 interface Body {
   email: string;
@@ -21,13 +21,13 @@ export async function POST(request: Request) {
 
     switch (kind) {
       case 'magic-link':
-        await sendMagicLinkEmail({ email, url: 'https://example.com/login', appName: 'SenseiiWyze' });
+        await sendMagicLinkEmail({ email, magicLink: 'https://example.com/login' });
         break;
       case 'verification':
-        await sendVerificationEmail({ email, url: 'https://example.com/verify', appName: 'SenseiiWyze' });
+        await sendVerificationEmail({ email, verificationLink: 'https://example.com/verify' });
         break;
       case 'otp':
-        await sendOtpEmail({ email, otp: '123456', type: 'sign_in', appName: 'SenseiiWyze' });
+        await sendLoginCodeEmail({ email, code: '123456' });
         break;
       default:
         return new NextResponse(JSON.stringify({ error: 'Unknown kind' }), { status: 400 });

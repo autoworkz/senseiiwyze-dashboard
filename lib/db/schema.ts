@@ -2,7 +2,7 @@
 // This prevents conflicts when Better Auth regenerates auth-schema.ts
 
 // Better Auth tables (ba_ prefixed to avoid conflicts)
-export * from './schema.auth';
+export * from "./schema.auth";
 
 // Application tables (importing ALL tables with aliases for conflicting names)
 export {
@@ -25,7 +25,7 @@ export {
   subscriptionStatus,
   taskstate,
   tasktype,
-  
+
   // Application tables (all tables)
   assessments,
   activities,
@@ -52,7 +52,6 @@ export {
   vendorRatings,
   visionBoards,
   visionLog,
-  workplaces,
   config,
   roles,
   rolePermissions,
@@ -85,7 +84,9 @@ export {
   userEmloyementStatuss,
   answersIdSeq1,
   authUsers,
-  
+  workplaces,
+  // organizations,
+
   // Legacy auth tables (aliased to avoid conflicts with Better Auth)
   user as legacyUser,
   session as legacySession,
@@ -93,4 +94,4 @@ export {
   verification as legacyVerification,
   accounts as legacyAccounts,
   invitations as legacyInvitations,
-} from '../../drizzle/schema';
+} from "../../drizzle/schema";
