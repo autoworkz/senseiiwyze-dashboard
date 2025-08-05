@@ -1,0 +1,89 @@
+'use client'
+
+import React from 'react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { UserTable } from '@/components/executive-dashboard/UserTable'
+import { UserMetrics } from '@/components/executive-dashboard/UserMetrics'
+import { DataVisualizations } from '@/components/executive-dashboard/DataVisualizations'
+import { ProgramReadinessCards } from '@/components/executive-dashboard/ProgramReadinessCards'
+import { DashboardData, UserTableData } from '@/types/dashboard'
+
+export function ExecutiveDashboard({
+  dashboardData,
+  userTableData,
+}: {
+  dashboardData: DashboardData
+  userTableData: UserTableData
+}) {
+  const [activeTab, setActiveTab] = React.useState('all')
+
+  if (!dashboardData || !dashboardData.success || !userTableData || !userTableData.success) {
+    return (
+      <div className="min-h-screen w-full bg-background p-6">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-2xl font-bold mb-2">Executive Dashboard</h1>
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <p className="text-red-600">Failed to load dashboard data</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen w-full bg-background">
+      <div className="max-w-7xl mx-auto">
+        <UserMetrics data={dashboardData} />
+        <Tabs defaultValue="all" className="mb-6" onValueChange={setActiveTab}>
+          <TabsList className="w-full justify-start">
+            <TabsTrigger value="all">All Users</TabsTrigger>
+            <TabsTrigger value="ready">Ready for Deployment</TabsTrigger>
+            <TabsTrigger value="coaching">Needs Coaching</TabsTrigger>
+            <TabsTrigger value="programs">Program Readiness</TabsTrigger>
+          </TabsList>
+          <TabsContent value="all">
+            <DataVisualizations data={dashboardData} />
+            <UserTable activeTab={activeTab} data={userTableData} />
+          </TabsContent>
+          <TabsContent value="ready">
+            <div className="rounded-lg border bg-card p-6 mb-6">
+              <h2 className="text-xl font-semibold mb-4">
+                Ready for Deployment
+              </h2>
+              <p className="text-muted-foreground">
+                These users have achieved an overall readiness score of 75% or
+                higher and are ready for deployment to various programs.
+              </p>
+            </div>
+            <UserTable activeTab={activeTab} data={userTableData} />
+          </TabsContent>
+          <TabsContent value="coaching">
+            <div className="rounded-lg border bg-card p-6 mb-6">
+              <h2 className="text-xl font-semibold mb-4">
+                Users Needing Coaching
+              </h2>
+              <p className="text-muted-foreground">
+                These users have an overall readiness score below 75% and would
+                benefit from additional coaching and development.
+              </p>
+            </div>
+            <UserTable activeTab={activeTab} data={userTableData} />
+          </TabsContent>
+          <TabsContent value="programs">
+            <div className="rounded-lg border bg-card p-6 mb-6">
+              <h2 className="text-xl font-semibold mb-4">
+                Program Readiness Overview
+              </h2>
+              <p className="text-muted-foreground">
+                This view shows the readiness levels for each program and how
+                many users meet the threshold requirements.
+              </p>
+            </div>
+            <ProgramReadinessCards data={dashboardData} />
+            <UserTable activeTab={activeTab} data={userTableData} />
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  )
+}
