@@ -6,19 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
 import { getAssessmentLevelDescription, opennessLevels, extraversionLevels, agreeablenessLevels, conscientiousnessLevels, neuroticismLevels } from '@/utils/assessments';
 import _ from "lodash";
-interface PersonalityExamData {
-  id: string;
-  name: string;
-  personalityExam: {
-    type: string;
-    traits: Record<string, number>;
-    evaluations: any[],
-    strengths: string[];
-    growthAreas: string[];
-    recommendedRoles: string[];
-  };
-  programReadiness: Record<string, number>;
-}
+import { PersonalityExamData } from '@/types/personality-exam';
 
 interface PersonalityExamViewProps {
   selectedUserId: string;

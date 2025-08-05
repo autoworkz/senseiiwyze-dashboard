@@ -4,28 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell } from 'recharts';
-
-interface GamingData {
-  levelsCompleted: number;
-  totalLevels: number;
-  avgTimePerLevel: number;
-  gamesPlayed: Array<{
-    name: string;
-    score: number;
-    maxScore: number;
-    difficulty: 'easy' | 'medium' | 'hard';
-    completed: boolean;
-    timeSpent?: number;
-  }>;
-  completionRate: number;
-}
-
-interface UserGamingData {
-  id: string;
-  name: string;
-  gamingData: GamingData;
-}
-
+import { GamingData, UserGamingData } from '@/types/gaming-data';
 interface GamingDataViewProps {
   selectedUserId: string;
   onUserSelection: (userId: string) => void;
