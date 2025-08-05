@@ -90,9 +90,11 @@
     "zod": "^4.0.5",
     "zustand": "^5.0.6"
   },
-  "optionalDependencies": {
-    "fsevents": "2.3.3"
-  },
+  "pnpm": {
+  "overrides": {
+    "fsevents": "npm:fsevents@0.0.0"
+  }
+},
   "devDependencies": {
     "@biomejs/biome": "^2.1.3",
     "@eslint/eslintrc": "3",
