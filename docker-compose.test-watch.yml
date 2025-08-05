@@ -1,7 +1,6 @@
 # Test watch override - run tests in watch mode
 # Usage: docker-compose -f docker-compose.yml -f docker-compose.test-watch.yml up
 
-version: "3.9"
 
 services:
   app:
