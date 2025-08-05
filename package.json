@@ -3,8 +3,8 @@
   "description": "Build a full-stack web application with Next.js.",
   "packageManager": "pnpm@9.0.0",
   "engines": {
-    "node": ">=18.0.0",
-    "pnpm": ">=9.0.0"
+    "node": "20.x",
+    "pnpm": "9.x"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.0",
@@ -92,11 +92,13 @@
     "zustand": "^5.0.6"
   },
   "optionalDependencies": {
-  "fsevents": "*"
-},
-"pnpm": {
-  "neverBuiltDependencies": ["fsevents"]
-},
+    "fsevents": "*"
+  },
+  "pnpm": {
+    "neverBuiltDependencies": [
+      "fsevents"
+    ]
+  },
   "devDependencies": {
     "@biomejs/biome": "^2.1.3",
     "@eslint/eslintrc": "3",
