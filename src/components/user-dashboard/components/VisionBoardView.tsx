@@ -3,20 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
-interface VisionBoardData {
-  id: string;
-  name: string;
-  visionBoard: {
-    goals: string[];
-    focusAreas: string[];
-    keywords: string[];
-    journalEntries: Array<{ date: string; content: string }>;
-  };
-  programReadiness: Record<string, number>;
-  relatedSkills: Array<{ skill: string; count: number }>;
-  coverUrl: string | null;
-}
+import { VisionBoardData } from '@/types/vision-board';
 
 interface VisionBoardViewProps {  
   selectedUserId: string;
@@ -36,7 +23,6 @@ export const VisionBoardView = ({
       try {
         const response = await fetch('/api/vision-board');
         const result = await response.json();
-        console.log(result)
         if (Array.isArray(result)) {
           setUsersData(result);
           if (result.length > 0 && !selectedUserId) {

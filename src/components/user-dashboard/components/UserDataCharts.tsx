@@ -4,27 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell, ReferenceLine } from 'recharts';
 import { skills } from '@/lib/skills-data';
-
-interface UserData {
-    id: string;
-    name: string;
-    role: string;
-    level: number;
-    skills: {
-        vision: number;
-        grit: number;
-        logic: number;
-        algorithm: number;
-        problemSolving: number;
-    };
-    overallReadiness: number;
-    programReadiness: Record<string, number>;
-    bestProgram: {
-        name: string;
-        readiness: number;
-    };
-    skillDetails: Record<string, Record<string, number>>;
-}
+import { UserData } from '@/types/user-data';
 
 interface UserDataChartsProps {
     data: UserData[];

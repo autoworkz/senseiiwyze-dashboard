@@ -36,7 +36,7 @@ export async function GET() {
       .from('profiles')
       .select('id, name')
       .eq('is_deleted', false);
-    
+
     if (profilesError) {
       console.error('Error fetching profiles:', profilesError);
       return NextResponse.json({ error: 'Failed to fetch profiles' }, { status: 500 });
@@ -46,7 +46,7 @@ export async function GET() {
     const { data: activities, error: activitiesError } = await (supabase as any)
       .from('activities')
       .select('id, name');
-    
+
     if (activitiesError) {
       console.error('Error fetching activities:', activitiesError);
       return NextResponse.json({ error: 'Failed to fetch activities' }, { status: 500 });
@@ -56,7 +56,7 @@ export async function GET() {
     const { data: gameTasks, error: tasksError } = await (supabase as any)
       .from('game_tasks')
       .select('id, activity_id, max_score, difficulty_level, "order"');
-    
+
     if (tasksError) {
       console.error('Error fetching game tasks:', tasksError);
       return NextResponse.json({ error: 'Failed to fetch game tasks' }, { status: 500 });
@@ -65,8 +65,19 @@ export async function GET() {
     // Fetch all game_info (removed avg_time_per_level as it doesn't exist)
     const { data: gameInfo, error: infoError } = await (supabase as any)
       .from('game_info')
-      .select('id, profile_id, game_id, levels_completed, durations, total_levels');
-    
+      .select(`
+    id,
+    profile_id,
+    game_id,
+    levels_completed,
+    durations,
+    total_levels:(
+      SELECT COUNT(*)
+      FROM jsonb_array_elements_text(levels_completed) AS lvl
+      WHERE lvl = 'true'
+    )
+  `);
+
     if (infoError) {
       console.error('Error fetching game info:', infoError);
       return NextResponse.json({ error: 'Failed to fetch game info' }, { status: 500 });
