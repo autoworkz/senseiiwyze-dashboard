@@ -132,6 +132,9 @@
     "vitest": "^3.2.4",
     "webpack-bundle-analyzer": "^4.10.2"
   },
+  "optionalDependencies": {
+  "fsevents": "2.3.3"
+},
   "private": true,
   "scripts": {
     "build": "pnpm next build",
