@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 
 interface Profile {
   id: string;
@@ -29,13 +29,22 @@ interface GameInfo {
   avg_time_per_level?: number;
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams;
+  const userId = searchParams.get('userId');
+
   try {
-    // Fetch all profiles
-    const { data: profiles, error: profilesError } = await (supabase as any)
+    let profilesQuery = (supabase as any)
       .from('profiles')
       .select('id, name')
       .eq('is_deleted', false);
+
+    if (userId) {
+      profilesQuery = profilesQuery.eq('id', userId);
+    }
+
+    // Fetch profiles
+    const { data: profiles, error: profilesError } = await profilesQuery;
 
     if (profilesError) {
       console.error('Error fetching profiles:', profilesError);
@@ -62,8 +71,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Failed to fetch game tasks' }, { status: 500 });
     }
 
-    // Fetch all game_info (removed avg_time_per_level as it doesn't exist)
-    const { data: gameInfo, error: infoError } = await (supabase as any)
+    let gameInfoQuery = (supabase as any)
       .from('game_info')
       .select(`
     id,
@@ -77,6 +85,13 @@ export async function GET() {
       WHERE lvl = 'true'
     )
   `);
+
+    if (userId) {
+      gameInfoQuery = gameInfoQuery.eq('profile_id', userId);
+    }
+
+    // Fetch game_info
+    const { data: gameInfo, error: infoError } = await gameInfoQuery;
 
     if (infoError) {
       console.error('Error fetching game info:', infoError);

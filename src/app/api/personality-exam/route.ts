@@ -1,8 +1,49 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, type NextRequest } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams
+  const userId = searchParams.get('userId')
+
   try {
+    let profilesQuery = supabase
+      .from('profiles')
+      .select('id, name')
+      .is('is_deleted', false)
+
+    if (userId) {
+      profilesQuery = profilesQuery.eq('id', userId)
+    }
+
+    let examsQuery = (supabase as any)
+      .from('personality_exams')
+      .select('id, user_id, type')
+
+    if (userId) {
+      examsQuery = examsQuery.eq('user_id', userId)
+    }
+
+    let userProgramsQuery = (supabase as any)
+      .from('user_programs')
+      .select('user_id, assessment_id, readiness')
+
+    if (userId) {
+      userProgramsQuery = userProgramsQuery.eq('user_id', userId)
+    }
+
+    let evaluationsQuery = supabase
+      .from('evaluations')
+      .select(
+        "id , user_id , assessment_id ,is_completed, results, user:profiles (id, email, name)"
+      )
+      .eq("workplace_id", "406f9926-0670-4a95-9252-c064c25912e4")
+      .eq("assessment_id", "3ac68f05-2ea9-4223-b139-d88373859379")
+      .order("created_at", { ascending: false })
+
+    if (userId) {
+      evaluationsQuery = evaluationsQuery.eq('user_id', userId)
+    }
+
     const [
       profilesRes,
       examsRes,
@@ -13,13 +54,8 @@ export async function GET() {
       assessmentsRes,
       evaluationRes
     ] = await Promise.all([
-      supabase
-        .from('profiles')
-        .select('id, name')
-        .is('is_deleted', false),
-      (supabase as any)
-        .from('personality_exams')
-        .select('id, user_id, type'),
+      profilesQuery,
+      examsQuery,
       (supabase as any)
         .from('exam_traits')
         .select('exam_id, trait, value'),
@@ -29,20 +65,11 @@ export async function GET() {
       (supabase as any)
         .from('exam_growth_areas')
         .select('exam_id, area'),
-      (supabase as any)
-        .from('user_programs')
-        .select('user_id, assessment_id, readiness'),
+      userProgramsQuery,
       supabase
         .from('assessments')
         .select('id, title'),
-        supabase
-        .from('evaluations')
-        .select(
-        "id , user_id , assessment_id ,is_completed, results, user:profiles (id, email, name)"
-      )
-      .eq("workplace_id", "406f9926-0670-4a95-9252-c064c25912e4")
-      .eq("assessment_id", "3ac68f05-2ea9-4223-b139-d88373859379")
-      .order("created_at", { ascending: false })
+      evaluationsQuery
     ])
     // 2️⃣ Error handling
     for (const res of [profilesRes, examsRes, traitsRes, strengthsRes, growthAreasRes, userProgramsRes, assessmentsRes, evaluationRes]) {
