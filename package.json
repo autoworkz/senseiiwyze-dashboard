@@ -1,7 +1,7 @@
 {
   "name": "senseiiwyze-dashboard",
   "description": "Build a full-stack web application with Next.js.",
-  "packageManager": "pnpm@10.14.0",
+  "packageManager": "pnpm@9.0.0",
   "engines": {
     "node": "20.x",
     "pnpm": "9.x"
