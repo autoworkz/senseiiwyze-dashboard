@@ -30,9 +30,14 @@ services:
   app:
     build: .
     command: pnpm dev --turbo
+    platform: linux/amd64
     volumes: *volumes
     ports:
       - "3000:3000"
+    env_file:
+      - .env.local
+      - .env.development
+      - .env
     environment:
       - NODE_ENV=development
 

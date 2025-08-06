@@ -46,23 +46,70 @@ pnpm test:watch       # Watch mode for TDD
 pnpm test -- <pattern> # Run specific tests
 ```
 
-### Docker Development
-```bash
-# Docker Compose with file watching (recommended)
-just compose-watch-dev  # Uses Docker Compose's built-in watch feature
+### Docker Development (RECOMMENDED)
 
-# Traditional Docker development commands
-just dev-docker         # Development with HMR + watchers enabled
-just dev-docker-detached # Start in detached mode
-just dev-docker-stop    # Stop all Docker services
+The project now includes a complete Docker development environment that eliminates platform-specific build issues by running in a consistent Linux x64 environment.
+
+#### Quick Start
+
+```bash
+# Start development environment (recommended)
+docker-compose up app
+
+# Start in background
+docker-compose up app -d
+
+# Stop services
+docker-compose down
+
+# Rebuild after changes to Dockerfile/docker-compose.yml
+docker-compose up app --build
 ```
 
-**Docker Compose Watch Integration:**
-- Uses [Docker Compose watch](https://docs.docker.com/compose/file-watch/) for efficient file synchronization
-- Automatically syncs `src/`, `pages/`, and `components/` directories
-- Rebuilds container on configuration changes (`package.json`, `next.config.ts`, etc.)
-- **Requirements**: Docker Compose v2.22+ with `develop.watch` support
-- **External dependency**: Requires Docker Desktop or Docker Engine with Compose V2
+#### Docker Setup Features
+
+✅ **Consistent Environment**: Linux x64 platform eliminates ARM64/x86 binary conflicts  
+✅ **Hot Module Replacement**: File changes trigger automatic recompilation  
+✅ **Environment Variables**: Automatically loads `.env.local`, `.env.development`, `.env`  
+✅ **Volume Mounting**: Live code changes without rebuilding container  
+✅ **Production Matching**: Same platform as Cloudflare Workers deployment  
+
+#### Architecture
+
+- **Base Image**: `node:22-alpine` (matches mise.toml requirements)
+- **Platform**: `linux/amd64` (consistent with production)
+- **Package Manager**: pnpm 9 (matches mise.toml requirements)
+- **Port**: 3000 (mapped to host)
+
+#### Benefits Over Local Development
+
+1. **No Version Conflicts**: Container has exactly Node 22 + pnpm 9
+2. **No Platform Issues**: Linux x64 eliminates binary compilation problems  
+3. **No Environment Drift**: Same environment across all developers
+4. **Production Parity**: Matches Cloudflare Workers Linux environment
+
+#### Docker Files
+
+- `Dockerfile` - Multi-stage build optimized for development
+- `docker-compose.yml` - Service configuration with hot reloading
+- `.dockerignore` - Excludes unnecessary files for faster builds
+
+#### Volume Mounts
+
+The container mounts the entire project directory (`./:/app`) for:
+- Live code changes without rebuilds
+- Hot module replacement
+- Direct file editing from host
+
+### Legacy Just Commands (Deprecated)
+
+```bash
+# These are now deprecated - use docker-compose directly
+just compose-watch-dev  # Use: docker-compose up app
+just dev-docker         # Use: docker-compose up app  
+just dev-docker-detached # Use: docker-compose up app -d
+just dev-docker-stop    # Use: docker-compose down
+```
 
 ## ⚠️ HANDS-OFF DIRECTORIES
 
