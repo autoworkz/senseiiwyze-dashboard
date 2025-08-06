@@ -53,7 +53,6 @@ const productionFormat = format.combine(
 const transports = () => {
     const env = process.env.NODE_ENV || 'development'
     const isDevelopment = env === 'development'
-    const isProduction = env === 'production'
 
     const transportArray: winston.transport[] = []
 
@@ -64,26 +63,6 @@ const transports = () => {
         })
     )
 
-    // File transports for production
-    if (isProduction) {
-        // Error log file
-        transportArray.push(
-            new winston.transports.File({
-                filename: 'logs/error.log',
-                level: 'error',
-                format: productionFormat,
-            })
-        )
-
-        // Combined log file
-        transportArray.push(
-            new winston.transports.File({
-                filename: 'logs/combined.log',
-                format: productionFormat,
-            })
-        )
-    }
-
     return transportArray
 }
 
@@ -92,13 +71,7 @@ const logger = winston.createLogger({
     level: level(),
     levels,
     transports: transports(),
-    // Handle uncaught exceptions and unhandled rejections
-    exceptionHandlers: [
-        new winston.transports.File({ filename: 'logs/exceptions.log' }),
-    ],
-    rejectionHandlers: [
-        new winston.transports.File({ filename: 'logs/rejections.log' }),
-    ],
+    // Remove file-based exception and rejection handlers
 })
 
 // Create a stream object for Morgan (HTTP request logging)
@@ -114,7 +87,7 @@ export default logger
 // Sentry integration helper
 const sendToSentry = (level: string, message: string, meta?: any, error?: Error) => {
     const isDevelopment = process.env.NODE_ENV === 'development'
-    
+
     if (!isDevelopment) {
         if (error) {
             Sentry.captureException(error, {
@@ -125,7 +98,7 @@ const sendToSentry = (level: string, message: string, meta?: any, error?: Error)
             if (level === 'error' || level === 'warn') {
                 Sentry.captureMessage(message, sentryLevel)
             }
-            
+
             Sentry.addBreadcrumb({
                 message,
                 level: sentryLevel,

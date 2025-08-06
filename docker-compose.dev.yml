@@ -1,7 +1,4 @@
 # Development override - HMR + watchers enabled
-# Usage: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
-
-version: "3.9"
 
 services:
   app:

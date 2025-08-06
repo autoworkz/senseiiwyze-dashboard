@@ -1,7 +1,6 @@
 # Production-like watch override - disable HMR, enable full rebuild on changes
 # Usage: docker-compose -f docker-compose.yml -f docker-compose.prod-watch.yml up
 
-version: "3.9"
 
 services:
   app:
