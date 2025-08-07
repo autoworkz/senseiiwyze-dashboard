@@ -157,6 +157,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "auth:generate": "bunx @better-auth/cli generate"
+    "auth:generate": "bunx @better-auth/cli generate",
+    "auth:fix-keys": "node scripts/fix-auth-keys.js"
   }
 }
