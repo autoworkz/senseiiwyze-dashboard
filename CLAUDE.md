@@ -26,7 +26,7 @@ Key files:
 ```bash
 pnpm dev          # Start development server at localhost:3000
 pnpm build        # Build for production
-pnpm deploy       # Deploy to Cloudflare Workers
+vercel --prod     # Deploy to Vercel production
 pnpm lint         # Run ESLint checks
 ```
 
@@ -72,7 +72,7 @@ docker-compose up app --build
 ✅ **Hot Module Replacement**: File changes trigger automatic recompilation  
 ✅ **Environment Variables**: Automatically loads `.env.local`, `.env.development`, `.env`  
 ✅ **Volume Mounting**: Live code changes without rebuilding container  
-✅ **Production Matching**: Same platform as Cloudflare Workers deployment  
+✅ **Production Matching**: Same Linux x64 platform as Vercel deployment  
 
 #### Architecture
 
@@ -86,7 +86,7 @@ docker-compose up app --build
 1. **No Version Conflicts**: Container has exactly Node 22 + pnpm 9
 2. **No Platform Issues**: Linux x64 eliminates binary compilation problems  
 3. **No Environment Drift**: Same environment across all developers
-4. **Production Parity**: Matches Cloudflare Workers Linux environment
+4. **Production Parity**: Matches Vercel's Linux x64 build environment
 
 #### Docker Files
 
@@ -100,6 +100,26 @@ The container mounts the entire project directory (`./:/app`) for:
 - Live code changes without rebuilds
 - Hot module replacement
 - Direct file editing from host
+
+### VS Code DevContainer (Alternative)
+
+For VS Code users, the project includes a complete DevContainer configuration:
+
+```bash
+# Open in DevContainer (VS Code)
+# 1. Install "Dev Containers" extension
+# 2. Open project in VS Code
+# 3. Command Palette → "Dev Containers: Reopen in Container"
+```
+
+**DevContainer Features:**
+- Pre-configured VS Code extensions (TypeScript, Tailwind, ESLint, etc.)
+- Automatic port forwarding for development server
+- Integrated terminal with proper environment
+- Same Linux x64 consistency as Docker Compose
+
+**Files:**
+- `.devcontainer/devcontainer.json` - VS Code DevContainer configuration
 
 ### Legacy Just Commands (Deprecated)
 
