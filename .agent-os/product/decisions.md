@@ -64,11 +64,11 @@ B2B2C model provides enterprise revenue stability while maintaining end-user eng
 
 ### Decision
 
-Adopt Next.js 15 with App Router as primary framework, Better Auth for authentication, Cloudflare Workers for hosting, and plan for PostgreSQL/Supabase for production database. Use shadcn/ui for consistent component library.
+Adopt Next.js 15 with App Router as primary framework, Better Auth for authentication, Vercel for hosting, and plan for PostgreSQL/Supabase for production database. Use shadcn/ui for consistent component library.
 
 ### Context
 
-Need modern, scalable stack that supports rapid development, edge computing for global performance, and strong TypeScript support. Team has Next.js expertise. Cloudflare provides cost-effective global infrastructure.
+Need modern, scalable stack that supports rapid development, edge computing for global performance, and strong TypeScript support. Team has Next.js expertise. Vercel provides excellent Next.js integration and global infrastructure.
 
 ### Alternatives Considered
 
@@ -86,7 +86,7 @@ Need modern, scalable stack that supports rapid development, edge computing for 
 
 ### Rationale
 
-Next.js 15 provides best balance of performance, DX, and ecosystem. Cloudflare Workers enable global low-latency. Better Auth is modern and extensible. shadcn/ui provides quality components without lock-in.
+Next.js 15 provides best balance of performance, DX, and ecosystem. Vercel provides seamless Next.js deployment and global edge network. Better Auth is modern and extensible. shadcn/ui provides quality components without lock-in.
 
 ### Consequences
 
@@ -100,7 +100,7 @@ Next.js 15 provides best balance of performance, DX, and ecosystem. Cloudflare W
 - App Router learning curve
 - Limited edge runtime features
 - Better Auth is newer/less proven
-- Cloudflare vendor lock-in risk
+- Vercel vendor lock-in risk (mitigated by standard Next.js deployment)
 
 ---
 

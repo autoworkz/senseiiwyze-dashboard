@@ -1,0 +1,23 @@
+# Global code owners
+* @kevinhill
+
+# Environment files require approval from project leads
+.env* @kevinhill
+*.env @kevinhill
+vercel.json @kevinhill
+package.json @kevinhill
+
+# Secrets and configuration files require extra scrutiny
+*secret* @kevinhill
+*auth* @kevinhill
+lib/auth.ts @kevinhill
+lib/auth-client.ts @kevinhill
+
+# Infrastructure and deployment files
+Dockerfile @kevinhill
+docker-compose.yml @kevinhill
+.devcontainer/ @kevinhill
+
+# Documentation that affects deployment or secrets
+CLAUDE.md @kevinhill
+README.md @kevinhill

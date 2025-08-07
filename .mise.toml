@@ -1,0 +1,47 @@
+[tools]
+node = "22.12.0"
+pnpm = "9.0.0"
+bun = "latest"
+
+[env]
+# Force npm/pnpm to install Linux-compatible binaries for Docker deployment
+npm_config_target_platform = "linux"
+npm_config_target_arch = "x64"
+npm_config_target_libc = "glibc"
+# Ensure native modules are built for Linux in Docker context
+npm_config_build_from_source = "true"
+# Cross-compilation support
+TARGET_ARCH = "x64"
+TARGET_PLATFORM = "linux"
+
+[tasks.dev]
+description = "Start development server"
+run = "pnpm dev"
+
+[tasks.build]
+description = "Build for production"  
+run = "pnpm build"
+
+[tasks.build-linux]
+description = "Build for Linux deployment (Docker/Vercel)"
+run = "npm_config_target_platform=linux npm_config_target_arch=x64 pnpm build"
+
+[tasks.build-linux-bun]
+description = "Build for Linux deployment using Bun"
+run = "TARGET_PLATFORM=linux TARGET_ARCH=x64 bun run build"
+
+[tasks.install-linux]
+description = "Install dependencies with Linux binaries"
+run = "npm_config_target_platform=linux npm_config_target_arch=x64 pnpm install"
+
+[tasks.install-linux-bun]
+description = "Install dependencies with Bun for Linux"
+run = "TARGET_PLATFORM=linux TARGET_ARCH=x64 bun install"
+
+[tasks.test-auth]
+description = "Test auth configuration"
+run = "node test-auth-connection.mjs"
+
+[tasks.docker-build]
+description = "Build with Docker-compatible settings"
+run = "TARGET_PLATFORM=linux TARGET_ARCH=x64 pnpm build"

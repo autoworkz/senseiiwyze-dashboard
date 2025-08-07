@@ -28,7 +28,9 @@ x-watch-env: &watch-env
 
 services:
   app:
-    build: .
+    build: 
+      context: .
+      platform: linux/amd64
     command: pnpm dev --turbo
     platform: linux/amd64
     volumes: *volumes

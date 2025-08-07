@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 pnpm run dev          # Start development server at localhost:3000
 pnpm run build        # Build for production
-pnpm run deploy       # Deploy to Cloudflare Workers
+vercel --prod         # Deploy to Vercel production
 pnpm run lint         # Run ESLint checks
 ```
 

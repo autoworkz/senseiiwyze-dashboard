@@ -7,7 +7,18 @@
   
   "features": {
     "ghcr.io/devcontainers/features/git:1": {},
-    "ghcr.io/devcontainers/features/github-cli:1": {}
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "22",
+      "nodeGypDependencies": true
+    },
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "configureZshAsDefaultShell": true,
+      "installOhMyZsh": true,
+      "installOhMyZshConfig": true,
+      "upgradePackages": true
+    }
   },
 
   "customizations": {
@@ -52,8 +63,12 @@
     }
   },
 
-  "postCreateCommand": "pnpm install",
-  "postStartCommand": "echo '🚀 SenseiiWyze Dashboard DevContainer Ready!'",
+  "postCreateCommand": "curl -fsSL https://bun.sh/install | bash && export PATH=\"$HOME/.bun/bin:$PATH\" && pnpm install && echo '🔧 DevContainer Setup Complete - Node.js:' && node --version && echo 'pnpm:' && pnpm --version && echo 'bun:' && bun --version",
+  "postStartCommand": "echo '🚀 SenseiiWyze Dashboard DevContainer Ready! Use: pnpm dev'",
 
-  "remoteUser": "root"
+  "remoteUser": "root",
+  "containerEnv": {
+    "NODE_ENV": "development",
+    "BETTER_AUTH_URL": "http://localhost:3000"
+  }
 }

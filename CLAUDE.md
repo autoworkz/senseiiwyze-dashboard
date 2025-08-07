@@ -258,6 +258,32 @@ When asked to work on this codebase:
    - For tasks execution: @.agent-os/instructions/execute-tasks.md
 3. **Always**, adhere to the standards in the files listed above
 
+## 🔐 Secrets Management
+
+**⚠️ CRITICAL: All secret changes require approval process to prevent authentication failures.**
+
+- **Protocol**: See `docs/secrets-management-protocol.md`
+- **Current BETTER_AUTH_SECRET**: `6HB4w1JjEtHWnkSiH3iD2yqz1DsvXr/w4AKXhF0TEkw=`
+- **CODEOWNERS**: All `.env*` files require @kevinhill approval
+- **Rotation**: Quarterly planned, immediate for security incidents
+
+### Environment Files
+- `.env.example` - Template (SAFE TO COMMIT)
+- `.env.local` - Local development (NEVER COMMIT)
+- `.env` - Base variables (NEVER COMMIT)
+
+## 👥 Developer Onboarding
+
+**New developers**: See `docs/developer-onboarding.md` for complete setup guide.
+
+**Quick Start**:
+```bash
+git clone <repo>
+cp .env.example .env.local
+# Get secrets from @kevinhill via Slack DM
+docker-compose up app
+```
+
 ## Problem-Solving Approach
 
 **⚠️ CRITICAL: When approaching any complex problem, testing, or implementation task, ALWAYS follow the incremental approach:**

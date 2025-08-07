@@ -51,8 +51,8 @@
 ## Infrastructure
 
 ### Application Hosting
-- **Platform:** Cloudflare Workers
-- **Runtime:** Edge runtime optimized
+- **Platform:** Vercel
+- **Runtime:** Node.js with Edge Runtime support
 - **Region:** Global edge network
 
 ### Database Hosting
@@ -60,14 +60,14 @@
 - **Production:** Supabase PostgreSQL (planned)
 
 ### Asset Hosting
-- **Static Assets:** Cloudflare CDN
+- **Static Assets:** Vercel Edge Network
 - **Images:** Next.js Image Optimization API
-- **User Uploads:** Cloudflare R2 (planned)
+- **User Uploads:** Vercel Blob Storage (planned)
 
 ### Deployment Solution
 - **CI/CD:** GitHub Actions
-- **Preview:** Cloudflare Pages preview deployments
-- **Production:** Cloudflare Workers via wrangler
+- **Preview:** Vercel preview deployments
+- **Production:** Vercel via vercel CLI
 
 ## Development Tools
 
