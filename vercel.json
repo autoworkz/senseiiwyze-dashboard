@@ -1,5 +1,15 @@
 {
   "buildCommand": "pnpm build",
-  "installCommand": "pnpm install --force",
-  "framework": "nextjs"
+  "installCommand": "pnpm install --ignore-scripts --frozen-lockfile=false",
+  "framework": "nextjs",
+  "functions": {
+    "app/api/**/*.js": {
+      "runtime": "nodejs20.x"
+    }
+  },
+  "build": {
+    "env": {
+      "SKIP_ENV_VALIDATION": "1"
+    }
+  }
 }
