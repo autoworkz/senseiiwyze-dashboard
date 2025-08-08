@@ -7,12 +7,13 @@ import { Download, Filter, RefreshCw } from 'lucide-react'
 import { GamingDataView } from '@/components/user-dashboard/components/GamingDataView'
 import { VisionBoardView } from '@/components/user-dashboard/components/VisionBoardView'
 import { PersonalityExamView } from '@/components/user-dashboard/components/PersonalityExamView'
+import { ProgramReadinessView } from '@/components/user-dashboard/components/ProgramReadinessView'
 import { UserData } from '@/types/user-data'
 
 
 export default function UserDashboardPage({ userId }: { userId: string }) {
     const [activeView, setActiveView] = useState<
-        'charts' | 'gaming' | 'vision' | 'personality'
+        'charts' | 'gaming' | 'vision' | 'personality' | 'program-readiness'
     >('charts')
     const [usersData, setUsersData] = useState<UserData[]>([])
     const [loading, setLoading] = useState(true)
@@ -126,6 +127,12 @@ export default function UserDashboardPage({ userId }: { userId: string }) {
                     >
                         Personality
                     </TabsTrigger>
+                    <TabsTrigger
+                        value="program-readiness"
+                        onClick={() => setActiveView('program-readiness')}
+                    >
+                        Program Readiness
+                    </TabsTrigger>
                 </TabsList>
                 <TabsContent value="charts">
                     <UserDataCharts 
@@ -151,6 +158,11 @@ export default function UserDashboardPage({ userId }: { userId: string }) {
                     <PersonalityExamView 
                         selectedUserId={selectedUserId}
                         onUserSelection={handleUserSelection}
+                    />
+                </TabsContent>
+                <TabsContent value="program-readiness">
+                    <ProgramReadinessView 
+                        userId={selectedUserId}
                     />
                 </TabsContent>
             </Tabs>
