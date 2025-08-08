@@ -103,7 +103,7 @@ export function ProgramReadinessView({ userId }: { userId: string }) {
               user={dashboardData.user}
               programRequirements={dashboardData.programRequirements}
             />
-            <AdminActions />
+            {/* <AdminActions /> */}
         </div>
     )
 }
