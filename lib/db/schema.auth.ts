@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, boolean, integer } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, integer, uuid } from "drizzle-orm/pg-core";
 
 
 
@@ -24,6 +24,8 @@ export const users = pgTable("ba_users", {
   username: text("username").unique(),
   displayUsername: text("display_username"),
   twoFactorEnabled: boolean("two_factor_enabled"),
+  // Link to existing profiles table
+  profileId: uuid("profile_id").unique(),
 });
 
 export const sessions = pgTable("ba_sessions", {

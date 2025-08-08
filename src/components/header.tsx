@@ -25,8 +25,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useSession, signOut } from "@/lib/auth-client"
-
+import { authClient, useSession } from "@/lib/auth-client"
+import { useRouter } from "next/navigation"
 // Navigation links array to be used in both desktop and mobile menus
 const navigationLinks = [
   { href: "/overview", label: "Overview" },
@@ -49,7 +49,7 @@ export default function Header() {
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 })
   const [user, setUser] = useState<User | null>(null)
   const navRef = useRef<HTMLUListElement>(null)
-
+  const router = useRouter()
   // Helper function to get user initials
   const getInitials = (name: string) => {
     if (!name?.trim()) return "U"
@@ -63,7 +63,13 @@ export default function Header() {
   // Handle logout
   const handleLogout = async () => {
     try {
-      await signOut()
+      await authClient.signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            router.push("/auth/login"); // redirect to login page
+          },
+        },
+      });
       // Better Auth will handle the redirect
     } catch (error) {
       console.error('Logout failed:', error)

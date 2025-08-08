@@ -1,15 +1,15 @@
 'use client';
 
 import React from "react";
-import { usePricingTable } from "autumn-js/react";
-import { useCustomer } from "@/hooks/useAutumnCustomer";
+// import { usePricingTable } from "autumn-js/react";
+// import { useCustomer } from "@/hooks/useAutumnCustomer";
 import { createContext, useContext, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
 import { Check, Loader2 } from "lucide-react";
-import AttachDialog from "@/components/autumn/attach-dialog";
-import { getPricingTableContent } from "@/lib/autumn/pricing-table-content";
-import { Product, ProductItem } from "autumn-js";
+// import AttachDialog from "@/components/autumn/attach-dialog";
+// import { getPricingTableContent } from "@/lib/autumn/pricing-table-content";
+// import { Product, ProductItem } from "autumn-js";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -18,9 +18,14 @@ export default function PricingTable({
 }: {
   productDetails?: any;
 }) {
-  const { attach } = useCustomer();
+  // const { attach } = useCustomer();
   const [isAnnual, setIsAnnual] = useState(false);
-  const { products, isLoading, error } = usePricingTable({ productDetails });
+  // const { products, isLoading, error } = usePricingTable({ productDetails });
+
+  // Temporarily disable Autumn integration
+  const isLoading = false;
+  const error = null;
+  const products = productDetails || [];
 
   if (isLoading) {
     return (
@@ -36,7 +41,7 @@ export default function PricingTable({
 
   const intervals = Array.from(
     new Set(
-      products?.map((p) => p.properties?.interval_group).filter((i) => !!i)
+      products?.map((p: any) => p.properties?.interval_group).filter((i: any) => !!i)
     )
   );
 
@@ -67,7 +72,7 @@ export default function PricingTable({
           setIsAnnualToggle={setIsAnnual}
           multiInterval={multiInterval}
         >
-          {products.filter(intervalFilter).map((product, index) => (
+          {products.filter(intervalFilter).map((product: any, index: number) => (
             <PricingCard
               key={index}
               productId={product.id}
@@ -77,13 +82,9 @@ export default function PricingTable({
                   product.scenario === "scheduled",
 
                 onClick: async () => {
-                  if (product.id && product.id !== 'enterprise' && product.id !== 'enterprise-annual') {
-                    await attach({
-                      productId: product.id,
-                      dialog: AttachDialog as any, // Type cast for now
-                      successUrl: window.location.origin + '/app/dashboard?success=true',
-                    });
-                  } else if (product.display?.button_url) {
+                  // Temporarily disable Autumn attach functionality
+                  console.log('Pricing table interaction disabled - Autumn integration disabled');
+                  if (product.display?.button_url) {
                     window.open(product.display?.button_url, "_blank");
                   }
                 },
@@ -99,7 +100,7 @@ export default function PricingTable({
 const PricingTableContext = createContext<{
   isAnnualToggle: boolean;
   setIsAnnualToggle: (isAnnual: boolean) => void;
-  products: Product[];
+  products: any[]; // Changed to any[] as Product type is removed
   showFeatures: boolean;
 }>({
   isAnnualToggle: false,
@@ -128,7 +129,7 @@ export const PricingTableContainer = ({
   multiInterval,
 }: {
   children?: React.ReactNode;
-  products?: Product[];
+  products?: any[]; // Changed to any[] as Product type is removed
   showFeatures?: boolean;
   className?: string;
   isAnnualToggle: boolean;
@@ -257,7 +258,7 @@ export const PricingCard = ({
       </Button>
 
       <div className="space-y-3">
-        {features?.map((feature, index) => (
+        {features?.map((feature: any, index: number) => (
           <div key={index} className="flex items-start gap-3">
             <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
             <div className="text-sm">

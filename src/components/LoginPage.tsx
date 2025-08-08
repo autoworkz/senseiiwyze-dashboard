@@ -89,7 +89,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
         console.log('Login successful:', result);
         
         // Redirect to dashboard after successful login
-        router.push('/dashboard');
+        router.push('/app');
       }
     } catch (error) {
       // Handle login errors
@@ -115,7 +115,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
         console.log(`${provider} login successful:`, result);
         
         // Redirect to dashboard after successful login
-        router.push('/dashboard');
+        router.push('/app');
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : `${provider} login failed. Please try again.`;

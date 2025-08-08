@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useCallback, ReactNode } from 'react';
-import { useCustomer as useAutumnCustomer } from 'autumn-js/react';
+// import { useCustomer as useAutumnCustomer } from 'autumn-js/react';
 
 // Define our own interface since UseCustomerParams is not exported
 interface UseCustomerParams {
@@ -19,7 +19,13 @@ const AutumnCustomerContext = createContext<AutumnCustomerContextType | null>(nu
 
 // Provider component
 export function AutumnCustomerProvider({ children }: { children: ReactNode }) {
-  const { refetch } = useAutumnCustomer();
+  // const { refetch } = useAutumnCustomer();
+  
+  // Fallback implementation
+  const refetch = useCallback(async () => {
+    console.log('Autumn customer refetch disabled - Autumn integration disabled');
+    return Promise.resolve();
+  }, []);
 
   const refetchCustomer = useCallback(async () => {
     await refetch();
@@ -34,7 +40,23 @@ export function AutumnCustomerProvider({ children }: { children: ReactNode }) {
 
 // Hook to use the customer data with global refetch
 export function useCustomer(params?: UseCustomerParams) {
-  const autumnCustomer = useAutumnCustomer(params);
+  // const autumnCustomer = useAutumnCustomer(params);
+  
+  // Fallback implementation
+  const autumnCustomer = {
+    data: null,
+    isLoading: false,
+    error: null,
+    refetch: async () => {
+      console.log('Autumn customer hook disabled - Autumn integration disabled');
+      return Promise.resolve();
+    },
+    attach: async (params: any) => {
+      console.log('Autumn attach disabled - Autumn integration disabled', params);
+      return Promise.resolve();
+    }
+  };
+  
   const context = useContext(AutumnCustomerContext);
 
   // Create a wrapped refetch that can be used globally

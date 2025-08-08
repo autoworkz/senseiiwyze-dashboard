@@ -1,4 +1,4 @@
-import { Product } from 'autumn-js';
+// import { Product } from 'autumn-js';
 
 export interface PricingFeature {
   name: string;
@@ -70,7 +70,7 @@ export const PRICING_FEATURES: PricingFeature[] = [
   },
 ];
 
-export function getPricingTableContent(products: Product[]) {
+export function getPricingTableContent(products: any[]) {
   // Helper function to get features for a specific product
   const getProductFeatures = (productId: string) => {
     return PRICING_FEATURES.map(feature => {

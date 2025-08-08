@@ -1,11 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { loginAction } from '@/lib/actions/auth-actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Loader2 } from 'lucide-react'
+import { authClient } from '@/lib/auth-client'
 
 export function LoginForm() {
   const [isPending, setIsPending] = useState(false)
@@ -16,9 +16,12 @@ export function LoginForm() {
     setError(null)
     
     try {
-      const result = await loginAction(formData)
+      const result = await authClient.signIn.email({
+        email: formData.get('email') as string,
+        password: formData.get('password') as string,
+      })
       if (result?.error) {
-        setError(result.error)
+        setError(result.error.message || 'Authentication failed')
       }
     } catch (error) {
       setError('Authentication failed')

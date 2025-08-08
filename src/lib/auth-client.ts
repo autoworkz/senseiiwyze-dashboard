@@ -33,12 +33,11 @@ import {
 export const authClient = createAuthClient({
     /**
      * Base URL for the auth server
-     * Optional if client and server are on the same domain
+     * Must be a full URL, not a relative path
      */
     baseURL: process.env.NODE_ENV === "production" 
-        ? process.env.NEXT_PUBLIC_APP_URL 
-        : "http://localhost:3000",
-    
+    ? `${process.env.NEXT_PUBLIC_APP_URL}/api/auth`
+    : "http://localhost:3000/api/auth",
     /**
      * Global fetch options for all auth requests
      * Configure error handling, retries, and request/response interceptors
@@ -71,8 +70,13 @@ export const authClient = createAuthClient({
                 authLogger.info('Auth operation successful', { url: response.url });
             }
         },
+        onRequest: (context) => {
+          console.log("🌐 Client making request to:", context);
+        },
+        onResponse: (context) => {
+          console.log("📨 Client received response:", context.response.status);
+        },
     },
-    
     /**
      * Client plugins that correspond to server plugins
      * Must match the plugins configured in auth.ts
@@ -138,48 +142,41 @@ export const authClient = createAuthClient({
         // Infer additional fields from server configuration
         // This provides type safety for custom fields and server extensions
         inferAdditionalFields<typeof auth>(),
+        // nextCookies(),
     ],
 });
-
-/**
- * Core authentication methods
- * Export the main sign-in/sign-up methods for convenience
- */
-export const signIn = authClient.signIn;
-export const signUp = authClient.signUp;
-export const signOut = authClient.signOut;
 
 /**
  * React hooks for session management
  */
 export const useSession = authClient.useSession;
 
-/**
- * Organization management
- * Access organization-related functionality
- */
-export const organization = authClient.organization;
+// /**
+//  * Organization management
+//  * Access organization-related functionality
+//  */
+// export const organization = authClient.organization;
 
-/**
- * Admin functionality
- * Access admin-related operations
- */
-export const admin = authClient.admin;
+// /**
+//  * Admin functionality
+//  * Access admin-related operations
+//  */
+// export const admin = authClient.admin;
 
-/**
- * Two-factor authentication
- */
-export const twoFactor = authClient.twoFactor;
+// /**
+//  * Two-factor authentication
+//  */
+// export const twoFactor = authClient.twoFactor;
 
-/**
- * API key management
- */
-export const apiKey = authClient.apiKey;
+// /**
+//  * API key management
+//  */
+// export const apiKey = authClient.apiKey;
 
-/**
- * Multi-session management
- */
-export const multiSession = authClient.multiSession;
+// /**
+//  * Multi-session management
+//  */
+// export const multiSession = authClient.multiSession;
 
 /**
  * Type inference from the auth client

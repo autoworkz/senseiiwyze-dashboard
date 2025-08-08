@@ -18,14 +18,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { signOut, useSession } from '@/lib/auth-client'
+import { authClient, useSession } from '@/lib/auth-client'
 import {
   dashboardNavigation,
   isNavigationItemActive,
   type NavigationItem,
 } from '@/lib/navigation-config'
 import { cn } from '@/lib/utils'
-
+import { useRouter } from 'next/navigation'
 interface GlobalNavigationProps {
   className?: string
   user?: {
@@ -40,7 +40,7 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
   const pathname = usePathname()
   const { data: session } = useSession()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-
+  const router = useRouter()
   // Use server user prop if available, fallback to client session
   const user = serverUser || session?.user
   const userInitials =
@@ -52,7 +52,13 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
       .slice(0, 2) || 'U'
 
   const handleSignOut = async () => {
-    await signOut()
+    await authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          router.push("/auth/login"); // redirect to login page
+        },
+      },  
+    });
   }
 
   // Render navigation item with optional dropdown

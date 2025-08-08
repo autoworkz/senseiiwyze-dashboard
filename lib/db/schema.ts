@@ -1,10 +1,5 @@
-// Master schema that re-exports both Better Auth and application schemas
-// This prevents conflicts when Better Auth regenerates auth-schema.ts
-
-// Better Auth tables (ba_ prefixed to avoid conflicts)
 export * from "./schema.auth";
 
-// Application tables (importing ALL tables with aliases for conflicting names)
 export {
   // Enums
   accountRole,
@@ -82,8 +77,6 @@ export {
   userEmloyementStatus,
   workplaceType,
   userEmloyementStatuss,
-  answersIdSeq1,
-  authUsers,
   workplaces,
   // organizations,
 
@@ -94,4 +87,11 @@ export {
   verification as legacyVerification,
   accounts as legacyAccounts,
   invitations as legacyInvitations,
+
+  // Better Auth tables
+  baInvitations,
+  baUsers,
+  baSessions,
+  baAccounts,
+  baVerifications,
 } from "../../drizzle/schema";

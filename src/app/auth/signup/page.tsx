@@ -57,7 +57,7 @@ export default function SignUpPage() {
   // Auto-redirect if already authenticated
   useEffect(() => {
     if (!isPending && session?.user) {
-      router.push('/dashboard');
+      router.push('/app');
     }
   }, [session, isPending, router]);
   
@@ -82,7 +82,7 @@ export default function SignUpPage() {
         email: values.email,
         password: values.password,
         name: values.fullName,
-        callbackURL: '/dashboard',
+        callbackURL: '/app',
       });
 
       if (authError) {
@@ -94,7 +94,7 @@ export default function SignUpPage() {
       // Redirect to login with verification notice
       setTimeout(() => {
         router.push('/auth/login?message=verify-email');
-      }, 2000);
+      }, 1000);
 
     } catch (error) {
       console.error('Signup error:', error);
@@ -111,7 +111,7 @@ export default function SignUpPage() {
       // Use Better Auth's signIn.social method for signup
       await authClient.signIn.social({
         provider,
-        callbackURL: '/dashboard',
+        callbackURL: '/app',
       });
       
     } catch (error) {

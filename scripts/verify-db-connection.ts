@@ -11,11 +11,11 @@ config({ path: '.env.development' });
 
 async function testDatabaseConnection() {
   console.log(chalk.blue('🔍 Testing database connection...'));
-  console.log(chalk.gray('Database URL:', process.env.DATABASE_URL ? 'Set' : 'Not set'));
+  console.log(chalk.gray('Database URL:', process.env.SUPABASE_DATABASE_URL ? 'Set' : 'Not set'));
 
-  if (!process.env.DATABASE_URL) {
-    console.log(chalk.red('❌ DATABASE_URL environment variable is not set'));
-    console.log(chalk.yellow('💡 Make sure .env.development exists and contains DATABASE_URL'));
+  if (!process.env.SUPABASE_DATABASE_URL) {
+    console.log(chalk.red('❌ SUPABASE_DATABASE_URL environment variable is not set'));
+    console.log(chalk.yellow('💡 Make sure .env.development exists and contains SUPABASE_DATABASE_URL'));
     process.exit(1);
   }
 
@@ -24,7 +24,7 @@ async function testDatabaseConnection() {
   try {
     // Create PostgreSQL connection pool
     pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
+      connectionString: process.env.SUPABASE_DATABASE_URL,
       ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
     });
 

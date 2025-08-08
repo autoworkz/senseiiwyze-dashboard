@@ -11,6 +11,7 @@ import {
   oAuthProxy,
   openAPI,
   jwt,
+  createAuthMiddleware,
 } from "better-auth/plugins";
 import { sso } from "better-auth/plugins/sso";
 import { nextCookies } from "better-auth/next-js";
@@ -20,7 +21,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "../../lib/db";
 import * as schema from "../../lib/db/schema";
 import { authLogger } from "@/lib/logger";
-import { autumn } from "autumn-js/better-auth";
+// import { autumn } from "autumn-js/better-auth";
 
 // Import our B2B2C access control system
 import {
@@ -32,27 +33,46 @@ import {
   admin as adminRole,
   executive,
 } from "./permissions";
-import z from "zod/v3";
+import { eq } from "drizzle-orm";
+import { profiles } from "../../lib/db/schema";
+import { users } from "../../lib/db/schema";
 
 export const auth = betterAuth({
+  secret: process.env.BETTER_AUTH_SECRET!,
   database: drizzleAdapter(db, {
     provider: "pg",
     camelCase: false,
     schema: {
-      user: schema.user,
-      session: schema.session,
-      account: schema.account,
-      verification: schema.verification,
+      user: schema.baUsers,
+      session: schema.baSessions,
+      account: schema.baAccounts,
+      verification: schema.baVerifications,
       organization: schema.organization,
-      member: schema.member,
-      invitation: schema.invitation,
-      apiKey: schema.apikey,
-      twoFactor: schema.twoFactor,
+      member: schema.members,
+      invitation: schema.invitations,
+      apiKey: schema.apikeys,
+      twoFactor: schema.twoFactors,
       ssoProvider: schema.ssoProvider,
       jwks: schema.jwks,
     },
   }),
   appName: "senseiiwyze-dashboard",
+ 
+  hooks: {
+    after: createAuthMiddleware(async (ctx) => {
+        console.log("🔍 Auth hook triggered for path:", ctx.path);
+        
+        if(ctx.path.startsWith("/sign-up")){
+            console.log("✅ Sign-up path detected");
+            const newSession = ctx.context.newSession;
+            if(newSession){
+                console.log("✅ New session created:", newSession);
+            } else {
+                console.log("⚠️ No new session in context");
+            }
+        }
+    }),
+  },
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false, // Set to false for testing
@@ -142,10 +162,12 @@ export const auth = betterAuth({
     anonymous(),
     username(),
     twoFactor(),
-    autumn(), // Billing and subscription management
+    // autumn(), // Billing and subscription management
     nextCookies(), // Must be last
   ],
 });
+
+console.log("🔧 Better Auth configuration loaded successfully");
 
 /**
  * Get the current authenticated user with their role and organization context
@@ -162,16 +184,43 @@ export async function getCurrentUser() {
       return null;
     }
 
+    // Get linked profile information
+    let profileData = null;
+    if (session.user.id) {
+      const baUser = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, session.user.id))
+        .limit(1);
+
+      if (baUser.length > 0 && baUser[0].profileId) {
+        const profile = await db
+          .select()
+          .from(profiles)
+          .where(eq(profiles.id, baUser[0].profileId))
+          .limit(1);
+
+        if (profile.length > 0) {
+          profileData = profile[0];
+        }
+      }
+    }
+
     // Map Better Auth user to our application's user interface
     return {
       id: session.user.id,
-      name: session.user.name || session.user.email || "Unknown User",
+      name: profileData?.name || session.user.name || session.user.email || "Unknown User",
       email: session.user.email,
-      role: session.user.role || "learner", // Default to CEO/learner role
+      role: session.user.role || profileData?.userRole || "learner", // Default to CEO/learner role
       image: session.user.image,
       emailVerified: session.user.emailVerified,
       createdAt: session.user.createdAt,
       updatedAt: session.user.updatedAt,
+      // Profile-specific data
+      profileId: profileData?.id,
+      workplace: profileData?.workplace,
+      jobTitle: profileData?.jobTitle,
+      profilePhoto: profileData?.profilePhoto,
       // Organization context (if available)
       organizationId: session.session.activeOrganizationId,
     };
@@ -289,5 +338,50 @@ export async function canAccessRoute(pathname: string): Promise<boolean> {
       error instanceof Error ? error : new Error(String(error)),
     );
     return false;
+  }
+}
+
+/**
+ * Link Better Auth user to existing profile or create new profile
+ */
+async function linkUserToProfile(user: any) {
+  try {
+    // Check if profile already exists for this email
+    const existingProfile = await db
+      .select()
+      .from(profiles)
+      .where(eq(profiles.email, user.email))
+      .limit(1);
+
+    if (existingProfile.length > 0) {
+      // Link existing profile to Better Auth user
+      await db
+        .update(users)
+        .set({ profileId: existingProfile[0].id })
+        .where(eq(users.id, user.id));
+      
+      console.log("✅ Linked existing profile to Better Auth user:", user.email);
+    } else {
+      // Create new profile for Better Auth user
+      const newProfile = await db.insert(profiles).values({
+        email: user.email,
+        name: user.name || user.email,
+        userRole: user.role || 'user',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }).returning();
+
+      if (newProfile.length > 0) {
+        // Link new profile to Better Auth user
+        await db
+          .update(users)
+          .set({ profileId: newProfile[0].id })
+          .where(eq(users.id, user.id));
+        
+        console.log("✅ Created and linked new profile for Better Auth user:", user.email);
+      }
+    }
+  } catch (error) {
+    console.error("❌ Error linking user to profile:", error);
   }
 }

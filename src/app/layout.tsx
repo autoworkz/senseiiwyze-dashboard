@@ -1,9 +1,9 @@
-import { AutumnProvider } from 'autumn-js/react'
+// import { AutumnProvider } from 'autumn-js/react'
 import type { Metadata } from 'next'
 import { Roboto, Space_Grotesk } from 'next/font/google'
 import { ThemeProvider } from 'next-themes'
 import type React from 'react'
-import { AutumnCustomerProvider } from '@/hooks/useAutumnCustomer'
+// import { AutumnCustomerProvider } from '@/hooks/useAutumnCustomer'
 import './globals.css'
 
 const roboto = Roboto({
@@ -42,12 +42,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AutumnProvider
+          {/* <AutumnProvider
             betterAuthUrl={process.env.NEXT_PUBLIC_BETTER_AUTH_URL || 'http://localhost:3000'}
             backendUrl={process.env.NEXT_PUBLIC_AUTUMN_BACKEND_URL}
           >
             <AutumnCustomerProvider>{children}</AutumnCustomerProvider>
-          </AutumnProvider>
+          </AutumnProvider> */}
+          {children}
         </ThemeProvider>
       </body>
     </html>
