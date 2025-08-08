@@ -21,7 +21,7 @@ export const VisionBoardView = ({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/vision-board');
+        const response = await fetch(`/api/vision-board?userId=${selectedUserId}`);
         const result = await response.json();
         if (Array.isArray(result)) {
           setUsersData(result);

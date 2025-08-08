@@ -105,7 +105,7 @@ This project **requires** pnpm as the package manager. The following configurati
 - `pnpm test` - Run tests
 - `pnpm test:watch` - Run tests in watch mode
 - `pnpm test:coverage` - Generate test coverage
-- `pnpm deploy` - Deploy to Cloudflare Workers
+- `vercel --prod` - Deploy to Vercel production
 
 ## Project Structure
 

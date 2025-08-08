@@ -1,7 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { withAuth } from '@/lib/api/with-auth'
 
-export async function GET(request: NextRequest) {
+export const GET = withAuth(async (request: NextRequest) => {
   const searchParams = request.nextUrl.searchParams
   const userId = searchParams.get('userId')
 
@@ -160,4 +161,4 @@ export async function GET(request: NextRequest) {
     console.error('personality-exam API error:', err)
     return NextResponse.json({ error: err.message || 'Unknown error' }, { status: 500 })
   }
-}
+})

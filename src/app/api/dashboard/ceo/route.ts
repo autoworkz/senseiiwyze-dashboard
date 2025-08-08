@@ -5,12 +5,13 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { APIAggregationService } from '@/lib/api-aggregation';
+import { withAuth } from '@/lib/api/with-auth'
 
 /**
  * GET /api/dashboard/ceo
  * Fetch CEO dashboard data with executive-level metrics
  */
-export async function GET(_request: NextRequest) {
+export const GET = withAuth(async (_request: NextRequest) => {
   const startTime = Date.now();
   
   try {
@@ -43,4 +44,4 @@ export async function GET(_request: NextRequest) {
       }
     }, { status: 500 });
   }
-} 
+}); 

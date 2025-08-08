@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { DashboardData, UserTableData } from '@/types/dashboard'
+import { withAuth } from '@/lib/api/with-auth'
 
 async function getExecutiveDashboardData(): Promise<DashboardData> {
   try {
@@ -595,7 +596,7 @@ async function getUsersTableData(): Promise<UserTableData> {
   }
 }
 
-export async function GET() {
+export const GET = withAuth(async () =>  {
   try {
     const [dashboardData, userTableData] = await Promise.all([getExecutiveDashboardData(), getUsersTableData()])
 
@@ -608,4 +609,4 @@ export async function GET() {
     console.error('API Error:', error)
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
   }
-}
+})

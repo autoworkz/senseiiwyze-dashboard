@@ -28,11 +28,18 @@ x-watch-env: &watch-env
 
 services:
   app:
-    build: .
+    build: 
+      context: .
+      platform: linux/amd64
     command: pnpm dev --turbo
+    platform: linux/amd64
     volumes: *volumes
     ports:
       - "3000:3000"
+    env_file:
+      - .env.local
+      - .env.development
+      - .env
     environment:
       - NODE_ENV=development
 

@@ -1,0 +1,25 @@
+# Ignore macOS-specific files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Ignore development files
+*.log
+npm-debug.log*
+.npm
+node_modules/.cache
+
+# Ignore platform-specific binaries
+node_modules/**/*.node
+node_modules/**/*.dylib
+node_modules/**/*.so
+
+# Ignore test files during deployment
+__tests__/
+*.test.*
+*.spec.*
+coverage/
+
+# Development tools
+.vscode/
+.idea/

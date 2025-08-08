@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { APIAggregationService, APIPerformanceMonitor } from '@/lib/api-aggregation';
+import { withAuth } from '@/lib/api/with-auth'
 
 /**
  * Worker Dashboard Aggregated API Endpoint
@@ -11,7 +12,7 @@ import { APIAggregationService, APIPerformanceMonitor } from '@/lib/api-aggregat
  * - Course management data
  * - Team messages and communications
  */
-export async function GET(request: NextRequest) {
+export const GET = withAuth(async (request: NextRequest) => {
   const startTime = Date.now();
   
   try {
@@ -81,4 +82,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}); 

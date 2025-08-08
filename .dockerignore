@@ -1,0 +1,58 @@
+# Node modules
+node_modules
+.pnpm-store
+
+# Next.js
+.next
+out
+build
+dist
+
+# Environment files (will be provided by container)
+.env*
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+coverage
+.nyc_output
+
+# Misc
+.vercel
+.open-next
+tmp
+temp
+
+# Lock files (except pnpm)
+package-lock.json
+yarn.lock
+
+# TypeScript build info
+*.tsbuildinfo
+next-env.d.ts
+
+# Context Portal
+.context-portal
+**/context-portal
+
+# Sentry
+.env.sentry-build-plugin

@@ -25,7 +25,7 @@ export const PersonalityExamView = ({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/personality-exam');
+        const response = await fetch(`/api/personality-exam?userId=${selectedUserId}`);
         const result = await response.json();
         if (Array.isArray(result)) {
           setUsersData(result);

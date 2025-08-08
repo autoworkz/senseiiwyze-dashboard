@@ -341,47 +341,4 @@ export async function canAccessRoute(pathname: string): Promise<boolean> {
   }
 }
 
-/**
- * Link Better Auth user to existing profile or create new profile
- */
-async function linkUserToProfile(user: any) {
-  try {
-    // Check if profile already exists for this email
-    const existingProfile = await db
-      .select()
-      .from(profiles)
-      .where(eq(profiles.email, user.email))
-      .limit(1);
 
-    if (existingProfile.length > 0) {
-      // Link existing profile to Better Auth user
-      await db
-        .update(users)
-        .set({ profileId: existingProfile[0].id })
-        .where(eq(users.id, user.id));
-      
-      console.log("✅ Linked existing profile to Better Auth user:", user.email);
-    } else {
-      // Create new profile for Better Auth user
-      const newProfile = await db.insert(profiles).values({
-        email: user.email,
-        name: user.name || user.email,
-        userRole: user.role || 'user',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      }).returning();
-
-      if (newProfile.length > 0) {
-        // Link new profile to Better Auth user
-        await db
-          .update(users)
-          .set({ profileId: newProfile[0].id })
-          .where(eq(users.id, user.id));
-        
-        console.log("✅ Created and linked new profile for Better Auth user:", user.email);
-      }
-    }
-  } catch (error) {
-    console.error("❌ Error linking user to profile:", error);
-  }
-}

@@ -15,7 +15,7 @@
 ```bash
 pnpm dev          # Start development server at localhost:3000
 pnpm build        # Build for production
-pnpm deploy       # Deploy to Cloudflare Workers
+vercel --prod     # Deploy to Vercel production
 pnpm lint         # Run ESLint checks
 ```
 

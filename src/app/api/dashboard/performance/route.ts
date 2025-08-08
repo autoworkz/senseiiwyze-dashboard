@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { APIPerformanceMonitor } from '@/lib/api-aggregation';
 import { checkUserPermission } from '@/lib/auth';
+import { withAuth } from '@/lib/api/with-auth'
 
 /**
  * API Aggregation Performance Monitoring Endpoint
@@ -10,7 +11,7 @@ import { checkUserPermission } from '@/lib/auth';
  * - Cache hit/miss rates
  * - Network request reduction analytics
  */
-export async function GET(_request: NextRequest) {
+export const GET = withAuth(async (_request: NextRequest) => {
   try {
     // Check admin permissions for performance monitoring
     const canViewSystem = await checkUserPermission('system', 'audit');
@@ -60,12 +61,12 @@ export async function GET(_request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});
 
 /**
  * Reset performance metrics (admin only)
  */
-export async function DELETE(_request: NextRequest) {
+export const DELETE = withAuth(async (_request: NextRequest) => {
   try {
     // Check admin permissions for performance monitoring
     const canViewSystem = await checkUserPermission('system', 'audit');
@@ -89,4 +90,4 @@ export async function DELETE(_request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}); 

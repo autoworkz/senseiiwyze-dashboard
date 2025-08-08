@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { NextResponse, type NextRequest } from 'next/server';
+import { withAuth } from '@/lib/api/with-auth'
 
 interface Profile {
   id: string;
@@ -29,7 +30,7 @@ interface GameInfo {
   avg_time_per_level?: number;
 }
 
-export async function GET(request: NextRequest) {
+export const GET = withAuth(async (request: NextRequest) => {
   const searchParams = request.nextUrl.searchParams;
   const userId = searchParams.get('userId');
 
@@ -79,123 +80,39 @@ export async function GET(request: NextRequest) {
     game_id,
     levels_completed,
     durations,
-    total_levels:(
-      SELECT COUNT(*)
-      FROM jsonb_array_elements_text(levels_completed) AS lvl
-      WHERE lvl = 'true'
-    )
+    total_levels,
+    avg_time_per_level
   `);
 
     if (userId) {
       gameInfoQuery = gameInfoQuery.eq('profile_id', userId);
     }
 
-    // Fetch game_info
-    const { data: gameInfo, error: infoError } = await gameInfoQuery;
+    const { data: gameInfo, error: gameInfoError } = await gameInfoQuery;
 
-    if (infoError) {
-      console.error('Error fetching game info:', infoError);
+    if (gameInfoError) {
+      console.error('Error fetching game info:', gameInfoError);
       return NextResponse.json({ error: 'Failed to fetch game info' }, { status: 500 });
     }
 
-    // Create lookup maps
-    const activityMap = new Map<string, string>();
-    activities.forEach((activity: Activity) => {
-      activityMap.set(activity.id, activity.name);
-    });
-
-    const tasksByActivity: Record<string, GameTask[]> = {};
-    gameTasks.forEach((task: GameTask) => {
-      if (!tasksByActivity[task.activity_id]) {
-        tasksByActivity[task.activity_id] = [];
-      }
-      tasksByActivity[task.activity_id].push(task);
-    });
-
-    // Sort tasks for each activity by order
-    Object.values(tasksByActivity).forEach(tasks => {
-      tasks.sort((a, b) => a.order - b.order);
-    });
-
-    // Group game info by user
-    const gamesByUser: Record<string, GameInfo[]> = {};
-    gameInfo.forEach((info: GameInfo) => {
-      if (!gamesByUser[info.profile_id]) {
-        gamesByUser[info.profile_id] = [];
-      }
-      gamesByUser[info.profile_id].push(info);
-    });
-
-    const users = profiles.map((profile: Profile) => {
-      const infos = gamesByUser[profile.id] || [];
-      let totalCompletedLevels = 0;
-      let totalDurationsSec = 0;
-
-      const gamesPlayed = infos
-        .map((info: GameInfo) => {
-          const activityName = activityMap.get(info.game_id);
-          if (!activityName) return null; // Skip unknown games
-
-          // Count completed levels
-          const completedCount = info.levels_completed.filter(Boolean).length;
-          totalCompletedLevels += completedCount;
-
-          // Sum durations
-          const sumDurations = info.durations.reduce((sum: number, d: number) => sum + d, 0);
-          totalDurationsSec += sumDurations;
-
-          // Determine task level index
-          const levelIndex = completedCount <= 9 ? 0 : completedCount <= 19 ? 1 : 2;
-          const tasks = tasksByActivity[info.game_id] || [];
-          const task = tasks[levelIndex];
-
-          // Calculate time spent in minutes
-          const timeSpentMin = parseFloat((sumDurations / 60).toFixed(2));
-
-          return {
-            name: activityName,
-            score: Math.floor(Math.random() * 201) + 800, // Random between 800-1000
-            maxScore: task?.max_score ?? 1000,
-            difficulty: (task?.difficulty_level as 'easy' | 'medium' | 'hard') || 'medium',
-            completed: completedCount === info.levels_completed.length,
-            timeSpent: timeSpentMin,
-          };
-        })
-        .filter(Boolean) as Array<{
-          name: string;
-          score: number;
-          maxScore: number;
-          difficulty: 'easy' | 'medium' | 'hard';
-          completed: boolean;
-          timeSpent: number;
-        }>;
-
-      const gameCount = gamesPlayed.length;
-      const totalLevels = gameCount * 30;
-      const avgTimePerLevel =
-        totalCompletedLevels > 0
-          ? parseFloat(((totalDurationsSec / 60) / totalCompletedLevels).toFixed(2))
-          : 0;
-      const completionRate = totalLevels
-        ? Math.round((totalCompletedLevels / totalLevels) * 100)
+    // Calculate total levels and average time per level
+    const gameInfoWithCalculatedFields = (gameInfo || []).map((info: GameInfo) => {
+      const totalLevels = info.levels_completed?.length || 0;
+      const avgTimePerLevel = info.durations?.length
+        ? Math.round(info.durations.reduce((sum: number, time: number) => sum + time, 0) / info.durations.length)
         : 0;
-
-      return {
-        id: profile.id,
-        name: profile.name,
-        gamingData: {
-          levelsCompleted: totalCompletedLevels,
-          totalLevels,
-          avgTimePerLevel,
-          completionRate,
-          gamesPlayed,
-        },
-      };
+      return { ...info, total_levels: totalLevels, avg_time_per_level: avgTimePerLevel };
     });
 
-    return NextResponse.json({ users, success: true });
-  } catch (error: any) {
-    console.error('Gaming-data API error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    // Build response
+    return NextResponse.json({
+      profiles: profiles as Profile[],
+      activities: activities as Activity[],
+      gameTasks: gameTasks as GameTask[],
+      gameInfo: gameInfoWithCalculatedFields as GameInfo[],
+    });
+  } catch (error) {
+    console.error('Error fetching gaming data:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
-}
+});

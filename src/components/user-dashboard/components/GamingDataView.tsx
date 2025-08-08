@@ -27,7 +27,7 @@ export const GamingDataView = ({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/gaming-data');
+        const response = await fetch(`/api/gaming-data?userId=${selectedUserId}`);
         const result: GamingDataApiResponse = await response.json();
         if (result.success) {
           setUsersData(result.users);
