@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react';
 import { FaGithub } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
 
+import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -87,6 +88,32 @@ export default function SignUpPage() {
 
       if (authError) {
         throw new Error(authError.message || 'Failed to create account');
+      }
+      
+      if (_data?.user) {
+        // Map form role to the expected database role ('user' or 'admin')
+        const dbUserRole = values.role === 'team' ? 'user' : 'admin';
+
+        // Create a corresponding profile in Supabase
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            email: values.email,
+            name: values.fullName,
+            user_role: dbUserRole,
+          })
+          .select('id')
+          .single();
+
+        if (profileError) {
+          throw new Error(profileError.message || 'Failed to create user profile');
+        }
+
+        // Link the profile to the user account, bypassing strict type check for 'ba_users'
+        await supabase
+          .from('ba_users' as any)
+          .update({ profile_id: profileData.id })
+          .eq('id', _data.user.id);
       }
 
       setSuccess('Account created successfully! Please check your email to verify your account.');
