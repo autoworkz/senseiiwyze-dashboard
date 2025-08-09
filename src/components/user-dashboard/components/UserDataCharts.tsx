@@ -133,7 +133,7 @@ export const UserDataCharts = ({
     // Prepare data for skills pie chart using numerical skill labels (0, 1, 2, 3, 4)
     const skillsPieData = generateSkillsPieData(user)
     // Prepare data for program readiness bar chart
-    const programReadinessData = Object.entries(user.programReadiness).map(([program, value]) => ({
+    const programReadinessData = Object.entries(user.programReadiness || {}).map(([program, value]) => ({
         name: program,
         value,
         threshold: programThresholds[program as keyof typeof programThresholds] || 75,
@@ -141,7 +141,7 @@ export const UserDataCharts = ({
     }));
 
     // Prepare data for skill details
-    const skillDetailsData = Object.entries(user.skillDetails).flatMap(([skill, subskills]) => Object.entries(subskills).map(([subskill, value]) => ({
+    const skillDetailsData = Object.entries(user.skillDetails || {}).flatMap(([skill, subskills]) => Object.entries(subskills || {}).map(([subskill, value]) => ({
         name: `${skill}: ${subskill}`,
         value,
         category: skill
@@ -417,7 +417,7 @@ export const UserDataCharts = ({
                                         <Legend />
                                         <Bar dataKey="value" name="Proficiency" fill="#3b82f6">
                                             {skillDetailsData.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={COLORS[Object.keys(user.skillDetails).indexOf(entry.category) % COLORS.length]} />
+                                                <Cell key={`cell-${index}`} fill={COLORS[Object.keys(user.skillDetails || {}).indexOf(entry.category) % COLORS.length]} />
                                             ))}
                                         </Bar>
                                     </BarChart>
@@ -433,9 +433,9 @@ export const UserDataCharts = ({
                                 <ResponsiveContainer width="100%" height="100%">
                                     <PieChart>
                                         <Pie
-                                            data={Object.entries(user.skillDetails).map(([skill, subskills]) => ({
+                                            data={Object.entries(user.skillDetails || {}).map(([skill, subskills]) => ({
                                                 name: skill,
-                                                value: Object.values(subskills).reduce((sum, val) => sum + val, 0) / Object.values(subskills).length
+                                                value: Object.values(subskills || {}).reduce((sum, val) => sum + val, 0) / Object.values(subskills || {}).length
                                             }))}
                                             cx="50%"
                                             cy="50%"
@@ -445,7 +445,7 @@ export const UserDataCharts = ({
                                             fill="#8884d8"
                                             dataKey="value"
                                         >
-                                            {Object.keys(user.skillDetails).map((_, index) => (
+                                            {Object.keys(user.skillDetails || {}).map((_, index) => (
                                                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                             ))}
                                         </Pie>
