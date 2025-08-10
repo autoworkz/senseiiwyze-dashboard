@@ -16,7 +16,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { signOut, useSession } from '@/lib/auth-client'
+import { useSession, authClient } from '@/lib/auth-client'
+import { useRouter } from 'next/navigation'
 import {
   dashboardNavigation,
   isNavigationItemActive,
@@ -38,7 +39,7 @@ export function SlidingNavigation({ className, user: serverUser }: SlidingNaviga
   const pathname = usePathname()
   const { data: session } = useSession()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-
+  const router = useRouter()
   // Simplified refs - only what we need
   const navRef = useRef<HTMLDivElement>(null)
   const indicatorRef = useRef<HTMLDivElement>(null)
@@ -128,8 +129,14 @@ export function SlidingNavigation({ className, user: serverUser }: SlidingNaviga
     }
   }, [])
 
-  const handleSignOut = async () => {
-    await signOut()
+    const handleSignOut = async () => {
+    await authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          router.push("/auth/login"); // redirect to login page
+        },
+      },  
+    });
   }
 
   // Simplified navigation item renderer with Firegeo-inspired micro-interactions
