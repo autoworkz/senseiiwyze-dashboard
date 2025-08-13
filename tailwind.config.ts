@@ -55,9 +55,12 @@ const config: Config = {
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
       },
+      fontFamily: {
+        'yellow-cat': ['var(--font-yellow-cat)'],
+      },
     },
   },
   plugins: [],
 }
 
-export default config 
+export default config
