@@ -3,6 +3,13 @@
 @plugin "@tailwindcss/typography";
 @import "../styles/micro-interactions.css";
 
+@font-face {
+  font-family: "Yellow Cat";
+  src: url("/assets/fonts/Yellow Cat.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 /* Font variables */
@@ -42,6 +49,7 @@
   --font-sans: Poppins;
   --font-serif: serif;
   --font-mono: monospace;
+  --font-yellow-cat: "Yellow Cat";
   --radius: 0rem;
   --shadow-2xs: 0px 0px 0px 0px hsl(0 0% 0% / 0.00);
   --shadow-xs: 0px 0px 0px 0px hsl(0 0% 0% / 0.00);
