@@ -184,7 +184,7 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
 
           {/* Logo */}
           <Link href="/app" className="flex items-center gap-2">
-            <div className="relative w-8 h-8">
+            <div className="relative w-[150px] h-8">
               <Image
                 src="/assets/images/logo.jpeg"
                 alt="SenseiiWyze Logo"

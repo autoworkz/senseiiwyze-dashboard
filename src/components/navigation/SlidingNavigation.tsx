@@ -263,7 +263,7 @@ export function SlidingNavigation({ className, user: serverUser }: SlidingNaviga
                 'hover:scale-[1.02] active:scale-[0.98]',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:rounded-lg'
               )} href="/app" >
-                        <div className="relative w-8 h-8">
+                        <div className="relative w-[150px] h-8">
                           <Image
                             src="/assets/images/logo.jpeg"
                             alt="SenseiiWyze Logo"
