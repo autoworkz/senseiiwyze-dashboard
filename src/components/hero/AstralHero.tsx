@@ -103,7 +103,7 @@ const AstralHero = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
           >
-            <span className="block bg-gradient-to-br from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent">
+            <span className="block bg-gradient-to-br from-foreground via-foreground to-foreground/80 bg-clip-text text-custom-blue">
               Predict Training Success
             </span>
             <span className="block mt-2 bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent animate-gradient-x">

@@ -35,6 +35,10 @@ const config: Config = {
           DEFAULT: 'hsl(var(--accent))',
           foreground: 'hsl(var(--accent-foreground))',
         },
+        'custom-blue': {
+          DEFAULT: 'hsl(var(--custom-blue))',
+          foreground: 'hsl(var(--custom-blue-foreground))',
+        },
         destructive: {
           DEFAULT: 'hsl(var(--destructive))',
           foreground: 'hsl(var(--destructive-foreground))',
