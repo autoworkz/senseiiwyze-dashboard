@@ -1,5 +1,7 @@
 "use client"
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -85,6 +87,7 @@ export const UserTable = ({
   const [readinessFilter, setReadinessFilter] = useState('all');
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
   const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
+  const router = useRouter();
 
   // Handle data loading errors
   useEffect(() => {
@@ -443,16 +446,18 @@ export const UserTable = ({
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button 
-                          variant={user.overallReadiness >= 80 ? 'default' : 'secondary'} 
-                          size="sm" 
-                          onClick={(e: React.MouseEvent) => {
-                            e.stopPropagation();
-                            handleRowClick(user);
-                          }}
-                        >
-                          Individual Program Readiness Snapshot
-                        </Button>
+                        <Link href={`/user-dashboard/${user.id}/program-readiness`} passHref>
+                          <Button 
+                            variant={user.overallReadiness >= 80 ? 'default' : 'secondary'} 
+                            size="sm" 
+                            onClick={(e: React.MouseEvent) => {
+                              e.stopPropagation();
+                              router.push(`/user-dashboard/${user.id}/program-readiness`);
+                            }}
+                          >
+                            Individual Program Readiness Snapshot
+                          </Button>
+                        </Link>
                       </TableCell>
                     </TableRow>
                   );
