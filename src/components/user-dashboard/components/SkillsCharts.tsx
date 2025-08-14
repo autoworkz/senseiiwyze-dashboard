@@ -100,7 +100,7 @@ export const SkillsCharts = ({ user }: SkillsChartsProps) => {
                                 tick={{ fill: '#00098e' }}
                             />
                             <Radar
-                                name={user.name}
+                                name={"Skills"}
                                 dataKey="value"
                                 stroke="#3b82f6"
                                 fill="#3b82f6"
