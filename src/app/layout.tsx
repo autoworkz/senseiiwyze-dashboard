@@ -1,22 +1,21 @@
 // import { AutumnProvider } from 'autumn-js/react'
 import type { Metadata } from 'next'
-import { Roboto, Space_Grotesk } from 'next/font/google'
 import { ThemeProvider } from 'next-themes'
 import type React from 'react'
+import { Geist, Geist_Mono } from "next/font/google";
 // import { AutumnCustomerProvider } from '@/hooks/useAutumnCustomer'
 import './globals.css'
 
-const roboto = Roboto({
-  subsets: ['latin'],
-  weight: ['700'],
-  variable: '--display-family',
-})
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
 
-const space_grotesk = Space_Grotesk({
-  subsets: ['latin'],
-  weight: ['400'],
-  variable: '--text-family',
-})
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
 
 export const metadata: Metadata = {
   title: 'SenseiiWyze Dashboard',
@@ -33,7 +32,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${roboto.variable} ${space_grotesk.variable}`}
+      className={`${geistSans.variable} ${geistMono.variable}`}
     >
       <body className="min-h-screen bg-background font-sans antialiased">
         <ThemeProvider

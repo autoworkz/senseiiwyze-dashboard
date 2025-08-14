@@ -3,13 +3,6 @@
 @plugin "@tailwindcss/typography";
 @import "../styles/micro-interactions.css";
 
-@font-face {
-  font-family: "Yellow Cat";
-  src: url("/assets/fonts/Yellow Cat.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
 @custom-variant dark (&:is(.dark *));
 
 /* Font variables */
@@ -46,10 +39,6 @@
   --sidebar-accent-foreground: oklch(0.2991 0.1979 264.1793);
   --sidebar-border: oklch(0.9249 0 0);
   --sidebar-ring: oklch(0.2991 0.1979 264.1793);
-  --font-sans: Poppins;
-  --font-serif: serif;
-  --font-mono: monospace;
-  --font-yellow-cat: "Yellow Cat";
   --radius: 0rem;
   --shadow-2xs: 0px 0px 0px 0px hsl(0 0% 0% / 0.00);
   --shadow-xs: 0px 0px 0px 0px hsl(0 0% 0% / 0.00);
@@ -96,9 +85,6 @@
   --sidebar-accent-foreground: oklch(1.0000 0 0);
   --sidebar-border: oklch(0.3211 0 0);
   --sidebar-ring: oklch(0.2991 0.1979 264.1793);
-  --font-sans: Poppins;
-  --font-serif: serif;
-  --font-mono: monospace;
   --radius: 0rem;
   --shadow-2xs: 0px 0px 0px 0px hsl(0 0% 0% / 0.00);
   --shadow-xs: 0px 0px 0px 0px hsl(0 0% 0% / 0.00);
@@ -143,10 +129,6 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono);
-  --font-serif: var(--font-serif);
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
