@@ -88,7 +88,7 @@ export const UserTable = ({
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
   const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
   const router = useRouter();
-
+  console.log('Rendering UserTable with activeTab:', userData);
   // Handle data loading errors
   useEffect(() => {
     if (!data?.success) {
