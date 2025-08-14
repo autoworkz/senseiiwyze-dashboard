@@ -40,8 +40,8 @@ export function AnalyticsPanel({ user }: { user: UserData }) {
         <ResponsiveContainer width="100%" height={250}>
           <BarChart data={skillData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
+            <XAxis dataKey="name" tick={{ fill: '#00098e' }}/>
+            <YAxis tick={{ fill: '#00098e' }}/>
             <Tooltip />
             <Bar dataKey="value" fill="#8884d8" />
           </BarChart>

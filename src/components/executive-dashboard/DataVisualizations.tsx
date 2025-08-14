@@ -70,8 +70,8 @@ export const DataVisualizations = ({ data }: DataVisualizationsProps) => {
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={programReadiness}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis domain={[0, 100]} />
+            <XAxis dataKey="name" tick={{ fill: '#00098e' }}/>
+            <YAxis domain={[0, 100]} tick={{ fill: '#00098e' }}/>
             <Tooltip />
             <Legend />
             <Bar dataKey="readiness" fill="#82ca9d" name="Avg. Readiness" />

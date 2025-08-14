@@ -233,14 +233,33 @@ export const UserDataCharts = ({
                             </CardHeader>
                             <CardContent className="h-[350px]">
                                 <ResponsiveContainer width="100%" height="100%">
-                                    <RadarChart cx="50%" cy="50%" outerRadius="80%" data={skillsRadarData}>
-                                        <PolarGrid />
-                                        <PolarAngleAxis dataKey="subject" />
-                                        <PolarRadiusAxis angle={30} domain={[0, 100]} />
-                                        <Radar name={user.name} dataKey="value" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.6} />
-                                        <Tooltip />
-                                        <Legend />
-                                    </RadarChart>
+                                    <RadarChart
+  cx="50%"
+  cy="50%"
+  outerRadius="80%"
+  data={skillsRadarData}
+>
+  <PolarGrid />
+  <PolarAngleAxis dataKey="subject" tick={{ fill: '#00098e' }} />
+  <PolarRadiusAxis
+    angle={30}
+    domain={[0, 100]}
+    tick={{ fill: '#00098e' }}
+  />
+  <Radar
+    name={user.name}
+    dataKey="value"
+    stroke="#3b82f6"
+    fill="#3b82f6"
+    fillOpacity={0.6}
+  />
+  <Tooltip
+    contentStyle={{ color: '#00098e' }}
+    itemStyle={{ color: '#00098e' }}
+  />
+  <Legend wrapperStyle={{ color: '#00098e' }} />
+</RadarChart>
+
                                 </ResponsiveContainer>
                             </CardContent>
                         </Card>
