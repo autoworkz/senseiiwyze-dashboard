@@ -2,6 +2,7 @@
 
 import { ChevronDown, Menu, Sparkles, X } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { InteractiveButton } from '@/components/interactive'
@@ -183,10 +184,14 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
 
           {/* Logo */}
           <Link href="/app" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">S</span>
+            <div className="relative w-8 h-8">
+              <Image
+                src="/assets/images/logo.jpeg"
+                alt="SenseiiWyze Logo"
+                fill
+                className="object-contain rounded-lg"
+              />
             </div>
-            <span className="font-semibold text-lg hidden sm:inline">SenseiiWyze</span>
           </Link>
 
           {/* Desktop Navigation */}

@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import Image from 'next/image'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -256,24 +257,21 @@ export function SlidingNavigation({ className, user: serverUser }: SlidingNaviga
             </Button>
 
             {/* Logo with enhanced micro-interactions */}
-            <Link
-              href="/app"
-              className={cn(
+             <Link className={cn(
                 'nav-logo flex items-center gap-2 group',
                 'transition-all duration-200 ease-out',
                 'hover:scale-[1.02] active:scale-[0.98]',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:rounded-lg'
-              )}
-            >
-              <div className="nav-logo-icon w-8 h-8 rounded-lg bg-primary flex items-center justify-center transition-all duration-200 ease-out group-hover:shadow-lg group-hover:shadow-primary/25">
-                <span className="text-primary-foreground font-bold text-sm transition-transform duration-200 ease-out group-hover:scale-110">
-                  S
-                </span>
-              </div>
-              <span className="font-semibold text-lg hidden sm:inline transition-colors duration-200 ease-out group-hover:text-primary">
-                SenseiiWyze
-              </span>
-            </Link>
+              )} href="/app" >
+                        <div className="relative w-8 h-8">
+                          <Image
+                            src="/assets/images/logo.jpeg"
+                            alt="SenseiiWyze Logo"
+                            fill
+                            className="object-contain rounded-lg"
+                          />
+                        </div>
+                      </Link>
 
             {/* Desktop Navigation with simplified mouse tracking */}
             <nav
