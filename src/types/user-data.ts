@@ -17,4 +17,5 @@ export interface UserData {
         readiness: number;
     };
     skillDetails: Record<string, Record<string, number>>;
+    initials: string;
 }

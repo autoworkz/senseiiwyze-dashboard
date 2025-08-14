@@ -7,28 +7,8 @@ import { AnalyticsPanel } from '@/components/program-readiness-dashboard/compone
 import { AdminActions } from '@/components/program-readiness-dashboard/components/AdminActions'
 import { ProgramReadinessAssessment } from '@/components/program-readiness-dashboard/components/ProgramReadinessAssessment'
 import { SkillBubbleChart } from '@/components/program-readiness-dashboard/components/SkillBubbleChart'
-
-interface UserData {
-  id: string
-  name: string
-  role: string
-  level: number
-  skills: {
-    vision: number
-    grit: number
-    logic: number
-    algorithm: number
-    problemSolving: number
-  }
-  overallReadiness: number
-  programReadiness: Record<string, number>
-  bestProgram: {
-    name: string
-    readiness: number
-  }
-  skillDetails: Record<string, Record<string, number>>
-  initials: string
-}
+import { SkillsCharts } from '@/components/user-dashboard/components/SkillsCharts'
+import { UserData } from '@/types/user-data'
 
 interface DashboardData {
   user: UserData
@@ -93,6 +73,7 @@ export function ProgramReadinessView({ userId }: { userId: string }) {
                     <AnalyticsPanel user={dashboardData.user} />
                 </div>
             </div>
+            <SkillsCharts user={dashboardData.user} />
             <SkillBubbleChart user={dashboardData.user} />
             <ProgramReadinessAssessment 
               user={dashboardData.user} 

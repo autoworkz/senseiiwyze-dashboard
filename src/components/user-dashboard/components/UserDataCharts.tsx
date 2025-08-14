@@ -54,52 +54,7 @@ export const UserDataCharts = ({
     selectedUserId,
     onUserSelection
 }: UserDataChartsProps) => {
-    const [chartType, setChartType] = useState('skills');
-    const generateSkillsPieData = (user: UserData) => {
-        const originalSkills: any = {
-            'Leadership': user.skills.vision,
-            'Creativity': user.skills.grit,
-            'Emotional Intelligence': user.skills.logic,
-            'Technical': user.skills.algorithm,
-            'Problem Solving': user.skills.problemSolving
-        };
-
-        const skillNames = Object.keys(originalSkills);
-        const skillValues = Object.values(originalSkills);
-        const total: any = skillValues.reduce((sum: any, val: any) => sum + val, 0);
-
-        // Choose a random deduction amount between 5 and 15 (or max 25% of total)
-        const minDeduct = 5;
-        const maxDeduct = Math.min(15, total * 0.25);
-        const targetDeduct = parseFloat(
-            (Math.random() * (maxDeduct - minDeduct) + minDeduct).toFixed(2)
-        );
-
-        let remaining = targetDeduct;
-
-        // Generate small random deduction from each skill so the total adds up to targetDeduct
-        const deductions = skillNames.map((skill, index) => {
-            const maxPossible = Math.min(originalSkills[skill] * 0.3, remaining);
-            const isLast = index === skillNames.length - 1;
-            const deduct = isLast ? remaining : parseFloat((Math.random() * maxPossible).toFixed(2));
-            remaining -= deduct;
-            return deduct;
-        });
-
-        // Build final pie data
-        const skillsPieData = skillNames.map((skill, i) => ({
-            name: skill,
-            value: parseFloat((originalSkills[skill] - deductions[i]).toFixed(2))
-        }));
-
-        // Add Communications as the total deducted amount
-        skillsPieData.push({
-            name: 'Communication',
-            value: parseFloat(targetDeduct.toFixed(2))
-        });
-
-        return skillsPieData;
-    }
+    const [chartType, setChartType] = useState('programs');
     // Set initial selected user when data loads
     useEffect(() => {
         if (data.length > 0 && !selectedUserId) {
@@ -111,27 +66,6 @@ export const UserDataCharts = ({
 
     // Map user skills to predefined structure for pie chart only
     const mappedSkills = mapUserSkillsToPredefinedSkills(user.skills);
-
-    // Prepare data for skills radar chart using original user skill names
-    const skillsRadarData = [{
-        subject: 'Vision',
-        value: user.skills.vision
-    }, {
-        subject: 'Grit',
-        value: user.skills.grit
-    }, {
-        subject: 'Logic',
-        value: user.skills.logic
-    }, {
-        subject: 'Algorithm',
-        value: user.skills.algorithm
-    }, {
-        subject: 'Problem Solving',
-        value: user.skills.problemSolving
-    }];
-
-    // Prepare data for skills pie chart using numerical skill labels (0, 1, 2, 3, 4)
-    const skillsPieData = generateSkillsPieData(user)
     // Prepare data for program readiness bar chart
     const programReadinessData = Object.entries(user.programReadiness || {}).map(([program, value]) => ({
         name: program,
@@ -208,9 +142,6 @@ export const UserDataCharts = ({
                 </Select> */}
                 <Tabs value={chartType} className="w-full sm:w-auto">
                     <TabsList>
-                        <TabsTrigger value="skills" onClick={() => setChartType('skills')}>
-                            Skills
-                        </TabsTrigger>
                         <TabsTrigger value="programs" onClick={() => setChartType('programs')}>
                             Programs
                         </TabsTrigger>
@@ -225,75 +156,6 @@ export const UserDataCharts = ({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {chartType === 'skills' && (
-                    <>
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="text-lg">Core Skills</CardTitle>
-                            </CardHeader>
-                            <CardContent className="h-[350px]">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <RadarChart
-  cx="50%"
-  cy="50%"
-  outerRadius="80%"
-  data={skillsRadarData}
->
-  <PolarGrid />
-  <PolarAngleAxis dataKey="subject" tick={{ fill: '#00098e' }} />
-  <PolarRadiusAxis
-    angle={30}
-    domain={[0, 100]}
-    tick={{ fill: '#00098e' }}
-  />
-  <Radar
-    name={user.name}
-    dataKey="value"
-    stroke="#3b82f6"
-    fill="#3b82f6"
-    fillOpacity={0.6}
-  />
-  <Tooltip
-    contentStyle={{ color: '#00098e' }}
-    itemStyle={{ color: '#00098e' }}
-  />
-  <Legend wrapperStyle={{ color: '#00098e' }} />
-</RadarChart>
-
-                                </ResponsiveContainer>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="text-lg">Skills Distribution</CardTitle>
-                            </CardHeader>
-                            <CardContent className="h-[350px]">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <PieChart>
-                                        <Pie
-                                            data={skillsPieData}
-                                            cx="50%"
-                                            cy="50%"
-                                            labelLine={false}
-                                            label={({ name, percent }) => `${name} ${(percent ? (percent * 100).toFixed(0) : 0)}%`}
-                                            outerRadius={80}
-                                            fill="#8884d8"
-                                            dataKey="value"
-                                        >
-                                            {skillsPieData.map((entry: any, index: number) => (
-                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                            ))}
-                                        </Pie>
-                                        <Tooltip />
-                                        <Legend />
-                                    </PieChart>
-                                </ResponsiveContainer>
-                            </CardContent>
-                        </Card>
-                    </>
-                )}
-
                 {chartType === 'programs' && (
                     <>
                         <Card>
@@ -502,27 +364,6 @@ export const UserDataCharts = ({
                                         <Bar dataKey={user.name} fill="#3b82f6" />
                                         <Bar dataKey="average" fill="#ef4444" />
                                     </BarChart>
-                                </ResponsiveContainer>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="text-lg">
-                                    Skill Radar Comparison
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="h-[350px]">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <RadarChart cx="50%" cy="50%" outerRadius="80%" data={skillsRadarData}>
-                                        <PolarGrid />
-                                        <PolarAngleAxis dataKey="subject" />
-                                        <PolarRadiusAxis angle={30} domain={[0, 100]} />
-                                        <Radar name={user.name} dataKey="value" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.6} />
-                                        <Radar name="Average" dataKey={() => 75} stroke="#ef4444" fill="#ef4444" fillOpacity={0.6} />
-                                        <Tooltip />
-                                        <Legend />
-                                    </RadarChart>
                                 </ResponsiveContainer>
                             </CardContent>
                         </Card>
