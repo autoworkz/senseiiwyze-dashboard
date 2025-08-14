@@ -8,6 +8,7 @@ import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
+import Link from 'next/link'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -212,6 +213,14 @@ export function UserTable({
                                             <User className="h-4 w-4" />
                                             View Profile
                                         </DropdownMenuItem>
+                                        <DropdownMenuItem>
+                                            <Link href={`/user-dashboard/${learner.id}/program-readiness`} passHref>
+                                                <a className="flex items-center gap-2 w-full">
+                                                    <BookOpen className="h-4 w-4" />
+                                                    Individual Program Readiness Snapshot
+                                                </a>
+                                            </Link>
+                                        </DropdownMenuItem>
                                         <DropdownMenuSeparator />
                                         <DropdownMenuItem className="flex items-center gap-2">
                                             <Calendar className="h-4 w-4" />
@@ -234,4 +243,4 @@ export function UserTable({
             </TableBody>
         </Table>
     )
-} 
+}
