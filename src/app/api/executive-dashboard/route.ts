@@ -254,6 +254,7 @@ async function getExecutiveDashboardData(): Promise<DashboardData> {
         gamingData,
         visionBoard,
         personalityExam,
+        userId: profile.id,
       }
     })
 
