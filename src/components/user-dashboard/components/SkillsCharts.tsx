@@ -77,6 +77,16 @@ export const SkillsCharts = ({ user }: SkillsChartsProps) => {
 
     // Prepare data for skills pie chart
     const skillsPieData = generateSkillsPieData(user);
+    const pieDataForChart = skillsPieData.map(d =>
+        d.name === 'Emotional Intelligence'
+            ? { ...d, name: 'EI' }
+            : d
+    );
+
+    const legendFormatter = (value: string) => {
+        if (value === 'EI') return 'EI (Emotional Intelligence)';
+        return value;
+    };
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -122,9 +132,9 @@ export const SkillsCharts = ({ user }: SkillsChartsProps) => {
                 </CardHeader>
                 <CardContent className="h-[350px]">
                     <ResponsiveContainer width="100%" height="100%">
-                          <PieChart>
+                        <PieChart>
                             <Pie
-                                data={skillsPieData}
+                                data={pieDataForChart}
                                 cx="50%"
                                 cy="50%"
                                 labelLine={false}
@@ -138,7 +148,7 @@ export const SkillsCharts = ({ user }: SkillsChartsProps) => {
                                 ))}
                             </Pie>
                             <Tooltip />
-                            <Legend />
+                            <Legend formatter={legendFormatter} />
                         </PieChart>
                     </ResponsiveContainer>
                 </CardContent>
