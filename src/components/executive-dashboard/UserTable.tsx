@@ -443,7 +443,7 @@ export const UserTable = ({
                         </div>
                       </TableCell> */}
                       <TableCell className="text-right">
-                        <Link href={`/user-dashboard/${user.userId}/program-readiness`} passHref>
+                        <Link className='flex justify-end' href={`/user-dashboard/${user.userId}/program-readiness`} passHref>
                           <Eye className="w-4 h-4" />
                         </Link>
                       </TableCell>
