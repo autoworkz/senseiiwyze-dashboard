@@ -94,8 +94,8 @@ export const DataVisualizations = ({ data }: DataVisualizationsProps) => {
             <YAxis domain={[0, 100]} tick={{ fill: '#00098e' }} />
             <Tooltip />
             <Legend />
-            <Bar dataKey="readiness" fill="#82ca9d" name="Avg. Readiness" />
-            <Bar dataKey="threshold" fill="#8884d8" name="Required Threshold" />
+            <Bar dataKey="readiness" fill="#FFFF00" name="Avg. Readiness" />
+            <Bar dataKey="threshold" fill="#640080" name="Required Threshold" />
           </BarChart>
         </ResponsiveContainer>
       </CardContent>
