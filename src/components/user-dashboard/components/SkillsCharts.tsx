@@ -122,8 +122,7 @@ export const SkillsCharts = ({ user }: SkillsChartsProps) => {
                 </CardHeader>
                 <CardContent className="h-[350px]">
                     <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                            <PieChart>
+                          <PieChart>
                             <Pie
                                 data={skillsPieData}
                                 cx="50%"
@@ -138,9 +137,6 @@ export const SkillsCharts = ({ user }: SkillsChartsProps) => {
                                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                 ))}
                             </Pie>
-                            <Tooltip />
-                            <Legend />
-                        </PieChart>
                             <Tooltip />
                             <Legend />
                         </PieChart>
