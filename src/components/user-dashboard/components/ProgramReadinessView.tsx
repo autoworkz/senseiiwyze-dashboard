@@ -88,7 +88,7 @@ export function ProgramReadinessView({ userId }: { userId: string }) {
             />
             {/* <AdminActions /> */}
             <Card className="bg-gray-50 border-gray-200 hover:bg-gray-100 transition-colors">
-                <Link href={`/user-dashboard/${userId}/data`} passHref>
+                <Link href={`/app/users/${userId}/data`} passHref>
                     <CardContent className="p-4 text-center flex items-center justify-center cursor-pointer">
                         <Eye className="w-5 h-5 mr-2 text-gray-600" />
                         <h3 className="text-md font-semibold text-gray-800">USER ANALYSIS DEVELOPED FROM THIS DATA</h3>

@@ -12,6 +12,6 @@ export default function ProgramReadinessPage() {
     }
 
     return <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8">
-        <ProgramReadinessView userId={userId} />;
+        <ProgramReadinessView userId={userId} />
         </div>
 }
