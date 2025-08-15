@@ -447,14 +447,10 @@ export const UserTable = ({
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
-                        <Link href={`/user-dashboard/${user.id}/program-readiness`} passHref>
+                        <Link href={`/user-dashboard/${user.userId}/program-readiness`} passHref>
                           <Button 
                             variant={user.overallReadiness >= 80 ? 'default' : 'secondary'} 
                             size="sm" 
-                            onClick={(e: React.MouseEvent) => {
-                              e.stopPropagation();
-                              router.push(`/user-dashboard/${user.userId}/program-readiness`);
-                            }}
                           >
                             Individual Program Readiness Snapshot
                           </Button>
