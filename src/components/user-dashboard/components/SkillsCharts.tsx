@@ -8,7 +8,7 @@ interface SkillsChartsProps {
     user: UserData;
 }
 
-const COLORS = ['#3b82f6', '#ef4444', '#10b981', '#8b5cf6', '#f59e0b', '#ec4899'];
+const COLORS = ['#FF00FF', '#FFFF00', '#800080', '#0000FF', '#FF0000', '#008000'];
 
 const generateSkillsPieData = (user: UserData) => {
     const originalSkills: any = {
@@ -128,7 +128,18 @@ export const SkillsCharts = ({ user }: SkillsChartsProps) => {
                                 cx="50%"
                                 cy="50%"
                                 labelLine={false}
-                                label={({ name, percent }) => `${name} ${(percent ? (percent * 100).toFixed(0) : 0)}%`}
+                                label={({ name, percent }) => {
+                                    if (name === 'Emotional Intelligence') {
+                                        return (
+                                            <text x={0} y={0} dy={8} textAnchor="middle" fill="#666">
+                                                <tspan x={0} dy="-0.6em">Emotional</tspan>
+                                                <tspan x={0} dy="1.2em">Intelligence</tspan>
+                                                <tspan x={0} dy="1.2em">{`${(percent ? (percent * 100).toFixed(0) : 0)}%`}</tspan>
+                                            </text>
+                                        );
+                                    }
+                                    return `${name} ${(percent ? (percent * 100).toFixed(0) : 0)}%`;
+                                }}
                                 outerRadius={80}
                                 fill="#8884d8"
                                 dataKey="value"
