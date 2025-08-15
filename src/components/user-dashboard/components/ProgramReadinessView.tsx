@@ -12,11 +12,12 @@ import { UserData } from '@/types/user-data'
 import { Card, CardContent } from '@/components/ui/card'
 import { Eye } from 'lucide-react'
 import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 interface DashboardData {
-  user: UserData
-  programRequirements: Record<string, Record<string, number>>
-  programCoverUrls: Record<string, string | null>
-  success: boolean
+    user: UserData
+    programRequirements: Record<string, Record<string, number>>
+    programCoverUrls: Record<string, string | null>
+    success: boolean
 }
 
 export function ProgramReadinessView({ userId }: { userId: string }) {
@@ -27,7 +28,7 @@ export function ProgramReadinessView({ userId }: { userId: string }) {
         const fetchData = async () => {
             try {
                 const response = await fetch(`/api/program-readiness-dashboard?userId=${userId}`)
-                const result:any = await response.json()
+                const result: any = await response.json()
                 setDashboardData(result)
             } catch (error) {
                 console.error('Failed to fetch dashboard data:', error)
@@ -77,24 +78,22 @@ export function ProgramReadinessView({ userId }: { userId: string }) {
             </div>
             <SkillsCharts user={dashboardData.user} />
             <SkillBubbleChart user={dashboardData.user} />
-            <ProgramReadinessAssessment 
-              user={dashboardData.user} 
-              programRequirements={dashboardData.programRequirements}
-              programCoverUrls={dashboardData.programCoverUrls}
+            <ProgramReadinessAssessment
+                user={dashboardData.user}
+                programRequirements={dashboardData.programRequirements}
+                programCoverUrls={dashboardData.programCoverUrls}
             />
-            <TrainingTable 
-              user={dashboardData.user}
-              programRequirements={dashboardData.programRequirements}
+            <TrainingTable
+                user={dashboardData.user}
+                programRequirements={dashboardData.programRequirements}
             />
             {/* <AdminActions /> */}
-            <Card className="bg-gray-50 border-gray-200 hover:bg-gray-100 transition-colors">
-                <Link href={`/app/users/${userId}/data`} passHref>
-                    <CardContent className="p-4 text-center flex items-center justify-center cursor-pointer">
-                        <Eye className="w-5 h-5 mr-2 text-gray-600" />
-                        <h3 className="text-md font-semibold text-gray-800">USER ANALYSIS DEVELOPED FROM THIS DATA</h3>
-                    </CardContent>
-                </Link>
-            </Card>
+            <Link href={`/app/users/${userId}/data`} passHref>
+                <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white flex items-center justify-center">
+                    <Eye className="w-5 h-5 mr-2 text-white" />
+                    <h3 className="text-md font-semibold text-white">User Analysis Developed From This Data</h3>
+                </Button>
+            </Link>
         </div>
     )
 }
