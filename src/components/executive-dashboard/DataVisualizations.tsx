@@ -32,7 +32,7 @@ export const DataVisualizations = ({ data }: DataVisualizationsProps) => {
 
     if (lowerBound >= 86) return '#008006'; // Bright Green
     if (lowerBound >= 75) return '#640080'; // Purple
-    if (lowerBound >= 66) return '#FFFF00'; // Yellow
+    if (lowerBound >= 66) return '#FFC000'; // Yellow
     if (lowerBound >= 51) return '#FF6600'; // Orange
     return '#FF0000'; // Red
   };
@@ -94,7 +94,7 @@ export const DataVisualizations = ({ data }: DataVisualizationsProps) => {
             <YAxis domain={[0, 100]} tick={{ fill: '#00098e' }} />
             <Tooltip />
             <Legend />
-            <Bar dataKey="readiness" fill="#FFFF00" name="Avg. Readiness" />
+            <Bar dataKey="readiness" fill="#FFC000" name="Avg. Readiness" />
             <Bar dataKey="threshold" fill="#640080" name="Required Threshold" />
           </BarChart>
         </ResponsiveContainer>

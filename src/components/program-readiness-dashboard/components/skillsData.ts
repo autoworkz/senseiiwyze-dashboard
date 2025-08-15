@@ -294,7 +294,7 @@ export const skills: Skill[] = [{
   id: 'creativity',
   name: 'Creativity',
   category: 'Cognitive Skills',
-  color: '#FFFF00',
+  color: '#FFC000',
   // amber
   proficiency: 68,
   required: {
