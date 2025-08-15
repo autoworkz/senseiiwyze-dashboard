@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import { Header } from '@/components/program-readiness-dashboard/components/Header'
 import { UserProfileCard } from '@/components/program-readiness-dashboard/components/UserProfileCard'
-import { TrainingTable } from '@/components/program-readiness-dashboard/components/TrainingTable'
+// import { TrainingTable } from '@/components/program-readiness-dashboard/components/TrainingTable'
 import { AnalyticsPanel } from '@/components/program-readiness-dashboard/components/AnalyticsPanel'
 import { AdminActions } from '@/components/program-readiness-dashboard/components/AdminActions'
 import { ProgramReadinessAssessment } from '@/components/program-readiness-dashboard/components/ProgramReadinessAssessment'
@@ -83,10 +83,10 @@ export function ProgramReadinessView({ userId }: { userId: string }) {
                 programRequirements={dashboardData.programRequirements}
                 programCoverUrls={dashboardData.programCoverUrls}
             />
-            <TrainingTable
+            {/* <TrainingTable
                 user={dashboardData.user}
                 programRequirements={dashboardData.programRequirements}
-            />
+            /> */}
             {/* <AdminActions /> */}
             <Link href={`/app/users/${userId}/`} passHref>
                 <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white flex items-center justify-center">
