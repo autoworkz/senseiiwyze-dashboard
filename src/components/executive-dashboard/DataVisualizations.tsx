@@ -1,6 +1,6 @@
 "use client"
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Cell } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface DashboardData {
@@ -22,6 +22,18 @@ interface DataVisualizationsProps {
 
 export const DataVisualizations = ({ data }: DataVisualizationsProps) => {
   const { readinessRanges, avgSkills, programReadiness } = data
+
+  const getReadinessColor = (range: string) => {
+    const rangeMap: { [key: string]: string } = {
+      '86-100': '#008006', // Bright Green
+      '75-85': '#640080',  // Purple
+      '66-75': '#FFFF00',  // Yellow
+      '51-65': '#FF6600',  // Orange
+      '0-50': '#FF0000',   // Red
+    };
+    return rangeMap[range] || '#8884d8'; // Default color
+  };
+
   return <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
     <Card>
       <CardHeader>
@@ -35,7 +47,11 @@ export const DataVisualizations = ({ data }: DataVisualizationsProps) => {
             <YAxis tick={{ fill: '#00098e' }} />
             <Tooltip />
             <Legend />
-            <Bar dataKey="count" fill="#8884d8" name="Users" />
+            <Bar dataKey="count" name="Users">
+              {readinessRanges.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={getReadinessColor(entry.name)} />
+              ))}
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       </CardContent>
