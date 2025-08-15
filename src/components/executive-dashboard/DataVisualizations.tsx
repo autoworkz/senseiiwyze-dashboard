@@ -24,15 +24,19 @@ export const DataVisualizations = ({ data }: DataVisualizationsProps) => {
   const { readinessRanges, avgSkills, programReadiness } = data
 
   const getReadinessColor = (range: string) => {
-    const rangeMap: { [key: string]: string } = {
-      '86-100': '#008006', // Bright Green
-      '75-85': '#640080',  // Purple
-      '66-75': '#FFFF00',  // Yellow
-      '51-65': '#FF6600',  // Orange
-      '0-50': '#FF0000',   // Red
-    };
-    return rangeMap[range] || '#8884d8'; // Default color
+    // Extract numbers from the name string (handles cases like "86% - 100%")
+    const match = range.match(/\d+/g);
+    if (!match) return '#8884d8';
+
+    const lowerBound = parseInt(match[0], 10); // first number in the string
+
+    if (lowerBound >= 86) return '#008006'; // Bright Green
+    if (lowerBound >= 75) return '#640080'; // Purple
+    if (lowerBound >= 66) return '#FFFF00'; // Yellow
+    if (lowerBound >= 51) return '#FF6600'; // Orange
+    return '#FF0000'; // Red
   };
+
 
   return <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
     <Card>
@@ -86,8 +90,8 @@ export const DataVisualizations = ({ data }: DataVisualizationsProps) => {
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={programReadiness}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" tick={{ fill: '#00098e' }}/>
-            <YAxis domain={[0, 100]} tick={{ fill: '#00098e' }}/>
+            <XAxis dataKey="name" tick={{ fill: '#00098e' }} />
+            <YAxis domain={[0, 100]} tick={{ fill: '#00098e' }} />
             <Tooltip />
             <Legend />
             <Bar dataKey="readiness" fill="#82ca9d" name="Avg. Readiness" />
