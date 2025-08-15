@@ -119,11 +119,11 @@ export const UserTable = ({
       readiness: 0,
       meetsThreshold: false
     };
-    
+
     for (const program of programs) {
       const readiness = user.programReadiness[program];
       const threshold = 70; // Default threshold
-      
+
       // If this is the first program or it has higher readiness than current best
       if (!bestProgram.name || readiness > bestProgram.readiness) {
         bestProgram = {
@@ -153,16 +153,16 @@ export const UserTable = ({
     if (activeTab === 'coaching' && user.overallReadiness >= 75) {
       return false;
     }
-    
+
     // Search filter
-    const matchesSearch = searchQuery === '' || 
-      user.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      user.role.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    const matchesSearch = searchQuery === '' ||
+      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.id.toString().includes(searchQuery);
-    
+
     // Role filter
     const matchesRole = roleFilter === 'all' || user.role.toLowerCase().includes(roleFilter.toLowerCase());
-    
+
     // Readiness filter
     let matchesReadiness = true;
     if (readinessFilter === 'high') {
@@ -172,7 +172,7 @@ export const UserTable = ({
     } else if (readinessFilter === 'low') {
       matchesReadiness = user.overallReadiness < 65;
     }
-    
+
     return matchesSearch && matchesRole && matchesReadiness;
   });
 
@@ -213,7 +213,7 @@ export const UserTable = ({
   const renderPageNumbers = () => {
     const pageNumbers = [];
     const maxPagesToShow = 5;
-    
+
     if (totalPages <= maxPagesToShow) {
       // Show all pages if there are fewer than maxPagesToShow
       for (let i = 1; i <= totalPages; i++) {
@@ -234,18 +234,18 @@ export const UserTable = ({
           </PaginationLink>
         </PaginationItem>
       );
-      
+
       // Calculate start and end of the middle section
       let startPage = Math.max(2, currentPage - 1);
       let endPage = Math.min(totalPages - 1, currentPage + 1);
-      
+
       // Adjust if we're near the beginning or end
       if (currentPage <= 3) {
         endPage = Math.min(4, totalPages - 1);
       } else if (currentPage >= totalPages - 2) {
         startPage = Math.max(totalPages - 3, 2);
       }
-      
+
       // Add ellipsis if needed at the beginning
       if (startPage > 2) {
         pageNumbers.push(
@@ -254,7 +254,7 @@ export const UserTable = ({
           </PaginationItem>
         );
       }
-      
+
       // Add middle pages
       for (let i = startPage; i <= endPage; i++) {
         pageNumbers.push(
@@ -265,7 +265,7 @@ export const UserTable = ({
           </PaginationItem>
         );
       }
-      
+
       // Add ellipsis if needed at the end
       if (endPage < totalPages - 1) {
         pageNumbers.push(
@@ -274,7 +274,7 @@ export const UserTable = ({
           </PaginationItem>
         );
       }
-      
+
       // Always show last page
       pageNumbers.push(
         <PaginationItem key={totalPages}>
@@ -315,11 +315,11 @@ export const UserTable = ({
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="relative w-full sm:w-72">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input 
-            placeholder="Search users..." 
-            className="pl-8" 
-            value={searchQuery} 
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)} 
+          <Input
+            placeholder="Search users..."
+            className="pl-8"
+            value={searchQuery}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
           />
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -369,17 +369,17 @@ export const UserTable = ({
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[40px]">
-                    <input 
-                      type="checkbox" 
-                      className="h-4 w-4 rounded border-gray-300" 
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 rounded border-gray-300"
                       onChange={e => {
                         if (e.target.checked) {
                           setSelectedUserIds(currentItems.map(user => user.id));
                         } else {
                           setSelectedUserIds([]);
                         }
-                      }} 
-                      checked={currentItems.length > 0 && currentItems.every(user => selectedUserIds.includes(user.id))} 
+                      }}
+                      checked={currentItems.length > 0 && currentItems.every(user => selectedUserIds.includes(user.id))}
                     />
                   </TableHead>
                   <TableHead className="cursor-pointer" onClick={() => handleSort('id')}>
@@ -398,24 +398,24 @@ export const UserTable = ({
                 {currentItems.length > 0 ? currentItems.map(user => {
                   const bestProgram = getBestProgram(user);
                   return (
-                    <TableRow 
-                      key={user.id} 
+                    <TableRow
+                      key={user.id}
                       className={`hover:bg-muted ${selectedUserIds.includes(user.id) ? 'bg-accent/40' : ''}`}
                     >
                       <TableCell>
-                                                 <input 
-                           type="checkbox" 
-                           className="h-4 w-4 rounded border-gray-300" 
-                           checked={selectedUserIds.includes(user.id)} 
-                           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                             e.stopPropagation();
-                             toggleUserSelection(user.id, false);
-                           }} 
-                           onClick={(e: React.MouseEvent<HTMLInputElement>) => {
-                             e.stopPropagation();
-                             toggleUserSelection(user.id, e.shiftKey);
-                           }} 
-                         />
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4 rounded border-gray-300"
+                          checked={selectedUserIds.includes(user.id)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            e.stopPropagation();
+                            toggleUserSelection(user.id, false);
+                          }}
+                          onClick={(e: React.MouseEvent<HTMLInputElement>) => {
+                            e.stopPropagation();
+                            toggleUserSelection(user.id, e.shiftKey);
+                          }}
+                        />
                       </TableCell>
                       <TableCell>{user.id}</TableCell>
                       <TableCell className="font-medium cursor-pointer" onClick={() => handleRowClick(user)}>
@@ -444,12 +444,7 @@ export const UserTable = ({
                       </TableCell> */}
                       <TableCell className="text-right">
                         <Link href={`/user-dashboard/${user.userId}/program-readiness`} passHref>
-                          <Button 
-                            variant={user.overallReadiness >= 80 ? 'default' : 'secondary'} 
-                            size="sm" 
-                          >
-                            <Eye className="w-8 h-8 cursor-pointer" />
-                          </Button>
+                          <Eye className="w-4 h-4" />
                         </Link>
                       </TableCell>
                     </TableRow>
@@ -464,7 +459,7 @@ export const UserTable = ({
               </TableBody>
             </Table>
           </div>
-          
+
           {/* Pagination Controls */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4">
             <div className="flex items-center gap-2">
@@ -480,10 +475,10 @@ export const UserTable = ({
                 <label htmlFor="itemsPerPage" className="text-sm text-muted-foreground">
                   Show:
                 </label>
-                <select 
-                  id="itemsPerPage" 
-                  value={itemsPerPage} 
-                  onChange={handleItemsPerPageChange} 
+                <select
+                  id="itemsPerPage"
+                  value={itemsPerPage}
+                  onChange={handleItemsPerPageChange}
                   className="h-8 rounded-md border border-input bg-background px-2 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   <option value="5">5</option>
@@ -497,11 +492,11 @@ export const UserTable = ({
               <Pagination>
                 <PaginationContent>
                   <PaginationItem>
-                    <Button 
-                      variant="outline" 
-                      size="icon" 
-                      onClick={() => goToPage(1)} 
-                      disabled={currentPage === 1} 
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => goToPage(1)}
+                      disabled={currentPage === 1}
                       className="h-8 w-8"
                     >
                       <ChevronsLeft className="h-4 w-4" />
@@ -509,24 +504,24 @@ export const UserTable = ({
                     </Button>
                   </PaginationItem>
                   <PaginationItem>
-                    <PaginationPrevious 
-                      onClick={() => goToPage(currentPage - 1)} 
-                      className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''} 
+                    <PaginationPrevious
+                      onClick={() => goToPage(currentPage - 1)}
+                      className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
                     />
                   </PaginationItem>
                   {renderPageNumbers()}
                   <PaginationItem>
-                    <PaginationNext 
-                      onClick={() => goToPage(currentPage + 1)} 
-                      className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''} 
+                    <PaginationNext
+                      onClick={() => goToPage(currentPage + 1)}
+                      className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
                     />
                   </PaginationItem>
                   <PaginationItem>
-                    <Button 
-                      variant="outline" 
-                      size="icon" 
-                      onClick={() => goToPage(totalPages)} 
-                      disabled={currentPage === totalPages} 
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => goToPage(totalPages)}
+                      disabled={currentPage === totalPages}
                       className="h-8 w-8"
                     >
                       <ChevronsRight className="h-4 w-4" />

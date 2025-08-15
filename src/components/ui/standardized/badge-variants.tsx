@@ -64,7 +64,7 @@ export function StatusBadge({ status }: { status: 'active' | 'inactive' | 'pendi
 
 export function RoleBadge({ role }: { role: string }) {
   return (
-    <StandardBadge variant="outline" size="md" className="capitalize">
+    <StandardBadge variant="default" size="md" className="capitalize">
       {role}
     </StandardBadge>
   )

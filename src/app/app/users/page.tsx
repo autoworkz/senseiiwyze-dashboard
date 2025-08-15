@@ -262,7 +262,7 @@ export default function UsersPage() {
                   </div>
                 </div>
                 <div className="col-span-2 flex items-center">
-                  <RoleBadge role={user.role} />
+                  <RoleBadge role={user.role}/>
                 </div>
                 <div className="col-span-2 flex items-center">
                   <StatusBadge status={user.status} />
