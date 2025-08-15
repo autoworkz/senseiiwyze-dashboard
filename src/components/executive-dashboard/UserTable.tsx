@@ -448,7 +448,7 @@ export const UserTable = ({
                             variant={user.overallReadiness >= 80 ? 'default' : 'secondary'} 
                             size="sm" 
                           >
-                            <Eye className="w-8 h-8" />
+                            <Eye className="w-8 h-8 cursor-pointer" />
                           </Button>
                         </Link>
                       </TableCell>
