@@ -16,7 +16,7 @@ export function Header() {
           Comprehensive overview of user's program readiness and skill development.
         </p>
       </div>
-      <Link href="/app/dashboard/executive" passHref>
+      <Link href="/app" passHref>
         <Button className="bg-orange-500 hover:bg-orange-600 text-white">
           Main Dashboard
         </Button>
