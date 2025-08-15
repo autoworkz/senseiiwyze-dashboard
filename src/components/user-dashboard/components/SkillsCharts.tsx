@@ -123,23 +123,13 @@ export const SkillsCharts = ({ user }: SkillsChartsProps) => {
                 <CardContent className="h-[350px]">
                     <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
+                            <PieChart>
                             <Pie
                                 data={skillsPieData}
                                 cx="50%"
                                 cy="50%"
                                 labelLine={false}
-                                label={({ name, percent }) => {
-                                    if (name === 'Emotional Intelligence') {
-                                        return (
-                                            <text x={0} y={0} dy={8} textAnchor="middle" fill="#666">
-                                                <tspan x={0} dy="-0.6em">Emotional</tspan>
-                                                <tspan x={0} dy="1.2em">Intelligence</tspan>
-                                                <tspan x={0} dy="1.2em">{`${(percent ? (percent * 100).toFixed(0) : 0)}%`}</tspan>
-                                            </text>
-                                        );
-                                    }
-                                    return `${name} ${(percent ? (percent * 100).toFixed(0) : 0)}%`;
-                                }}
+                                label={({ name, percent }) => `${name} ${(percent ? (percent * 100).toFixed(0) : 0)}%`}
                                 outerRadius={80}
                                 fill="#8884d8"
                                 dataKey="value"
@@ -148,6 +138,9 @@ export const SkillsCharts = ({ user }: SkillsChartsProps) => {
                                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                 ))}
                             </Pie>
+                            <Tooltip />
+                            <Legend />
+                        </PieChart>
                             <Tooltip />
                             <Legend />
                         </PieChart>
