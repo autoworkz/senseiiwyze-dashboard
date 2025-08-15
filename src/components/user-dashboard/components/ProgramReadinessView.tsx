@@ -9,7 +9,9 @@ import { ProgramReadinessAssessment } from '@/components/program-readiness-dashb
 import { SkillBubbleChart } from '@/components/program-readiness-dashboard/components/SkillBubbleChart'
 import { SkillsCharts } from '@/components/user-dashboard/components/SkillsCharts'
 import { UserData } from '@/types/user-data'
-
+import { Card, CardContent } from '@/components/ui/card'
+import { Eye } from 'lucide-react'
+import Link from 'next/link'
 interface DashboardData {
   user: UserData
   programRequirements: Record<string, Record<string, number>>
@@ -85,6 +87,14 @@ export function ProgramReadinessView({ userId }: { userId: string }) {
               programRequirements={dashboardData.programRequirements}
             />
             {/* <AdminActions /> */}
+            <Card className="bg-gray-50 border-gray-200 hover:bg-gray-100 transition-colors">
+                <Link href={`/user-dashboard/${userId}/data`} passHref>
+                    <CardContent className="p-4 text-center flex items-center justify-center cursor-pointer">
+                        <Eye className="w-5 h-5 mr-2 text-gray-600" />
+                        <h3 className="text-md font-semibold text-gray-800">USER ANALYSIS DEVELOPED FROM THIS DATA</h3>
+                    </CardContent>
+                </Link>
+            </Card>
         </div>
     )
 }
