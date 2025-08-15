@@ -31,7 +31,7 @@ export function AnalyticsPanel({ user }: { user: UserData }) {
     grit: '#DC2626',
     logic: '#6B7280',
     algorithm: '#32CD32',
-    problemSolving: '#FFFF00',
+    problemSolving: '#FFCBZE',
   }
 
   const skillData = Object.entries(user.skills).map(([name, value]) => ({

@@ -8,7 +8,7 @@ interface SkillsChartsProps {
     user: UserData;
 }
 
-const COLORS = ['#FF00FF', '#FFFF00', '#800080', '#0000FF', '#FF0000', '#008000'];
+const COLORS = ['#FF00FF', '#FFFF00', '#800080', '#0000FF', '#FFCBZE', '#008000'];
 
 const generateSkillsPieData = (user: UserData) => {
     const originalSkills: any = {
