@@ -15,6 +15,7 @@ import { UserDetailView } from './UserDetailView';
 
 interface UserData {
   id: number;
+  userId: string;
   name: string;
   role: string;
   level: number;
@@ -452,7 +453,7 @@ export const UserTable = ({
                             size="sm" 
                             onClick={(e: React.MouseEvent) => {
                               e.stopPropagation();
-                              router.push(`/user-dashboard/${user.id}/program-readiness`);
+                              router.push(`/user-dashboard/${user.userId}/program-readiness`);
                             }}
                           >
                             Individual Program Readiness Snapshot

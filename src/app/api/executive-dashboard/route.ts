@@ -586,6 +586,7 @@ async function getUsersTableData(): Promise<UserTableData> {
         gamingData,
         visionBoard,
         personalityExam,
+        userId: profile.id
       }
     })
 
