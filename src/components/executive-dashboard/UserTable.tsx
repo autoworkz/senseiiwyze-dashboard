@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, AlertCircle, XCircle, ChevronsLeft, ChevronsRight, Users, Search } from 'lucide-react';
+import { CheckCircle, AlertCircle, XCircle, ChevronsLeft, ChevronsRight, Users, Search, Eye } from 'lucide-react';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -391,10 +391,6 @@ export const UserTable = ({
                     {sortField === 'name' && (sortDirection === 'asc' ? '↑' : '↓')}
                   </TableHead>
                   <TableHead>Best Program Match</TableHead>
-                  <TableHead className="cursor-pointer" onClick={() => handleSort('overallReadiness')}>
-                    Overall Readiness{' '}
-                    {sortField === 'overallReadiness' && (sortDirection === 'asc' ? '↑' : '↓')}
-                  </TableHead>
                   <TableHead className="text-right">Action</TableHead>
                 </TableRow>
               </TableHeader>
@@ -438,21 +434,21 @@ export const UserTable = ({
                           <Progress value={bestProgram.readiness} className="h-2" />
                         </div>
                       </TableCell>
-                      <TableCell>
+                      {/* <TableCell>
                         <div className="flex items-center gap-2">
                           <Progress value={user.overallReadiness} className="h-2 w-16" />
                           <span className="text-sm">
                             {user.overallReadiness}%
                           </span>
                         </div>
-                      </TableCell>
+                      </TableCell> */}
                       <TableCell className="text-right">
                         <Link href={`/user-dashboard/${user.userId}/program-readiness`} passHref>
                           <Button 
                             variant={user.overallReadiness >= 80 ? 'default' : 'secondary'} 
                             size="sm" 
                           >
-                            Individual Program Readiness Snapshot
+                            <Eye className="w-8 h-8" />
                           </Button>
                         </Link>
                       </TableCell>
