@@ -241,14 +241,23 @@ async function getExecutiveDashboardData(): Promise<DashboardData> {
         growthAreas,
         recommendedRoles: ['Software Engineer', 'Data Analyst'],
       }
-
+      
+ const mockData = [
+      { status: 'active', readinessScore: 92 },
+      { status: 'active', readinessScore: 78 },
+      { status: 'active', readinessScore: 85 },
+      { status: 'inactive', readinessScore: 45 },
+      { status: 'pending', readinessScore: 0 },
+      { status: 'active', readinessScore: 67 },
+    ]
+      const mockReadiness = mockData[index % mockData.length].readinessScore
       return {
         id: index + 1,
         name: profile.name || `User ${profile.id.slice(0, 8)}`,
         role: profile.user_role === 'admin' ? 'Administrator' : 'User',
-        level: Math.floor(overallReadiness / 10) + 1,
+        level: Math.floor(mockReadiness / 10) + 1,
         skills,
-        overallReadiness,
+        overallReadiness: mockReadiness,
         programReadiness,
         skillDetails: skillDetails,
         gamingData,
@@ -258,10 +267,13 @@ async function getExecutiveDashboardData(): Promise<DashboardData> {
       }
     })
 
+    
     // Calculate visualization data
     const totalUsers = userData.length
     const avgReadiness =
-      totalUsers > 0 ? Math.round(userData.reduce((sum, user) => sum + user.overallReadiness, 0) / totalUsers) : 0
+      totalUsers > 0
+        ? Math.round(userData.reduce((sum, user) => sum + user.overallReadiness, 0) / totalUsers)
+        : 0
     const readyUsers = userData.filter(user => user.overallReadiness >= 75).length
     const coachingUsers = userData.filter(user => user.overallReadiness < 75).length
 
