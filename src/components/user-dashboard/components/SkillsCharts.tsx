@@ -83,7 +83,7 @@ export const SkillsCharts = ({ user }: SkillsChartsProps) => {
             : d
     );
 
-    const legendFormatter = (value: string) => {
+    const labelFormatter = (value: string) => {
         if (value === 'EI') return 'EI (Emotional Intelligence)';
         return value;
     };
@@ -147,8 +147,8 @@ export const SkillsCharts = ({ user }: SkillsChartsProps) => {
                                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                 ))}
                             </Pie>
-                            <Tooltip />
-                            <Legend formatter={legendFormatter} />
+                            <Tooltip formatter={(value, name) => [value, labelFormatter(name as string)]}/>
+                            <Legend formatter={labelFormatter} />
                         </PieChart>
                     </ResponsiveContainer>
                 </CardContent>
