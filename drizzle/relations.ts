@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm/relations";
-import { baUsers, baUsageSummary, baCreditTransactions, baUsageTracking, baCreditBalance, profiles, baAccounts, baApikeys, contentModelReference, iwaReference, baInvitations, baOrganizations, dwaReference, levelScaleAnchors, scalesReference, baMembers, baSessions, baSsoProviders, baTwoFactors, categories, activities, assessments, evaluations, workplaces, abilitiesToWorkContext, profilesCopy, taskCompletion, sizes, goals, visionBoards, questions, interests, educationTrainingExperience, eteCategories, interestsIllusActivities, lcaInvitations, interestsIllusOccupations, jobZoneReference, jobZones, knowledge, riasecKeywords, skills, skillsToWorkActivities, skillsToWorkContext, user, session, surveyBookletLocations, taskCategories, taskRatings, taskStatements, account, tasksToDwas, visionKeywords, gameTasks, workContext, workContextCategories, abilities, abilitiesToWorkActivities, basicInterestsToRiasec, unspscReference, technologySkills, toolsUsed, workActivities, workStyles, workValues, visionJournalEntries, visionFocusAreas, visionGoals, tasks, userTasks, scores, status, levelOnboarding, onboardingHistory, visionLog, usersInAuth, accounts, roles, rolePermissions, userSkills, invitations, billingCustomers, subscriptions, subscriptionItems, orders, orderItems, notifications, chats, chatMessages, creditsUsage, userPrograms, personalityExams, nonces, examTraits, examStrengths, examGrowthAreas, userSkillDetails, accountUser, gameInfo, activityProgress, answers, programSkillRequirements, accountsMemberships } from "./schema";
+import { baUsers, baUsageSummary, baCreditTransactions, baUsageTracking, baCreditBalance, profiles, baAccounts, baApikeys, contentModelReference, iwaReference, baInvitations, baOrganizations, dwaReference, levelScaleAnchors, scalesReference, baMembers, baSessions, baSsoProviders, baTwoFactors, categories, activities, assessments, evaluations, workplaces, abilitiesToWorkContext, profilesCopy, taskCompletion, sizes, goals, visionBoards, questions, interests, educationTrainingExperience, eteCategories, interestsIllusActivities, lcaInvitations, interestsIllusOccupations, jobZoneReference, jobZones, knowledge, riasecKeywords, skills, skillsToWorkActivities, skillsToWorkContext, user, session, surveyBookletLocations, taskCategories, taskRatings, taskStatements, account, tasksToDwas, visionKeywords, gameTasks, workContext, workContextCategories, abilities, abilitiesToWorkActivities, basicInterestsToRiasec, unspscReference, technologySkills, toolsUsed, workActivities, workStyles, workValues, visionJournalEntries, visionFocusAreas, visionGoals, tasks, userTasks, scores, status, levelOnboarding, onboardingHistory, visionLog, accounts, roles, rolePermissions, userSkills, invitations, billingCustomers, subscriptions, subscriptionItems, orders, orderItems, notifications, chats, chatMessages, creditsUsage, userPrograms, personalityExams, nonces, examTraits, examStrengths, examGrowthAreas, userSkillDetails, accountUser, gameInfo, activityProgress, answers, programSkillRequirements, accountsMemberships } from "./schema";
 
 export const baUsageSummaryRelations = relations(baUsageSummary, ({one}) => ({
 	baUser: one(baUsers, {
@@ -764,20 +764,20 @@ export const visionLogRelations = relations(visionLog, ({one}) => ({
 }));
 
 export const accountsRelations = relations(accounts, ({one, many}) => ({
-	usersInAuth_createdBy: one(usersInAuth, {
+	usersInAuth_createdBy: one(baUsers, {
 		fields: [accounts.createdBy],
-		references: [usersInAuth.id],
-		relationName: "accounts_createdBy_usersInAuth_id"
+		references: [baUsers.id],
+		relationName: "accounts_createdBy_baUsers_id"
 	}),
-	usersInAuth_primaryOwnerUserId: one(usersInAuth, {
+	usersInAuth_primaryOwnerUserId: one(baUsers, {
 		fields: [accounts.primaryOwnerUserId],
-		references: [usersInAuth.id],
-		relationName: "accounts_primaryOwnerUserId_usersInAuth_id"
+		references: [baUsers.id],
+		relationName: "accounts_primaryOwnerUserId_baUsers_id"
 	}),
-	usersInAuth_updatedBy: one(usersInAuth, {
+	usersInAuth_updatedBy: one(baUsers, {
 		fields: [accounts.updatedBy],
-		references: [usersInAuth.id],
-		relationName: "accounts_updatedBy_usersInAuth_id"
+		references: [baUsers.id],
+		relationName: "accounts_updatedBy_baUsers_id"
 	}),
 	invitations: many(invitations),
 	billingCustomers: many(billingCustomers),
@@ -788,29 +788,6 @@ export const accountsRelations = relations(accounts, ({one, many}) => ({
 	chatMessages: many(chatMessages),
 	creditsUsages: many(creditsUsage),
 	accountsMemberships: many(accountsMemberships),
-}));
-
-export const usersInAuthRelations = relations(usersInAuth, ({many}) => ({
-	accounts_createdBy: many(accounts, {
-		relationName: "accounts_createdBy_usersInAuth_id"
-	}),
-	accounts_primaryOwnerUserId: many(accounts, {
-		relationName: "accounts_primaryOwnerUserId_usersInAuth_id"
-	}),
-	accounts_updatedBy: many(accounts, {
-		relationName: "accounts_updatedBy_usersInAuth_id"
-	}),
-	invitations: many(invitations),
-	nonces: many(nonces),
-	accountsMemberships_createdBy: many(accountsMemberships, {
-		relationName: "accountsMemberships_createdBy_usersInAuth_id"
-	}),
-	accountsMemberships_updatedBy: many(accountsMemberships, {
-		relationName: "accountsMemberships_updatedBy_usersInAuth_id"
-	}),
-	accountsMemberships_userId: many(accountsMemberships, {
-		relationName: "accountsMemberships_userId_usersInAuth_id"
-	}),
 }));
 
 export const rolePermissionsRelations = relations(rolePermissions, ({one}) => ({
@@ -843,9 +820,9 @@ export const invitationsRelations = relations(invitations, ({one}) => ({
 		fields: [invitations.accountId],
 		references: [accounts.id]
 	}),
-	usersInAuth: one(usersInAuth, {
+	usersInAuth: one(baUsers, {
 		fields: [invitations.invitedBy],
-		references: [usersInAuth.id]
+		references: [baUsers.id]
 	}),
 	role: one(roles, {
 		fields: [invitations.role],
@@ -955,9 +932,9 @@ export const personalityExamsRelations = relations(personalityExams, ({one, many
 }));
 
 export const noncesRelations = relations(nonces, ({one}) => ({
-	usersInAuth: one(usersInAuth, {
+	usersInAuth: one(baUsers, {
 		fields: [nonces.userId],
-		references: [usersInAuth.id]
+		references: [baUsers.id]
 	}),
 }));
 
@@ -1053,19 +1030,19 @@ export const accountsMembershipsRelations = relations(accountsMemberships, ({one
 		fields: [accountsMemberships.accountRole],
 		references: [roles.name]
 	}),
-	usersInAuth_createdBy: one(usersInAuth, {
+	usersInAuth_createdBy: one(baUsers, {
 		fields: [accountsMemberships.createdBy],
-		references: [usersInAuth.id],
-		relationName: "accountsMemberships_createdBy_usersInAuth_id"
+		references: [baUsers.id],
+		relationName: "accountsMemberships_createdBy_baUsers_id"
 	}),
-	usersInAuth_updatedBy: one(usersInAuth, {
+	usersInAuth_updatedBy: one(baUsers, {
 		fields: [accountsMemberships.updatedBy],
-		references: [usersInAuth.id],
-		relationName: "accountsMemberships_updatedBy_usersInAuth_id"
+		references: [baUsers.id],
+		relationName: "accountsMemberships_updatedBy_baUsers_id"
 	}),
-	usersInAuth_userId: one(usersInAuth, {
+	usersInAuth_userId: one(baUsers, {
 		fields: [accountsMemberships.userId],
-		references: [usersInAuth.id],
-		relationName: "accountsMemberships_userId_usersInAuth_id"
+		references: [baUsers.id],
+		relationName: "accountsMemberships_userId_baUsers_id"
 	}),
 }));

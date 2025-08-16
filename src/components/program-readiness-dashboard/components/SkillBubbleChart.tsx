@@ -242,7 +242,7 @@ export const SkillBubbleChart = ({ user }: SkillBubbleChartProps) => {
                     <div className="flex justify-center gap-1 mt-1">
                       {skill.certifications.map(cert => (
                         <span key={cert.id} className="inline-block" title={cert.name}>
-                          {cert.icon}
+                          {/* {cert.icon} */}
                         </span>
                       ))}
                     </div>
@@ -280,7 +280,7 @@ export const SkillBubbleChart = ({ user }: SkillBubbleChartProps) => {
                         <div className="flex justify-center gap-1">
                           {subskill.certifications.map(cert => (
                             <span key={cert.id} className="inline-block text-xs" title={cert.name}>
-                              {cert.icon}
+                              {/* {cert.icon} */}
                             </span>
                           ))}
                         </div>

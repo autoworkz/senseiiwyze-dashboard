@@ -1,7 +1,7 @@
 'use client'
 
-import { logoutAction } from '@/lib/actions/auth-actions'
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
+import { logoutAction } from '@/lib/actions/auth-actions'
 
 export function LogoutButton() {
   const handleLogout = async () => {

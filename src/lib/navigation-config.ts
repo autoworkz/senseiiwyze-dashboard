@@ -47,56 +47,56 @@ export const dashboardNavigation: NavigationItem[] = [
     icon: BarChart3,
     description: "Executive overview and key metrics"
   },
-  {
-    title: "Analytics",
-    href: "/app/analytics",  
-    icon: BarChart3,
-    description: "Detailed analytics and insights"
-  },
+  // {
+  //   title: "Analytics",
+  //   href: "/app/analytics",  
+  //   icon: BarChart3,
+  //   description: "Detailed analytics and insights"
+  // },
   {
     title: "Users",
     href: "/app/users",
     icon: Users,
     description: "User management and oversight"
   },
-  {
-    title: "Team",
-    href: "/app/team",
-    icon: Users,
-    description: "Team management and oversight",
-    children: [
-      {
-        title: "Team Overview",
-        href: "/app/team",
-        icon: Users,
-        description: "Team dashboard and overview"
-      },
-      {
-        title: "Team Profile",
-        href: "/app/team/profile",
-        icon: UserCircle,
-        description: "Team member profiles"
-      },
-      {
-        title: "Courses",
-        href: "/app/team/courses",
-        icon: BookOpen,
-        description: "Course management"
-      },
-      {
-        title: "Tasks",
-        href: "/app/team/tasks",
-        icon: CheckSquare,
-        description: "Team tasks and assignments"
-      },
-      {
-        title: "Messages",
-        href: "/app/team/messages",
-        icon: MessageSquare,
-        description: "Team communication"
-      }
-    ]
-  },
+  // {
+  //   title: "Team",
+  //   href: "/app/team",
+  //   icon: Users,
+  //   description: "Team management and oversight",
+  //   children: [
+  //     {
+  //       title: "Team Overview",
+  //       href: "/app/team",
+  //       icon: Users,
+  //       description: "Team dashboard and overview"
+  //     },
+  //     {
+  //       title: "Team Profile",
+  //       href: "/app/team/profile",
+  //       icon: UserCircle,
+  //       description: "Team member profiles"
+  //     },
+  //     {
+  //       title: "Courses",
+  //       href: "/app/team/courses",
+  //       icon: BookOpen,
+  //       description: "Course management"
+  //     },
+  //     {
+  //       title: "Tasks",
+  //       href: "/app/team/tasks",
+  //       icon: CheckSquare,
+  //       description: "Team tasks and assignments"
+  //     },
+  //     {
+  //       title: "Messages",
+  //       href: "/app/team/messages",
+  //       icon: MessageSquare,
+  //       description: "Team communication"
+  //     }
+  //   ]
+  // },
   {
     title: "Settings",
     href: "/app/settings",

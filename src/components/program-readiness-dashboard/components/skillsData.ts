@@ -74,7 +74,7 @@ export const skills: Skill[] = [{
   id: 'technical',
   name: 'Technical',
   category: 'Hard Skills',
-  color: '#3b82f6',
+  color: '#0000FF',
   // blue
   proficiency: 85,
   required: {
@@ -138,7 +138,7 @@ export const skills: Skill[] = [{
   id: 'problem_solving',
   name: 'Problem Solving',
   category: 'Cognitive Skills',
-  color: '#ef4444',
+  color: '#FF0000',
   // red
   proficiency: 92,
   required: {
@@ -190,7 +190,7 @@ export const skills: Skill[] = [{
   id: 'communication',
   name: 'Communication',
   category: 'Soft Skills',
-  color: '#10b981',
+  color: '#008000',
   // green
   proficiency: 78,
   required: {
@@ -242,7 +242,7 @@ export const skills: Skill[] = [{
   id: 'emotional_intelligence',
   name: 'Emotional Intelligence',
   category: 'Soft Skills',
-  color: '#8b5cf6',
+  color: '#800080',
   // purple
   proficiency: 72,
   required: {
@@ -294,7 +294,7 @@ export const skills: Skill[] = [{
   id: 'creativity',
   name: 'Creativity',
   category: 'Cognitive Skills',
-  color: '#f59e0b',
+  color: '#FFC000',
   // amber
   proficiency: 68,
   required: {
@@ -346,7 +346,7 @@ export const skills: Skill[] = [{
   id: 'leadership',
   name: 'Leadership',
   category: 'Soft Skills',
-  color: '#ec4899',
+  color: '#FF00FF',
   // pink
   proficiency: 65,
   required: {

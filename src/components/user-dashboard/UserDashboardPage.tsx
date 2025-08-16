@@ -127,12 +127,12 @@ export default function UserDashboardPage({ userId }: { userId: string }) {
                     >
                         Personality
                     </TabsTrigger>
-                    <TabsTrigger
+                    {/* <TabsTrigger
                         value="program-readiness"
                         onClick={() => setActiveView('program-readiness')}
                     >
                         Program Readiness
-                    </TabsTrigger>
+                    </TabsTrigger> */}
                 </TabsList>
                 <TabsContent value="charts">
                     <UserDataCharts 

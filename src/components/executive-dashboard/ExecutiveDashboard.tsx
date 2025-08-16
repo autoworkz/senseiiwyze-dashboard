@@ -37,9 +37,9 @@ export function ExecutiveDashboard({
         <Tabs defaultValue="all" className="mb-6" onValueChange={setActiveTab}>
           <TabsList className="w-full justify-start">
             <TabsTrigger value="all">All Users</TabsTrigger>
-            <TabsTrigger value="ready">Ready for Deployment</TabsTrigger>
-            <TabsTrigger value="coaching">Needs Coaching</TabsTrigger>
-            <TabsTrigger value="programs">Program Readiness</TabsTrigger>
+            <TabsTrigger value="ready" disabled>Ready for Deployment</TabsTrigger>
+            <TabsTrigger value="coaching" disabled>Needs Coaching</TabsTrigger>
+            <TabsTrigger value="programs" disabled>Program Readiness</TabsTrigger>
           </TabsList>
           <TabsContent value="all">
             <DataVisualizations data={dashboardData} />

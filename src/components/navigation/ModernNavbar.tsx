@@ -1,6 +1,7 @@
 "use client";
 
-import { Book, Menu, Sunset, Trees, Zap, ArrowRight } from "lucide-react";
+import { Book, Menu, Sunset, Trees, ArrowRight } from "lucide-react";
+import Image from "next/image";
 import { useSession } from "@/lib/auth-client";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -75,7 +76,7 @@ const ModernNavbar = ({
         {
           title: "Readiness Index",
           description: "AI-powered skill assessment and success prediction",
-          icon: <Zap className="size-5 shrink-0" />,
+          icon: <Book className="size-5 shrink-0" />,
           url: "#readiness",
         },
         {
@@ -123,7 +124,7 @@ const ModernNavbar = ({
         {
           title: "Integrations",
           description: "Connect with existing HR and learning systems",
-          icon: <Zap className="size-5 shrink-0" />,
+          icon: <Book className="size-5 shrink-0" />,
           url: "#integrations",
         },
       ],
@@ -264,15 +265,14 @@ const ModernNavbar = ({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <div className="relative">
-                <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full" />
-                <div className="relative bg-gradient-to-br from-primary to-secondary text-primary-foreground rounded-lg p-2">
-                  <Zap className="size-5" />
-                </div>
+              <div className="relative w-[200px] h-10">
+                <Image
+                  src="/assets/images/logo.jpeg"
+                  alt={logo.alt}
+                  fill
+                  className="object-contain rounded-lg"
+                />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                {logo.title}
-              </span>
             </motion.a>
             <div className="flex items-center">
               <NavigationMenu>
@@ -295,15 +295,14 @@ const ModernNavbar = ({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <div className="relative">
-                <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full" />
-                <div className="relative bg-gradient-to-br from-primary to-secondary text-primary-foreground rounded-lg p-2">
-                  <Zap className="size-5" />
-                </div>
+              <div className="relative w-[200px] h-10">
+                <Image
+                  src="/assets/images/logo.jpeg"
+                  alt={logo.alt}
+                  fill
+                  className="object-contain rounded-lg"
+                />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                {logo.title}
-              </span>
             </motion.a>
             <Sheet>
               <SheetTrigger asChild>
@@ -315,15 +314,14 @@ const ModernNavbar = ({
                 <SheetHeader>
                   <SheetTitle>
                     <a href={logo.url} className="flex items-center gap-2">
-                      <div className="relative">
-                        <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full" />
-                        <div className="relative bg-gradient-to-br from-primary to-secondary text-primary-foreground rounded-lg p-2">
-                          <Zap className="size-5" />
-                        </div>
+                      <div className="relative w-[200px] h-10">
+                        <Image
+                          src="/assets/images/logo.jpeg"
+                          alt={logo.alt}
+                          fill
+                          className="object-contain rounded-lg"
+                        />
                       </div>
-                      <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                        {logo.title}
-                      </span>
                     </a>
                   </SheetTitle>
                 </SheetHeader>
