@@ -80,7 +80,6 @@ export const GET = withAuth(async (request: NextRequest) => {
     game_id,
     levels_completed,
     durations,
-    total_levels,
     avg_time_per_level
   `);
 
