@@ -23,6 +23,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { authClient, useSession } from '@/lib/auth-client';
+import { useProfileLink } from '@/hooks/useProfileLink';
 
 const formSchema = z.object({
   fullName: z
@@ -54,6 +55,7 @@ export default function SignUpPage() {
   
   const router = useRouter();
   const { data: session, isPending } = useSession();
+  const { ensureProfileLinked, isLinking, error: profileLinkError } = useProfileLink();
 
   // Auto-redirect if already authenticated
   useEffect(() => {
@@ -78,7 +80,6 @@ export default function SignUpPage() {
     setSuccess('');
 
     try {
-      // Use Better Auth to sign up
       const { data: _data, error: authError } = await authClient.signUp.email({
         email: values.email,
         password: values.password,
@@ -89,36 +90,19 @@ export default function SignUpPage() {
       if (authError) {
         throw new Error(authError.message || 'Failed to create account');
       }
-      
+
       if (_data?.user) {
-        // Map form role to the expected database role ('user' or 'admin')
         const dbUserRole = values.role === 'team' ? 'user' : 'admin';
-
-        // Create a corresponding profile in Supabase
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            email: values.email,
-            name: values.fullName,
-            user_role: dbUserRole,
-          })
-          .select('id')
-          .single();
-
-        if (profileError) {
-          throw new Error(profileError.message || 'Failed to create user profile');
-        }
-
-        // Link the profile to the user account, bypassing strict type check for 'ba_users'
-        await supabase
-          .from('ba_users' as any)
-          .update({ profile_id: profileData.id })
-          .eq('id', _data.user.id);
+        await ensureProfileLinked({
+          userId: _data.user.id,
+          email: values.email,
+          name: values.fullName,
+          role: dbUserRole,
+        });
       }
 
       setSuccess('Account created successfully! Please check your email to verify your account.');
 
-      // Redirect to login with verification notice
       setTimeout(() => {
         router.push('/auth/login?message=verify-email');
       }, 1000);

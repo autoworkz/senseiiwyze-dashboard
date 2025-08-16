@@ -39,11 +39,15 @@ import {
   updateNotificationPreferencesAction,
   updateAppearanceAction
 } from '@/lib/actions/settings-actions'
+import { SimpleFileUpload } from '@/components/upload/file-upload'
+import { getSignedAvatarUpload, finalizeAvatar } from '@/lib/actions/avatar-upload'
+import { supabase } from '@/lib/supabase'
 
 interface User {
   role: 'learner' | 'admin' | 'executive' | 'ceo' | 'worker' | 'frontliner'
   name: string
   email: string
+  id: string
 }
 
 interface UserSettings {
@@ -86,28 +90,74 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
   const [pushNotifications, setPushNotifications] = useState(initialSettings.pushNotifications)
   const [marketingEmails, setMarketingEmails] = useState(initialSettings.marketingEmails)
 
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const [selectedAvatarFile, setSelectedAvatarFile] = useState<File | null>(null)
+
   const handleTabChange = (value: string) => {
     router.push(`?tab=${value}`)
   }
 
   const handleProfileSave = () => {
     startTransition(async () => {
-      const formData = new FormData()
-      formData.append('displayName', displayName)
-      formData.append('workplace', workplace)
-      formData.append('jobTitle', jobTitle)
-      formData.append('bio', bio)
+      let hasProfileChanges = false
+      let profileResult = null
 
-      const result = await updateProfileAction(formData)
-      
-      if (result.success) {
-        setMessage({ type: 'success', text: result.message || 'Profile updated' })
-        setHasUnsavedChanges(false)
-      } else {
-        setMessage({ type: 'error', text: result.error || 'Update failed' })
+      // Check if profile fields have changed
+      if (displayName !== initialSettings.displayName ||
+          workplace !== initialSettings.workplace ||
+          jobTitle !== initialSettings.jobTitle ||
+          bio !== initialSettings.bio) {
+        
+        hasProfileChanges = true
+        const formData = new FormData()
+        formData.append('displayName', displayName)
+        formData.append('workplace', workplace)
+        formData.append('jobTitle', jobTitle)
+        formData.append('bio', bio)
+
+        profileResult = await updateProfileAction(formData)
+        
+        if (!profileResult.success) {
+          setMessage({ type: 'error', text: profileResult.error || 'Profile update failed' })
+          setTimeout(() => setMessage(null), 3000)
+          return
+        }
       }
 
-      // Clear message after 3 seconds
+      // Handle avatar upload if file was selected
+      if (selectedAvatarFile) {
+        try {
+          const signed = await getSignedAvatarUpload(selectedAvatarFile);
+          if ('error' in signed) throw new Error(signed.error);
+          
+          const { error: upErr } = await supabase.storage
+            .from(signed.bucket)
+            .uploadToSignedUrl(signed.path, signed.token, selectedAvatarFile);
+          
+          if (upErr) throw upErr;
+
+          const fin = await finalizeAvatar(signed.path);
+          if ('error' in fin) throw new Error(fin.error);
+
+          setAvatarUrl(fin.url ?? signed.publicUrl ?? null)
+          setSelectedAvatarFile(null)
+        } catch (err: any) {
+          setMessage({ type: 'error', text: err?.message || 'Failed to upload avatar' })
+          setTimeout(() => setMessage(null), 3000)
+          return
+        }
+      }
+
+      // Set success message based on what was updated
+      if (hasProfileChanges && selectedAvatarFile) {
+        setMessage({ type: 'success', text: 'Profile and avatar updated successfully' })
+      } else if (hasProfileChanges) {
+        setMessage({ type: 'success', text: profileResult?.message || 'Profile updated successfully' })
+      } else if (selectedAvatarFile) {
+        setMessage({ type: 'success', text: 'Avatar updated successfully' })
+      }
+
+      setHasUnsavedChanges(false)
       setTimeout(() => setMessage(null), 3000)
     })
   }
@@ -163,6 +213,19 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
     setPushNotifications(initialSettings.pushNotifications)
     setMarketingEmails(initialSettings.marketingEmails)
     setHasUnsavedChanges(false)
+  }
+
+  const handleAvatarSelect = async (file: File) => {
+    // Only preview and mark as unsaved; upload happens on Save
+    try {
+      const preview = URL.createObjectURL(file)
+      setAvatarUrl(preview)
+      setSelectedAvatarFile(file)
+      setHasUnsavedChanges(true)
+    } catch {
+      setMessage({ type: 'error', text: 'Failed to preview image' })
+      setTimeout(() => setMessage(null), 3000)
+    }
   }
 
   return (
@@ -439,13 +502,20 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
               <div className="grid gap-2">
                 <Label>Profile Picture</Label>
                 <div className="flex items-center gap-4">
-                  <div className="h-20 w-20 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-2xl font-semibold">
-                    {user.name.charAt(0).toUpperCase()}
+                  <div className="h-20 w-20 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-2xl font-semibold overflow-hidden">
+                    {avatarUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
+                    ) : (
+                      user.name.charAt(0).toUpperCase()
+                    )}
                   </div>
-                  <Button variant="outline" size="sm">
-                    <Upload className="h-4 w-4 mr-2" />
-                    Upload Photo
-                  </Button>
+                  <SimpleFileUpload
+                    onFileSelect={handleAvatarSelect}
+                    accept="image/jpeg,image/png,image/webp"
+                    maxSize={5 * 1024 * 1024}
+                    placeholder="Upload Photo"
+                  />
                 </div>
               </div>
 

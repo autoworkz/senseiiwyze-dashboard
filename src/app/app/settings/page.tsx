@@ -6,11 +6,13 @@ import { PageContainer, PageHeader } from '@/components/layout/PageContainer'
 import { SettingsSkeleton } from '@/components/loading/loading-skeletons'
 import { SettingsContent } from '@/components/settings/SettingsContent'
 import { auth } from '@/lib/auth'
+import { supabase } from '@/lib/supabase'
 
 interface User {
   role: 'learner' | 'admin' | 'executive' | 'ceo' | 'worker' | 'frontliner'
   name: string
   email: string
+  id: string
 }
 
 export default async function SettingsPage() {
@@ -28,16 +30,24 @@ export default async function SettingsPage() {
     role: (session.user.role as User['role']) || 'learner',
     name: session.user.name || 'User',
     email: session.user.email || '',
+    id: session.user.id || '',
   }
 
-  // TODO: Fetch user's current settings from database
-  // For now, using default values that would come from the database
+  // Fetch user's profile from Supabase (profiles table)
+  const { data: profileData, error: profileError } = await supabase
+    .from('profiles')
+    .select('name, workplace, job_title, bio')
+    .eq('email', user.email)
+    .maybeSingle()
+  const profile: any = profileData
+
+  // Compose initial settings using DB values (fallback to session/defaults)
   const userSettings = {
-    displayName: user.name,
-    workplace: '',
-    jobTitle: '',
-    bio: '',
-    theme: 'system' as const, // Default theme, will be managed client-side by next-themes
+    displayName: profile?.name ?? user.name,
+    workplace: profile?.workplace ?? '',
+    jobTitle: profile?.job_title ?? '',
+    bio: profile?.bio ?? '',
+    theme: 'system' as const,
     language: 'en',
     emailNotifications: true,
     pushNotifications: false,

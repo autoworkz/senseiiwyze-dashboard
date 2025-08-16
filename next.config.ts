@@ -91,7 +91,7 @@ const nextConfig: NextConfig = {
   // Compiler options
   compiler: {
     removeConsole: {
-      exclude: ['error', 'warn'], // Keep error and warn logs
+      exclude: ['error', 'warn', 'log'], // Keep error, warn, and log statements
     },
   },
   
