@@ -6,7 +6,19 @@ import { Progress } from '@/components/ui/progress';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
 import { getAssessmentLevelDescription, opennessLevels, extraversionLevels, agreeablenessLevels, conscientiousnessLevels, neuroticismLevels } from '@/utils/assessments';
 import _ from "lodash";
-import { PersonalityExamData } from '@/types/personality-exam';
+interface PersonalityExamData {
+  id: string;
+  name: string;
+  personalityExam: {
+    type: string;
+    traits: Record<string, number>;
+    evaluations: any[],
+    strengths: string[];
+    growthAreas: string[];
+    recommendedRoles: string[];
+  };
+  programReadiness: Record<string, number>;
+}
 
 interface PersonalityExamViewProps {
   selectedUserId: string;
@@ -25,7 +37,7 @@ export const PersonalityExamView = ({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`/api/personality-exam?userId=${selectedUserId}`);
+        const response = await fetch('/api/personality-exam');
         const result = await response.json();
         if (Array.isArray(result)) {
           setUsersData(result);
@@ -168,7 +180,7 @@ export const PersonalityExamView = ({
   const COLORS = ['#3b82f6', '#ef4444', '#10b981', '#8b5cf6', '#f59e0b', '#ec4899'];
   return <div className="space-y-6">
     <div className="flex flex-col sm:flex-row justify-between gap-4">
-      {/* <Select value={selectedUserId} onValueChange={onUserSelection}>
+      <Select value={selectedUserId} onValueChange={onUserSelection}>
         <SelectTrigger className="w-full sm:w-[200px]">
           <SelectValue placeholder="Select User" />
         </SelectTrigger>
@@ -177,7 +189,7 @@ export const PersonalityExamView = ({
             {user.name}
           </SelectItem>)}
         </SelectContent>
-      </Select> */}
+      </Select>
       <div className="bg-muted px-4 py-2 rounded-md">
         <span className="font-medium">{user.personalityExam.type}</span>
       </div>

@@ -1,32 +1,9 @@
 // app/api/vision-board/route.ts
-import { NextResponse, type NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
-export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams
-  const userId = searchParams.get('userId')
-
+export async function GET() {
   try {
-    let profilesQuery = supabase.from('profiles').select('id, name').eq('is_deleted', false)
-    if (userId) {
-      profilesQuery = profilesQuery.eq('id', userId)
-    }
-
-    let boardsQuery = supabase.from('vision_boards').select('id, user_id, img_url')
-    if (userId) {
-      boardsQuery = boardsQuery.eq('user_id', userId)
-    }
-
-    let programsQuery = (supabase as any).from('user_programs').select('user_id, readiness, assessments!inner(title)')
-    if (userId) {
-      programsQuery = programsQuery.eq('user_id', userId)
-    }
-
-    let skillsQuery = (supabase as any).from('user_skills').select('user_id, category')
-    if (userId) {
-      skillsQuery = skillsQuery.eq('user_id', userId)
-    }
-
     const [
       profilesRes,
       boardsRes,
@@ -37,14 +14,14 @@ export async function GET(request: NextRequest) {
       programsRes,
       skillsRes
     ] = await Promise.all([
-      profilesQuery,
-      boardsQuery,
+      supabase.from('profiles').select('id, name').eq('is_deleted', false),
+      supabase.from('vision_boards').select('id, user_id, img_url'),
       (supabase as any).from('vision_goals').select('board_id, goal_text'),
       (supabase as any).from('vision_focus_areas').select('board_id, focus_area'),
       (supabase as any).from('vision_keywords').select('board_id, keyword'),
       (supabase as any).from('vision_journal_entries').select('board_id, entry_date, content'),
-      programsQuery,
-      skillsQuery
+      (supabase as any).from('user_programs').select('user_id, readiness, assessments!inner(title)'),
+      (supabase as any).from('user_core_skills').select('user_id, category')
     ])
 
     for (const resp of [profilesRes, boardsRes, goalsRes, focusRes, keywordsRes, journalsRes, programsRes, skillsRes]) {

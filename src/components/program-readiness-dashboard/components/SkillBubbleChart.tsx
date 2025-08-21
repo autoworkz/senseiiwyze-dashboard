@@ -2,7 +2,38 @@ import React, { useEffect, useState, useRef, Fragment } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
-import { skills, skillCorrelations, programs } from './skillsData';
+
+interface Certification {
+  id: string;
+  name: string;
+  icon: string;
+}
+
+interface Subskill {
+  id: string;
+  name: string;
+  proficiency: number;
+  required: Record<string, number>;
+  certifications: Certification[];
+}
+
+interface Skill {
+  id: string;
+  name: string;
+  category: string;
+  color: string;
+  proficiency: number;
+  required: Record<string, number>;
+  subskills: Subskill[];
+  certifications: Certification[];
+}
+
+interface SkillCorrelation {
+  source: string;
+  target: string;
+  strength: number;
+}
+
 interface UserData {
   id: string
   name: string
@@ -22,55 +53,77 @@ interface UserData {
     readiness: number
   }
   skillDetails: Record<string, Record<string, number>>
+  parentSkillsProficiency?: Record<string, number>
   initials: string
 }
 
 interface SkillBubbleChartProps {
   user: UserData
+  skillRequirements?: Record<string, Record<string, number>>
+  subskillRequirements?: Record<string, Record<string, number>>
 }
 
-export const SkillBubbleChart = ({ user }: SkillBubbleChartProps) => {
-  // Map user database skills to predefined skill structure
-  const overlayUserDataOnPredefinedSkills = () => {
-    const skillMapping = {
-      vision: 'creativity',
-      grit: 'leadership', 
-      logic: 'problem_solving',
-      algorithm: 'technical',
-      problemSolving: 'problem_solving'
-    };
-
-    return skills.map(skill => {
-      // Find corresponding user skill from database
-      const userSkillKey = Object.keys(skillMapping).find(key => 
-        skillMapping[key as keyof typeof skillMapping] === skill.id
-      );
-      
-      // Use user's actual data from database, fallback to predefined value
-      const userProficiency = userSkillKey ? user.skills[userSkillKey as keyof typeof user.skills] : skill.proficiency;
-      
-      // Map subskills from user data
-      const mappedSubskills = skill.subskills.map(subskill => {
-        // Find corresponding subskill in user's skillDetails
-        const userSkillDetails = user.skillDetails[skill.name] || {};
-        const subskillValue = userSkillDetails[subskill.name] || subskill.proficiency;
-        
-        return {
-          ...subskill,
-          proficiency: subskillValue
-        };
-      });
-
-      return {
-        ...skill,
-        proficiency: userProficiency,
-        subskills: mappedSubskills
-      };
-    });
+export const SkillBubbleChart = ({ user, skillRequirements, subskillRequirements }: SkillBubbleChartProps) => {
+  // Define colors for each skill type
+  const skillColors: Record<string, string> = {
+    'Technical': '#3b82f6',
+    'Problem Solving': '#ef4444', 
+    'Communication': '#10b981',
+    'Emotional Intelligence': '#8b5cf6',
+    'Creativity': '#f59e0b',
+    'Leadership': '#ec4899'
   };
 
-  const skillsData = overlayUserDataOnPredefinedSkills();
-  console.log(skillsData)
+  // Build dynamic skills data from user data
+  const buildSkillsData = (): Skill[] => {
+    const dynamicSkills: Skill[] = [];
+
+    // Create skills from user's parent skills and skill details
+    if (user.parentSkillsProficiency && user.skillDetails) {
+      Object.entries(user.parentSkillsProficiency).forEach(([skillName, proficiency]) => {
+        const subskills = user.skillDetails[skillName] || {};
+        const subskillArray: Subskill[] = Object.entries(subskills).map(([subskillName, subskillValue]) => ({
+          id: subskillName.toLowerCase().replace(/\s+/g, '_'),
+          name: subskillName,
+          proficiency: subskillValue,
+          required: subskillRequirements?.[subskillName] || {},
+          certifications: []
+        }));
+
+        dynamicSkills.push({
+          id: skillName.toLowerCase().replace(/\s+/g, '_'),
+          name: skillName,
+          category: 'Skills',
+          color: skillColors[skillName] || '#6b7280',
+          proficiency: proficiency,
+          required: skillRequirements?.[skillName] || {},
+          subskills: subskillArray,
+          certifications: []
+        });
+      });
+    }
+
+    return dynamicSkills;
+  };
+
+  const skillsData = buildSkillsData();
+  
+  // Get available programs from skillRequirements
+  const programs = skillRequirements ? 
+    Array.from(new Set(Object.values(skillRequirements).flatMap(skill => Object.keys(skill)))) : 
+    ['Cyber Security', 'Computer Networking', 'Data Analytics', 'AI/ML Fundamentals', 'IoT Tech Support'];
+    
+  // Create simple correlations between skills
+  const skillCorrelations: SkillCorrelation[] = skillsData.length > 1 ? skillsData.slice(0, -1).map((skill, index) => ({
+    source: skill.id,
+    target: skillsData[index + 1]?.id || skillsData[0].id,
+    strength: 0.7
+  })) : [];
+  
+  console.log('user', user)
+  console.log('skillRequirements', skillRequirements)
+  console.log('subskillRequirements', subskillRequirements)
+  
   const [selectedProgram, setSelectedProgram] = useState(programs[0] || 'Cyber Security');
   const [viewMode, setViewMode] = useState<'current' | 'required'>('current');
   const [expandedSkill, setExpandedSkill] = useState<string | null>(null);
@@ -142,12 +195,12 @@ export const SkillBubbleChart = ({ user }: SkillBubbleChartProps) => {
   };
 
   // Calculate skill value based on view mode
-  const getSkillValue = (skill: any) => {
+  const getSkillValue = (skill: Skill) => {
     return viewMode === 'current' ? skill.proficiency : skill.required[selectedProgram] || 0;
   };
 
   // Calculate subskill value based on view mode
-  const getSubskillValue = (subskill: any) => {
+  const getSubskillValue = (subskill: Subskill) => {
     return viewMode === 'current' ? subskill.proficiency : subskill.required[selectedProgram] || 0;
   };
 
@@ -240,9 +293,9 @@ export const SkillBubbleChart = ({ user }: SkillBubbleChartProps) => {
                   )}
                   {skill.certifications.length > 0 && (
                     <div className="flex justify-center gap-1 mt-1">
-                      {skill.certifications.map(cert => (
+                      {skill.certifications.map((cert: Certification) => (
                         <span key={cert.id} className="inline-block" title={cert.name}>
-                          {/* {cert.icon} */}
+                          {cert.icon}
                         </span>
                       ))}
                     </div>
@@ -251,7 +304,7 @@ export const SkillBubbleChart = ({ user }: SkillBubbleChartProps) => {
               </div>
 
               {/* Subskill bubbles */}
-              {isExpanded && skill.subskills.map(subskill => {
+              {isExpanded && skill.subskills.map((subskill: Subskill) => {
                 const subPositions = getSubskillPositions(skill.id);
                 const subPos = subPositions[subskill.id];
                 const subValue = getSubskillValue(subskill);
@@ -278,9 +331,9 @@ export const SkillBubbleChart = ({ user }: SkillBubbleChartProps) => {
                       <div className="text-xs">{subValue}%</div>
                       {subskill.certifications.length > 0 && (
                         <div className="flex justify-center gap-1">
-                          {subskill.certifications.map(cert => (
+                          {subskill.certifications.map((cert: Certification) => (
                             <span key={cert.id} className="inline-block text-xs" title={cert.name}>
-                              {/* {cert.icon} */}
+                              {cert.icon}
                             </span>
                           ))}
                         </div>

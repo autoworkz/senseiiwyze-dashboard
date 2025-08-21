@@ -1,50 +1,8 @@
-import { NextResponse, type NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
-import { withAuth } from '@/lib/api/with-auth'
 
-export const GET = withAuth(async (request: NextRequest) => {
-  const searchParams = request.nextUrl.searchParams
-  const userId = searchParams.get('userId')
-
+export async function GET() {
   try {
-    let profilesQuery = supabase
-      .from('profiles')
-      .select('id, name')
-      .is('is_deleted', false)
-
-    if (userId) {
-      profilesQuery = profilesQuery.eq('id', userId)
-    }
-
-    let examsQuery = (supabase as any)
-      .from('personality_exams')
-      .select('id, user_id, type')
-
-    if (userId) {
-      examsQuery = examsQuery.eq('user_id', userId)
-    }
-
-    let userProgramsQuery = (supabase as any)
-      .from('user_programs')
-      .select('user_id, assessment_id, readiness')
-
-    if (userId) {
-      userProgramsQuery = userProgramsQuery.eq('user_id', userId)
-    }
-
-    let evaluationsQuery = supabase
-      .from('evaluations')
-      .select(
-        "id , user_id , assessment_id ,is_completed, results, user:profiles (id, email, name)"
-      )
-      .eq("workplace_id", "406f9926-0670-4a95-9252-c064c25912e4")
-      .eq("assessment_id", "3ac68f05-2ea9-4223-b139-d88373859379")
-      .order("created_at", { ascending: false })
-
-    if (userId) {
-      evaluationsQuery = evaluationsQuery.eq('user_id', userId)
-    }
-
     const [
       profilesRes,
       examsRes,
@@ -55,8 +13,13 @@ export const GET = withAuth(async (request: NextRequest) => {
       assessmentsRes,
       evaluationRes
     ] = await Promise.all([
-      profilesQuery,
-      examsQuery,
+      supabase
+        .from('profiles')
+        .select('id, name')
+        .is('is_deleted', false),
+      (supabase as any)
+        .from('personality_exams')
+        .select('id, user_id, type'),
       (supabase as any)
         .from('exam_traits')
         .select('exam_id, trait, value'),
@@ -66,11 +29,20 @@ export const GET = withAuth(async (request: NextRequest) => {
       (supabase as any)
         .from('exam_growth_areas')
         .select('exam_id, area'),
-      userProgramsQuery,
+      (supabase as any)
+        .from('user_programs')
+        .select('user_id, assessment_id, readiness'),
       supabase
         .from('assessments')
         .select('id, title'),
-      evaluationsQuery
+        supabase
+        .from('evaluations')
+        .select(
+        "id , user_id , assessment_id ,is_completed, results, user:profiles (id, email, name)"
+      )
+      .eq("workplace_id", "406f9926-0670-4a95-9252-c064c25912e4")
+      .eq("assessment_id", "3ac68f05-2ea9-4223-b139-d88373859379")
+      .order("created_at", { ascending: false })
     ])
     // 2️⃣ Error handling
     for (const res of [profilesRes, examsRes, traitsRes, strengthsRes, growthAreasRes, userProgramsRes, assessmentsRes, evaluationRes]) {
@@ -88,7 +60,6 @@ export const GET = withAuth(async (request: NextRequest) => {
     const userPrograms  = userProgramsRes.data!
     const assessments   = assessmentsRes.data!
     const evaluations = evaluationRes.data!
-    console.log(evaluations)
     // 3️⃣ Build an assessment lookup
     const assessmentLookup: Record<string, string> = {}
     assessments.forEach((a: any) => {
@@ -161,4 +132,4 @@ export const GET = withAuth(async (request: NextRequest) => {
     console.error('personality-exam API error:', err)
     return NextResponse.json({ error: err.message || 'Unknown error' }, { status: 500 })
   }
-})
+}

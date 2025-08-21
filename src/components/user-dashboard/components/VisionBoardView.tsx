@@ -3,7 +3,20 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { VisionBoardData } from '@/types/vision-board';
+
+interface VisionBoardData {
+  id: string;
+  name: string;
+  visionBoard: {
+    goals: string[];
+    focusAreas: string[];
+    keywords: string[];
+    journalEntries: Array<{ date: string; content: string }>;
+  };
+  programReadiness: Record<string, number>;
+  relatedSkills: Array<{ skill: string; count: number }>;
+  coverUrl: string | null;
+}
 
 interface VisionBoardViewProps {  
   selectedUserId: string;
@@ -21,7 +34,7 @@ export const VisionBoardView = ({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`/api/vision-board?userId=${selectedUserId}`);
+        const response = await fetch('/api/vision-board');
         const result = await response.json();
         if (Array.isArray(result)) {
           setUsersData(result);
@@ -69,7 +82,6 @@ export const VisionBoardView = ({
     if (user.coverUrl) {
       return user.coverUrl;
     }
-    console.log('no cover url', user);
     // Fallback to placeholder image
     return '/placeholder-vision-board.jpg';
   };
@@ -77,7 +89,7 @@ export const VisionBoardView = ({
   const relatedSkills = user.relatedSkills || [];
   return <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between gap-4">
-        {/* <Select value={selectedUserId} onValueChange={onUserSelection}>
+        <Select value={selectedUserId} onValueChange={onUserSelection}>
           <SelectTrigger className="w-full sm:w-[200px]">
             <SelectValue placeholder="Select User" />
           </SelectTrigger>
@@ -86,7 +98,7 @@ export const VisionBoardView = ({
                 {user.name}
               </SelectItem>)}
           </SelectContent>
-        </Select> */}
+        </Select>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">

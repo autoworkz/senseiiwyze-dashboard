@@ -1,72 +1,51 @@
-import { NextResponse, type NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
-import { generateInitials } from '@/utils/programreadiness'
-import { withAuth } from '@/lib/api/with-auth'
+import { generateInitials } from '@/utils/initials'
 
-export const GET = withAuth(async (request: NextRequest) => {
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ userId: string }> }
+) { 
+  const userId = (await params).userId
   try {
-    const { searchParams } = new URL(request.url)
-    const userId = searchParams.get('userId')
-
     // Fetch all necessary data in parallel
     const [
       profilesRes, 
-      userSkillsRes, 
+      userCoreSkillsRes, 
       userProgramsRes, 
       assessmentsRes,
-      userSkillDetailsRes,
-      programRequirementsRes
+      programRequirementsRes,
+      assessmentSkillRequirementsRes,
+      assessmentSubskillRequirementsRes,
+      skillTypesRes
     ] = await Promise.all([
-      userId 
-        ? supabase.from('profiles').select('id, name, user_role, created_at').eq('id', userId).eq('is_deleted', false)
-        : supabase.from('profiles').select('id, name, user_role, created_at').eq('is_deleted', false),
-      (supabase as any).from('user_skills').select('id, user_id, category, value'),
+      supabase.from('profiles').select('id, name, user_role, created_at').eq('is_deleted', false),
+      (supabase as any).from('user_core_skills').select('id, user_id, category, value'),
       (supabase as any).from('user_programs').select('user_id, assessment_id, readiness'),
       supabase.from('assessments').select('id, title, cover_url'),
-      (supabase as any).from('user_skill_details').select('skill_id, subskill, value'),
-      (supabase as any).from('program_skill_requirements').select('assessment_id, skill_key, required_score')
+      (supabase as any).from('program_skill_requirements').select('assessment_id, skill_key, required_score'),
+      (supabase as any).from('assessment_skill_requirements').select('assessment_id, skill_type, required_value'),
+      (supabase as any).from('assessment_subskill_requirements').select('assessment_id, skill_id, subskill, required_value'),
+      (supabase as any).from('skill_types').select('id, key, name').order('id')
     ])
 
     // Error handling
-    for (const res of [profilesRes, userSkillsRes, userProgramsRes, assessmentsRes, userSkillDetailsRes, programRequirementsRes]) {
+    for (const res of [profilesRes, userCoreSkillsRes, userProgramsRes, assessmentsRes, programRequirementsRes, assessmentSkillRequirementsRes, assessmentSubskillRequirementsRes, skillTypesRes]) {
       if (res.error) throw res.error
     }
 
     const profiles = profilesRes.data || []
-    const userSkills = userSkillsRes.data || []
+    const userCoreSkills = userCoreSkillsRes.data || []
     const userPrograms = userProgramsRes.data || []
     const assessments = assessmentsRes.data || []
-    const userSkillDetails = userSkillDetailsRes.data || []
     const programRequirements = programRequirementsRes.data || []
+    const assessmentSkillRequirements = assessmentSkillRequirementsRes.data || []
+    const assessmentSubskillRequirements = assessmentSubskillRequirementsRes.data || []
+    const skillTypes = skillTypesRes.data || []
 
-    let selectedUser = null;
-    if (userId) {
-      selectedUser = profiles.find(p => p.id === userId);
-    } else {
-      // Original logic to pick a random user if no userId is provided
-      const timestamp = Date.now()
-      const allUserSkillIds = userSkills.map((s: any) => s.id)
-      const usersWithSkillDetails = userSkillDetails.filter((detail: any) => allUserSkillIds.includes(detail.skill_id))
-      
-      if (usersWithSkillDetails.length > 0) {
-        const skillDetailUserIds = [...new Set(usersWithSkillDetails.map((detail: any) => {
-          const skill = userSkills.find((s: any) => s.id === detail.skill_id)
-          return skill?.user_id
-        }))]
-        
-        if (skillDetailUserIds.length > 0) {
-          const randomIndex = timestamp % skillDetailUserIds.length
-          const randomUserId = skillDetailUserIds[randomIndex]
-          const userWithSkillDetails = profiles.find(p => p.id === randomUserId)
-          if (userWithSkillDetails) {
-            selectedUser = userWithSkillDetails
-          }
-        }
-      }
-      if (!selectedUser && profiles.length > 0) {
-        selectedUser = profiles[timestamp % profiles.length];
-      }
-    }
+    // Pick a random user from profiles
+    const timestamp = Date.now()
+    const selectedUser = profiles.find((p: any) => p.id === userId)
     
     if (!selectedUser) {
       return NextResponse.json({ error: 'No users found' }, { status: 404 })
@@ -78,7 +57,7 @@ export const GET = withAuth(async (request: NextRequest) => {
       assessmentLookup[a.id] = { title: a.title, cover_url: a.cover_url }
     })
 
-    // Create program requirements lookup
+    // Create program requirements lookup (for ProgramReadinessAssessment)
     const requirementsLookup: Record<string, Record<string, number>> = {}
     programRequirements.forEach((req: any) => {
       const assessmentTitle = assessmentLookup[req.assessment_id]?.title
@@ -90,8 +69,48 @@ export const GET = withAuth(async (request: NextRequest) => {
       }
     })
 
+    // Create skill type lookup
+    const skillTypeLookup: Record<number, { key: string, name: string }> = {}
+    skillTypes.forEach((skillType: any) => {
+      skillTypeLookup[skillType.id] = { key: skillType.key, name: skillType.name }
+    })
+
+    // Create skill requirements lookup (for SkillBubbleChart)
+    const skillRequirementsLookup: Record<string, Record<string, number>> = {}
+    assessmentSkillRequirements.forEach((req: any) => {
+      const assessmentInfo = assessmentLookup[req.assessment_id]
+      const skillType = skillTypeLookup[req.skill_type]
+      
+      if (assessmentInfo && assessmentInfo.title && skillType) {
+        const assessmentTitle = assessmentInfo.title
+        const skillName = skillType.name
+        
+        if (!skillRequirementsLookup[skillName]) {
+          skillRequirementsLookup[skillName] = {}
+        }
+        skillRequirementsLookup[skillName][assessmentTitle] = req.required_value
+      }
+    })
+
+    // Create subskill requirements lookup (for SkillBubbleChart subskills)
+    const subskillRequirementsLookup: Record<string, Record<string, number>> = {}
+    assessmentSubskillRequirements.forEach((req: any) => {
+      const assessmentInfo = assessmentLookup[req.assessment_id]
+      const skillType = skillTypeLookup[req.skill_id]
+      
+      if (assessmentInfo && assessmentInfo.title && skillType) {
+        const assessmentTitle = assessmentInfo.title
+        const subskillName = req.subskill
+        
+        if (!subskillRequirementsLookup[subskillName]) {
+          subskillRequirementsLookup[subskillName] = {}
+        }
+        subskillRequirementsLookup[subskillName][assessmentTitle] = req.required_value
+      }
+    })
+
     // Get selected user's skills
-    const userSkillData = userSkills.filter((s: any) => s.user_id === selectedUser.id)
+    const userSkillData = userCoreSkills.filter((s: any) => s.user_id === selectedUser.id)
     const skills = {
       vision: 0,
       grit: 0,
@@ -114,22 +133,8 @@ export const GET = withAuth(async (request: NextRequest) => {
       }
     })
 
-    // Get skill details for this user
-    const userSkillIds = userSkillData.map((s: any) => s.id)
+    // Create empty skillDetails - will be populated from skills API in frontend
     const skillDetails: Record<string, Record<string, number>> = {}
-    
-    userSkillDetails.forEach((detail: any) => {
-      if (userSkillIds.includes(detail.skill_id)) {
-        const skill = userSkills.find((s: any) => s.id === detail.skill_id)
-        if (skill) {
-          const category = skill.category
-          if (!skillDetails[category]) {
-            skillDetails[category] = {}
-          }
-          skillDetails[category][detail.subskill] = detail.value
-        }
-      }
-    })
 
     // Get user's program readiness
     const userProgramData = userPrograms.filter((p: any) => p.user_id === selectedUser.id)
@@ -179,6 +184,8 @@ export const GET = withAuth(async (request: NextRequest) => {
     return NextResponse.json({
       user: userData,
       programRequirements: requirementsLookup,
+      skillRequirements: skillRequirementsLookup,
+      subskillRequirements: subskillRequirementsLookup,
       programCoverUrls: Object.fromEntries(
         Object.entries(assessmentLookup).map(([id, info]) => [info.title, info.cover_url])
       ),
@@ -189,4 +196,4 @@ export const GET = withAuth(async (request: NextRequest) => {
     console.error('Program readiness dashboard API error:', error)
     return NextResponse.json({ error: error.message || 'Unknown error' }, { status: 500 })
   }
-})
+} 

@@ -1,19 +1,8 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
-import { withAuth } from '@/lib/api/with-auth'
 
-import { type NextRequest } from 'next/server'
-
-export const GET = withAuth(async (request: NextRequest) => {
-  const searchParams = request.nextUrl.searchParams
-  const userId = searchParams.get('userId')
-
+export async function GET() {
   try {
-    let profilesQuery = supabase.from('profiles').select('id, name, user_role, created_at').eq('is_deleted', false)
-    if (userId) {
-      profilesQuery = profilesQuery.eq('id', userId)
-    }
-
     const [
       profilesRes, 
       userSkillsRes, 
@@ -21,8 +10,8 @@ export const GET = withAuth(async (request: NextRequest) => {
       assessmentsRes,
       userSkillDetailsRes
     ] = await Promise.all([
-      profilesQuery,
-      (supabase as any).from('user_skills').select('id, user_id, category, value'),
+      supabase.from('profiles').select('id, name, user_role, created_at').eq('is_deleted', false),
+      (supabase as any).from('user_core_skills').select('id, user_id, category, value'),
       (supabase as any).from('user_programs').select('user_id, assessment_id, readiness'),
       supabase.from('assessments').select('id, title'),
       (supabase as any).from('user_skill_details').select('skill_id, subskill, value')
@@ -122,23 +111,23 @@ export const GET = withAuth(async (request: NextRequest) => {
       return {
         id: profile.id,
         name: userName,
+        role: profile.user_role === 'admin' ? 'Administrator' : 'User',
         level,
-        overallReadiness,
-        progress: Math.min(100, overallReadiness + Math.floor(Math.random() * 10)),
-        badges: [
-          { name: 'Quick Learner', earned: overallReadiness > 70 },
-          { name: 'Consistent', earned: overallReadiness > 60 },
-          { name: 'Team Player', earned: overallReadiness > 65 },
-        ],
         skills,
-        skillDetails,
+        overallReadiness,
+        programReadiness,
         bestProgram,
+        skillDetails
       }
     })
 
-    return NextResponse.json({ users: usersData, success: true })
-  } catch (error) {
+    return NextResponse.json({
+      users: usersData,
+      success: true
+    })
+
+  } catch (error: any) {
     console.error('User dashboard API error:', error)
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+    return NextResponse.json({ error: error.message || 'Unknown error' }, { status: 500 })
   }
-})
+} 
