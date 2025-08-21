@@ -40,8 +40,7 @@ import {
   updateAppearanceAction
 } from '@/lib/actions/settings-actions'
 import { SimpleFileUpload } from '@/components/upload/file-upload'
-import { getSignedAvatarUpload, finalizeAvatar } from '@/lib/actions/avatar-upload'
-import { supabase } from '@/lib/supabase'
+import { uploadAccountImage } from '@/lib/actions/avatar-upload'
 
 interface User {
   role: 'learner' | 'admin' | 'executive' | 'ceo' | 'worker' | 'frontliner'
@@ -127,19 +126,9 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
       // Handle avatar upload if file was selected
       if (selectedAvatarFile) {
         try {
-          const signed = await getSignedAvatarUpload(selectedAvatarFile);
-          if ('error' in signed) throw new Error(signed.error);
+          const publicUrl = await uploadAccountImage(selectedAvatarFile);
           
-          const { error: upErr } = await supabase.storage
-            .from(signed.bucket)
-            .uploadToSignedUrl(signed.path, signed.token, selectedAvatarFile);
-          
-          if (upErr) throw upErr;
-
-          const fin = await finalizeAvatar(signed.path);
-          if ('error' in fin) throw new Error(fin.error);
-
-          setAvatarUrl(fin.url ?? signed.publicUrl ?? null)
+          setAvatarUrl(publicUrl)
           setSelectedAvatarFile(null)
         } catch (err: any) {
           setMessage({ type: 'error', text: err?.message || 'Failed to upload avatar' })

@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, AlertCircle, XCircle, ChevronsLeft, ChevronsRight, Users, Search, Eye } from 'lucide-react';
+import { ChevronsLeft, ChevronsRight, Users, Search, Eye } from 'lucide-react';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -89,7 +89,6 @@ export const UserTable = ({
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
   const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
   const router = useRouter();
-  console.log('Rendering UserTable with activeTab:', userData);
   // Handle data loading errors
   useEffect(() => {
     if (!data?.success) {
