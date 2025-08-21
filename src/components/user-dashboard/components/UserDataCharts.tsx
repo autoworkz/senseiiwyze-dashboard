@@ -52,16 +52,10 @@ export const UserDataCharts = ({
     data,
     loading,
     selectedUserId,
-    onUserSelection
+    
 }: UserDataChartsProps) => {
     const [chartType, setChartType] = useState('programs');
     // Set initial selected user when data loads
-    useEffect(() => {
-        if (data.length > 0 && !selectedUserId) {
-            onUserSelection(data[0].id);
-        }
-    }, [data, selectedUserId]);
-
     const user = data.find(u => u.id === selectedUserId) || data[0];
 
     // Map user skills to predefined structure for pie chart only
