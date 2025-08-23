@@ -5,13 +5,13 @@ export async function GET() {
   try {
     const [
       profilesRes,
-      examsRes,
-      traitsRes,
-      strengthsRes,
-      growthAreasRes,
+      personalityExamsRes,
+      examTraitsRes,
+      examStrengthsRes,
+      examGrowthAreasRes,
       userProgramsRes,
       assessmentsRes,
-      evaluationRes
+      evaluationsRes
     ] = await Promise.all([
       supabase
         .from('profiles')
@@ -35,97 +35,96 @@ export async function GET() {
       supabase
         .from('assessments')
         .select('id, title'),
-        supabase
+      // Remove hardcoded filters - get all evaluations
+      (supabase as any)
         .from('evaluations')
-        .select(
-        "id , user_id , assessment_id ,is_completed, results, user:profiles (id, email, name)"
-      )
-      .eq("workplace_id", "406f9926-0670-4a95-9252-c064c25912e4")
-      .eq("assessment_id", "3ac68f05-2ea9-4223-b139-d88373859379")
-      .order("created_at", { ascending: false })
+        .select('id, user_id, assessment_id, is_completed, results')
+        .eq('is_completed', true) // Only get completed evaluations
     ])
-    // 2️⃣ Error handling
-    for (const res of [profilesRes, examsRes, traitsRes, strengthsRes, growthAreasRes, userProgramsRes, assessmentsRes, evaluationRes]) {
+
+    // Error handling
+    for (const res of [profilesRes, personalityExamsRes, examTraitsRes, examStrengthsRes, examGrowthAreasRes, userProgramsRes, assessmentsRes, evaluationsRes]) {
       if (res.error) {
         console.error('Supabase error:', res.error)
         return NextResponse.json({ error: res.error.message }, { status: 500 })
       }
     }
 
-    const profiles      = profilesRes.data!
-    const exams         = examsRes.data!
-    const traits        = traitsRes.data!
-    const strengths     = strengthsRes.data!
-    const growthAreas   = growthAreasRes.data!
-    const userPrograms  = userProgramsRes.data!
-    const assessments   = assessmentsRes.data!
-    const evaluations = evaluationRes.data!
-    // 3️⃣ Build an assessment lookup
+    const profiles = profilesRes.data!
+    const personalityExams = personalityExamsRes.data!
+    const examTraits = examTraitsRes.data!
+    const examStrengths = examStrengthsRes.data!
+    const examGrowthAreas = examGrowthAreasRes.data!
+    const userPrograms = userProgramsRes.data!
+    const assessments = assessmentsRes.data!
+    const evaluations = evaluationsRes.data!
+
+    // Build assessment lookup
     const assessmentLookup: Record<string, string> = {}
     assessments.forEach((a: any) => {
       assessmentLookup[a.id] = a.title
     })
 
-    // 4️⃣ Assemble per‐user payload
-    const payload = profiles.map((p: any) => {
-      // find this user's exam, if any
-      const exam = exams.find((e: any) => e.user_id === p.id)
+    // Assemble per-user payload
+    const payload = profiles.map((profile: any) => {
+      // Find this user's personality exam
+      const personalityExam = personalityExams.find((e: any) => e.user_id === profile.id)
+      
+      // Find this user's Big Five evaluation (if any)
+      const userEvaluation = evaluations.find((e: any) => e.user_id === profile.id)
 
-      // traits map
+      // Build traits map from personality exam
       const traitMap: Record<string, number> = {}
-      if (exam) {
-        traits
-          .filter((t: any) => t.exam_id === exam.id)
+      if (personalityExam) {
+        examTraits
+          .filter((t: any) => t.exam_id === personalityExam.id)
           .forEach((t: any) => {
             traitMap[t.trait] = t.value
           })
       }
 
-      // strengths
-      const strengthList = exam
-        ? strengths
-            .filter((s: any) => s.exam_id === exam.id)
+      // Get strengths
+      const strengthList = personalityExam
+        ? examStrengths
+            .filter((s: any) => s.exam_id === personalityExam.id)
             .map((s: any) => s.strength)
         : []
-      
-      const evaluationsList = evaluations
-        ? evaluations
-            .filter((e: any) => e.user.id === p.id )
-        : []
 
-      // growth areas
-      const growthList = exam
-        ? growthAreas
-            .filter((g: any) => g.exam_id === exam.id)
+      // Get growth areas
+      const growthList = personalityExam
+        ? examGrowthAreas
+            .filter((g: any) => g.exam_id === personalityExam.id)
             .map((g: any) => g.area)
         : []
 
-      // program readiness
-      const progRead: Record<string, number> = {}
+      // Get Big Five evaluation results
+      const evaluationsList = userEvaluation ? [userEvaluation] : []
+
+      // Get program readiness
+      const programReadiness: Record<string, number> = {}
       userPrograms
-        .filter((up: any) => up.user_id === p.id)
+        .filter((up: any) => up.user_id === profile.id)
         .forEach((up: any) => {
           const title = assessmentLookup[up.assessment_id] || up.assessment_id
-          // skip “Big Five” internal copies
           if (!title.toLowerCase().includes('big five')) {
-            progRead[title] = up.readiness
+            programReadiness[title] = up.readiness
           }
         })
 
       return {
-        id: p.id,
-        name: p.name,
+        id: profile.id,
+        name: profile.name,
         personalityExam: {
-          type: exam?.type ?? 'Not Assessed',
+          type: personalityExam?.type ?? 'Not Assessed',
           traits: traitMap,
           strengths: strengthList,
-          evaluations:evaluationsList,
+          evaluations: evaluationsList,
           growthAreas: growthList,
-          recommendedRoles: [] as string[] // populate if you add a table
+          recommendedRoles: [] // You can populate this if you add a table
         },
-        programReadiness: progRead
+        programReadiness
       }
-    })
+  })
 
     return NextResponse.json(payload)
   } catch (err: any) {
