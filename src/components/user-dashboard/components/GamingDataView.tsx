@@ -4,7 +4,31 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell } from 'recharts';
-import { GamingData, UserGamingData } from '@/types/gaming-data';
+interface GamingData {
+  levelsCompleted: number;
+  totalLevels: number;
+  avgTimePerLevel: number;
+  gamesPlayed: Array<{
+    name: string;
+    score: number;
+    maxScore: number;
+    difficulty: 'easy' | 'medium' | 'hard';
+    completed: boolean;
+    timeSpent?: number;
+  }>;
+  completionRate: number;
+}
+
+interface UserGamingData {
+  id: string;
+  name: string;
+  gamingData: GamingData;
+}
+
+interface GamingDataViewProps {
+  selectedUserId: string;
+  onUserSelection: (userId: string) => void;
+}
 interface GamingDataViewProps {
   selectedUserId: string;
   onUserSelection: (userId: string) => void;
@@ -27,7 +51,7 @@ export const GamingDataView = ({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`/api/gaming-data?userId=${selectedUserId}`);
+        const response = await fetch("/api/gaming-data");
         const result: GamingDataApiResponse = await response.json();
         if (result.success) {
           setUsersData(result.users);
