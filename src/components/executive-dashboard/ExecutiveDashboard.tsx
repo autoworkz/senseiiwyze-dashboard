@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { UserTable } from '@/components/executive-dashboard/UserTable'
 import { UserMetrics } from '@/components/executive-dashboard/UserMetrics'
 import { DataVisualizations } from '@/components/executive-dashboard/DataVisualizations'
@@ -24,108 +24,13 @@ interface UserTableData {
   success: boolean
 }
 
-export default function ExecutiveDashboard(){
+interface ExecutiveDashboardProps {
+  dashboardData: DashboardData
+  userTableData: UserTableData
+}
+
+export default function ExecutiveDashboard({ dashboardData, userTableData }: ExecutiveDashboardProps){
   const [activeTab, setActiveTab] = useState('all')
-  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null)
-  const [userTableData, setUserTableData] = useState<UserTableData | null>(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchAllData = async () => {
-      try {
-        // Fetch all APIs in parallel
-        const [dashboardResponse, usersResponse, skillsResponse] = await Promise.all([
-          fetch('/api/executive-dashboard'),
-          fetch('/api/users-table'),
-          fetch('/api/skills')
-        ])
-
-        const dashboardResult = await dashboardResponse.json()
-        const usersResult = await usersResponse.json()
-        const skillsResult = await skillsResponse.json()
-
-        let mergedUserData = usersResult
-        if (skillsResult.success && skillsResult.data?.users) {
-
-          const skillTypeMap: Record<string, string> = {}
-          skillsResult.data.skillTypes.forEach((skillType: any) => {
-            skillTypeMap[skillType.key] = skillType.name
-          })
-
-          mergedUserData = usersResult.map((user: any) => {
-            const userSkillsData = skillsResult.data.users.find(
-              (skillUser: any) => skillUser.userId === user.user_id
-            )
-
-            let skillDetails: Record<string, Record<string, number>> = {}
-
-            if (userSkillsData && userSkillsData.subskills) {
-
-              Object.entries(userSkillsData.subskills).forEach(([skillKey, subskills]: [string, any]) => {
-                const skillName = skillTypeMap[skillKey] || skillKey
-                skillDetails[skillName] = {}
-                
-                if (Array.isArray(subskills)) {
-                  subskills.forEach((subskill: any) => {
-                    skillDetails[skillName][subskill.name] = subskill.value
-                  })
-                }
-              })
-            }
-
-            // If no database skills found, create empty skillDetails
-            if (Object.keys(skillDetails).length === 0) {
-              skillDetails = {}
-            }
-
-            return {
-              ...user,
-              skillDetails
-            }
-          })
-        } else {
-          // If skills API failed, add empty skillDetails to all users
-          mergedUserData = usersResult.map((user: any) => ({
-            ...user,
-            skillDetails: {}
-          }))
-        }
-
-        setDashboardData(dashboardResult)
-        setUserTableData({
-          userData: mergedUserData,
-          success: true
-        })
-      } catch (error) {
-        console.error('Failed to fetch data:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchAllData()
-  }, [])
-  if (loading) {
-    return (
-      <div className="min-h-screen w-full bg-background p-6">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-2xl font-bold mb-2">Executive Dashboard</h1>
-          <p className="text-muted-foreground mb-6">Loading dashboard data...</p>
-          <div className="animate-pulse space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="bg-gray-200 h-24 rounded-lg"></div>
-              ))}
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="bg-gray-200 h-64 rounded-lg"></div>
-              <div className="bg-gray-200 h-64 rounded-lg"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
 
   if (!dashboardData || !dashboardData.success || !userTableData || !userTableData.success) {
     return (

@@ -120,10 +120,6 @@ export const SkillBubbleChart = ({ user, skillRequirements, subskillRequirements
     strength: 0.7
   })) : [];
   
-  console.log('user', user)
-  console.log('skillRequirements', skillRequirements)
-  console.log('subskillRequirements', subskillRequirements)
-  
   const [selectedProgram, setSelectedProgram] = useState(programs[0] || 'Cyber Security');
   const [viewMode, setViewMode] = useState<'current' | 'required'>('current');
   const [expandedSkill, setExpandedSkill] = useState<string | null>(null);

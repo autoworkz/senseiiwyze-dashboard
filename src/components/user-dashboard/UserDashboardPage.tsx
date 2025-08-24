@@ -1,36 +1,84 @@
 "use client"
 import React, { useState, useEffect } from 'react'
-import { UserDataCharts } from '@/components/user-dashboard/components/UserDataCharts'
+import { UserDataCharts } from './components/UserDataCharts'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Download, Filter, RefreshCw } from 'lucide-react'
-import { GamingDataView } from '@/components/user-dashboard/components/GamingDataView'
-import { VisionBoardView } from '@/components/user-dashboard/components/VisionBoardView'
-import { PersonalityExamView } from '@/components/user-dashboard/components/PersonalityExamView'
-import { ProgramReadinessView } from '@/components/user-dashboard/components/ProgramReadinessView'
-import { UserData } from '@/types/user-data'
+import { GamingDataView } from './components/GamingDataView'
+import { VisionBoardView } from './components/VisionBoardView'
+import { PersonalityExamView } from './components/PersonalityExamView'
+import { UserData } from './components/userData'
 
-
-export default function UserDashboardPage({ userId }: { userId: string }) {
+export default function UserDashboard() {
     const [activeView, setActiveView] = useState<
-        'charts' | 'gaming' | 'vision' | 'personality' | 'program-readiness'
+        'charts' | 'gaming' | 'vision' | 'personality'
     >('charts')
     const [usersData, setUsersData] = useState<UserData[]>([])
     const [loading, setLoading] = useState(true)
-    const [selectedUserId, setSelectedUserId] = useState<string>(userId);
+    const [selectedUserId, setSelectedUserId] = useState<string>('');
     
     const handleUserSelection = (userId: string) => {
         setSelectedUserId(userId)
     }
     // Fetch data once at page level
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchAllData = async () => {
             try {
-                const response = await fetch(`/api/user-dashboard?userId=${selectedUserId}`)
-                const result: { success: boolean; users: UserData[] } = await response.json()
-                if (result.success) {
-                    setUsersData(result.users)
+                // Fetch all APIs in parallel
+                const [dashboardResponse, skillsResponse] = await Promise.all([
+                    fetch('/api/user-dashboard'),
+                    fetch('/api/skills')
+                ])
+
+                const dashboardResult = await dashboardResponse.json()
+                const skillsResult = await skillsResponse.json()
+
+                let mergedUserData = dashboardResult.users
+                if (skillsResult.success && skillsResult.data?.users) {
+
+                    const skillTypeMap: Record<string, string> = {}
+                    skillsResult.data.skillTypes.forEach((skillType: any) => {
+                        skillTypeMap[skillType.key] = skillType.name
+                    })
+
+                    mergedUserData = dashboardResult.users.map((user: any) => {
+                        const userSkillsData = skillsResult.data.users.find(
+                            (skillUser: any) => skillUser.userId === user.id
+                        )
+                        let skillDetails: Record<string, Record<string, number>> = {}
+
+                        if (userSkillsData && userSkillsData.subskills) {
+
+                            Object.entries(userSkillsData.subskills).forEach(([skillKey, subskills]: [string, any]) => {
+                              const skillName = skillTypeMap[skillKey] || skillKey
+                              skillDetails[skillName] = {}
+                              
+                              if (Array.isArray(subskills)) {
+                                subskills.forEach((subskill: any) => {
+                                  skillDetails[skillName][subskill.name] = subskill.value
+                                })
+                              }
+                            })
+                        }
+                        // If no database skills found, create empty skillDetails
+                        if (Object.keys(skillDetails).length === 0) {
+                        skillDetails = {}
+                        }
+
+                            return {
+                            ...user,
+                            skillDetails
+                            }                      
+                    })
                 }
+                else {
+                    // If skills API failed, add empty skillDetails to all users
+                    mergedUserData = dashboardResult.users.map((user: any) => ({
+                      ...user,
+                      skillDetails: {}
+                    }))
+                  }
+                setUsersData(mergedUserData)
             } catch (error) {
                 console.error('Failed to fetch user dashboard data:', error)
             } finally {
@@ -38,10 +86,8 @@ export default function UserDashboardPage({ userId }: { userId: string }) {
             }
         }
 
-        if (selectedUserId) {
-            fetchData()
-        }
-    }, [selectedUserId])
+        fetchAllData()
+    }, [])
     
     const handleExportData = () => {
         const dataStr = JSON.stringify(usersData, null, 2)
@@ -57,7 +103,7 @@ export default function UserDashboardPage({ userId }: { userId: string }) {
     }
     if (loading) {
         return (
-            <div className="container p-6 space-y-4 mx-auto">
+            <div className="container py-6 space-y-4">
                 <div className="animate-pulse space-y-4">
                     <div className="h-8 bg-gray-200 rounded w-64"></div>
                     <div className="h-4 bg-gray-200 rounded w-96"></div>
@@ -72,7 +118,7 @@ export default function UserDashboardPage({ userId }: { userId: string }) {
     }
 
     return (
-        <div className="container p-6 space-y-4 mx-auto">
+        <div className="container py-6 space-y-4">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight">
@@ -127,12 +173,6 @@ export default function UserDashboardPage({ userId }: { userId: string }) {
                     >
                         Personality
                     </TabsTrigger>
-                    {/* <TabsTrigger
-                        value="program-readiness"
-                        onClick={() => setActiveView('program-readiness')}
-                    >
-                        Program Readiness
-                    </TabsTrigger> */}
                 </TabsList>
                 <TabsContent value="charts">
                     <UserDataCharts 
@@ -158,11 +198,6 @@ export default function UserDashboardPage({ userId }: { userId: string }) {
                     <PersonalityExamView 
                         selectedUserId={selectedUserId}
                         onUserSelection={handleUserSelection}
-                    />
-                </TabsContent>
-                <TabsContent value="program-readiness">
-                    <ProgramReadinessView 
-                        userId={selectedUserId}
                     />
                 </TabsContent>
             </Tabs>

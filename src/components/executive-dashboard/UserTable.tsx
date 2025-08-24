@@ -15,7 +15,7 @@ import { UserDetailView } from './UserDetailView';
 
 interface UserData {
   id: number;
-  userId: string;
+  user_id: string;
   name: string;
   role: string;
   level: number;
@@ -308,6 +308,7 @@ export const UserTable = ({
     );
   }
 
+  console.log('currentItems', currentItems);
   return (
     <div className="space-y-4">
       {/* Search and Filters */}
@@ -442,7 +443,7 @@ export const UserTable = ({
                         </div>
                       </TableCell> */}
                       <TableCell className="text-right">
-                        <Link className='flex justify-end' href={`/user-dashboard/${user.userId}/program-readiness`} passHref>
+                        <Link className='flex justify-end' href={`/user-dashboard/${user.user_id}/program-readiness`} passHref>
                           <Eye className="w-4 h-4" />
                         </Link>
                       </TableCell>
