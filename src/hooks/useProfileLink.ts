@@ -3,13 +3,12 @@
 import { useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 
-export type DbUserRole = 'user' | 'admin'
+export type DbUserRole = 'admin-executive' | 'admin-manager'
 
 interface EnsureProfileParams {
   userId: string
   email: string
   name: string
-  role: DbUserRole
 }
 
 interface EnsureProfileResult {
@@ -23,7 +22,7 @@ export function useProfileLink() {
   const ensureProfileLinked = useCallback(async (
     params: EnsureProfileParams
   ): Promise<EnsureProfileResult> => {
-    const { userId, email, name, role } = params
+    const { userId, email, name } = params
     setIsLinking(true)
     setError(null)
 
@@ -49,7 +48,6 @@ export function useProfileLink() {
           .insert({
             email,
             name,
-            user_role: role,
           })
           .select('id')
           .single()

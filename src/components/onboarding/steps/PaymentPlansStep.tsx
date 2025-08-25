@@ -2,12 +2,13 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { CreditCard, Check, Star, ArrowRight, ArrowLeft, Sparkles } from 'lucide-react';
+import { CreditCard, Check, Star, ArrowRight, ArrowLeft, Sparkles, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { OnboardingData } from '../OnboardingFlow';
+import { savePlan } from '@/lib/api/organization';
 
 interface PaymentPlansStepProps {
   data: OnboardingData & { selectedPlan?: string };
@@ -79,14 +80,25 @@ const plans = [
 
 export function PaymentPlansStep({ data, onComplete, onBack }: PaymentPlansStepProps) {
   const [selectedPlan, setSelectedPlan] = useState<string>(data.selectedPlan || '');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string>('');
 
   const handlePlanSelect = (planId: string) => {
     setSelectedPlan(planId);
+    setError(''); // Clear any previous errors
   };
 
-  const handleContinue = () => {
-    if (selectedPlan) {
+  const handleContinue = async () => {
+    if (!selectedPlan) return;
+    setIsLoading(true); setError("");
+  
+    try {
+      await savePlan(selectedPlan);
       onComplete({ selectedPlan });
+    } catch (e: any) {
+      setError(e?.message || "Failed to update plan");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -122,9 +134,10 @@ export function PaymentPlansStep({ data, onComplete, onBack }: PaymentPlansStepP
                   "relative cursor-pointer transition-all duration-300 hover:shadow-lg",
                   plan.color,
                   selectedPlan === plan.id && "ring-2 ring-primary shadow-lg scale-105",
-                  plan.popular && "border-primary shadow-md"
+                  plan.popular && "border-primary shadow-md",
+                  isLoading && "opacity-60 cursor-not-allowed"
                 )}
-                onClick={() => handlePlanSelect(plan.id)}
+                onClick={() => !isLoading && handlePlanSelect(plan.id)}
               >
                 {/* Popular Badge */}
                 {plan.popular && (
@@ -177,9 +190,12 @@ export function PaymentPlansStep({ data, onComplete, onBack }: PaymentPlansStepP
                       selectedPlan === plan.id && "ring-2 ring-primary/50"
                     )}
                     variant={selectedPlan === plan.id ? "default" : "outline"}
+                    disabled={isLoading}
                     onClick={(e) => {
                       e.stopPropagation();
-                      handlePlanSelect(plan.id);
+                      if (!isLoading) {
+                        handlePlanSelect(plan.id);
+                      }
                     }}
                   >
                     {selectedPlan === plan.id ? (
@@ -232,12 +248,29 @@ export function PaymentPlansStep({ data, onComplete, onBack }: PaymentPlansStepP
           </div>
         </motion.div>
 
+        {/* Error Display */}
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="max-w-4xl mx-auto mb-6"
+          >
+            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+              <div className="flex items-center gap-2 text-destructive">
+                <AlertCircle className="w-4 h-4" />
+                <p className="text-sm">{error}</p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* Navigation Buttons */}
         <div className="flex justify-between items-center max-w-4xl mx-auto">
           <Button
             variant="outline"
             size="lg"
             onClick={onBack}
+            disabled={isLoading}
             className="flex items-center gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -247,11 +280,20 @@ export function PaymentPlansStep({ data, onComplete, onBack }: PaymentPlansStepP
           <Button
             size="lg"
             onClick={handleContinue}
-            disabled={!selectedPlan}
+            disabled={!selectedPlan || isLoading}
             className="bg-primary text-white hover:bg-primary/90 min-w-32"
           >
-            Continue
-            <ArrowRight className="w-4 h-4 ml-2" />
+            {isLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Updating...
+              </>
+            ) : (
+              <>
+                Continue
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </>
+            )}
           </Button>
         </div>
 

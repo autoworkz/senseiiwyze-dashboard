@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { OrganizationStep } from './steps/OrganizationStep';
 import { PaymentPlansStep } from './steps/PaymentPlansStep';
@@ -20,7 +21,8 @@ export interface OnboardingData {
 const TOTAL_STEPS = 3;
 
 export function OnboardingFlow() {
-  const [currentStep, setCurrentStep] = useState(1);
+  const router = useRouter();
+  const [currentStep, setCurrentStep] = useState(3);
   const [data, setData] = useState<OnboardingData>({
     companyName: '',
     employeeCount: '',
@@ -41,16 +43,9 @@ export function OnboardingFlow() {
   };
 
   const handleOnboardingComplete = (finalData: OnboardingData) => {
-    console.log('Onboarding completed with data:', finalData);
-    // Here you would typically:
-    // 1. Create the organization
-    // 2. Set up the user account
-    // 3. Process payment plan
-    // 4. Import users
-    // 5. Redirect to dashboard
     
-    // For now, we'll just show a completion message
-    alert('Onboarding completed! In a real app, this would create your organization and redirect to the dashboard.');
+    // Redirect to main dashboard after successful onboarding
+    router.push('/app');
   };
 
   const handleBack = () => {

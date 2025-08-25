@@ -2,13 +2,16 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Building2, Users, ArrowRight } from 'lucide-react';
+import { Building2, Users, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { OnboardingData } from '../OnboardingFlow';
+import { createOrganization, CreateOrganizationData } from '@/lib/api/organization';
+import authClient from '@/lib/auth-client';
+import { toSlug } from '@/lib/utils';
 
 interface OrganizationStepProps {
   data: OnboardingData;
@@ -32,6 +35,7 @@ export function OrganizationStep({ data, onComplete }: OrganizationStepProps) {
   });
   
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isLoading, setIsLoading] = useState(false);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -48,21 +52,63 @@ export function OrganizationStep({ data, onComplete }: OrganizationStepProps) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (validateForm()) {
-      onComplete(formData);
+    if (!validateForm()) {
+      return;
+    }
+
+    // 1. Start loading state
+    setIsLoading(true);
+    setErrors({}); // Clear previous errors
+    
+    try {
+      // 2. Check if organization exists and create if it doesn't
+      const createData: CreateOrganizationData = {
+        companyName: formData.companyName.trim(),
+        employeeCount: formData.employeeCount,
+      };
+
+      const result = await createOrganization(createData);
+      
+      if (result.exists) {
+        // Organization already exists
+        setErrors({ companyName: "Organization already exists" });
+        return;
+      }
+
+      if (result.success) {
+        // 3. Organization created successfully, move to next step
+        onComplete(formData);
+      } else {
+        throw new Error(result.error || 'Failed to create organization');
+      }
+    } catch (error) {
+      console.error('Error creating organization:', error);
+      setErrors({ 
+        submit: error instanceof Error ? error.message : 'Failed to create organization' 
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleInputChange = (field: keyof typeof formData, value: string) => {
+  const handleInputChange = async (field: keyof typeof formData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
   };
+
+  const handleCheckSlug = async (value: string) => {
+    if(!value.trim()) return;
+    const { data, error } = await authClient.organization.checkSlug({ slug: toSlug(value) });
+    if(error) {
+      setErrors({ companyName: error.message ?? "Something went wrong" });
+    }
+  }
 
   return (
     <div className="p-8">
@@ -105,7 +151,9 @@ export function OrganizationStep({ data, onComplete }: OrganizationStepProps) {
                   placeholder="Enter your company name"
                   value={formData.companyName}
                   onChange={(e) => handleInputChange('companyName', e.target.value)}
+                  onBlur={(e) => handleCheckSlug(e.target.value)}
                   className={errors.companyName ? 'border-destructive' : ''}
+                  disabled={isLoading}
                 />
                 {errors.companyName && (
                   <p className="text-sm text-destructive">{errors.companyName}</p>
@@ -121,6 +169,7 @@ export function OrganizationStep({ data, onComplete }: OrganizationStepProps) {
                 <Select
                   value={formData.employeeCount}
                   onValueChange={(value) => handleInputChange('employeeCount', value)}
+                  disabled={isLoading}
                 >
                   <SelectTrigger className={errors.employeeCount ? 'border-destructive' : ''}>
                     <SelectValue placeholder="Select number of employees" />
@@ -137,6 +186,16 @@ export function OrganizationStep({ data, onComplete }: OrganizationStepProps) {
                   <p className="text-sm text-destructive">{errors.employeeCount}</p>
                 )}
               </div>
+
+              {/* Submit Error */}
+              {errors.submit && (
+                <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+                  <div className="flex items-center gap-2 text-destructive">
+                    <AlertCircle className="w-4 h-4" />
+                    <p className="text-sm">{errors.submit}</p>
+                  </div>
+                </div>
+              )}
 
               {/* Info Card */}
               <motion.div
@@ -165,9 +224,19 @@ export function OrganizationStep({ data, onComplete }: OrganizationStepProps) {
                   type="submit"
                   size="lg"
                   className="bg-primary text-white hover:bg-primary/90 min-w-32"
+                  disabled={isLoading}
                 >
-                  Continue
-                  <ArrowRight className="w-4 h-4 ml-2" />
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Creating...
+                    </>
+                  ) : (
+                    <>
+                      Continue
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </>
+                  )}
                 </Button>
               </div>
             </form>

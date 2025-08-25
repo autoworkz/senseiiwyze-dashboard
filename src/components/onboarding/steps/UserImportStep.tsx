@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Upload, 
@@ -12,7 +11,8 @@ import {
   ArrowLeft, 
   ArrowRight,
   AlertCircle,
-  UserPlus
+  UserPlus,
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,6 +20,11 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
 import { OnboardingData } from '../OnboardingFlow';
+import { useUserImport } from '@/hooks/useUserImport';
+import { importMethods, requiredColumns } from '@/config/import-methods';
+import { downloadTemplate } from '@/utils/user-import';
+import { useEffect } from 'react';
+import authClient from '@/lib/auth-client';
 
 interface UserImportStepProps {
   data: OnboardingData & { importMethod?: string; userCount?: number };
@@ -27,134 +32,67 @@ interface UserImportStepProps {
   onBack: () => void;
 }
 
-const importMethods = [
-  {
-    id: 'excel',
-    name: 'Excel Import',
-    description: 'Upload an Excel file (.xlsx) with user data',
-    icon: FileText,
-    formats: ['.xlsx', '.xls'],
-    maxSize: '10MB',
-    color: 'text-green-600',
-    bgColor: 'bg-green-50',
-    borderColor: 'border-green-200'
-  },
-  {
-    id: 'csv',
-    name: 'CSV Import',
-    description: 'Upload a CSV file with comma-separated user data',
-    icon: FileText,
-    formats: ['.csv'],
-    maxSize: '5MB',
-    color: 'text-blue-600',
-    bgColor: 'bg-blue-50',
-    borderColor: 'border-blue-200'
-  },
-  {
-    id: 'manual',
-    name: 'Add Manually',
-    description: 'Add users one by one through the interface',
-    icon: UserPlus,
-    formats: ['No file needed'],
-    maxSize: 'Unlimited',
-    color: 'text-purple-600',
-    bgColor: 'bg-purple-50',
-    borderColor: 'border-purple-200'
-  }
-];
-
-const requiredColumns = [
-  'First Name',
-  'Last Name', 
-  'Email',
-  'Department (Optional)',
-  'Role (Optional)'
-];
-
 export function UserImportStep({ data, onComplete, onBack }: UserImportStepProps) {
-  const [selectedMethod, setSelectedMethod] = useState<string>(data.importMethod || '');
-  const [dragActive, setDragActive] = useState(false);
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [uploadError, setUploadError] = useState<string>('');
+  const {
+    selectedMethod,
+    uploadedFile,
+    uploadError,
+    isProcessing,
+    dragActive,
+    setSelectedMethod,
+    handleDrag,
+    handleDrop,
+    handleFileInputChange,
+    processImport,
+    removeFile,
+  } = useUserImport();
 
-  const handleDrag = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
-  }, []);
+  const { data: organizations } = authClient.useListOrganizations()
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    
-    const files = e.dataTransfer.files;
-    if (files && files[0]) {
-      handleFileUpload(files[0]);
-    }
-  }, [selectedMethod]);
+  const handleContinue = async () => {
+    if (!selectedMethod) return;
 
-  const handleFileUpload = (file: File) => {
-    setUploadError('');
-    
-    // Validate file type based on selected method
-    if (selectedMethod === 'excel' && !file.name.match(/\.(xlsx|xls)$/)) {
-      setUploadError('Please upload an Excel file (.xlsx or .xls)');
-      return;
-    }
-    
-    if (selectedMethod === 'csv' && !file.name.match(/\.csv$/)) {
-      setUploadError('Please upload a CSV file (.csv)');
-      return;
-    }
-    
-    // Validate file size (10MB = 10 * 1024 * 1024 bytes)
-    const maxSize = selectedMethod === 'excel' ? 10 * 1024 * 1024 : 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-      setUploadError(`File size must be less than ${selectedMethod === 'excel' ? '10MB' : '5MB'}`);
-      return;
-    }
-    
-    setUploadedFile(file);
-  };
-
-  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      handleFileUpload(file);
+    try {
+      if (selectedMethod === 'manual' || selectedMethod === 'skip') {
+        onComplete({ 
+          importMethod: selectedMethod, 
+          userCount: 0 
+        });
+      } else {
+        // Process file import and send invitations
+        const result = await processImport();
+        onComplete({ 
+          importMethod: selectedMethod, 
+          userCount: result.userCount || 0
+        });
+      }
+    } catch (error) {
+      console.error('Import failed:', error);
+      // Handle error - could show a toast or error state
     }
   };
 
-  const downloadTemplate = () => {
-    // In a real app, this would download an actual template file
-    const csvContent = "First Name,Last Name,Email,Department,Role\nJohn,Doe,john.doe@company.com,Engineering,Developer\nJane,Smith,jane.smith@company.com,Marketing,Manager";
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `user_import_template.${selectedMethod === 'excel' ? 'xlsx' : 'csv'}`;
-    a.click();
-    window.URL.revokeObjectURL(url);
+  const handleSkip = () => {
+    onComplete({ 
+      importMethod: 'skip', 
+      userCount: 0 
+    });
   };
 
-  const handleContinue = () => {
-    if (selectedMethod) {
-      const mockUserCount = selectedMethod === 'manual' ? 0 : Math.floor(Math.random() * 50) + 10;
-      onComplete({ 
-        importMethod: selectedMethod, 
-        userCount: mockUserCount 
-      });
+  const handleMethodSelect = (methodId: string) => {
+    setSelectedMethod(methodId as any);
+    removeFile(); // Clear any previously uploaded file
+  };
+
+  const setActiveOrg = async (orgId: string) => {
+    await authClient.organization.setActive({ organizationId: orgId });
+  }
+  useEffect(() => {
+    if (organizations) {
+      console.log("organizations", organizations);
+      setActiveOrg(organizations[0].id);
     }
-  };
-
-  const removeFile = () => {
-    setUploadedFile(null);
-    setUploadError('');
-  };
+  }, [organizations]);
 
   return (
     <div className="p-8">
@@ -191,11 +129,7 @@ export function UserImportStep({ data, onComplete, onBack }: UserImportStepProps
                     selectedMethod === method.id && "ring-2 ring-primary shadow-lg scale-105",
                     method.borderColor
                   )}
-                  onClick={() => {
-                    setSelectedMethod(method.id);
-                    setUploadedFile(null);
-                    setUploadError('');
-                  }}
+                  onClick={() => handleMethodSelect(method.id)}
                 >
                   <CardHeader className="text-center pb-2">
                     <div className={cn("mx-auto w-12 h-12 rounded-full flex items-center justify-center mb-2", method.bgColor)}>
@@ -319,7 +253,7 @@ export function UserImportStep({ data, onComplete, onBack }: UserImportStepProps
                   <Button 
                     variant="link" 
                     size="sm" 
-                    onClick={downloadTemplate}
+                    onClick={() => downloadTemplate(selectedMethod)}
                     className="mt-2 p-0 h-auto text-custom-blue"
                   >
                     <Download className="w-4 h-4 mr-1" />
@@ -349,27 +283,72 @@ export function UserImportStep({ data, onComplete, onBack }: UserImportStepProps
           </motion.div>
         )}
 
+        {/* Skip Info */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="max-w-4xl mx-auto mb-6"
+        >
+          <div className="bg-muted/50 border rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
+              <div>
+                <p className="text-sm font-medium mb-1">
+                  Not ready to import users yet?
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  You can skip this step and add team members later from your dashboard. 
+                  You'll be able to invite users individually or import them in bulk at any time.
+                </p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
         {/* Navigation Buttons */}
         <div className="flex justify-between items-center max-w-4xl mx-auto">
           <Button
             variant="outline"
             size="lg"
             onClick={onBack}
+            disabled={isProcessing}
             className="flex items-center gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
             Back
           </Button>
 
-          <Button
-            size="lg"
-            onClick={handleContinue}
-            disabled={!selectedMethod || (selectedMethod !== 'manual' && !uploadedFile && selectedMethod !== 'manual')}
-            className="bg-primary text-white hover:bg-primary/90 min-w-32"
-          >
-            {selectedMethod === 'manual' ? 'Skip for now' : 'Import Users'}
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="lg"
+              onClick={handleSkip}
+              disabled={isProcessing}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              Skip for now
+            </Button>
+
+            <Button
+              size="lg"
+              onClick={handleContinue}
+              disabled={!selectedMethod || (selectedMethod !== 'manual' && selectedMethod !== 'skip' && !uploadedFile) || isProcessing}
+              className="bg-primary text-white hover:bg-primary/90 min-w-32"
+            >
+              {isProcessing ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  {selectedMethod === 'manual' ? 'Continue' : 'Import Users'}
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </motion.div>
     </div>

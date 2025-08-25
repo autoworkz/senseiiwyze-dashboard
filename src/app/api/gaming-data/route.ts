@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { withAuth } from '@/lib/api/with-auth';
 
 interface Profile {
   id: string;
@@ -32,7 +33,7 @@ interface UserGameProgress {
   last_played_at: string;
 }
 
-export async function GET() {
+export const GET = withAuth(async (_request: NextRequest) => {
   try {
     // Fetch all profiles
     const { data: profiles, error: profilesError } = await (supabase as any)
@@ -181,4 +182,4 @@ export async function GET() {
     console.error('Gaming-data API error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
-}
+})

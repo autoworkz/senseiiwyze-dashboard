@@ -4919,7 +4919,7 @@ export type Database = {
       payment_status: "pending" | "succeeded" | "failed"
       pricing_plan_interval: "day" | "week" | "month" | "year"
       pricing_type: "one_time" | "recurring"
-      role_status: "admin" | "user"
+      role_status: "admin-executive" | "admin-manager"
       subscription_item_type: "flat" | "per_seat" | "metered"
       subscription_status:
         | "active"

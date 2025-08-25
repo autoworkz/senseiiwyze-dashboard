@@ -1,7 +1,8 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { withAuth } from '@/lib/api/with-auth'
 
-export async function GET() {
+export const GET = withAuth(async (_request: NextRequest) => {
   try {
     // Fetch all necessary data in parallel from our new tables
     const [
@@ -278,4 +279,4 @@ export async function GET() {
     console.error('Executive dashboard API error:', error)
     return NextResponse.json({ error: error.message || 'Unknown error' }, { status: 500 })
   }
-} 
+}) 

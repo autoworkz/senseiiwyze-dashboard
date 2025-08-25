@@ -26,16 +26,13 @@ import { authLogger } from "@/lib/logger";
 // Import our B2B2C access control system
 import {
   ac,
-  ceo,
-  worker,
-  frontliner,
-  learner,
-  admin as adminRole,
-  executive,
+  adminManager,
+  adminExecutive,
 } from "./permissions";
 import { eq } from "drizzle-orm";
 import { profiles } from "../../lib/db/schema";
 import { users } from "../../lib/db/schema";
+import { sendOrganizationInvitation } from "@/lib/email/index";
 
 export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET!,
@@ -106,40 +103,45 @@ export const auth = betterAuth({
     organization({
       ac,
       roles: {
-        // B2B2C primary roles
-        ceo,
-        worker,
-        frontliner,
-        // Legacy compatibility roles
-        learner,
-        admin: adminRole,
-        executive,
+        "admin-executive": adminExecutive,
+        "admin-manager": adminManager,
       },
-      // Organization configuration
-      allowUserToCreateOrganization: true,
+      allowUserToCreateOrganization: async (user:any) => {  // only admins sign up; employees get invited
+        const roles = String(user.role ?? "") 
+          .split(",")
+          .map((r) => r.trim());
+        return roles.includes("admin-executive");
+      },       
+      creatorRole: "admin-executive",               // creator must be able to edit org & billing
       organizationLimit: 5,
-      creatorRole: "admin", // Workers can create organizations
       membershipLimit: 100,
-      invitationExpiresIn: 48 * 60 * 60, // 48 hours
-      cancelPendingInvitationsOnReInvite: true,
       invitationLimit: 50,
+      invitationExpiresIn: 48 * 60 * 60,
+      cancelPendingInvitationsOnReInvite: true,
+      async sendInvitationEmail(data) {
+        // Build your accept link (route handles acceptInvitation by invitationId)
+        const acceptUrl = `${process.env.NEXT_PUBLIC_APP_URL}/app/organization/accept-invite/${data.id}`;
+        await sendOrganizationInvitation({
+          email: data.email,  
+          invitedByUsername: data.inviter.user.name,
+          invitedByEmail: data.inviter.user.email,
+          organizationName: data.organization.name,
+          inviteLink: acceptUrl,
+        })
+  
+       
+      },
     }),
 
     // Admin plugin with B2B2C access control
     admin({
       ac,
       roles: {
-        // B2B2C primary roles
-        ceo,
-        worker,
-        frontliner,
-        // Legacy compatibility roles
-        learner,
-        admin: adminRole,
-        executive,
+        "admin-executive": adminExecutive,
+        "admin-manager": adminManager,
       },
-      defaultRole: "learner", // Default new users to CEO/learner role
-      adminRoles: ["worker", "frontliner", "admin", "executive"], // Who can perform admin actions
+      defaultRole: "admin-executive",               // only admins self-serve sign-up
+      adminRoles: ["admin-executive", "admin-manager"],
     }),
 
     apiKey(),
@@ -166,9 +168,6 @@ export const auth = betterAuth({
     nextCookies(), // Must be last
   ],
 });
-
-console.log("🔧 Better Auth configuration loaded successfully");
-
 /**
  * Get the current authenticated user with their role and organization context
  * This function retrieves the user from Better Auth session and formats it
@@ -283,50 +282,79 @@ export async function checkUserRole(expectedRole: string): Promise<boolean> {
   }
 }
 
-/**
- * B2B2C Role Mappings for Route Protection
- */
 export const roleRouteMapping = {
-  // CEO/learner routes - personal development
-  learner: ["/me", "/me/goals", "/me/games", "/me/learn"],
-  ceo: ["/me", "/me/goals", "/me/games", "/me/learn"],
-
-  // Worker/admin routes - team management
-  admin: [
-    "/team",
-    "/team/tasks",
-    "/team/courses",
-    "/team/messages",
-    "/team/profile",
+  "admin-executive": [
+    "/org", "/org/settings", "/org/billing",
+    "/team", "/reports", "/enterprise"
   ],
-  worker: [
-    "/team",
-    "/team/tasks",
-    "/team/courses",
-    "/team/messages",
-    "/team/profile",
+  "admin-manager": [
+    "/team", "/reports"
   ],
-
-  // Frontliner/executive routes - organizational oversight
-  executive: ["/org", "/org/reports", "/org/presentation"],
-  frontliner: ["/org", "/org/reports", "/org/presentation"],
-};
+} as const;
 
 /**
- * Check if user can access a specific route based on their role
+ * Safe prefix match: exact "/route" or "/route/..."
+ */
+function pathStartsWithSegment(path: string, base: string) {
+  if (base === "/") return true;
+  return path === base || path.startsWith(base.endsWith("/") ? base : base + "/");
+}
+
+
+/**
+ * Map aliases to canonical keys you actually maintain in roleRouteMapping.
+ * (Keeps "learner" ↔ "ceo", "admin" ↔ "worker", "executive" ↔ "frontliner")
+ */
+const aliasToCanonical = {
+  ceo: "ceo",
+  learner: "ceo",
+  worker: "worker",
+  admin: "worker",
+  frontliner: "frontliner",
+  executive: "frontliner",
+} as const;
+
+function normalizePath(p: string) {
+  // remove trailing slash (except root) and collapse duplicate slashes
+  let x = p.replace(/\/{2,}/g, "/");
+  if (x.length > 1 && x.endsWith("/")) x = x.slice(0, -1);
+  return x;
+}
+
+
+/**
+ * Check if user can access a specific route based on their (global) role
+ * and minimal org guard for org-scoped paths.
  */
 export async function canAccessRoute(pathname: string): Promise<boolean> {
   try {
+    const path = normalizePath(pathname);
     const user = await getCurrentUser();
     if (!user) return false;
 
-    const userRoles = user.role?.split(",").map((r) => r.trim()) || [];
+    // If the page is clearly org-scoped, require an active org on the session/user.
+    const looksOrgScoped =
+      pathStartsWithSegment(path, "/org") || pathStartsWithSegment(path, "/team");
+    if (looksOrgScoped && !("activeOrganizationId" in user ? user.activeOrganizationId : undefined)) {
+      return false; // no active org selected ⇒ block
+    }
 
-    // Check if any of the user's roles allow access to this route
-    for (const role of userRoles) {
-      const allowedRoutes =
-        roleRouteMapping[role as keyof typeof roleRouteMapping] || [];
-      if (allowedRoutes.some((route) => pathname.startsWith(route))) {
+    // Parse roles robustly; accept string or array; handle commas/spaces.
+    const rawRoles =
+      Array.isArray(user.role) ? user.role : String(user.role ?? "")
+        .split(",")
+        .map(r => r.trim())
+        .filter(Boolean);
+
+    // Resolve aliases to canonical keys used in your mapping
+    const canonicalRoles = rawRoles
+      .map(r => (aliasToCanonical as any)[r] ?? r)
+      .filter(Boolean);
+
+    // Check allowed prefixes per role (segment-safe)
+    for (const role of canonicalRoles) {
+      const allowed = roleRouteMapping[role as keyof typeof roleRouteMapping] ?? [];
+      if (allowed.some(route => pathStartsWithSegment(path, route))) {
         return true;
       }
     }
