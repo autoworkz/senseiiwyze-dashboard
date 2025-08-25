@@ -1,18 +1,23 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { CreditCard, Check, Star, ArrowRight, ArrowLeft, Sparkles, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
 import { OnboardingData } from '../OnboardingFlow';
 import { savePlan } from '@/lib/api/organization';
 
 interface PaymentPlansStepProps {
   data: OnboardingData & { selectedPlan?: string };
-  onComplete: (data: Partial<OnboardingData & { selectedPlan: string }>) => void;
+  onComplete: (data: Partial<OnboardingData & { 
+    selectedPlan: string;
+    paymentSessionId?: string;
+    customerId?: string;
+  }>) => void;
   onBack: () => void;
 }
 
@@ -213,6 +218,19 @@ export function PaymentPlansStep({ data, onComplete, onBack }: PaymentPlansStepP
           ))}
         </div>
 
+        {/* Error Alert */}
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-4xl mx-auto mb-6"
+          >
+            <Alert className="border-destructive/50 text-destructive dark:border-destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          </motion.div>
+        )}
+
         {/* Additional Information */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -297,13 +315,24 @@ export function PaymentPlansStep({ data, onComplete, onBack }: PaymentPlansStepP
           </Button>
         </div>
 
-        {/* Trust Indicators */}
+        {/* Trust Indicators with Autumn Branding */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7 }}
           className="text-center mt-8"
         >
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <div className="w-4 h-4 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full"></div>
+              <span>Powered by Autumn</span>
+            </div>
+            <div className="text-muted-foreground">•</div>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <div className="w-4 h-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full"></div>
+              <span>Secured by Stripe</span>
+            </div>
+          </div>
           <p className="text-sm text-muted-foreground">
             🔒 Secure payment processing • 💳 Accept all major credit cards • 📞 24/7 support available
           </p>
