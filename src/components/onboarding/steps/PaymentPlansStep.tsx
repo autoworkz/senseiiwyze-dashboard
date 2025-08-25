@@ -1,17 +1,22 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { CreditCard, Check, Star, ArrowRight, ArrowLeft, Sparkles } from 'lucide-react';
+import { CreditCard, Check, Star, ArrowRight, ArrowLeft, Sparkles, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
 import { OnboardingData } from '../OnboardingFlow';
 
 interface PaymentPlansStepProps {
   data: OnboardingData & { selectedPlan?: string };
-  onComplete: (data: Partial<OnboardingData & { selectedPlan: string }>) => void;
+  onComplete: (data: Partial<OnboardingData & { 
+    selectedPlan: string;
+    paymentSessionId?: string;
+    customerId?: string;
+  }>) => void;
   onBack: () => void;
 }
 
@@ -79,14 +84,109 @@ const plans = [
 
 export function PaymentPlansStep({ data, onComplete, onBack }: PaymentPlansStepProps) {
   const [selectedPlan, setSelectedPlan] = useState<string>(data.selectedPlan || '');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState<string>('');
+
+  // Check for returning users from payment success
+  useEffect(() => {
+    const checkPaymentStatus = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const sessionId = urlParams.get('session_id');
+      
+      if (sessionId) {
+        // User is returning from Autumn checkout
+        setIsProcessing(true);
+        try {
+          const response = await fetch(`/api/verify-payment?session_id=${sessionId}`);
+          const result = await response.json();
+          
+          if (result.verified) {
+            // Payment successful, proceed to next step
+            onComplete({ 
+              selectedPlan: result.planId || selectedPlan,
+              paymentSessionId: sessionId,
+              customerId: result.customerId,
+            });
+          } else {
+            setError('Payment verification failed. Please try again or contact support.');
+          }
+        } catch (err) {
+          console.error('Payment verification error:', err);
+          setError('Unable to verify payment. Please contact support.');
+        } finally {
+          setIsProcessing(false);
+        }
+      }
+    };
+
+    checkPaymentStatus();
+  }, [selectedPlan, onComplete]);
 
   const handlePlanSelect = (planId: string) => {
     setSelectedPlan(planId);
+    setError('');
   };
 
-  const handleContinue = () => {
-    if (selectedPlan) {
-      onComplete({ selectedPlan });
+  const handleContinue = async () => {
+    if (!selectedPlan) return;
+    
+    setIsProcessing(true);
+    setError('');
+
+    try {
+      // Call your Autumn checkout API
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          planId: selectedPlan,
+          companyName: data.companyName,
+          employeeCount: data.employeeCount,
+          // Additional metadata for Autumn
+          metadata: {
+            source: 'onboarding_flow',
+            step: 'payment_plans',
+            selectedFeatures: plans.find(p => p.id === selectedPlan)?.features || [],
+          },
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to create checkout session');
+      }
+
+      if (result.type === 'contact_sales') {
+        // For enterprise plans, redirect to contact sales instead of showing error
+        window.location.href = '/contact-sales?plan=enterprise&source=onboarding';
+        return;
+      }
+
+      if (result.type === 'checkout' && result.checkoutUrl) {
+        // Store selected plan info for success page
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('onboarding_selected_plan', JSON.stringify({
+            planId: selectedPlan,
+            planName: plans.find(p => p.id === selectedPlan)?.name,
+            companyName: data.companyName,
+            timestamp: Date.now(),
+          }));
+        }
+        
+        // Redirect to Autumn/Stripe checkout
+        window.location.href = result.checkoutUrl;
+        return;
+      }
+
+      throw new Error('Invalid response from checkout API');
+    } catch (err) {
+      console.error('Autumn checkout error:', err);
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -197,6 +297,19 @@ export function PaymentPlansStep({ data, onComplete, onBack }: PaymentPlansStepP
           ))}
         </div>
 
+        {/* Error Alert */}
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-4xl mx-auto mb-6"
+          >
+            <Alert className="border-destructive/50 text-destructive dark:border-destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          </motion.div>
+        )}
+
         {/* Additional Information */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -247,21 +360,41 @@ export function PaymentPlansStep({ data, onComplete, onBack }: PaymentPlansStepP
           <Button
             size="lg"
             onClick={handleContinue}
-            disabled={!selectedPlan}
+            disabled={!selectedPlan || isProcessing}
             className="bg-primary text-white hover:bg-primary/90 min-w-32"
           >
-            Continue
-            <ArrowRight className="w-4 h-4 ml-2" />
+            {isProcessing ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              <>
+                {selectedPlan === 'enterprise' ? 'Contact Sales' : 'Continue to Payment'}
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </>
+            )}
           </Button>
         </div>
 
-        {/* Trust Indicators */}
+        {/* Trust Indicators with Autumn Branding */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7 }}
           className="text-center mt-8"
         >
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <div className="w-4 h-4 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full"></div>
+              <span>Powered by Autumn</span>
+            </div>
+            <div className="text-muted-foreground">•</div>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <div className="w-4 h-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full"></div>
+              <span>Secured by Stripe</span>
+            </div>
+          </div>
           <p className="text-sm text-muted-foreground">
             🔒 Secure payment processing • 💳 Accept all major credit cards • 📞 24/7 support available
           </p>

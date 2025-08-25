@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { OrganizationStep } from './steps/OrganizationStep';
 import { PaymentPlansStep } from './steps/PaymentPlansStep';
@@ -20,6 +21,7 @@ export interface OnboardingData {
 const TOTAL_STEPS = 3;
 
 export function OnboardingFlow() {
+  const searchParams = useSearchParams();
   const [currentStep, setCurrentStep] = useState(1);
   const [data, setData] = useState<OnboardingData>({
     companyName: '',
@@ -29,8 +31,32 @@ export function OnboardingFlow() {
     userCount: 0,
   });
 
+  // Handle URL parameters for resuming onboarding
+  useEffect(() => {
+    const step = searchParams.get('step');
+    if (step) {
+      const stepNumber = parseInt(step, 10);
+      if (stepNumber >= 1 && stepNumber <= TOTAL_STEPS) {
+        setCurrentStep(stepNumber);
+      }
+    }
+  }, [searchParams]);
+
   const handleStepComplete = (stepData: Partial<OnboardingData>) => {
     setData(prev => ({ ...prev, ...stepData }));
+    
+    // For payment step, if enterprise plan is selected, skip directly to user import
+    if (currentStep === 2 && stepData.selectedPlan === 'enterprise') {
+      setCurrentStep(3); // Skip to user import step
+      return;
+    }
+    
+    // For payment step with starter/professional, the user will be redirected to Stripe
+    // They'll come back via the success page which will redirect to step 3
+    if (currentStep === 2 && (stepData.selectedPlan === 'starter' || stepData.selectedPlan === 'professional')) {
+      // Don't advance step here - user will be redirected to payment
+      return;
+    }
     
     if (currentStep < TOTAL_STEPS) {
       setCurrentStep(prev => prev + 1);
