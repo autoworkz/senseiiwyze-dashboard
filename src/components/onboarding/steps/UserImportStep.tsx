@@ -84,16 +84,6 @@ export function UserImportStep({ data, onComplete, onBack }: UserImportStepProps
     removeFile(); // Clear any previously uploaded file
   };
 
-  const setActiveOrg = async (orgId: string) => {
-    await authClient.organization.setActive({ organizationId: orgId });
-  }
-  useEffect(() => {
-    if (organizations) {
-      console.log("organizations", organizations);
-      setActiveOrg(organizations[0].id);
-    }
-  }, [organizations]);
-
   return (
     <div className="p-8">
       <motion.div

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { CreditCard, Check, Star, ArrowRight, ArrowLeft, Sparkles, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
