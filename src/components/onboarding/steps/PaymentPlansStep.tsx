@@ -10,6 +10,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
 import { OnboardingData } from '../OnboardingFlow';
 import { savePlan } from '@/lib/api/organization';
+import { createAutumnCheckout } from '@/lib/autumn-utils';
+
 
 interface PaymentPlansStepProps {
   data: OnboardingData & { selectedPlan?: string };
@@ -98,8 +100,18 @@ export function PaymentPlansStep({ data, onComplete, onBack }: PaymentPlansStepP
     setIsLoading(true); setError("");
   
     try {
+       const checkoutUrl = await createAutumnCheckout(selectedPlan, {
+        companyName: data.companyName,
+        employeeCount: data.employeeCount,
+        source: 'onboarding'
+      });
+
+      // Save the selected plan before redirecting
       await savePlan(selectedPlan);
-      onComplete({ selectedPlan });
+      await onComplete({ selectedPlan });
+      
+      // Redirect to Autumn checkout
+      window.location.href = checkoutUrl;
     } catch (e: any) {
       setError(e?.message || "Failed to update plan");
     } finally {
