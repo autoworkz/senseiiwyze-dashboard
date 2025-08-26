@@ -2708,6 +2708,7 @@ export type Database = {
           user_role: Database["public"]["Enums"]["role_status"]
           workplace: string | null
           workplace_ref: string | null
+          is_onboarding?: boolean | null
         }
         Insert: {
           bio?: string | null
@@ -2729,6 +2730,7 @@ export type Database = {
           user_role?: Database["public"]["Enums"]["role_status"]
           workplace?: string | null
           workplace_ref?: string | null
+          is_onboarding?: boolean | null
         }
         Update: {
           bio?: string | null
@@ -2750,6 +2752,7 @@ export type Database = {
           user_role?: Database["public"]["Enums"]["role_status"]
           workplace?: string | null
           workplace_ref?: string | null
+          is_onboarding?: boolean | null
         }
         Relationships: [
           {

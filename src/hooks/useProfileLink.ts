@@ -30,7 +30,7 @@ export function useProfileLink() {
       // 1) Check if profile already exists by email
       const { data: existingProfile, error: existingErr } = await supabase
         .from('profiles')
-        .select('id')
+        .select('id, user_role, is_onboarding')
         .eq('email', email)
         .maybeSingle()
 
@@ -48,6 +48,8 @@ export function useProfileLink() {
           .insert({
             email,
             name,
+            user_role: 'admin-executive', // Default role for new profiles
+            is_onboarding: true // New profiles need onboarding
           })
           .select('id')
           .single()
@@ -57,6 +59,9 @@ export function useProfileLink() {
         }
 
         profileId = created.id
+        console.log('✅ Created new profile for admin-executive:', profileId)
+      } else {
+        console.log('✅ Found existing profile:', profileId, 'role:', existingProfile?.user_role, 'onboarding:', existingProfile?.is_onboarding)
       }
 
       // 3) Link profile to Better Auth user in ba_users
@@ -69,9 +74,34 @@ export function useProfileLink() {
         throw linkErr
       }
 
+      console.log('✅ Linked profile to Better Auth user:', userId, '→', profileId)
+
       return { profileId: profileId! }
     } catch (err: any) {
       setError(err?.message || 'Failed to ensure profile link')
+      throw err
+    } finally {
+      setIsLinking(false)
+    }
+  }, [])
+
+  const completeOnboarding = useCallback(async (profileId: string) => {
+    setIsLinking(true)
+    setError(null)
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_onboarding: false })
+        .eq('id', profileId)
+
+      if (error) {
+        throw error
+      }
+
+      console.log('✅ Onboarding completed for profile:', profileId)
+    } catch (err: any) {
+      setError(err?.message || 'Failed to complete onboarding')
       throw err
     } finally {
       setIsLinking(false)

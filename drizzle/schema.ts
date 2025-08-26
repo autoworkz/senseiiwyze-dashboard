@@ -14,7 +14,7 @@ export const notificationType = pgEnum("notification_type", ['info', 'warning', 
 export const paymentStatus = pgEnum("payment_status", ['pending', 'succeeded', 'failed'])
 export const pricingPlanInterval = pgEnum("pricing_plan_interval", ['day', 'week', 'month', 'year'])
 export const pricingType = pgEnum("pricing_type", ['one_time', 'recurring'])
-export const roleStatus = pgEnum("role_status", ['admin', 'user'])
+export const roleStatus = pgEnum("role_status", ['admin', 'user', 'admin-executive', 'admin-manager'])
 export const subscriptionItemType = pgEnum("subscription_item_type", ['flat', 'per_seat', 'metered'])
 export const subscriptionStatus = pgEnum("subscription_status", ['active', 'trialing', 'past_due', 'canceled', 'unpaid', 'incomplete', 'incomplete_expired', 'paused'])
 export const taskstate = pgEnum("taskstate", ['UNTOUCHED', 'ONGOING', 'COMPLETED'])
@@ -519,6 +519,7 @@ export const profiles = pgTable("profiles", {
 	employmentStatus: text("employment_status"),
 	isDeleted: boolean("is_deleted").default(false),
 	jobTitle: text("job_title"),
+	isOnboarding: boolean("is_onboarding").default(true).notNull(),
 }, (table) => [
 	foreignKey({
 			columns: [table.institutionRef],

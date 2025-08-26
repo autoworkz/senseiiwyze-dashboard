@@ -47,9 +47,11 @@ export async function createAutumnCheckout(planId: string, metadata?: Record<str
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      // Include credentials for authentication
     },
+    credentials: 'include', // Important: Include cookies for Better Auth
     body: JSON.stringify({
-      planId:planId,
+      planId: planId,
       metadata,
     }),
   });
