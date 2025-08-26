@@ -1,41 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function middleware(request: NextRequest) {
-  const pathname = request.nextUrl.pathname;
-  
-  // Skip middleware for certain paths
-  const skipPaths = [
-    '/api/',
-    '/_next/',
-    '/favicon.ico',
-    '/auth/',
-    '/test-checkout',
-    '/public/',
-    '/_vercel',
-    '/monitoring'
-  ];
-  
-  if (skipPaths.some(path => pathname.startsWith(path))) {
-    return NextResponse.next();
-  }
-
+  const { pathname } = request.nextUrl;
   try {
     // Check if user has a session by looking at Better Auth session cookie
     const sessionCookie = request.cookies.get('better-auth.session_token');
     
     if (!sessionCookie) {
-      // No session, redirect to login (except for public paths)
-      const publicPaths = ['/', '/login', '/signup'];
-      if (!publicPaths.includes(pathname)) {
-        console.log(`🔄 No session found, redirecting to login from ${pathname}`);
+      // No session, redirect to login for protected paths
+      const isPublicPath = pathname === '/' || pathname === '/login' || pathname === '/signup';
+      if (!isPublicPath) {
+        console.log(`🔄 No session found for protected route, redirecting to login from ${pathname}`);
         return NextResponse.redirect(new URL('/auth/login', request.url));
       }
       return NextResponse.next();
     }
 
     // User has a session, check their profile and onboarding status
-    // We'll make a lightweight API call to check user status
-    const profileResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/user/profile/status`, {
+    // Construct a new URL for the internal API call based on the request
+    const profileUrl = new URL('/api/user/profile/status', request.url);
+    const profileResponse = await fetch(profileUrl, {
       method: 'GET',
       headers: {
         'Cookie': request.headers.get('cookie') || '',
@@ -48,24 +32,24 @@ export async function middleware(request: NextRequest) {
       
       // If user doesn't have a profile yet, redirect to onboarding
       if (!hasProfile) {
-        if (!pathname.startsWith('/onboarding')) {
+        if (!pathname.startsWith('/app/onboarding')) {
           console.log(`🔄 No profile found, redirecting to onboarding from ${pathname}`);
-          return NextResponse.redirect(new URL('/onboarding', request.url));
+          return NextResponse.redirect(new URL('/app/onboarding', request.url));
         }
         return NextResponse.next();
       }
       
       // Check if user is admin-executive and needs onboarding
       if (user_role === 'admin-executive' && is_onboarding) {
-        if (!pathname.startsWith('/onboarding')) {
+        if (!pathname.startsWith('/app/onboarding')) {
           console.log(`🔄 Admin-executive needs onboarding, redirecting from ${pathname}`);
-          return NextResponse.redirect(new URL('/onboarding', request.url));
+          return NextResponse.redirect(new URL('/app/onboarding', request.url));
         }
       } else if (user_role === 'admin-executive' && !is_onboarding) {
         // Admin-executive who has completed onboarding
-        if (pathname.startsWith('/onboarding')) {
+        if (pathname.startsWith('/app/onboarding')) {
           console.log(`✅ Admin-executive completed onboarding, redirecting to dashboard`);
-          return NextResponse.redirect(new URL('/dashboard', request.url));
+          return NextResponse.redirect(new URL('/app', request.url));
         }
       }
       
@@ -93,8 +77,11 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - public folder files
+     * - public (files in the public folder)
+     * - auth (authentication routes)
+     * - _vercel (Vercel-specific paths)
+     * - monitoring (monitoring paths)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|public).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|public|auth|_vercel|monitoring).*)',
   ],
 };
