@@ -9,13 +9,13 @@ import { VisionBoardView } from './components/VisionBoardView'
 import { PersonalityExamView } from './components/PersonalityExamView'
 import { UserData } from './components/userData'
 
-export default function UserDashboard() {
+export default function UserDashboard({userId}: {userId: string}) {
     const [activeView, setActiveView] = useState<
         'charts' | 'gaming' | 'vision' | 'personality'
     >('charts')
     const [usersData, setUsersData] = useState<UserData[]>([])
     const [loading, setLoading] = useState(true)
-    const [selectedUserId, setSelectedUserId] = useState<string>('');
+    const [selectedUserId, setSelectedUserId] = useState<string>(userId);
     
     const handleUserSelection = (userId: string) => {
         setSelectedUserId(userId)
