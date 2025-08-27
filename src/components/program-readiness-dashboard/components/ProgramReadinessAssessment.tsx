@@ -155,6 +155,7 @@ export const ProgramReadinessAssessment = ({ user, programRequirements, programC
   };
 
   const programReadiness = transformUserDataToProgramReadiness();
+  console.log(programReadiness)
 
   return <div className="space-y-4">
       <div className="flex items-center justify-between">

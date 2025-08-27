@@ -162,7 +162,7 @@ export const PersonalityExamView = ({
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between gap-4">
-        <Select value={selectedUserId} onValueChange={onUserSelection}>
+        {/* <Select value={selectedUserId} onValueChange={onUserSelection}>
           <SelectTrigger className="w-full sm:w-[200px]">
             <SelectValue placeholder="Select User" />
           </SelectTrigger>
@@ -173,7 +173,7 @@ export const PersonalityExamView = ({
               </SelectItem>
             ))}
           </SelectContent>
-        </Select>
+        </Select> */}
         <div className="bg-muted px-4 py-2 rounded-md">
           <span className="font-medium">{user.personalityExam.type}</span>
         </div>
