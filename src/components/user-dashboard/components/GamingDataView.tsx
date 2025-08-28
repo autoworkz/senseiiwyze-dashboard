@@ -152,7 +152,7 @@ export const GamingDataView = ({
             </SelectItem>)}
           </SelectContent>
       </Select> */}
-      <div className="grid grid-cols-12 gap-4">
+      <div className="grid grid-cols-12 gap-4 w-full">
         <Card className="col-span-12 sm:col-span-4">
           <CardContent className="p-4 flex items-center gap-4">
             <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
