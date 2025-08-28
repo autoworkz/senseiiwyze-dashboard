@@ -6,6 +6,7 @@ import { GlobalNavigation } from '@/components/layout/GlobalNavigation'
 import { DashboardErrorBoundary } from '@/components/error/error-boundary'
 import { NavigationSkeleton } from '@/components/loading/loading-skeletons'
 import { Toaster } from '@/components/ui/sonner'
+import { FilteredUsersProvider } from '@/contexts/FilteredUsersContext'
 
 interface AppLayoutProps {
   children: ReactNode
@@ -44,7 +45,9 @@ export default async function AppLayout({ children }: AppLayoutProps) {
         <main className="min-h-0">
           <DashboardErrorBoundary>
             <Suspense fallback={<AuthLoadingFallback />}>
-              {children}
+              <FilteredUsersProvider>
+                {children}
+              </FilteredUsersProvider>
             </Suspense>
           </DashboardErrorBoundary>
         </main>

@@ -5,9 +5,10 @@ import { DashboardData } from '@/types/dashboard';
 
 interface UserMetricsProps {
   data: DashboardData
+  avgReadiness: number
 }
 
-export const UserMetrics = ({ data }: UserMetricsProps) => {
+export const UserMetrics = ({ data, avgReadiness }: UserMetricsProps) => {
   const { filteredData, hasData, totalFilteredUsers } = useFilteredDashboardData(data)
 
   // If no data, show empty state
@@ -62,10 +63,6 @@ export const UserMetrics = ({ data }: UserMetricsProps) => {
   // Recalculate metrics based on filtered users
   const filteredUsers = filteredData!.userData
   
-  // Calculate average readiness from filtered users
-  const avgReadiness = filteredUsers.length > 0 
-    ? Math.round(filteredUsers.reduce((sum, user) => sum + (user.overallReadiness || 0), 0) / filteredUsers.length)
-    : 0
 
   // Count users ready for deployment (75% or higher)
   const readyUsers = filteredUsers.filter(user => (user.overallReadiness || 0) >= 75).length

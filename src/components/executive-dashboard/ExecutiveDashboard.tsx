@@ -1,12 +1,14 @@
 "use client"
-import { useState } from 'react'
-import { UserTable } from '@/components/executive-dashboard/UserTable'
-import { UserMetrics } from '@/components/executive-dashboard/UserMetrics'
-import { DataVisualizations } from '@/components/executive-dashboard/DataVisualizations'
-import { ProgramReadinessCards } from '@/components/executive-dashboard/ProgramReadinessCards'
+
+import { useState, useEffect } from 'react'
+import { UserTable } from './UserTable'
+import { UserMetrics } from './UserMetrics'
+import { DataVisualizations } from './DataVisualizations'
+import { ProgramReadinessCards } from './ProgramReadinessCards'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useFilteredDashboardData, useFilteredUsers } from '@/hooks/useFilteredUsers'
 import { DashboardData, UserTableData } from '@/types/dashboard'
+import { useFilteredUsersContext } from '@/contexts/FilteredUsersContext'
 
 interface ExecutiveDashboardProps {
   dashboardData: DashboardData
@@ -14,9 +16,6 @@ interface ExecutiveDashboardProps {
 }
 
 export default function ExecutiveDashboard({ dashboardData, userTableData }: ExecutiveDashboardProps){
-
-  console.log("dashboardData", dashboardData);
-  console.log("userTableData", userTableData);
 
   const [activeTab, setActiveTab] = useState('all')
   
@@ -34,10 +33,27 @@ export default function ExecutiveDashboard({ dashboardData, userTableData }: Exe
   }
 
   // Use the hook to get filtered dashboard data
-  const { filteredData, hasData, totalFilteredUsers } = useFilteredDashboardData(dashboardData)
+  const { hasData, totalFilteredUsers } = useFilteredDashboardData(dashboardData)
 
   // Filter user table data using the simpler hook
   const { filteredUsers: filteredTableUsers } = useFilteredUsers(userTableData)
+  
+  // Get the context to set filtered user IDs
+  const { setFilteredUserIds, setAvgReadiness, avgReadiness } = useFilteredUsersContext()
+
+  // Set the filtered user IDs in context whenever the data changes
+  useEffect(() => {
+    if (filteredTableUsers && filteredTableUsers.length > 0) {
+      const userIds = filteredTableUsers.map(user => user.user_id)
+      setFilteredUserIds(userIds)
+      
+      // Also set the average readiness in context
+      const avgReadiness =  filteredTableUsers.length > 0 
+      ? Math.round(filteredTableUsers.reduce((sum, user) => sum + (user.overallReadiness || 0), 0) / filteredTableUsers.length)
+      : 0
+      setAvgReadiness(avgReadiness)
+    }
+  }, [filteredTableUsers, setFilteredUserIds, setAvgReadiness])
 
   if (!hasData) {
     return (
@@ -59,7 +75,7 @@ export default function ExecutiveDashboard({ dashboardData, userTableData }: Exe
         <p className="text-muted-foreground mb-6">
           Track and manage user skills and program readiness ({totalFilteredUsers} users with data)
         </p>
-        <UserMetrics data={dashboardData} />
+        <UserMetrics data={dashboardData} avgReadiness={avgReadiness} />
         <Tabs defaultValue="all" className="mb-6" onValueChange={setActiveTab}>
           <TabsList className="w-full justify-start">
             <TabsTrigger value="all">All Users</TabsTrigger>
