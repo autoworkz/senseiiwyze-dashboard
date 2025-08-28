@@ -16,29 +16,11 @@ interface ExecutiveDashboardProps {
 }
 
 export default function ExecutiveDashboard({ dashboardData, userTableData }: ExecutiveDashboardProps){
-
   const [activeTab, setActiveTab] = useState('all')
   
-  if (!dashboardData || !dashboardData.success || !userTableData || !userTableData.success) {
-    return (
-      <div className="min-h-screen w-full bg-background p-6">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-2xl font-bold mb-2">Executive Dashboard</h1>
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-red-600">Failed to load dashboard data</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // Use the hook to get filtered dashboard data
-  const { hasData, totalFilteredUsers } = useFilteredDashboardData(dashboardData)
-
-  // Filter user table data using the simpler hook
+  // Move ALL hooks to the top, before any conditional logic
+  const { filteredData, hasData, totalFilteredUsers } = useFilteredDashboardData(dashboardData)
   const { filteredUsers: filteredTableUsers } = useFilteredUsers(userTableData)
-  
-  // Get the context to set filtered user IDs
   const { setFilteredUserIds, setAvgReadiness, avgReadiness } = useFilteredUsersContext()
 
   // Set the filtered user IDs in context whenever the data changes
@@ -54,6 +36,20 @@ export default function ExecutiveDashboard({ dashboardData, userTableData }: Exe
       setAvgReadiness(avgReadiness)
     }
   }, [filteredTableUsers, setFilteredUserIds, setAvgReadiness])
+
+  // Now we can have conditional logic after all hooks
+  if (!dashboardData || !dashboardData.success || !userTableData || !userTableData.success) {
+    return (
+      <div className="min-h-screen w-full bg-background p-6">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-2xl font-bold mb-2">Executive Dashboard</h1>
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <p className="text-red-600">Failed to load dashboard data</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   if (!hasData) {
     return (
