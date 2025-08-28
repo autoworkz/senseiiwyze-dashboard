@@ -2,26 +2,15 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Cell } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-
-interface DashboardData {
-  userData: any[]
-  totalUsers: number
-  avgReadiness: number
-  readyUsers: number
-  coachingUsers: number
-  readinessRanges: any[]
-  avgSkills: any[]
-  programReadiness: any[]
-  programThresholds: any
-  success: boolean
-}
+import { useFilteredDashboardData } from '@/hooks/useFilteredUsers';
+import { DashboardData } from '@/types/dashboard';
 
 interface DataVisualizationsProps {
   data: DashboardData
 }
 
 export const DataVisualizations = ({ data }: DataVisualizationsProps) => {
-  const { readinessRanges, avgSkills, programReadiness } = data
+  const { filteredData, hasData, totalFilteredUsers } = useFilteredDashboardData(data)
 
   const getReadinessColor = (range: string) => {
     // Extract numbers from the name string (handles cases like "86% - 100%")
@@ -37,22 +26,39 @@ export const DataVisualizations = ({ data }: DataVisualizationsProps) => {
     return '#FF0000'; // Red
   };
 
+  // Show message if no users have data
+  if (!hasData || !filteredData) {
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>No Data Available</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground text-center py-8">
+              No users have completed assessments yet. Charts will appear once users start engaging with the platform.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
 
   return <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
     <Card>
       <CardHeader>
-        <CardTitle>Readiness Distribution</CardTitle>
+        <CardTitle>Readiness Distribution ({totalFilteredUsers} users)</CardTitle>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={250}>
-          <BarChart data={readinessRanges}>
+          <BarChart data={filteredData.readinessRanges || []}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" tick={{ fill: '#00098e' }} />
             <YAxis tick={{ fill: '#00098e' }} />
             <Tooltip />
             <Legend />
             <Bar dataKey="count" name="Users">
-              {readinessRanges.map((entry, index) => (
+              {(filteredData.readinessRanges || []).map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={getReadinessColor(entry.name)} />
               ))}
             </Bar>
@@ -62,11 +68,11 @@ export const DataVisualizations = ({ data }: DataVisualizationsProps) => {
     </Card>
     <Card>
       <CardHeader>
-        <CardTitle>Average Skills</CardTitle>
+        <CardTitle>Average Skills ({totalFilteredUsers} users)</CardTitle>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={250}>
-          <RadarChart data={avgSkills}>
+          <RadarChart data={filteredData.avgSkills || []}>
             <PolarGrid />
             <PolarAngleAxis dataKey="subject" tick={{ fill: '#00098e' }} />
             <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: '#00098e' }} />
@@ -84,11 +90,11 @@ export const DataVisualizations = ({ data }: DataVisualizationsProps) => {
     </Card>
     <Card className="lg:col-span-2">
       <CardHeader>
-        <CardTitle>Program Readiness</CardTitle>
+        <CardTitle>Program Readiness ({totalFilteredUsers} users)</CardTitle>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={programReadiness}>
+          <BarChart data={filteredData.programReadiness || []}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" tick={{ fill: '#00098e' }} />
             <YAxis domain={[0, 100]} tick={{ fill: '#00098e' }} />

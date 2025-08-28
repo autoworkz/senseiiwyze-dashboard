@@ -5,24 +5,8 @@ import { UserMetrics } from '@/components/executive-dashboard/UserMetrics'
 import { DataVisualizations } from '@/components/executive-dashboard/DataVisualizations'
 import { ProgramReadinessCards } from '@/components/executive-dashboard/ProgramReadinessCards'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-
-interface DashboardData {
-  userData: any[]
-  totalUsers: number
-  avgReadiness: number
-  readyUsers: number
-  coachingUsers: number
-  readinessRanges: any[]
-  avgSkills: any[]
-  programReadiness: any[]
-  programThresholds: any
-  success: boolean
-}
-
-interface UserTableData {
-  userData: any[]
-  success: boolean
-}
+import { useFilteredDashboardData, useFilteredUsers } from '@/hooks/useFilteredUsers'
+import { DashboardData, UserTableData } from '@/types/dashboard'
 
 interface ExecutiveDashboardProps {
   dashboardData: DashboardData
@@ -30,8 +14,12 @@ interface ExecutiveDashboardProps {
 }
 
 export default function ExecutiveDashboard({ dashboardData, userTableData }: ExecutiveDashboardProps){
-  const [activeTab, setActiveTab] = useState('all')
 
+  console.log("dashboardData", dashboardData);
+  console.log("userTableData", userTableData);
+
+  const [activeTab, setActiveTab] = useState('all')
+  
   if (!dashboardData || !dashboardData.success || !userTableData || !userTableData.success) {
     return (
       <div className="min-h-screen w-full bg-background p-6">
@@ -45,12 +33,31 @@ export default function ExecutiveDashboard({ dashboardData, userTableData }: Exe
     )
   }
 
+  // Use the hook to get filtered dashboard data
+  const { filteredData, hasData, totalFilteredUsers } = useFilteredDashboardData(dashboardData)
+
+  // Filter user table data using the simpler hook
+  const { filteredUsers: filteredTableUsers } = useFilteredUsers(userTableData)
+
+  if (!hasData) {
+    return (
+      <div className="min-h-screen w-full bg-background p-6">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-2xl font-bold mb-2">Executive Dashboard</h1>
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <p className="text-yellow-600">No users with data found. Users need to complete assessments and activities to appear in the dashboard.</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen w-full bg-background p-6">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-2xl font-bold mb-2">Executive Dashboard</h1>
         <p className="text-muted-foreground mb-6">
-          Track and manage user skills and program readiness
+          Track and manage user skills and program readiness ({totalFilteredUsers} users with data)
         </p>
         <UserMetrics data={dashboardData} />
         <Tabs defaultValue="all" className="mb-6" onValueChange={setActiveTab}>
