@@ -83,7 +83,6 @@ export default function PricingTable({
 
                 onClick: async () => {
                   // Temporarily disable Autumn attach functionality
-                  console.log('Pricing table interaction disabled - Autumn integration disabled');
                   if (product.display?.button_url) {
                     window.open(product.display?.button_url, "_blank");
                   }

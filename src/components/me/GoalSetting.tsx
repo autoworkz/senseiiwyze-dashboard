@@ -21,7 +21,6 @@ export function GoalSetting() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     // Here you would typically save the goal
-    console.log('Creating goal:', formData)
     setIsCreating(false)
     setFormData({ title: '', description: '', category: '', targetDate: '' })
   }

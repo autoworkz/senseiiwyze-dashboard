@@ -86,7 +86,6 @@ const LoginPage: React.FC<LoginPageProps> = ({
       } else {
         // Use auth service for login
         const result = await authService.login(formData.email, formData.password);
-        console.log('Login successful:', result);
         
         // Redirect to dashboard after successful login
         router.push('/app');
@@ -112,7 +111,6 @@ const LoginPage: React.FC<LoginPageProps> = ({
       } else {
         // Use auth service for social login
         const result = await authService.socialLogin(provider);
-        console.log(`${provider} login successful:`, result);
         
         // Redirect to dashboard after successful login
         router.push('/app');

@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { CheckCircle2, AlertTriangle, XCircle, BookOpen, Brain, Lightbulb, Code, ChevronDown, ChevronUp } from 'lucide-react';
+import Image from 'next/image';
 
 interface UserData {
   id: string
@@ -155,67 +155,55 @@ export const ProgramReadinessAssessment = ({ user, programRequirements, programC
   };
 
   const programReadiness = transformUserDataToProgramReadiness();
-  console.log(programReadiness)
 
-  return <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold">Program Readiness</h2>
-      </div>
-      <div className="grid grid-cols-1 gap-4">
-        {programReadiness.map(program => <Card key={program.program} className={`border-l-4 overflow-hidden ${program.status === 'ready' ? 'border-l-green-500' : program.status === 'almost' ? 'border-l-yellow-500' : 'border-l-red-500'}`}>
-            <div className="flex flex-col md:flex-row">
-              <div className="w-full md:w-1/4 h-[120px] md:h-auto overflow-hidden">
-                <img src={program.image} alt={program.program} className="w-full h-full object-cover" />
+  return (
+  <>
+    <Card>
+    <CardHeader>
+      <CardTitle>Program Readiness Assessment</CardTitle>
+    </CardHeader>
+    <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {programReadiness.map((program) => (
+        <Card key={program.program} className="flex flex-col">
+          <CardHeader className="p-0">
+            {program.image && (
+              <div className="relative h-32 w-full overflow-hidden rounded-t-lg">
+                <Image
+                  src={program.image}
+                  alt={program.program}
+                  layout="fill"
+                  objectFit="cover"
+                  className="rounded-t-lg"
+                />
               </div>
-              <div className="flex-1">
-                <CardHeader className="pb-1 pt-3 px-4">
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <StatusIcon status={program.status} />
-                      <CardTitle className="text-lg">
-                        {program.program}
-                      </CardTitle>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="text-lg font-bold">
-                        {program.overallReadiness}%
-                      </div>
-                      <StatusBadge status={program.status} />
-                      <Button variant="ghost" size="sm" className="p-0 h-8 w-8" onClick={() => toggleExpand(program.program)}>
-                        {expandedProgram === program.program ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                {expandedProgram === program.program && <CardContent className="pt-2 px-4 pb-4">
-                    <div className="space-y-3">
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        {program.metrics.map(metric => <div key={metric.name} className="space-y-1">
-                            <div className="flex justify-between items-center text-xs">
-                              <div className="flex items-center gap-1">
-                                {metric.icon}
-                                <span>{metric.name}</span>
-                              </div>
-                              <span className={`font-medium ${metric.score >= metric.required ? 'text-green-500' : 'text-red-500'}`}>
-                                {metric.score}%
-                              </span>
-                            </div>
-                            <Progress value={metric.score} className={`h-2 ${metric.score >= metric.required ? 'bg-muted [&>div]:bg-green-500' : 'bg-muted [&>div]:bg-red-500'}`} />
-                          </div>)}
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <p>{program.recommendation}</p>
-                        <div className="flex flex-wrap gap-1">
-                          {program.prerequisites.map(prereq => <Badge key={prereq} variant="secondary" className="text-xs">
-                              {prereq}
-                            </Badge>)}
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>}
-              </div>
+            )}
+          </CardHeader>
+          <CardContent className="p-4 flex-grow flex flex-col justify-between">
+            <div>
+              <h3 className="text-lg font-semibold">{program.program}</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Readiness: {program.overallReadiness}%
+              </p>
+              <Progress value={program.overallReadiness} className="h-2 mt-2" />
+              {program.metrics.length > 0 && (
+                <div className="mt-3">
+                  <h4 className="text-sm font-medium">Key Requirements:</h4>
+                  <ul className="list-disc list-inside text-xs text-muted-foreground">
+                    {program.metrics.map((metric) => (
+                      <li key={metric.name}>
+                        {metric.name}: {metric.required}% required
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
-          </Card>)}
-      </div>
-    </div>;
+          </CardContent>
+        </Card>
+      ))}
+    </CardContent>
+  </Card>
+  </>
+  );
+
 };

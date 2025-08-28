@@ -61,15 +61,11 @@ export const auth = betterAuth({
  
   hooks: {
     after: createAuthMiddleware(async (ctx) => {
-        console.log("🔍 Auth hook triggered for path:", ctx.path);
         
         if(ctx.path.startsWith("/sign-up")){
-            console.log("✅ Sign-up path detected");
             const newSession = ctx.context.newSession;
             if(newSession){
-                console.log("✅ New session created:", newSession);
             } else {
-                console.log("⚠️ No new session in context");
             }
         }
     }),
@@ -178,7 +174,6 @@ export const auth = betterAuth({
   ],
 });
 
-console.log("🔧 Better Auth configuration loaded successfully");
 
 /**
  * Get the current authenticated user with their role and organization context

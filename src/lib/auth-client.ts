@@ -71,10 +71,8 @@ export const authClient = createAuthClient({
             }
         },
         onRequest: (context) => {
-          console.log("🌐 Client making request to:", context);
         },
         onResponse: (context) => {
-          console.log("📨 Client received response:", context.response.status);
         },
     },
     /**

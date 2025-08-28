@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell, ReferenceLine } from 'recharts';
 import { skills } from '../../program-readiness-dashboard/components/skillsData';
 import { UserData } from './userData';
@@ -14,7 +13,7 @@ interface UserDataChartsProps {
 
 // Program thresholds (hardcoded for now, can be moved to database later)
 const programThresholds: Record<string, number> = {
-    'Cyber Security': 85,
+    'Cybersecurity': 85,
     'Computer Networking': 75,
     'Data Analytics': 80,
     'AI/ML Fundamentals': 85,
@@ -107,7 +106,6 @@ export const UserDataCharts = ({
     }, [data, selectedUserId, onUserSelection]);
 
     const user = data.find(u => u.id.toString() === selectedUserId) || data[0];
-    console.log(user);
     // Map user skills to predefined structure for pie chart only
     const mappedSkills = mapUserSkillsToPredefinedSkills(user.skills);
 
@@ -190,7 +188,6 @@ export const UserDataCharts = ({
         );
     }
 
-    console.log("user.programReadiness", user.programReadiness);
     return (
         <div className="space-y-4">
             <div className="flex flex-col sm:flex-row justify-between gap-4">

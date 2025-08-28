@@ -234,7 +234,7 @@ export async function GET() {
       'IoT Tech Support': 60,
       'Data Analytics': 75,
       'Computer Networking': 75,
-      'Cyber Security': 80
+      'Cybersecurity': 80
     }
 
     // Calculate program readiness data (filter out Big Five assessments)
