@@ -308,7 +308,6 @@ export const UserTable = ({
     );
   }
 
-  console.log('currentItems', currentItems);
   return (
     <div className="space-y-4">
       {/* Search and Filters */}
