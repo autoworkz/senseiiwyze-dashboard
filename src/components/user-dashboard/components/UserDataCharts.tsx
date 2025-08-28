@@ -194,7 +194,7 @@ export const UserDataCharts = ({
     return (
         <div className="space-y-4">
             <div className="flex flex-col sm:flex-row justify-between gap-4">
-                <Select value={selectedUserId} onValueChange={onUserSelection}>
+                {/* <Select value={selectedUserId} onValueChange={onUserSelection}>
                     <SelectTrigger className="w-full sm:w-[200px]">
                         <SelectValue placeholder="Select User" />
                     </SelectTrigger>
@@ -205,7 +205,7 @@ export const UserDataCharts = ({
                             </SelectItem>
                         ))}
                     </SelectContent>
-                </Select>
+                </Select> */}
                 <Tabs value={chartType} className="w-full sm:w-auto">
                     <TabsList>
                         <TabsTrigger value="skills" onClick={() => setChartType('skills')}>
