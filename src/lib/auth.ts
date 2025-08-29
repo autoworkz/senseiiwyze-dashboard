@@ -79,7 +79,7 @@ export const auth = betterAuth({
       await sendPasswordResetEmail({
         to: user.email,
         subject: "Reset your password",
-        html: `Click here to reset your password: ${url}`,
+        html: `Click here to reset your password: <a href="${url}">Reset Password</a>`,
       });
     },
     onPasswordReset: async ({ user }) => { console.log(`Password reset for ${user.email}`); },

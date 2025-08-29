@@ -9,52 +9,11 @@ import {
   WelcomeEmail,
 } from "../../emails";
 
-// ---- Config ----
-const FROM = process.env.EMAIL_FROM!;               // e.g. "SenseiiWyze <[email protected]>"
-const REPLY_TO_EMAIL = "support@senseiwyze.com";    // optional
-console.log("FROM", FROM);
-// ---- Lazy client with console stub ----
-type ResendLike = {
-  emails: { send: (opts: any) => Promise<{ data: any; error: any }> };
-  batch: { send: (emails: any[]) => Promise<{ data: any; error: any }> };
-};
+const FROM = process.env.EMAIL_OTP_FROM!;             
+const REPLY_TO_EMAIL = "support@senseiwyze.com"; 
 
-let _resend: ResendLike | null = null;
+const resend = new Resend(process.env.RESEND_API_KEY!);
 
-function getResendClient(): ResendLike {
-  if (process.env.EMAIL_PROVIDER === "CONSOLE") {
-    return {
-      emails: {
-        async send(opts: any) {
-          emailLogger.info("Email sent via CONSOLE provider", {
-            from: opts.from,
-            to: opts.to,
-            subject: opts.subject,
-            htmlPreview: opts.html?.slice(0, 200) ?? opts.react ? "[react email]" : "",
-          });
-          return { data: { preview: true }, error: null };
-        },
-      },
-      batch: {
-        async send(emails: any[]) {
-          emailLogger.info("Batch emails via CONSOLE provider", {
-            count: emails.length,
-            subjects: emails.map(e => e.subject),
-          });
-          return { data: { preview: true }, error: null };
-        },
-      },
-    };
-  }
-
-  if (_resend) return _resend;
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) throw new Error("RESEND_API_KEY is not set");
-  _resend = new Resend(apiKey) as unknown as ResendLike;
-  return _resend!;
-}
-
-// ---- Types ----
 export interface EmailResponse { data?: { id: string } ; error?: Error }
 export interface LoginCodeEmailOptions { email: string; code: string }
 export interface VerificationEmailOptions { email: string; verificationLink: string }
@@ -80,13 +39,12 @@ export async function sendPasswordResetEmail({
   html?: string;
   replyTo?: string;
 }): Promise<EmailResponse> {
-  const resend = getResendClient();
   const { data, error } = await resend.emails.send({
-    from: FROM,                                        // verified sender in Resend
+    from: FROM,                                      
     to,
     subject,
     html: html ?? (text ? `<p>${text}</p>` : "<p></p>"),
-    replyTo: replyTo ?? REPLY_TO_EMAIL,                // Node SDK supports replyTo
+    replyTo: replyTo ?? REPLY_TO_EMAIL,                
   });
 
   if (error) {
@@ -100,7 +58,6 @@ export async function sendPasswordResetEmail({
 // ---- Other emails (unchanged behavior, unified client & error logging) ----
 export async function sendLoginCodeEmail({ email, code }: LoginCodeEmailOptions): Promise<EmailResponse> {
   try {
-    const resend = getResendClient();
     const { data, error } = await resend.emails.send({
       from: FROM, to: email, subject: "Your login code",
       react: LoginCodeEmail({ validationCode: code }),
@@ -114,7 +71,6 @@ export async function sendLoginCodeEmail({ email, code }: LoginCodeEmailOptions)
 
 export async function sendVerificationEmail({ email, verificationLink }: VerificationEmailOptions): Promise<EmailResponse> {
   try {
-    const resend = getResendClient();
     const { data, error } = await resend.emails.send({
       from: FROM, to: email, subject: "Verify your email address",
       react: VerifyEmail({ verificationLink }),
@@ -128,7 +84,6 @@ export async function sendVerificationEmail({ email, verificationLink }: Verific
 
 export async function sendWelcomeEmail({ email, name }: WelcomeEmailOptions): Promise<EmailResponse> {
   try {
-    const resend = getResendClient();
     const { data, error } = await resend.emails.send({
       from: FROM, to: email, subject: "Welcome to SenseiiWyze!",
       react: WelcomeEmail({ name }),
@@ -143,7 +98,6 @@ export async function sendWelcomeEmail({ email, name }: WelcomeEmailOptions): Pr
 
 export async function sendNewDeviceEmail(opts: NewDeviceEmailOptions): Promise<EmailResponse> {
   try {
-    const resend = getResendClient();
     const { data, error } = await resend.emails.send({
       from: FROM, to: opts.email, subject: "New device login",
       react: NewDeviceEmail(opts),
@@ -157,7 +111,6 @@ export async function sendNewDeviceEmail(opts: NewDeviceEmailOptions): Promise<E
 
 export async function sendSecurityAlertEmail(opts: SecurityAlertEmailOptions): Promise<EmailResponse> {
   try {
-    const resend = getResendClient();
     const { data, error } = await resend.emails.send({
       from: FROM, to: opts.email, subject: "Security alert for your account",
       react: SecurityAlertEmail({
@@ -180,7 +133,6 @@ export async function sendSecurityAlertEmail(opts: SecurityAlertEmailOptions): P
 
 export async function sendMagicLinkEmail({ email, magicLink }: MagicLinkEmailOptions): Promise<EmailResponse> {
   try {
-    const resend = getResendClient();
     const { data, error } = await resend.emails.send({
       from: FROM, to: email, subject: "Sign in to SenseiiWyze",
       react: MagicLinkEmail({ magicLink }),
@@ -196,7 +148,6 @@ export async function sendBatchEmails(
   emails: Array<{ to: string; subject: string; react: React.ReactElement }>
 ): Promise<{ data?: any; error?: Error }> {
   try {
-    const resend = getResendClient();
     const { data, error } = await resend.batch.send(
       emails.map(e => ({
         from: FROM, to: e.to, subject: e.subject, react: e.react,
@@ -212,7 +163,6 @@ export async function sendBatchEmails(
 // Optional quick config check (prefer sending to delivered@resend.dev)
 export async function validateEmailConfig(): Promise<boolean> {
   try {
-    const resend = getResendClient();
     const { error } = await resend.emails.send({
       from: FROM,
       to: "delivered@resend.dev",   // test sink
@@ -236,5 +186,3 @@ function logCatch(kind: string, e: any) {
   emailLogger.error(`Failed to send ${kind} email`, e instanceof Error ? e : new Error(String(e)));
   return { error: e as Error };
 }
-
-export function getResend() { return getResendClient(); }
