@@ -41,7 +41,7 @@ export async function sendPasswordResetEmail({
   replyTo?: string;
 }): Promise<EmailResponse> {
   const { data, error } = await resend.emails.send({
-    from: FROM,                                      
+    from: `"SenseiWyze" <${FROM}>`,                                      
     to,
     subject,
     html: html ?? (text ? `<p>${text}</p>` : "<p></p>"),
@@ -60,7 +60,7 @@ export async function sendPasswordResetEmail({
 export async function sendLoginCodeEmail({ email, code }: LoginCodeEmailOptions): Promise<EmailResponse> {
   try {
     const { data, error } = await resend.emails.send({
-      from: FROM, to: email, subject: "Your login code",
+      from: `"SenseiWyze" <${FROM}>`, to: [email], subject: "Your login code",
       react: LoginCodeEmail({ validationCode: code }),
       headers: { "X-Entity-Ref-ID": crypto.randomUUID() },
     });
@@ -73,7 +73,7 @@ export async function sendLoginCodeEmail({ email, code }: LoginCodeEmailOptions)
 export async function sendVerificationEmail({ email, verificationLink }: VerificationEmailOptions): Promise<EmailResponse> {
   try {
     const { data, error } = await resend.emails.send({
-      from: FROM, to: email, subject: "Verify your email address",
+      from: `"SenseiWyze" <${FROM}>`, to: [email], subject: "Verify your email address",
       react: VerifyEmail({ verificationLink }),
       headers: { "X-Entity-Ref-ID": crypto.randomUUID() },
     });
@@ -86,7 +86,7 @@ export async function sendVerificationEmail({ email, verificationLink }: Verific
 export async function sendWelcomeEmail({ email, name }: WelcomeEmailOptions): Promise<EmailResponse> {
   try {
     const { data, error } = await resend.emails.send({
-      from: FROM, to: email, subject: "Welcome to SenseiiWyze!",
+      from: `"SenseiWyze" <${FROM}>`, to: [email], subject: "Welcome to SenseiiWyze!",
       react: WelcomeEmail({ name }),
       replyTo: REPLY_TO_EMAIL,
       headers: { "X-Entity-Ref-ID": crypto.randomUUID() },
@@ -100,7 +100,7 @@ export async function sendWelcomeEmail({ email, name }: WelcomeEmailOptions): Pr
 export async function sendNewDeviceEmail(opts: NewDeviceEmailOptions): Promise<EmailResponse> {
   try {
     const { data, error } = await resend.emails.send({
-      from: FROM, to: opts.email, subject: "New device login",
+      from: `"SenseiWyze" <${FROM}>`, to: [opts.email], subject: "New device login",
       react: NewDeviceEmail(opts),
       headers: { "X-Entity-Ref-ID": crypto.randomUUID() },
     });
@@ -113,7 +113,7 @@ export async function sendNewDeviceEmail(opts: NewDeviceEmailOptions): Promise<E
 export async function sendSecurityAlertEmail(opts: SecurityAlertEmailOptions): Promise<EmailResponse> {
   try {
     const { data, error } = await resend.emails.send({
-      from: FROM, to: opts.email, subject: "Security alert for your account",
+      from: `"SenseiWyze" <${FROM}>`, to: [opts.email], subject: "Security alert for your account",
       react: SecurityAlertEmail({
         userEmail: opts.email,
         userName: opts.userName,
@@ -135,7 +135,7 @@ export async function sendSecurityAlertEmail(opts: SecurityAlertEmailOptions): P
 export async function sendMagicLinkEmail({ email, magicLink }: MagicLinkEmailOptions): Promise<EmailResponse> {
   try {
     const { data, error } = await resend.emails.send({
-      from: FROM, to: email, subject: "Sign in to SenseiiWyze",
+      from: `"SenseiWyze" <${FROM}>`, to: [email], subject: "Sign in to SenseiiWyze",
       react: MagicLinkEmail({ magicLink }),
       headers: { "X-Entity-Ref-ID": crypto.randomUUID() },
     });
@@ -165,8 +165,8 @@ export async function sendBatchEmails(
 export async function validateEmailConfig(): Promise<boolean> {
   try {
     const { error } = await resend.emails.send({
-      from: FROM,
-      to: "delivered@resend.dev",   // test sink
+      from: `"SenseiWyze" <${FROM}>`,
+      to: ["delivered@resend.dev"],   // test sink
       subject: "Resend config check",
       html: "<p>ok</p>",
     });
