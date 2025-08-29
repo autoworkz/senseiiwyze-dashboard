@@ -57,13 +57,14 @@ function ResetPasswordContent() {
 
   // Auto-redirect if already authenticated
   useEffect(() => {
-    if (!isPending && session?.user) {
+    if (!isPending && session?.user && !token) {
       router.push('/dashboard');
     }
   }, [session, isPending, router]);
 
   // If we have a token, go directly to password reset step
   useEffect(() => {
+    console.log("token", token);
     if (token) {
       setStep('password');
     }
@@ -91,7 +92,7 @@ function ResetPasswordContent() {
 
     try {
       // Use Better Auth to send reset password email
-      const { error: authError } = await authClient.forgetPassword({
+      const { error: authError } = await authClient.requestPasswordReset({
         email: values.email,
         redirectTo: `${window.location.origin}/auth/reset-password`,
       });

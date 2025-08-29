@@ -21,7 +21,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "../../lib/db";
 import * as schema from "../../lib/db/schema";
 import { authLogger } from "@/lib/logger";
-import { sendEmail } from "@/lib/sendEmail";
+import { sendPasswordResetEmail } from "@/lib/email";
 // import { autumn } from "autumn-js/better-auth";
 
 // Import our B2B2C access control system
@@ -73,16 +73,16 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false,
-    sendResetPassword: async ({ user, url }) => {
-        // If you want Autumn to send built-in emails,
-        // just remove `sendResetPassword` completely.
-        // If you want to send your own email:
-        await sendEmail({
-          to: user.email,
-          subject: "Reset your password",
-          text: `Click here to reset your password: ${url}`,
-        });
-      },
+    resetPasswordTokenExpiresIn: 60 * 60,
+    async sendResetPassword({ user, url, token }, request) {
+      console.log("Sending reset password email", { user, url, token });
+      await sendPasswordResetEmail({
+        to: user.email,
+        subject: "Reset your password",
+        html: `Click here to reset your password: ${url}`,
+      });
+    },
+    onPasswordReset: async ({ user }) => { console.log(`Password reset for ${user.email}`); },
   },
   socialProviders: {
     // GitHub OAuth (configuration pending)
