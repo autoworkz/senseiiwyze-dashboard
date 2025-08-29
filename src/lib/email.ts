@@ -12,6 +12,7 @@ import {
 const FROM = process.env.EMAIL_OTP_FROM!;             
 const REPLY_TO_EMAIL = "support@senseiwyze.com"; 
 
+
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
 export interface EmailResponse { data?: { id: string } ; error?: Error }
