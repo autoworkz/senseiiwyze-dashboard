@@ -1,5 +1,31 @@
+export interface User {
+  id: number
+  user_id: string
+  name: string
+  role: string
+  level: number
+  skills: {
+    vision: number
+    grit: number
+    logic: number
+    algorithm: number
+    problemSolving: number
+    [key: string]: number // Add index signature for flexibility
+  }
+  overallReadiness: number
+  programReadiness: Record<string, number>
+  skillDetails: {
+    [category: string]: {
+      [subskill: string]: number
+    }
+  }
+  gamingData: any
+  visionBoard: any
+  personalityExam: any
+}
+
 export interface DashboardData {
-  userData: any[]
+  userData: User[]
   totalUsers: number
   avgReadiness: number
   readyUsers: number
@@ -12,6 +38,22 @@ export interface DashboardData {
 }
 
 export interface UserTableData {
-  userData: any[]
+  userData: User[]
   success: boolean
+}
+
+export interface ReadinessRange {
+  name: string
+  count: number
+}
+
+export interface SkillData {
+  subject: string
+  A: number
+}
+
+export interface ProgramReadinessData {
+  name: string
+  readiness: number
+  threshold: number
 }

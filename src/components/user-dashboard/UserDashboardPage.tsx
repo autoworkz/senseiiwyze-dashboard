@@ -9,13 +9,13 @@ import { VisionBoardView } from './components/VisionBoardView'
 import { PersonalityExamView } from './components/PersonalityExamView'
 import { UserData } from './components/userData'
 
-export default function UserDashboard() {
+export default function UserDashboard({userId}: {userId: string}) {
     const [activeView, setActiveView] = useState<
         'charts' | 'gaming' | 'vision' | 'personality'
     >('charts')
     const [usersData, setUsersData] = useState<UserData[]>([])
     const [loading, setLoading] = useState(true)
-    const [selectedUserId, setSelectedUserId] = useState<string>('');
+    const [selectedUserId, setSelectedUserId] = useState<string>(userId);
     
     const handleUserSelection = (userId: string) => {
         setSelectedUserId(userId)
@@ -118,7 +118,7 @@ export default function UserDashboard() {
     }
 
     return (
-        <div className="container py-6 space-y-4">
+        <div className="container p-6 space-y-4 mx-auto">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight">

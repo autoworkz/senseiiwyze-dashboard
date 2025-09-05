@@ -1,470 +1,189 @@
-import { Resend } from 'resend'
-import { emailLogger } from '@/lib/logger'
+import { Resend } from "resend";
+import { emailLogger } from "@/lib/logger";
 import {
   LoginCodeEmail,
   MagicLinkEmail,
   NewDeviceEmail,
-  PasswordResetEmail,
   SecurityAlertEmail,
   VerifyEmail,
   WelcomeEmail,
-} from '../../emails'
+} from "../../emails";
 
-// Initialize Resend client lazily to avoid API key errors during build time
-type ResendLike = {
-  emails: { send: (opts: any) => Promise<{ data: any; error: any }> }
-  batch: { send: (emails: any[]) => Promise<{ data: any; error: any }> }
-}
+const FROM = process.env.EMAIL_OTP_FROM!;             
+const REPLY_TO_EMAIL = "support@senseiwyze.com"; 
 
-let resend: ResendLike | null = null
 
-function getResendClient(): ResendLike {
-  // If EMAIL_PROVIDER=CONSOLE or we're in test env, return console logger implementation
-  if (process.env.EMAIL_PROVIDER === 'CONSOLE') {
-    return {
-      emails: {
-        async send(opts: any) {
-          emailLogger.info('Email sent via console provider', {
-            from: opts.from,
-            to: opts.to,
-            subject: opts.subject,
-            htmlPreview: opts.html?.slice(0, 200),
-          })
-          return { data: { preview: true }, error: null }
-        },
-      },
-      batch: {
-        async send(emails: any[]) {
-          emailLogger.info('Batch emails sent via console provider', {
-            count: emails.length,
-            subjects: emails.map((e) => e.subject),
-          })
-          return { data: { preview: true }, error: null }
-        },
-      },
-    } as ResendLike
-  }
+const resend = new Resend(process.env.RESEND_API_KEY!);
 
-  if (!resend) {
-    const apiKey = process.env.RESEND_API_KEY
-    if (!apiKey) {
-      throw new Error('RESEND_API_KEY environment variable is not set')
-    }
-    resend = new Resend(apiKey) as unknown as ResendLike
-  }
-  return resend
-}
-
-// Email configuration
-const FROM_EMAIL = 'SenseiiWyze <noreply@senseiwyze.com>'
-const REPLY_TO_EMAIL = 'support@senseiwyze.com'
-
-// Types
-export interface EmailResponse {
-  data?: { id: string }
-  error?: Error
-}
-
-export interface PasswordResetEmailOptions {
-  email: string
-  resetLink: string
-}
-
-export interface LoginCodeEmailOptions {
-  email: string
-  code: string
-}
-
-export interface VerificationEmailOptions {
-  email: string
-  verificationLink: string
-}
-
-export interface WelcomeEmailOptions {
-  email: string
-  name?: string
-}
-
-export interface NewDeviceEmailOptions {
-  email: string
-  loginDate?: string
-  loginDevice?: string
-  loginLocation?: string
-  loginIp?: string
-}
-
+export interface EmailResponse { data?: { id: string } ; error?: Error }
+export interface LoginCodeEmailOptions { email: string; code: string }
+export interface VerificationEmailOptions { email: string; verificationLink: string }
+export interface WelcomeEmailOptions { email: string; name?: string }
+export interface NewDeviceEmailOptions { email: string; loginDate?: string; loginDevice?: string; loginLocation?: string; loginIp?: string }
 export interface SecurityAlertEmailOptions {
-  email: string
-  userName?: string
-  alertType: 'suspicious_login' | 'password_changed' | 'failed_attempts'
-  ipAddress?: string
-  location?: string
-  device?: string
-  timestamp?: string
-  securityLink?: string
+  email: string; userName?: string;
+  alertType: "suspicious_login" | "password_changed" | "failed_attempts";
+  ipAddress?: string; location?: string; device?: string; timestamp?: string; securityLink?: string;
 }
+export interface MagicLinkEmailOptions { email: string; magicLink: string }
 
-export interface MagicLinkEmailOptions {
-  email: string
-  magicLink: string
-}
-
-/**
- * Send password reset email
- */
 export async function sendPasswordResetEmail({
-  email,
-  resetLink,
-}: PasswordResetEmailOptions): Promise<EmailResponse> {
-  try {
-    const resendClient = getResendClient()
-    const { data, error } = await resendClient.emails.send({
-      from: FROM_EMAIL,
-      to: email,
-      subject: 'Reset your password',
-      react: PasswordResetEmail({ resetLink }),
-      headers: {
-        'X-Entity-Ref-ID': crypto.randomUUID(),
-      },
-    })
+  to,
+  subject,
+  text,
+  html,
+  replyTo,
+}: {
+  to: string | string[];
+  subject: string;
+  text?: string;
+  html?: string;
+  replyTo?: string;
+}): Promise<EmailResponse> {
+  const { data, error } = await resend.emails.send({
+    from: FROM,                                      
+    to,
+    subject,
+    html: html ?? (text ? `<p>${text}</p>` : "<p></p>"),
+    replyTo: replyTo ?? REPLY_TO_EMAIL,                
+  });
 
-    if (error) {
-      emailLogger.error(
-        'Error sending password reset email',
-        error instanceof Error ? error : new Error(String(error))
-      )
-      return { error: error as Error }
-    }
-
-    emailLogger.info('Password reset email sent successfully', { to: email })
-    return { data }
-  } catch (error) {
-    emailLogger.error(
-      'Failed to send password reset email',
-      error instanceof Error ? error : new Error(String(error))
-    )
-    return { error: error as Error }
+  if (error) {
+    emailLogger.error("Resend error (password reset)", error);
+    return { error: error as Error };
   }
+  emailLogger.info("Password reset email sent", { to });
+  return { data: { id: data?.id as string } };
 }
 
-/**
- * Send login verification code email
- */
-export async function sendLoginCodeEmail({
-  email,
-  code,
-}: LoginCodeEmailOptions): Promise<EmailResponse> {
+// ---- Other emails (unchanged behavior, unified client & error logging) ----
+export async function sendLoginCodeEmail({ email, code }: LoginCodeEmailOptions): Promise<EmailResponse> {
   try {
-    const resendClient = getResendClient()
-    const { data, error } = await resendClient.emails.send({
-      from: FROM_EMAIL,
-      to: email,
-      subject: 'Your login code',
+    const { data, error } = await resend.emails.send({
+      from: FROM, to: email, subject: "Your login code",
       react: LoginCodeEmail({ validationCode: code }),
-      headers: {
-        'X-Entity-Ref-ID': crypto.randomUUID(),
-      },
-    })
-
-    if (error) {
-      emailLogger.error(
-        'Error sending login code email',
-        error instanceof Error ? error : new Error(String(error))
-      )
-      return { error: error as Error }
-    }
-
-    emailLogger.info('Login code email sent successfully', { to: email })
-    return { data }
-  } catch (error) {
-    emailLogger.error(
-      'Failed to send login code email',
-      error instanceof Error ? error : new Error(String(error))
-    )
-    return { error: error as Error }
-  }
+      headers: { "X-Entity-Ref-ID": crypto.randomUUID() },
+    });
+    if (error) return logErr("login code", error);
+    emailLogger.info("Login code email sent", { to: email });
+    return { data };
+  } catch (e: any) { return logCatch("login code", e); }
 }
 
-/**
- * Send email verification link
- */
-export async function sendVerificationEmail({
-  email,
-  verificationLink,
-}: VerificationEmailOptions): Promise<EmailResponse> {
+export async function sendVerificationEmail({ email, verificationLink }: VerificationEmailOptions): Promise<EmailResponse> {
   try {
-    const resendClient = getResendClient()
-    const { data, error } = await resendClient.emails.send({
-      from: FROM_EMAIL,
-      to: email,
-      subject: 'Verify your email address',
+    const { data, error } = await resend.emails.send({
+      from: FROM, to: email, subject: "Verify your email address",
       react: VerifyEmail({ verificationLink }),
-      headers: {
-        'X-Entity-Ref-ID': crypto.randomUUID(),
-      },
-    })
-
-    if (error) {
-      emailLogger.error(
-        'Error sending verification email',
-        error instanceof Error ? error : new Error(String(error))
-      )
-      return { error: error as Error }
-    }
-
-    emailLogger.info('Verification email sent successfully', { to: email })
-    return { data }
-  } catch (error) {
-    emailLogger.error(
-      'Failed to send verification email',
-      error instanceof Error ? error : new Error(String(error))
-    )
-    return { error: error as Error }
-  }
+      headers: { "X-Entity-Ref-ID": crypto.randomUUID() },
+    });
+    if (error) return logErr("verification", error);
+    emailLogger.info("Verification email sent", { to: email });
+    return { data };
+  } catch (e: any) { return logCatch("verification", e); }
 }
 
-/**
- * Send welcome email to new users
- */
-export async function sendWelcomeEmail({
-  email,
-  name,
-}: WelcomeEmailOptions): Promise<EmailResponse> {
+export async function sendWelcomeEmail({ email, name }: WelcomeEmailOptions): Promise<EmailResponse> {
   try {
-    const resendClient = getResendClient()
-    const { data, error } = await resendClient.emails.send({
-      from: FROM_EMAIL,
-      to: email,
-      subject: 'Welcome to SenseiiWyze!',
+    const { data, error } = await resend.emails.send({
+      from: FROM, to: email, subject: "Welcome to SenseiiWyze!",
       react: WelcomeEmail({ name }),
       replyTo: REPLY_TO_EMAIL,
-      headers: {
-        'X-Entity-Ref-ID': crypto.randomUUID(),
-      },
-    })
-
-    if (error) {
-      emailLogger.error(
-        'Error sending welcome email',
-        error instanceof Error ? error : new Error(String(error))
-      )
-      return { error: error as Error }
-    }
-
-    emailLogger.info('Welcome email sent successfully', { to: email, name })
-    return { data }
-  } catch (error) {
-    emailLogger.error(
-      'Failed to send welcome email',
-      error instanceof Error ? error : new Error(String(error))
-    )
-    return { error: error as Error }
-  }
+      headers: { "X-Entity-Ref-ID": crypto.randomUUID() },
+    });
+    if (error) return logErr("welcome", error);
+    emailLogger.info("Welcome email sent", { to: email, name });
+    return { data };
+  } catch (e: any) { return logCatch("welcome", e); }
 }
 
-/**
- * Send new device login notification
- */
-export async function sendNewDeviceEmail({
-  email,
-  loginDate,
-  loginDevice,
-  loginLocation,
-  loginIp,
-}: NewDeviceEmailOptions): Promise<EmailResponse> {
+export async function sendNewDeviceEmail(opts: NewDeviceEmailOptions): Promise<EmailResponse> {
   try {
-    const resendClient = getResendClient()
-    const { data, error } = await resendClient.emails.send({
-      from: FROM_EMAIL,
-      to: email,
-      subject: 'New device login',
-      react: NewDeviceEmail({
-        loginDate,
-        loginDevice,
-        loginLocation,
-        loginIp,
-      }),
-      headers: {
-        'X-Entity-Ref-ID': crypto.randomUUID(),
-      },
-    })
-
-    if (error) {
-      emailLogger.error(
-        'Error sending new device email',
-        error instanceof Error ? error : new Error(String(error))
-      )
-      return { error: error as Error }
-    }
-
-    emailLogger.info('New device email sent successfully', { to: email })
-    return { data }
-  } catch (error) {
-    emailLogger.error(
-      'Failed to send new device email',
-      error instanceof Error ? error : new Error(String(error))
-    )
-    return { error: error as Error }
-  }
+    const { data, error } = await resend.emails.send({
+      from: FROM, to: opts.email, subject: "New device login",
+      react: NewDeviceEmail(opts),
+      headers: { "X-Entity-Ref-ID": crypto.randomUUID() },
+    });
+    if (error) return logErr("new device", error);
+    emailLogger.info("New device email sent", { to: opts.email });
+    return { data };
+  } catch (e: any) { return logCatch("new device", e); }
 }
 
-/**
- * Send security alert email
- */
-export async function sendSecurityAlertEmail({
-  email,
-  userName,
-  alertType,
-  ipAddress,
-  location,
-  device,
-  timestamp,
-  securityLink,
-}: SecurityAlertEmailOptions): Promise<EmailResponse> {
+export async function sendSecurityAlertEmail(opts: SecurityAlertEmailOptions): Promise<EmailResponse> {
   try {
-    const resendClient = getResendClient()
-    const { data, error } = await resendClient.emails.send({
-      from: FROM_EMAIL,
-      to: email,
-      subject: 'Security alert for your account',
+    const { data, error } = await resend.emails.send({
+      from: FROM, to: opts.email, subject: "Security alert for your account",
       react: SecurityAlertEmail({
-        userEmail: email,
-        userName,
-        alertType,
-        ipAddress,
-        location,
-        device,
-        timestamp,
-        securityLink,
+        userEmail: opts.email,
+        userName: opts.userName,
+        alertType: opts.alertType,
+        ipAddress: opts.ipAddress,
+        location: opts.location,
+        device: opts.device,
+        timestamp: opts.timestamp,
+        securityLink: opts.securityLink,
       }),
-      headers: {
-        'X-Entity-Ref-ID': crypto.randomUUID(),
-      },
-    })
-
-    if (error) {
-      emailLogger.error(
-        'Error sending security alert email',
-        error instanceof Error ? error : new Error(String(error))
-      )
-      return { error: error as Error }
-    }
-
-    emailLogger.info('Security alert email sent successfully', { to: email, alertType })
-    return { data }
-  } catch (error) {
-    emailLogger.error(
-      'Failed to send security alert email',
-      error instanceof Error ? error : new Error(String(error))
-    )
-    return { error: error as Error }
-  }
+      headers: { "X-Entity-Ref-ID": crypto.randomUUID() },
+    });
+    if (error) return logErr("security alert", error);
+    emailLogger.info("Security alert email sent", { to: opts.email, alertType: opts.alertType });
+    return { data };
+  } catch (e: any) { return logCatch("security alert", e); }
 }
 
-/**
- * Send magic link for passwordless login
- */
-export async function sendMagicLinkEmail({
-  email,
-  magicLink,
-}: MagicLinkEmailOptions): Promise<EmailResponse> {
+export async function sendMagicLinkEmail({ email, magicLink }: MagicLinkEmailOptions): Promise<EmailResponse> {
   try {
-    const resendClient = getResendClient()
-    const { data, error } = await resendClient.emails.send({
-      from: FROM_EMAIL,
-      to: email,
-      subject: 'Sign in to SenseiiWyze',
+    const { data, error } = await resend.emails.send({
+      from: FROM, to: email, subject: "Sign in to SenseiiWyze",
       react: MagicLinkEmail({ magicLink }),
-      headers: {
-        'X-Entity-Ref-ID': crypto.randomUUID(),
-      },
-    })
-
-    if (error) {
-      emailLogger.error(
-        'Error sending magic link email',
-        error instanceof Error ? error : new Error(String(error))
-      )
-      return { error: error as Error }
-    }
-
-    emailLogger.info('Magic link email sent successfully', { to: email })
-    return { data }
-  } catch (error) {
-    emailLogger.error(
-      'Failed to send magic link email',
-      error instanceof Error ? error : new Error(String(error))
-    )
-    return { error: error as Error }
-  }
+      headers: { "X-Entity-Ref-ID": crypto.randomUUID() },
+    });
+    if (error) return logErr("magic link", error);
+    emailLogger.info("Magic link email sent", { to: email });
+    return { data };
+  } catch (e: any) { return logCatch("magic link", e); }
 }
 
-/**
- * Batch send emails (for notifications)
- */
 export async function sendBatchEmails(
-  emails: Array<{
-    to: string
-    subject: string
-    react: React.ReactElement
-  }>
+  emails: Array<{ to: string; subject: string; react: React.ReactElement }>
 ): Promise<{ data?: any; error?: Error }> {
   try {
-    const resendClient = getResendClient()
-    const { data, error } = await resendClient.batch.send(
-      emails.map((email) => ({
-        from: FROM_EMAIL,
-        ...email,
-        headers: {
-          'X-Entity-Ref-ID': crypto.randomUUID(),
-        },
+    const { data, error } = await resend.batch.send(
+      emails.map(e => ({
+        from: FROM, to: e.to, subject: e.subject, react: e.react,
+        headers: { "X-Entity-Ref-ID": crypto.randomUUID() },
       }))
-    )
-
-    if (error) {
-      emailLogger.error(
-        'Error sending batch emails',
-        error instanceof Error ? error : new Error(String(error))
-      )
-      return { error: error as Error }
-    }
-
-    emailLogger.info('Batch emails sent successfully', { count: emails.length })
-    return { data }
-  } catch (error) {
-    emailLogger.error(
-      'Failed to send batch emails',
-      error instanceof Error ? error : new Error(String(error))
-    )
-    return { error: error as Error }
-  }
+    );
+    if (error) return logErr("batch", error);
+    emailLogger.info("Batch emails sent", { count: emails.length });
+    return { data };
+  } catch (e: any) { return logCatch("batch", e); }
 }
 
-/**
- * Validate email configuration
- */
+// Optional quick config check (prefer sending to delivered@resend.dev)
 export async function validateEmailConfig(): Promise<boolean> {
-  if (!process.env.RESEND_API_KEY) {
-    emailLogger.error('RESEND_API_KEY is not configured')
-    return false
-  }
-
   try {
-    // Try to get API key info to validate configuration
-    const response = await fetch('https://api.resend.com/api-keys', {
-      headers: {
-        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-      },
-    })
-
-    return response.ok
-  } catch (error) {
-    emailLogger.error('Failed to validate Resend configuration:', error)
-    return false
+    const { error } = await resend.emails.send({
+      from: FROM,
+      to: "delivered@resend.dev",   // test sink
+      subject: "Resend config check",
+      html: "<p>ok</p>",
+    });
+    if (error) { emailLogger.error("Resend test failed", error); return false; }
+    return true;
+  } catch (e) {
+    emailLogger.error("Resend config test threw", e as Error);
+    return false;
   }
 }
 
-// Export a function to get the Resend client for other modules that might need it
-export function getResend() {
-  return getResendClient()
+// helpers
+function logErr(kind: string, error: any) {
+  emailLogger.error(`Error sending ${kind} email`, error instanceof Error ? error : new Error(String(error)));
+  return { error: error as Error };
+}
+function logCatch(kind: string, e: any) {
+  emailLogger.error(`Failed to send ${kind} email`, e instanceof Error ? e : new Error(String(e)));
+  return { error: e as Error };
 }

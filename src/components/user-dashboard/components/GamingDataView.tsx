@@ -152,8 +152,8 @@ export const GamingDataView = ({
             </SelectItem>)}
           </SelectContent>
       </Select> */}
-      <div className="flex flex-wrap gap-4">
-        <Card className="w-full sm:w-auto flex-1">
+      <div className="grid grid-cols-12 gap-4 w-full">
+        <Card className="col-span-12 sm:col-span-4">
           <CardContent className="p-4 flex items-center gap-4">
             <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
@@ -176,7 +176,7 @@ export const GamingDataView = ({
             </div>
           </CardContent>
         </Card>
-        <Card className="w-full sm:w-auto flex-1">
+        <Card className="col-span-12 sm:col-span-4">
           <CardContent className="p-4 flex items-center gap-4">
             <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
@@ -194,7 +194,7 @@ export const GamingDataView = ({
             </div>
           </CardContent>
         </Card>
-        <Card className="w-full sm:w-auto flex-1">
+        <Card className="col-span-12 sm:col-span-4">
           <CardContent className="p-4 flex items-center gap-4">
             <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">

@@ -128,7 +128,6 @@ export async function updateNotificationPreferencesAction(formData: FormData) {
     }
 
     // Persisting notifications can be added here if/when a table exists
-    console.log('Updating notification preferences:', preferences)
 
     revalidatePath('/app/settings')
     return { success: true, message: 'Notification preferences updated' }
@@ -154,7 +153,6 @@ export async function updateAppearanceAction(formData: FormData) {
     }
 
     // Theme is handled by next-themes; persist language if you add a table
-    console.log('Updating appearance settings:', settings)
 
     revalidatePath('/app/settings')
     return { success: true, message: 'Appearance settings updated' }

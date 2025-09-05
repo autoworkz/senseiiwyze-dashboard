@@ -1,28 +1,14 @@
 "use client"
-import { useState } from 'react'
-import { UserTable } from '@/components/executive-dashboard/UserTable'
-import { UserMetrics } from '@/components/executive-dashboard/UserMetrics'
-import { DataVisualizations } from '@/components/executive-dashboard/DataVisualizations'
-import { ProgramReadinessCards } from '@/components/executive-dashboard/ProgramReadinessCards'
+
+import { useState, useEffect } from 'react'
+import { UserTable } from './UserTable'
+import { UserMetrics } from './UserMetrics'
+import { DataVisualizations } from './DataVisualizations'
+import { ProgramReadinessCards } from './ProgramReadinessCards'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-
-interface DashboardData {
-  userData: any[]
-  totalUsers: number
-  avgReadiness: number
-  readyUsers: number
-  coachingUsers: number
-  readinessRanges: any[]
-  avgSkills: any[]
-  programReadiness: any[]
-  programThresholds: any
-  success: boolean
-}
-
-interface UserTableData {
-  userData: any[]
-  success: boolean
-}
+import { useFilteredDashboardData, useFilteredUsers } from '@/hooks/useFilteredUsers'
+import { DashboardData, UserTableData } from '@/types/dashboard'
+import { useFilteredUsersContext } from '@/contexts/FilteredUsersContext'
 
 interface ExecutiveDashboardProps {
   dashboardData: DashboardData
@@ -31,7 +17,27 @@ interface ExecutiveDashboardProps {
 
 export default function ExecutiveDashboard({ dashboardData, userTableData }: ExecutiveDashboardProps){
   const [activeTab, setActiveTab] = useState('all')
+  
+  // Move ALL hooks to the top, before any conditional logic
+  const { filteredData, hasData, totalFilteredUsers } = useFilteredDashboardData(dashboardData)
+  const { filteredUsers: filteredTableUsers } = useFilteredUsers(userTableData)
+  const { setFilteredUserIds, setAvgReadiness, avgReadiness } = useFilteredUsersContext()
 
+  // Set the filtered user IDs in context whenever the data changes
+  useEffect(() => {
+    if (filteredTableUsers && filteredTableUsers.length > 0) {
+      const userIds = filteredTableUsers.map(user => user.user_id)
+      setFilteredUserIds(userIds)
+      
+      // Also set the average readiness in context
+      const avgReadiness =  filteredTableUsers.length > 0 
+      ? Math.round(filteredTableUsers.reduce((sum, user) => sum + (user.overallReadiness || 0), 0) / filteredTableUsers.length)
+      : 0
+      setAvgReadiness(avgReadiness)
+    }
+  }, [filteredTableUsers, setFilteredUserIds, setAvgReadiness])
+
+  // Now we can have conditional logic after all hooks
   if (!dashboardData || !dashboardData.success || !userTableData || !userTableData.success) {
     return (
       <div className="min-h-screen w-full bg-background p-6">
@@ -45,14 +51,27 @@ export default function ExecutiveDashboard({ dashboardData, userTableData }: Exe
     )
   }
 
+  if (!hasData) {
+    return (
+      <div className="min-h-screen w-full bg-background p-6">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-2xl font-bold mb-2">Executive Dashboard</h1>
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <p className="text-yellow-600">No users with data found. Users need to complete assessments and activities to appear in the dashboard.</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen w-full bg-background p-6">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-2xl font-bold mb-2">Executive Dashboard</h1>
         <p className="text-muted-foreground mb-6">
-          Track and manage user skills and program readiness
+          Track and manage user skills and program readiness ({totalFilteredUsers} users with data)
         </p>
-        <UserMetrics data={dashboardData} />
+        <UserMetrics data={dashboardData} avgReadiness={avgReadiness} />
         <Tabs defaultValue="all" className="mb-6" onValueChange={setActiveTab}>
           <TabsList className="w-full justify-start">
             <TabsTrigger value="all">All Users</TabsTrigger>

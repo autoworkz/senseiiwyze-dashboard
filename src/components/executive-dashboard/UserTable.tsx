@@ -12,87 +12,40 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UserDetailView } from './UserDetailView';
-
-interface UserData {
-  id: number;
-  user_id: string;
-  name: string;
-  role: string;
-  level: number;
-  skills: {
-    vision: number;
-    grit: number;
-    logic: number;
-    algorithm: number;
-    problemSolving: number;
-  };
-  overallReadiness: number;
-  programReadiness: {
-    [program: string]: number;
-  };
-  skillDetails: {
-    [category: string]: {
-      [subskill: string]: number;
-    };
-  };
-  gamingData: {
-    levelsCompleted: number;
-    totalLevels: number;
-    avgTimePerLevel: number;
-    gamesPlayed: Array<{
-      name: string;
-      score: number;
-      difficulty: 'easy' | 'medium' | 'hard';
-      completed: boolean;
-      timeSpent?: number;
-    }>;
-  };
-  visionBoard: {
-    goals: string[];
-    focusAreas: string[];
-    journalEntries: { date: string; content: string }[];
-    keywords: string[];
-  };
-  personalityExam: {
-    type: string;
-    traits: {
-      [trait: string]: number;
-    };
-    strengths: string[];
-    growthAreas: string[];
-    recommendedRoles: string[];
-  };
-}
+import { useFilteredUsers } from '@/hooks/useFilteredUsers';
+import { UserTableData } from '@/types/dashboard';
 
 interface UserTableProps {
   activeTab?: string;
-  data: {
-    userData: UserData[];
-    success: boolean;
-  };
+  data: UserTableData;
 }
 
 export const UserTable = ({
   activeTab = 'all',
   data
 }: UserTableProps) => {
+  // Use the filtering hook to get filtered users
+  const { filteredUsers, hasData } = useFilteredUsers(data);
+  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const userData = data?.userData || [];
-  const [sortField, setSortField] = useState<keyof UserData>('id');
+  const [sortField, setSortField] = useState<keyof typeof filteredUsers[0]>('id');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [readinessFilter, setReadinessFilter] = useState('all');
-  const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
+  const [selectedUser, setSelectedUser] = useState<typeof filteredUsers[0] | null>(null);
   const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
   const router = useRouter();
+
   // Handle data loading errors
   useEffect(() => {
     if (!data?.success) {
       setError('Failed to load user data');
+    } else {
+      setError(null);
     }
   }, [data]);
 
@@ -101,7 +54,7 @@ export const UserTable = ({
     setCurrentPage(1);
   }, [itemsPerPage, searchQuery, roleFilter, readinessFilter, activeTab]);
 
-  const handleSort = (field: keyof UserData) => {
+  const handleSort = (field: keyof typeof filteredUsers[0]) => {
     if (sortField === field) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
@@ -111,7 +64,7 @@ export const UserTable = ({
   };
 
   // Find the best program for each user
-  const getBestProgram = (user: UserData) => {
+  const getBestProgram = (user: typeof filteredUsers[0]) => {
     const programs = Object.keys(user.programReadiness);
     let bestProgram = {
       name: '',
@@ -144,7 +97,7 @@ export const UserTable = ({
   };
 
   // Filter data based on search query, filters, and active tab
-  const filteredData = userData.filter(user => {
+  const filteredData = filteredUsers.filter(user => {
     // Tab-based filtering
     if (activeTab === 'ready' && user.overallReadiness < 75) {
       return false;
@@ -205,7 +158,7 @@ export const UserTable = ({
     });
   };
 
-  const handleRowClick = (user: UserData) => {
+  const handleRowClick = (user: typeof filteredUsers[0]) => {
     setSelectedUser(user);
   };
 
@@ -286,6 +239,7 @@ export const UserTable = ({
     return pageNumbers;
   };
 
+  // Show loading state while filtering
   if (loading) {
     return (
       <div className="space-y-4">
@@ -299,6 +253,7 @@ export const UserTable = ({
     );
   }
 
+  // Show error state
   if (error) {
     return (
       <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -308,7 +263,16 @@ export const UserTable = ({
     );
   }
 
-  console.log('currentItems', currentItems);
+  // Show no data state
+  if (!hasData) {
+    return (
+      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <h3 className="text-yellow-800 font-semibold">No Users Found</h3>
+        <p className="text-yellow-600">No users with data found for the selected criteria.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       {/* Search and Filters */}
@@ -434,14 +398,6 @@ export const UserTable = ({
                           <Progress value={bestProgram.readiness} className="h-2" />
                         </div>
                       </TableCell>
-                      {/* <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Progress value={user.overallReadiness} className="h-2 w-16" />
-                          <span className="text-sm">
-                            {user.overallReadiness}%
-                          </span>
-                        </div>
-                      </TableCell> */}
                       <TableCell className="text-right">
                         <Link className='flex justify-end' href={`/user-dashboard/${user.user_id}/program-readiness`} passHref>
                           <Eye className="w-4 h-4" />

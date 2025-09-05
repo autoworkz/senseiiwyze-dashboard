@@ -21,6 +21,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "../../lib/db";
 import * as schema from "../../lib/db/schema";
 import { authLogger } from "@/lib/logger";
+import { sendPasswordResetEmail } from "@/lib/email";
 // import { autumn } from "autumn-js/better-auth";
 
 // Import our B2B2C access control system
@@ -57,22 +58,28 @@ export const auth = betterAuth({
  
   hooks: {
     after: createAuthMiddleware(async (ctx) => {
-        console.log("🔍 Auth hook triggered for path:", ctx.path);
         
         if(ctx.path.startsWith("/sign-up")){
-            console.log("✅ Sign-up path detected");
             const newSession = ctx.context.newSession;
             if(newSession){
-                console.log("✅ New session created:", newSession);
             } else {
-                console.log("⚠️ No new session in context");
             }
         }
     }),
   },
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: false, // Set to false for testing
+    requireEmailVerification: false,
+    resetPasswordTokenExpiresIn: 60 * 60,
+    async sendResetPassword({ user, url, token }, request) {
+      console.log("Sending reset password email", { user, url, token });
+      await sendPasswordResetEmail({
+        to: user.email,
+        subject: "Reset your password",
+        html: `Click here to reset your password: <a href="${url}">Reset Password</a>`,
+      });
+    },
+    onPasswordReset: async ({ user }) => { console.log(`Password reset for ${user.email}`); },
   },
   socialProviders: {
     // GitHub OAuth (configuration pending)
@@ -168,6 +175,8 @@ export const auth = betterAuth({
     nextCookies(), // Must be last
   ],
 });
+
+
 /**
  * Get the current authenticated user with their role and organization context
  * This function retrieves the user from Better Auth session and formats it

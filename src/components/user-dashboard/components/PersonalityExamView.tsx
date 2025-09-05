@@ -138,7 +138,7 @@ export const PersonalityExamView = ({
     let compatibility = 0;
     if (program === 'AI/ML Fundamentals') {
       compatibility = ((user.personalityExam.traits.Analytical || 0) * 0.3 + (user.personalityExam.traits.Logical || 0) * 0.3 + (user.personalityExam.traits.Innovative || 0) * 0.2 + (user.personalityExam.traits.Creative || 0) * 0.2) / 1;
-    } else if (program === 'Cyber Security') {
+    } else if (program === 'Cybersecurity') {
       compatibility = ((user.personalityExam.traits.Analytical || 0) * 0.3 + (user.personalityExam.traits.Detail_oriented || 0) * 0.3 + (user.personalityExam.traits.Protective || 0) * 0.2 + (user.personalityExam.traits.Logical || 0) * 0.2) / 1;
     } else if (program === 'Data Analytics') {
       compatibility = ((user.personalityExam.traits.Analytical || 0) * 0.4 + (user.personalityExam.traits.Logical || 0) * 0.3 + (user.personalityExam.traits.Detail_oriented || 0) * 0.3) / 1;
@@ -162,7 +162,7 @@ export const PersonalityExamView = ({
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between gap-4">
-        <Select value={selectedUserId} onValueChange={onUserSelection}>
+        {/* <Select value={selectedUserId} onValueChange={onUserSelection}>
           <SelectTrigger className="w-full sm:w-[200px]">
             <SelectValue placeholder="Select User" />
           </SelectTrigger>
@@ -173,7 +173,7 @@ export const PersonalityExamView = ({
               </SelectItem>
             ))}
           </SelectContent>
-        </Select>
+        </Select> */}
         <div className="bg-muted px-4 py-2 rounded-md">
           <span className="font-medium">{user.personalityExam.type}</span>
         </div>
@@ -272,7 +272,7 @@ export const PersonalityExamView = ({
                           <span>Current Readiness</span>
                           <span>{program.readiness}%</span>
                         </div>
-                        <Progress value={program.readiness} className={`h-2 ${program.name === 'AI/ML Fundamentals' && program.readiness >= 85 ? '[&>div]:bg-green-500' : program.name === 'IoT Tech Support' && program.readiness >= 60 ? '[&>div]:bg-green-500' : program.name === 'Data Analytics' && program.readiness >= 75 ? '[&>div]:bg-green-500' : program.name === 'Computer Networking' && program.readiness >= 75 ? '[&>div]:bg-green-500' : program.name === 'Cyber Security' && program.readiness >= 80 ? '[&>div]:bg-green-500' : program.readiness >= program.readiness - 10 ? '[&>div]:bg-yellow-500' : '[&>div]:bg-red-500'}`} />
+                        <Progress value={program.readiness} className={`h-2 ${program.name === 'AI/ML Fundamentals' && program.readiness >= 85 ? '[&>div]:bg-green-500' : program.name === 'IoT Tech Support' && program.readiness >= 60 ? '[&>div]:bg-green-500' : program.name === 'Data Analytics' && program.readiness >= 75 ? '[&>div]:bg-green-500' : program.name === 'Computer Networking' && program.readiness >= 75 ? '[&>div]:bg-green-500' : program.name === 'Cybersecurity' && program.readiness >= 80 ? '[&>div]:bg-green-500' : program.readiness >= program.readiness - 10 ? '[&>div]:bg-yellow-500' : '[&>div]:bg-red-500'}`} />
                       </div>
                     </div>
                   </CardContent>

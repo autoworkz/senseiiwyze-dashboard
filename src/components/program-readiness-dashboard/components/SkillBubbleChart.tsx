@@ -111,7 +111,7 @@ export const SkillBubbleChart = ({ user, skillRequirements, subskillRequirements
   // Get available programs from skillRequirements
   const programs = skillRequirements ? 
     Array.from(new Set(Object.values(skillRequirements).flatMap(skill => Object.keys(skill)))) : 
-    ['Cyber Security', 'Computer Networking', 'Data Analytics', 'AI/ML Fundamentals', 'IoT Tech Support'];
+    ['Cybersecurity', 'Computer Networking', 'Data Analytics', 'AI/ML Fundamentals', 'IoT Tech Support'];
     
   // Create simple correlations between skills
   const skillCorrelations: SkillCorrelation[] = skillsData.length > 1 ? skillsData.slice(0, -1).map((skill, index) => ({
@@ -120,7 +120,7 @@ export const SkillBubbleChart = ({ user, skillRequirements, subskillRequirements
     strength: 0.7
   })) : [];
   
-  const [selectedProgram, setSelectedProgram] = useState(programs[0] || 'Cyber Security');
+  const [selectedProgram, setSelectedProgram] = useState(programs[0] || 'Cybersecurity');
   const [viewMode, setViewMode] = useState<'current' | 'required'>('current');
   const [expandedSkill, setExpandedSkill] = useState<string | null>(null);
   const chartRef = useRef<HTMLDivElement>(null);

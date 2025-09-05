@@ -14,10 +14,6 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import {
   InteractiveButton,
-  InteractiveCard,
-  InteractiveCardContent,
-  InteractiveCardHeader,
-  InteractiveCardTitle,
   InteractiveInput,
 } from '@/components/interactive'
 import { InteractiveKPICard } from '@/components/interactive/standardized-interactive'
@@ -31,6 +27,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { RoleBadge, ScoreBadge, StatusBadge } from '@/components/ui/standardized/badge-variants'
 import { useSession } from '@/lib/auth-client'
 import { User, CurrentUser } from '@/types/user'
+import { useFilteredUsersContext } from '@/contexts/FilteredUsersContext'
 
 export default function UsersPage() {
   const { data: session, isPending } = useSession()
@@ -41,6 +38,10 @@ export default function UsersPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
   const [usersPerPage] = useState(10)
+
+  // Get filtered user IDs from context
+  const { filteredUserIds, hasFilteredUsers, avgReadiness } = useFilteredUsersContext()
+  console.log("filteredUserIds", filteredUserIds);
 
   useEffect(() => {
     async function fetchUsers() {
@@ -71,28 +72,32 @@ export default function UsersPage() {
       .slice(0, 2)
   }
 
-  // Filter users based on search term
+  // Filter users based on search term and filtered user IDs from context
   useEffect(() => {
     if (!searchTerm) {
-      setFilteredUsers(users)
+      // If no search term, show only users with meaningful data (from context)
+      const meaningfulUsers = users.filter(user => filteredUserIds.includes(user.id))
+      setFilteredUsers(meaningfulUsers)
     } else {
-      const filtered = users.filter(
+      // If searching, filter from meaningful users
+      const meaningfulUsers = users.filter(user => filteredUserIds.includes(user.id))
+      const searchFiltered = meaningfulUsers.filter(
         (user) =>
           user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
           user.role.toLowerCase().includes(searchTerm.toLowerCase())
       )
-      setFilteredUsers(filtered)
+      setFilteredUsers(searchFiltered)
     }
     setCurrentPage(1) // Reset to first page on search
-  }, [searchTerm, users])
+  }, [searchTerm, users, filteredUserIds])
 
-  // Calculate stats
-  const totalUsers = users.length
-  const activeUsers = users.filter((u) => u.status === 'active').length
-  const atRiskUsers = users.filter((u) => u.readinessScore < 60 && u.status !== 'pending').length
-  const avgCompletionRate =
-    users.length > 0 ? Math.round(users.reduce((acc, u) => acc + u.readinessScore, 0) / users.length) : 0
+  // Calculate stats based on filtered users (users with meaningful data)
+  const totalUsers = filteredUserIds.length
+  const activeUsers = users.filter(u => filteredUserIds.includes(u.id) && u.status === 'active').length
+  const atRiskUsers = users.filter(u => filteredUserIds.includes(u.id) && u.readinessScore < 60 && u.status !== 'pending').length
+  // Use avgReadiness from context instead of calculating locally
+  const avgCompletionRate = avgReadiness
 
   // Pagination logic
   const indexOfLastUser = currentPage * usersPerPage
@@ -163,7 +168,7 @@ export default function UsersPage() {
     <PageContainer className="space-y-8">
       <PageHeader
         title="User Management"
-        description="Manage team members, roles, and user profiles"
+        description={`Manage team members, roles, and user profiles (${totalUsers} users with data)`}
       >
         <InteractiveButton variant="outline" size="sm" effect="scale">
           <Filter className="h-4 w-4 mr-2" />
@@ -180,7 +185,7 @@ export default function UsersPage() {
         <InteractiveKPICard
           title="Total Users"
           value={totalUsers}
-          subtitle="All registered users"
+          subtitle="Users with meaningful data"
           icon={<Users className="h-4 w-4 text-muted-foreground" />}
         />
 
@@ -201,7 +206,7 @@ export default function UsersPage() {
         <InteractiveKPICard
           title="Avg Readiness"
           value={`${avgCompletionRate}%`}
-          subtitle="Average across all users"
+          subtitle="Average across active users"
           icon={<Users className="h-4 w-4 text-muted-foreground" />}
         />
       </div>
@@ -225,110 +230,125 @@ export default function UsersPage() {
         </CardContent>
       </Card>
 
-      {/* Users Table Placeholder */}
-      <Card>
-        <CardHeader>
-          <CardTitle>User Directory</CardTitle>
-          <CardDescription>Complete list of team members and their profiles</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {/* Table Header */}
-            <div className="grid grid-cols-12 gap-4 pb-2 border-b text-sm font-medium text-muted-foreground">
-              <div className="col-span-3">User</div>
-              <div className="col-span-2">Role</div>
-              <div className="col-span-2">Status</div>
-              <div className="col-span-2">Readiness</div>
-              <div className="col-span-2">Last Active</div>
-              <div className="col-span-1">Actions</div>
+      {/* Show message if no users have data */}
+      {!hasFilteredUsers && (
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">
+                No users with meaningful data found. Users need to complete assessments and activities to appear in the user directory.
+              </p>
             </div>
+          </CardContent>
+        </Card>
+      )}
 
-            {/* User Rows */}
-            {currentUsers.map((user) => (
-              <div
-                key={user.id}
-                className="grid grid-cols-12 gap-4 py-3 border-b border-dashed hover:bg-muted/50 transition-colors"
-              >
-                <div className="col-span-3 flex items-center gap-3">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={user.avatar} alt={user.name} />
-                    <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                      {getInitials(user.name)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <div className="text-sm font-medium">{user.name}</div>
-                    <div className="text-xs text-muted-foreground">{user.email}</div>
+      {/* Users Table */}
+      {hasFilteredUsers && (
+        <Card>
+          <CardHeader>
+            <CardTitle>User Directory</CardTitle>
+            <CardDescription>Complete list of team members and their profiles</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {/* Table Header */}
+              <div className="grid grid-cols-12 gap-4 pb-2 border-b text-sm font-medium text-muted-foreground">
+                <div className="col-span-3">User</div>
+                <div className="col-span-2">Role</div>
+                <div className="col-span-2">Status</div>
+                <div className="col-span-2">Readiness</div>
+                <div className="col-span-2">Last Active</div>
+                <div className="col-span-1">Actions</div>
+              </div>
+
+              {/* User Rows */}
+              {currentUsers.map((user) => (
+                <div
+                  key={user.id}
+                  className="grid grid-cols-12 gap-4 py-3 border-b border-dashed hover:bg-muted/50 transition-colors"
+                >
+                  <div className="col-span-3 flex items-center gap-3">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={user.avatar} alt={user.name} />
+                      <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                        {getInitials(user.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <div className="text-sm font-medium">{user.name}</div>
+                      <div className="text-xs text-muted-foreground">{user.email}</div>
+                    </div>
+                  </div>
+                  <div className="col-span-2 flex items-center">
+                    <RoleBadge role={user.role}/>
+                  </div>
+                  <div className="col-span-2 flex items-center">
+                    <StatusBadge status={user.status} />
+                  </div>
+                  <div className="col-span-2 flex items-center">
+                    <ScoreBadge score={user.readinessScore} />
+                  </div>
+                  <div className="col-span-2 flex items-center">
+                    <span className="text-sm text-muted-foreground">{user.lastActive}</span>
+                  </div>
+                  <div className="col-span-1 flex items-center gap-1">
+                    <InteractiveButton asChild variant="ghost" size="sm" effect="scale">
+                      <Link href={`/app/users/${user.id}`}>
+                        <Eye className="h-4 w-4" />
+                      </Link>
+                    </InteractiveButton>
+                    <InteractiveButton variant="ghost" size="sm" effect="scale">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </InteractiveButton>
                   </div>
                 </div>
-                <div className="col-span-2 flex items-center">
-                  <RoleBadge role={user.role}/>
-                </div>
-                <div className="col-span-2 flex items-center">
-                  <StatusBadge status={user.status} />
-                </div>
-                <div className="col-span-2 flex items-center">
-                  <ScoreBadge score={user.readinessScore} />
-                </div>
-                <div className="col-span-2 flex items-center">
-                  <span className="text-sm text-muted-foreground">{user.lastActive}</span>
-                </div>
-                <div className="col-span-1 flex items-center gap-1">
-                  <InteractiveButton asChild variant="ghost" size="sm" effect="scale">
-                    <Link href={`/app/users/${user.id}`}>
-                      <Eye className="h-4 w-4" />
-                    </Link>
-                  </InteractiveButton>
-                  <InteractiveButton variant="ghost" size="sm" effect="scale">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </InteractiveButton>
-                </div>
-              </div>
-            ))}
+              ))}
 
-            {/* No users found */}
-            {currentUsers.length === 0 && (
-              <div className="py-8 text-center">
+              {/* No users found */}
+              {currentUsers.length === 0 && (
+                <div className="py-8 text-center">
+                  <p className="text-sm text-muted-foreground">
+                    No users found matching your search.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Table Footer */}
+            <div className="mt-6 pt-4 border-t">
+              <div className="flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">
-                  No users found matching your search.
+                  Showing {currentUsers.length} of {filteredUsers.length} users
                 </p>
-              </div>
-            )}
-          </div>
-
-          {/* Table Footer */}
-          <div className="mt-6 pt-4 border-t">
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">
-                Showing {currentUsers.length} of {filteredUsers.length} users
-              </p>
-              <div className="flex items-center gap-2">
-                <InteractiveButton
-                  variant="outline"
-                  size="sm"
-                  effect="scale"
-                  onClick={() => paginate(currentPage - 1)}
-                  disabled={currentPage === 1}
-                >
-                  Previous
-                </InteractiveButton>
-                <span className="text-sm text-muted-foreground">
-                  Page {currentPage} of {totalPages}
-                </span>
-                <InteractiveButton
-                  variant="outline"
-                  size="sm"
-                  effect="scale"
-                  onClick={() => paginate(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                >
-                  Next
-                </InteractiveButton>
+                <div className="flex items-center gap-2">
+                  <InteractiveButton
+                    variant="outline"
+                    size="sm"
+                    effect="scale"
+                    onClick={() => paginate(currentPage - 1)}
+                    disabled={currentPage === 1}
+                  >
+                    Previous
+                  </InteractiveButton>
+                  <span className="text-sm text-muted-foreground">
+                    Page {currentPage} of {totalPages}
+                  </span>
+                  <InteractiveButton
+                    variant="outline"
+                    size="sm"
+                    effect="scale"
+                    onClick={() => paginate(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                  </InteractiveButton>
+                </div>
               </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
     </PageContainer>
   )
 }

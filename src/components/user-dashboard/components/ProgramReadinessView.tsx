@@ -5,6 +5,7 @@ import { UserProfileCard } from '@/components/program-readiness-dashboard/compon
 import { AnalyticsPanel } from '@/components/program-readiness-dashboard/components/AnalyticsPanel'
 import { ProgramReadinessAssessment } from '@/components/program-readiness-dashboard/components/ProgramReadinessAssessment'
 import { SkillBubbleChart } from '@/components/program-readiness-dashboard/components/SkillBubbleChart'
+import { SkillsCharts } from '@/components/user-dashboard/components/SkillsCharts'
 import { UserData } from '@/types/user-data'
 import { Eye } from 'lucide-react'
 import Link from 'next/link'
@@ -137,6 +138,7 @@ export function ProgramReadinessView({ userId }: { userId: string }) {
                     <AnalyticsPanel user={dashboardData.user} />
                 </div>
             </div>
+            <SkillsCharts user={dashboardData.user} />
             <SkillBubbleChart 
               user={dashboardData.user} 
               skillRequirements={dashboardData.skillRequirements}
@@ -152,12 +154,10 @@ export function ProgramReadinessView({ userId }: { userId: string }) {
                 programRequirements={dashboardData.programRequirements}
             /> */}
             {/* <AdminActions /> */}
-            <Link href={`/app/users/${userId}/`} passHref>
                 <Button disabled className="w-full bg-orange-500 hover:bg-orange-600 text-white flex items-center justify-center">
                     <Eye className="w-5 h-5 mr-2 text-white" />
                     <h3 className="text-md font-semibold text-white">User Analysis Developed From This Data</h3>
                 </Button>
-            </Link>
         </div>
     )
 }

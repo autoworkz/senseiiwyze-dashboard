@@ -40,14 +40,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Email address is required' }, { status: 400 })
     }
 
-    let result: EmailResponse
+    let result: EmailResponse | null = null;
 
     switch (type) {
       case 'password-reset':
         result = await sendPasswordResetEmail({
-          email,
-          resetLink: emailData.resetLink!,
-        })
+          to: email,                                     // ✅ use "to", not "email"
+          subject: "Test password reset",
+          html: "<p>Testing Resend + Better Auth reset mail.</p>",
+        });
         break
 
       case 'login-code':
