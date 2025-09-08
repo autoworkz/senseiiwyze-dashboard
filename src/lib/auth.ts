@@ -229,6 +229,8 @@ export async function getCurrentUser() {
       workplace: profileData?.workplace,
       jobTitle: profileData?.jobTitle,
       profilePhoto: profileData?.profilePhoto,
+      isOnboarding: profileData?.isOnboarding ?? false, 
+      onboardingStep: profileData?.onboardingStep ?? -1,
       // Organization context (if available)
       organizationId: session.session.activeOrganizationId,
     };

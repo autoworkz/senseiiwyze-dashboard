@@ -1,7 +1,7 @@
 'use client';
 
 import React from "react";
-// import { usePricingTable } from "autumn-js/react";
+import { usePricingTable } from "autumn-js/react";
 // import { useCustomer } from "@/hooks/useAutumnCustomer";
 import { createContext, useContext, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -20,12 +20,12 @@ export default function PricingTable({
 }) {
   // const { attach } = useCustomer();
   const [isAnnual, setIsAnnual] = useState(false);
-  // const { products, isLoading, error } = usePricingTable({ productDetails });
+  const { products, isLoading, error } = usePricingTable({ productDetails });
 
   // Temporarily disable Autumn integration
-  const isLoading = false;
-  const error = null;
-  const products = productDetails || [];
+  // const isLoading = false;
+  // const error = null;
+  // const products = productDetails || [];
 
   if (isLoading) {
     return (

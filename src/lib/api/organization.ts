@@ -48,6 +48,52 @@ export async function createOrganization(data: CreateOrganizationData): Promise<
   }
 }
 
+export async function rememberOrganization(organizationId: string) {
+  try {
+    const response = await fetch("/api/user/onboarding/remember-org", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ onboarding_org_id: organizationId }),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to remember organization');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error remembering organization:', error);
+    throw error;
+  }
+}
+
+export async function getRememberedOrganization() {
+  try {
+    const response = await fetch("/api/user/onboarding/remember-org", {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!response.ok) {
+      throw new Error('Failed to get remembered organization');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error getting remembered organization:', error);
+    throw error;
+  }
+}
+
+export async function setActiveOrganization(organizationId: string) {
+  try {
+    const { error } = await authClient.organization.setActive({ organizationId });
+    if (error) {
+      throw new Error(error.message || 'Failed to set active organization');
+    }
+    return { success: true };
+  } catch (error) {
+    console.error('Error setting active organization:', error);
+    throw error;
+  }
+}
+
 export async function savePlan(selectedPlan: string) {
 
   const { data: org, error: readErr } = await authClient.organization.getFullOrganization();

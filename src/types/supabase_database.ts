@@ -2709,6 +2709,8 @@ export type Database = {
           workplace: string | null
           workplace_ref: string | null
           is_onboarding?: boolean | null
+          onboarding_step?: number | null
+          onboarding_org_id?: string | null
         }
         Insert: {
           bio?: string | null
@@ -2731,6 +2733,8 @@ export type Database = {
           workplace?: string | null
           workplace_ref?: string | null
           is_onboarding?: boolean | null
+          onboarding_step?: number | null
+          onboarding_org_id?: string | null
         }
         Update: {
           bio?: string | null
@@ -2753,6 +2757,8 @@ export type Database = {
           workplace?: string | null
           workplace_ref?: string | null
           is_onboarding?: boolean | null
+          onboarding_step?: number | null
+          onboarding_org_id?: string | null
         }
         Relationships: [
           {

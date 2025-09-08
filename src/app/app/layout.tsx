@@ -2,11 +2,13 @@ import { ReactNode, Suspense } from 'react'
 import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
 import { auth } from '@/lib/auth'
-import { GlobalNavigation } from '@/components/layout/GlobalNavigation'
+import { ConditionalNavigation } from '@/components/ConditionalNavigation'
 import { DashboardErrorBoundary } from '@/components/error/error-boundary'
 import { NavigationSkeleton } from '@/components/loading/loading-skeletons'
 import { Toaster } from '@/components/ui/sonner'
 import { FilteredUsersProvider } from '@/contexts/FilteredUsersContext'
+import { OnboardingGuard } from '@/components/OnboardingGuard'
+import { UserProvider } from '@/contexts/UserContext'
 
 interface AppLayoutProps {
   children: ReactNode
@@ -38,20 +40,24 @@ export default async function AppLayout({ children }: AppLayoutProps) {
   // Layout with global navigation header - preserving your exact structure
   return (
     <>
-      <div className="min-h-screen bg-background">
-        <Suspense fallback={<NavigationSkeleton />}>
-          <GlobalNavigation user={session.user} />
-        </Suspense>
-        <main className="min-h-0">
-          <DashboardErrorBoundary>
-            <Suspense fallback={<AuthLoadingFallback />}>
-              <FilteredUsersProvider>
-                {children}
-              </FilteredUsersProvider>
+      <UserProvider>
+        <OnboardingGuard>
+          <div className="min-h-screen bg-background">
+            <Suspense fallback={<NavigationSkeleton />}>
+              <ConditionalNavigation user={session.user} />
             </Suspense>
-          </DashboardErrorBoundary>
-        </main>
-      </div>
+            <main className="min-h-0">
+              <DashboardErrorBoundary>
+                <Suspense fallback={<AuthLoadingFallback />}>
+                  <FilteredUsersProvider>
+                    {children}
+                  </FilteredUsersProvider>
+                </Suspense>
+              </DashboardErrorBoundary>
+            </main>
+          </div>
+        </OnboardingGuard>
+      </UserProvider>
       <Toaster />
     </>
   )

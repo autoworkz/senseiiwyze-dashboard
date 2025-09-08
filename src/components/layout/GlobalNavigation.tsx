@@ -9,6 +9,7 @@ import { InteractiveButton } from '@/components/interactive'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import { onboardingUtils } from '@/utils/onboarding'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -53,6 +54,9 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
       .slice(0, 2) || 'U'
 
   const handleSignOut = async () => {
+    // Clear onboarding status from localStorage
+    onboardingUtils.clearOnboardingStatus()
+    
     await authClient.signOut({
       fetchOptions: {
         onSuccess: () => {

@@ -520,6 +520,7 @@ export const profiles = pgTable("profiles", {
 	isDeleted: boolean("is_deleted").default(false),
 	jobTitle: text("job_title"),
 	isOnboarding: boolean("is_onboarding").default(true).notNull(),
+	onboardingStep: smallint("onboarding_step").default(-1).notNull(),
 }, (table) => [
 	foreignKey({
 			columns: [table.institutionRef],

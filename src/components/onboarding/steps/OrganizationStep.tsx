@@ -8,14 +8,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { OnboardingData } from '../OnboardingFlow';
-import { createOrganization, CreateOrganizationData } from '@/lib/api/organization';
+import { createOrganization, CreateOrganizationData, rememberOrganization } from '@/lib/api/organization';
 import authClient from '@/lib/auth-client';
 import { toSlug } from '@/lib/utils';
+import { OnboardingData } from '../OnboardingFlow';
 
 interface OrganizationStepProps {
   data: OnboardingData;
-  onComplete: (data: Partial<OnboardingData>) => void;
+  onComplete: (data: Partial<OnboardingData>) => Promise<void>;
   onBack: () => void;
 }
 
@@ -28,7 +28,7 @@ const employeeCountOptions = [
   { value: '1000+', label: '1000+ employees' },
 ];
 
-export function OrganizationStep({ data, onComplete }: OrganizationStepProps) {
+export function OrganizationStep({data, onComplete }: OrganizationStepProps) {
   const [formData, setFormData] = useState({
     companyName: data.companyName || '',
     employeeCount: data.employeeCount || '',
@@ -71,16 +71,17 @@ export function OrganizationStep({ data, onComplete }: OrganizationStepProps) {
       };
 
       const result = await createOrganization(createData);
-      
+   
       if (result.exists) {
         // Organization already exists
         setErrors({ companyName: "Organization already exists" });
         return;
       }
 
-      if (result.success) {
+      if (result.success && result.organization?.id) {
         // 3. Organization created successfully, move to next step
-        onComplete(formData);
+        await rememberOrganization(result.organization.id);
+        await onComplete(formData);
       } else {
         throw new Error(result.error || 'Failed to create organization');
       }

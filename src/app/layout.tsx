@@ -1,4 +1,3 @@
-// import { AutumnProvider } from 'autumn-js/react'
 import type { Metadata } from 'next'
 import { ThemeProvider } from 'next-themes'
 import type React from 'react'

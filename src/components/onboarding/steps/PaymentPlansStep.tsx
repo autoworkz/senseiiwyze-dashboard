@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { CreditCard, Check, Star, ArrowRight, ArrowLeft, Sparkles, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -89,7 +89,7 @@ export function PaymentPlansStep({ data, onComplete, onBack }: PaymentPlansStepP
   const [selectedPlan, setSelectedPlan] = useState<string>(data.selectedPlan || '');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
-
+  // const { isStepAccessible } = useOnboardingStatus();
   const handlePlanSelect = (planId: string) => {
     setSelectedPlan(planId);
     setError(''); // Clear any previous errors
@@ -118,6 +118,7 @@ export function PaymentPlansStep({ data, onComplete, onBack }: PaymentPlansStepP
       setIsLoading(false);
     }
   };
+
 
   return (
     <div className="p-8">

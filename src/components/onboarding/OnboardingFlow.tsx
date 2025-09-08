@@ -1,14 +1,13 @@
 "use client";
-
-import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { OrganizationStep } from './steps/OrganizationStep';
 import { PaymentPlansStep } from './steps/PaymentPlansStep';
 import { UserImportStep } from './steps/UserImportStep';
 import { OnboardingProgress } from './OnboardingProgress';
 import { OnboardingHeader } from './OnboardingHeader';
+import { useCompleteOnboarding } from '@/hooks/useCompleteOnboarding';
+import { useOnboardingFlow } from '@/hooks/useOnboardingFlow';
 
 export interface OnboardingData {
   companyName: string;
@@ -22,9 +21,8 @@ export interface OnboardingData {
 const TOTAL_STEPS = 3;
 
 export function OnboardingFlow() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [currentStep, setCurrentStep] = useState(1);
+const { step: currentStep, isLoading, advanceStep } = useOnboardingFlow();
+  const { completeOnboarding } = useCompleteOnboarding();
   const [data, setData] = useState<OnboardingData>({
     companyName: '',
     employeeCount: '',
@@ -33,51 +31,16 @@ export function OnboardingFlow() {
     userCount: 0,
   });
 
-  // Handle URL parameters for resuming onboarding
-  useEffect(() => {
-    const step = searchParams.get('step');
-    if (step) {
-      const stepNumber = parseInt(step, 10);
-      if (stepNumber >= 1 && stepNumber <= TOTAL_STEPS) {
-        setCurrentStep(stepNumber);
-      }
-    }
-  }, [searchParams]);
-
-  const handleStepComplete = (stepData: Partial<OnboardingData>) => {
-    setData(prev => ({ ...prev, ...stepData }));
-    
-    // For payment step, if enterprise plan is selected, skip directly to user import
-    if (currentStep === 2 && stepData.selectedPlan === 'enterprise') {
-      setCurrentStep(3); // Skip to user import step
-      return;
-    }
-    
-    // For payment step with starter/professional, the user will be redirected to Stripe
-    // They'll come back via the success page which will redirect to step 3
-    if (currentStep === 2 && (stepData.selectedPlan === 'starter' || stepData.selectedPlan === 'professional')) {
-      // Don't advance step here - user will be redirected to payment
-      return;
-    }
-    
+  const handleStepComplete = async (stepData: Partial<OnboardingData>) => {
     if (currentStep < TOTAL_STEPS) {
-      setCurrentStep(prev => prev + 1);
+      setData(prev => ({ ...prev, ...stepData }));
+      await advanceStep(); // server updates → UserContext refresh → step advances
     } else {
-      // All steps completed - handle final submission
-      handleOnboardingComplete({ ...data, ...stepData });
+      await completeOnboarding(); // server sets is_onboarding=false
     }
-  };
-
-  const handleOnboardingComplete = (finalData: OnboardingData) => {
-    
-    // Redirect to main dashboard after successful onboarding
-    router.push('/app');
   };
 
   const handleBack = () => {
-    if (currentStep > 1) {
-      setCurrentStep(prev => prev - 1);
-    }
   };
 
   const renderStep = () => {
@@ -110,6 +73,14 @@ export function OnboardingFlow() {
         return null;
     }
   };
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <p className="text-muted-foreground">Loading onboarding…</p>
+      </div>
+    );
+  }
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">

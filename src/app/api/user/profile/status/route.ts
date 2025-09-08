@@ -26,7 +26,6 @@ export async function GET(request: NextRequest) {
     }
 
     const userId = session.user.id;
-    const userEmail = session.user.email;
 
     // First, check if user has a linked profile in ba_users
     const { data: baUser, error: baError } = await supabase
@@ -35,48 +34,21 @@ export async function GET(request: NextRequest) {
       .eq('id', userId)
       .maybeSingle();
 
-    let profileId = baUser?.profile_id;
-
-    // If no profile_id in ba_users, try to find profile by email
-    if (!profileId && userEmail) {
-      const { data: profileByEmail, error: emailError } = await supabase
-        .from('profiles')
-        .select('id, user_role, is_onboarding')
-        .eq('email', userEmail)
-        .maybeSingle();
-
-      if (profileByEmail) {
-        profileId = profileByEmail.id;
-        
-        // Link the profile to the user in ba_users
-        await supabase
-          .from('ba_users')
-          .update({ profile_id: profileId })
-          .eq('id', userId);
-
-        return NextResponse.json({
-          hasProfile: true,
-          user_role: profileByEmail.user_role,
-          is_onboarding: profileByEmail.is_onboarding,
-          profileId: profileId,
-          source: 'linked_by_email'
-        });
-      }
-    }
+    let profileId = baUser?.profile_id;  
 
     // If we have a profile_id, get the profile data
     if (profileId) {
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('id, user_role, is_onboarding, email, name')
+        .select('id, is_onboarding, onboarding_step, email, name')
         .eq('id', profileId)
         .maybeSingle();
 
       if (profile) {
         return NextResponse.json({
           hasProfile: true,
-          user_role: profile.user_role,
           is_onboarding: profile.is_onboarding,
+          onboarding_step: profile.onboarding_step,
           profileId: profile.id,
           source: 'existing_link'
         });
@@ -86,8 +58,8 @@ export async function GET(request: NextRequest) {
     // No profile found
     return NextResponse.json({
       hasProfile: false,
-      user_role: null,
       is_onboarding: true, // Default to true so they go through onboarding
+      onboarding_step: 1, // Start at step 1 for new users (1-based)
       profileId: null,
       source: 'no_profile'
     });
@@ -98,7 +70,8 @@ export async function GET(request: NextRequest) {
       { 
         error: 'Internal server error',
         hasProfile: false,
-        is_onboarding: true // Default to onboarding on error
+        is_onboarding: true, // Default to onboarding on error
+        onboarding_step: 1 // Start at step 1 on error (1-based)
       },
       { status: 500 }
     );

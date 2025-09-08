@@ -1,20 +1,18 @@
-// app/api/autumn/[...all]/route.ts
-
 import { autumnHandler } from "autumn-js/next";
 import { auth } from "@/lib/auth";
 
 export const { GET, POST } = autumnHandler({
   identify: async (request) => {
-    // get the user from your auth provider (example: better-auth)
-    const session = await auth.api.getSession({
-      headers: request.headers,
-    });
+
+    const org = await auth.api.getFullOrganization({ headers: request.headers });
+    // Fallback: block if there's no org (onboarding Step 1 must be done)
+    if (!org?.id) return { customerId: undefined as any };
 
     return {
-      customerId: session?.user.id, //or org ID
+      customerId: org.id,                         //<---billing is org-based
       customerData: {
-        name: session?.user.name,
-        email: session?.user.email,
+        name: org.name,
+        email: org.metadata?.contact?.email,
       },
     };
   },
