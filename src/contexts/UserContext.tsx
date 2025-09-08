@@ -101,8 +101,19 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         onboardingOrgId: profileData?.onboarding_org_id,
       }
 
-      setUser(combinedUser)
 
+      if (combinedUser.onboardingStep >= 2 && combinedUser.onboardingOrgId) {
+        if (combinedUser.organizationId !== combinedUser.onboardingOrgId) {
+          await authClient.organization.setActive({
+            organizationId: combinedUser.onboardingOrgId,
+          });
+
+          combinedUser.organizationId = combinedUser.onboardingOrgId;
+        }
+      }
+      
+      setUser(combinedUser)
+    
       // Update onboarding status
       const needsOnboarding = combinedUser.isOnboarding
       const hasProfile = !!combinedUser.profileId
