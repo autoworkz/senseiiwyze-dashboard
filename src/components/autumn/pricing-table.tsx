@@ -63,6 +63,7 @@ export default function PricingTable({
     return true;
   };
 
+  console.log("products", products);
   return (
     <div className={cn("w-full")}>
       {products && (

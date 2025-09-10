@@ -16,6 +16,11 @@ export function OnboardingGuard({ children }: OnboardingGuardProps) {
 
   // Handle redirects with useEffect at the top level
   useEffect(() => {
+    // Don't redirect if we're on the payment success page
+    if (pathname === '/app/onboarding/payment/success') {
+      return
+    }
+    
     if (onboardingStatus.needsOnboarding && !pathname.startsWith('/app/onboarding')) {
       router.push('/app/onboarding')
     } else if (!onboardingStatus.needsOnboarding && pathname.startsWith('/app/onboarding')) {

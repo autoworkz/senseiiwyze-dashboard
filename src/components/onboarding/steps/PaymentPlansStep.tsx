@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { CreditCard, Check, Star, ArrowRight, ArrowLeft, Sparkles, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,10 @@ import { cn } from '@/lib/utils';
 import { OnboardingData } from '../OnboardingFlow';
 import { savePlan } from '@/lib/api/organization';
 import { createAutumnCheckout } from '@/lib/autumn-utils';
+import { usePricingTable, useCustomer, CheckoutDialog } from 'autumn-js/react';
+import { findRecurringPrice, formatMoney } from '@/utils/pricing';
+import { useRouter } from 'next/navigation';
+import { useOnboardingFlow } from '@/hooks/useOnboardingFlow';
 
 
 interface PaymentPlansStepProps {
@@ -19,13 +23,13 @@ interface PaymentPlansStepProps {
     selectedPlan: string;
     paymentSessionId?: string;
     customerId?: string;
-  }>) => void;
+  }>) => Promise<void>;
   onBack: () => void;
 }
 
 const plans = [
   {
-    id: 'starter',
+    id: 'starter_product', // Autumn product id
     name: 'Starter',
     description: 'Perfect for small teams getting started',
     price: '$29',
@@ -43,7 +47,7 @@ const plans = [
     buttonText: 'Start with Starter'
   },
   {
-    id: 'professional',
+    id: 'professional_product',
     name: 'Professional',
     description: 'Most popular for growing organizations',
     price: '$59',
@@ -63,7 +67,7 @@ const plans = [
     buttonText: 'Choose Professional'
   },
   {
-    id: 'enterprise',
+    id: 'enterprise_product',
     name: 'Enterprise',
     description: 'For large organizations with custom needs',
     price: 'Custom',
@@ -81,7 +85,7 @@ const plans = [
       'Success guarantee'
     ],
     color: 'border-custom-blue',
-    buttonText: 'Contact Sales'
+    buttonText: 'Choose Enterprise'
   }
 ];
 
@@ -89,7 +93,29 @@ export function PaymentPlansStep({ data, onComplete, onBack }: PaymentPlansStepP
   const [selectedPlan, setSelectedPlan] = useState<string>(data.selectedPlan || '');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
-  // const { isStepAccessible } = useOnboardingStatus();
+  const router = useRouter();
+
+  const { products, isLoading: isProductsLoading, error: productsError, refetch: refetchProducts } = usePricingTable();
+  const { checkout, refetch: refetchCustomer } = useCustomer();
+  const { advanceStep } = useOnboardingFlow();
+
+  const tryAdvanceIfActive = async () => {
+    // refetch both sources to be fresh
+    await Promise.all([refetchProducts(), refetchCustomer()]);
+    const paid = products?.find(
+      (p: any) =>
+        (p.id === selectedPlan) &&
+        (p.scenario === "active" || p.scenario === "renew" || p.scenario === "scheduled")
+    );
+    if (paid) {
+      await advanceStep();
+      router.replace("/app/onboarding");
+      return true;
+    }
+    return false;
+  }
+
+
   const handlePlanSelect = (planId: string) => {
     setSelectedPlan(planId);
     setError(''); // Clear any previous errors
@@ -98,20 +124,21 @@ export function PaymentPlansStep({ data, onComplete, onBack }: PaymentPlansStepP
   const handleContinue = async () => {
     if (!selectedPlan) return;
     setIsLoading(true); setError("");
+    console.log("selectedPlan", selectedPlan);
   
     try {
-       const checkoutUrl = await createAutumnCheckout(selectedPlan, {
-        companyName: data.companyName,
-        employeeCount: data.employeeCount,
-        source: 'onboarding'
-      });
-
-      // Save the selected plan before redirecting
+ 
+     // Save the selected plan before redirecting
       await savePlan(selectedPlan);
-      await onComplete({ selectedPlan });
-      
+      await checkout({
+        productId: selectedPlan,
+        dialog: CheckoutDialog,
+        // some SDK versions support these; harmless if ignored:
+        successUrl: `${window.location.origin}/app/onboarding/payment/success?plan=${selectedPlan}`,
+        // cancelUrl: `${window.location.origin}/app/onboarding?step=2`,
+      });
       // Redirect to Autumn checkout
-      window.location.href = checkoutUrl;
+      // await tryAdvanceIfActive();
     } catch (e: any) {
       setError(e?.message || "Failed to update plan");
     } finally {
@@ -119,6 +146,49 @@ export function PaymentPlansStep({ data, onComplete, onBack }: PaymentPlansStepP
     }
   };
 
+  const displayPlans = useMemo(() => {
+    return plans.map((p) => {
+      const autumnProduct = products?.find((product: any) => p.id === product.id);
+      if (!autumnProduct) return p; // fallback
+
+      const chosen = findRecurringPrice(autumnProduct, "month");
+      const priceText = formatMoney(chosen?.amount);
+
+      return {
+        ...p,
+        // Prefer Autumn’s name (keeps your ‘Enterprise’ etc. in sync with Dashboard/CLI) :contentReference[oaicite:3]{index=3}
+        name: autumnProduct.name ?? p.name,
+        // Only overwrite price (keep your descriptions/features as-is)
+        price: priceText,
+        // Optional: if you show “per month / per year”
+        period: chosen?.interval === "year" ? "per user/year" : "per user/month",
+      };
+    });
+  }, [products]);
+
+    // Loading / error states
+    if (isProductsLoading) {
+      return (
+        <div className="p-8">
+          <div className="text-center mb-8">
+            <div className="mx-auto w-16 h-16 bg-muted rounded-full animate-pulse mb-4" />
+            <h1 className="text-3xl font-bold mb-2">Loading plans…</h1>
+            <p className="text-muted-foreground">Fetching live pricing from Autumn</p>
+          </div>
+        </div>
+      );
+    }
+    if (productsError) {
+      return (
+        <div className="p-8">
+          <Alert className="max-w-3xl mx-auto">
+            <AlertDescription>
+              Couldn’t load pricing. Please check your Autumn setup and try again.
+            </AlertDescription>
+          </Alert>
+        </div>
+      );
+    }
 
   return (
     <div className="p-8">
@@ -140,7 +210,7 @@ export function PaymentPlansStep({ data, onComplete, onBack }: PaymentPlansStepP
 
         {/* Plans Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto mb-8">
-          {plans.map((plan, index) => (
+          {displayPlans.map((plan, index) => (
             <motion.div
               key={plan.id}
               initial={{ opacity: 0, y: 20 }}

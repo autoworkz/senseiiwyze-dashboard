@@ -1,20 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { supabase } from '@/lib/supabase'
+import { withAuth } from '@/lib/api/with-auth'
 
-export async function POST(request: NextRequest) {
+export const POST = withAuth(async (request: NextRequest, { session }) => {
   try {
-    // Get the current session
-    const session = await auth.api.getSession({
-      headers: request.headers,
-    })
-
-    if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
 
     const userId = session.user.id
 
@@ -62,4 +52,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+})

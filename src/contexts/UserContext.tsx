@@ -68,9 +68,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       // Fetch profile data from API
       const response = await fetch('/api/user/profile/status', {
         method: 'GET',
-        headers: {
-          'X-Internal-Request': 'true',
-        },
       })
 
       let profileData = null
@@ -100,6 +97,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         organizationId: session.data.session?.activeOrganizationId,
         onboardingOrgId: profileData?.onboarding_org_id,
       }
+      console.log("combinedUser", combinedUser);
+      console.log("activeOrganizationId before", (await authClient.getSession()).data?.session.activeOrganizationId);
 
 
       if (combinedUser.onboardingStep >= 2 && combinedUser.onboardingOrgId) {
@@ -111,6 +110,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           combinedUser.organizationId = combinedUser.onboardingOrgId;
         }
       }
+      console.log("activeOrganizationId after", (await authClient.getSession()).data?.session.activeOrganizationId);
       
       setUser(combinedUser)
     
