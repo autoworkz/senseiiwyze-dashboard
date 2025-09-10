@@ -8,13 +8,33 @@ import {
   validateFileType, 
   validateFileSize 
 } from '@/utils/user-import';
-
+import { useCustomer } from "autumn-js/react";
 export function useUserImport() {
   const [selectedMethod, setSelectedMethod] = useState<ImportMethod | ''>('');
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [uploadError, setUploadError] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+
+  // Get customer data from Autumn
+  const { allowed, check } = useCustomer();
+  
+  // Check organization seats feature locally
+  const canAddMoreUsers = allowed({ featureId: "organization_seats" });
+  console.log('Can add more users (local check):', canAddMoreUsers);
+  
+  // Check organization seats feature via API
+  const checkSeats = async () => {
+    try {
+      const { data } = await check({ featureId: "organization_seats" });
+      console.log('Organization seats check (API):', data);
+      return data;
+    } catch (error) {
+      console.error('Error checking organization seats:', error);
+      return null;
+    }
+  };
+  console.log('checkSeats', checkSeats);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -85,7 +105,7 @@ export function useUserImport() {
         try {
           const { error } = await authClient.organization.inviteMember({
             email: row.email,
-            role: row.role ?? "admin-executive",
+            role: row.role ?? "admin-manager",
             resend: true,
           });
           if (error) {
@@ -110,6 +130,10 @@ export function useUserImport() {
 
     setIsProcessing(true);
     try {
+      // Check organization seats limit via Autumn API
+      const seatsData = await checkSeats();
+      console.log('Seats data from Autumn:', seatsData);
+      
       // Parse the uploaded file
       const rows = await parseFile(uploadedFile);
       
@@ -121,6 +145,10 @@ export function useUserImport() {
       }
 
       console.log('validRows', validRows);
+      
+      // TODO: Apply user limit cap based on Autumn data
+      // For now, just log the data we get from Autumn
+      
       // Send invitations
       const results = await inviteBatch(validRows);
       
@@ -137,7 +165,7 @@ export function useUserImport() {
     } finally {
       setIsProcessing(false);
     }
-  }, [uploadedFile, selectedMethod, parseFile, inviteBatch]);
+  }, [uploadedFile, selectedMethod, parseFile, inviteBatch, checkSeats]);
 
   const removeFile = useCallback(() => {
     setUploadedFile(null);

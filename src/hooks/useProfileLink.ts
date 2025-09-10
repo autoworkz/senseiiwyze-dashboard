@@ -49,7 +49,8 @@ export function useProfileLink() {
             email,
             name,
             user_role: 'admin-executive', // Default role for new profiles
-            is_onboarding: true // New profiles need onboarding
+            is_onboarding: true, // New profiles need onboarding
+            onboarding_step: 1
           })
           .select('id')
           .single()

@@ -89,7 +89,6 @@ export default function SignUpPage() {
       }
 
       if (_data?.user) {
-        const dbUserRole = 'admin-executive';
         await ensureProfileLinked({
           userId: _data.user.id,
           email: values.email,

@@ -7,8 +7,7 @@ import { useOnboardingFlow } from "@/hooks/useOnboardingFlow";
 
 export default function PaymentSuccessPage() {
   const router = useRouter();
-  const { products, refetch: refetchProducts } = usePricingTable();
-  const { refetch: refetchCustomer } = useCustomer();
+  const { refetch: refetchProducts } = usePricingTable();
   const { advanceStep } = useOnboardingFlow();
   const [isVerifyingPayment, setIsVerifyingPayment] = useState(false);
   const searchParams = useSearchParams();
@@ -19,20 +18,21 @@ export default function PaymentSuccessPage() {
     const checkPayment = async () => {
       setIsVerifyingPayment(true);
       // refetch + confirm entitlement
-      await Promise.all([refetchProducts(), refetchCustomer()]);
-      const paid = products?.find(
+      const [freshProducts] = await Promise.all([refetchProducts()]);
+      const paid = freshProducts?.find(
         (p: any) =>
           (p.id === selectedPlan) &&
           (p.scenario === "active" || p.scenario === "renew" || p.scenario === "scheduled")
       );
-      console.log("paid", paid);
       if (paid) {
         await advanceStep();
+        router.replace("/app/onboarding");
+      }else{
+        router.replace("/app/onboarding");
       }
-      router.replace("/app/onboarding");
     }
     checkPayment();
-  }, [router, products, refetchProducts, refetchCustomer]);
+  }, [router, refetchProducts, selectedPlan]);
 
   return (
     <div className="flex min-h-[60vh] items-center justify-center">

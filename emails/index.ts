@@ -8,6 +8,7 @@ export { MagicLinkEmail } from './magic-link';
 export { WelcomeEmail } from './welcome-email';
 export { NewDeviceEmail } from './new-device';
 export { SecurityAlertEmail } from './security-alert';
+export { OrganizationInviteEmail } from './organization-invite';
 
 // React Email examples (for reference)
 export { default as NotionMagicLinkEmail } from './notion-magic-link';

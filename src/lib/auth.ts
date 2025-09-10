@@ -33,7 +33,7 @@ import {
 import { eq } from "drizzle-orm";
 import { profiles } from "../../lib/db/schema";
 import { users } from "../../lib/db/schema";
-import { sendOrganizationInvitation } from "@/lib/email/index";
+import { sendOrganizationInviteEmail } from "@/lib/email";
 
 export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET!,
@@ -127,8 +127,8 @@ export const auth = betterAuth({
       cancelPendingInvitationsOnReInvite: true,
       async sendInvitationEmail(data) {
         // Build your accept link (route handles acceptInvitation by invitationId)
-        const acceptUrl = `${process.env.NEXT_PUBLIC_APP_URL}/app/organization/accept-invite/${data.id}`;
-        await sendOrganizationInvitation({
+        const acceptUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/organization/accept-invite/${data.id}`;
+        await sendOrganizationInviteEmail({
           email: data.email,  
           invitedByUsername: data.inviter.user.name,
           invitedByEmail: data.inviter.user.email,

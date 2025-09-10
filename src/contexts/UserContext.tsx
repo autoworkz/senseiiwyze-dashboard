@@ -98,8 +98,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         onboardingOrgId: profileData?.onboarding_org_id,
       }
       console.log("combinedUser", combinedUser);
-      console.log("activeOrganizationId before", (await authClient.getSession()).data?.session.activeOrganizationId);
-
 
       if (combinedUser.onboardingStep >= 2 && combinedUser.onboardingOrgId) {
         if (combinedUser.organizationId !== combinedUser.onboardingOrgId) {

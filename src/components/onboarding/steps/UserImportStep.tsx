@@ -23,8 +23,6 @@ import { OnboardingData } from '../OnboardingFlow';
 import { useUserImport } from '@/hooks/useUserImport';
 import { importMethods, requiredColumns } from '@/config/import-methods';
 import { downloadTemplate } from '@/utils/user-import';
-import { useEffect } from 'react';
-import authClient from '@/lib/auth-client';
 
 interface UserImportStepProps {
   data: OnboardingData & { importMethod?: string; userCount?: number };
@@ -46,8 +44,6 @@ export function UserImportStep({ data, onComplete, onBack }: UserImportStepProps
     processImport,
     removeFile,
   } = useUserImport();
-
-  const { data: organizations } = authClient.useListOrganizations()
 
   const handleContinue = async () => {
     if (!selectedMethod) return;

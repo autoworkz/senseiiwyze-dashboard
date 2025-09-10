@@ -28,8 +28,8 @@ export function useCompleteOnboarding() {
           throw new Error('Failed to complete onboarding')
         }
 
-        // Don't refresh user data immediately - let the redirect handle it
-        // The UserContext will refresh when the user lands on the dashboard
+        // Refresh user data to get updated onboarding status
+        await refreshUser()
       } catch (dbError) {
         console.error('Database update failed:', dbError)
         throw dbError

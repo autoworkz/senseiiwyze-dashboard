@@ -172,7 +172,7 @@ export const GET = withAuth(async (
     const userData = {
       id: selectedUser.id,
       name: userName,
-      role: selectedUser.user_role === 'admin' ? 'Administrator' : 'User',
+      role: selectedUser.user_role === 'admin-executive' ? 'Administrator' : 'User',
       level,
       skills,
       overallReadiness,

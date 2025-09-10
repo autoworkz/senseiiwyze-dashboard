@@ -1,17 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { withAuth } from '@/lib/api/with-auth';
 
-export async function GET(request: NextRequest) {
+export const GET = withAuth(async (request: NextRequest) => {
   try {
-    // Check if this is an internal request
-    const internalRequest = request.headers.get('X-Internal-Request');
-    if (internalRequest !== 'true') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
+   
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
 
@@ -81,4 +74,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+}); 

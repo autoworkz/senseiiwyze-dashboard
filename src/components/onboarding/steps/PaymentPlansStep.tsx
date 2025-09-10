@@ -10,7 +10,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
 import { OnboardingData } from '../OnboardingFlow';
 import { savePlan } from '@/lib/api/organization';
-import { createAutumnCheckout } from '@/lib/autumn-utils';
 import { usePricingTable, useCustomer, CheckoutDialog } from 'autumn-js/react';
 import { findRecurringPrice, formatMoney } from '@/utils/pricing';
 import { useRouter } from 'next/navigation';

@@ -4,6 +4,7 @@ import {
   LoginCodeEmail,
   MagicLinkEmail,
   NewDeviceEmail,
+  OrganizationInviteEmail,
   SecurityAlertEmail,
   VerifyEmail,
   WelcomeEmail,
@@ -11,7 +12,6 @@ import {
 
 const FROM = process.env.EMAIL_OTP_FROM!;             
 const REPLY_TO_EMAIL = "support@senseiwyze.com"; 
-
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
@@ -26,6 +26,13 @@ export interface SecurityAlertEmailOptions {
   ipAddress?: string; location?: string; device?: string; timestamp?: string; securityLink?: string;
 }
 export interface MagicLinkEmailOptions { email: string; magicLink: string }
+export interface OrganizationInviteEmailOptions {
+  email: string;
+  invitedByUsername: string;
+  invitedByEmail: string;
+  organizationName: string;
+  inviteLink: string;
+}
 
 export async function sendPasswordResetEmail({
   to,
@@ -143,6 +150,25 @@ export async function sendMagicLinkEmail({ email, magicLink }: MagicLinkEmailOpt
     emailLogger.info("Magic link email sent", { to: email });
     return { data };
   } catch (e: any) { return logCatch("magic link", e); }
+}
+
+export async function sendOrganizationInviteEmail(opts: OrganizationInviteEmailOptions): Promise<EmailResponse> {
+  try {
+    const { data, error } = await resend.emails.send({
+      from: FROM, to: opts.email, subject: `Join ${opts.organizationName} on SenseiiWyze`,
+      react: OrganizationInviteEmail({
+        invitedByUsername: opts.invitedByUsername,
+        invitedByEmail: opts.invitedByEmail,
+        organizationName: opts.organizationName,
+        inviteLink: opts.inviteLink,
+      }),
+      replyTo: REPLY_TO_EMAIL,
+      headers: { "X-Entity-Ref-ID": crypto.randomUUID() },
+    });
+    if (error) return logErr("organization invite", error);
+    emailLogger.info("Organization invite email sent", { to: opts.email, organizationName: opts.organizationName });
+    return { data };
+  } catch (e: any) { return logCatch("organization invite", e); }
 }
 
 export async function sendBatchEmails(
