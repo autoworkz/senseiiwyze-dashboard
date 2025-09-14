@@ -579,7 +579,7 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
             </CardContent>
           </Card>
 
-          <Card>
+          {/* <Card>
             <CardHeader>
               <CardTitle>Payment Method</CardTitle>
               <CardDescription>
@@ -592,7 +592,7 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
                 Add Payment Method
               </Button>
             </CardContent>
-          </Card>
+          </Card> */}
 
           <Card>
             <CardHeader>
