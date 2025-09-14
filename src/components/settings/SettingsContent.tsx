@@ -609,6 +609,7 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
                       <thead>
                         <tr className="border-b bg-muted/50">
                           <th className="px-4 py-3 text-left text-sm font-medium">Date</th>
+                          <th className="px-4 py-3 text-left text-sm font-medium">Plan</th>
                           <th className="px-4 py-3 text-left text-sm font-medium">Amount</th>
                           <th className="px-4 py-3 text-left text-sm font-medium">Status</th>
                           <th className="px-4 py-3 text-left text-sm font-medium">Invoice</th>
@@ -619,6 +620,16 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
                           <tr key={invoice.stripe_id || index} className="border-b">
                             <td className="px-4 py-3 text-sm">
                               {new Date(invoice.created_at).toLocaleDateString()}
+                            </td>
+                            <td className="px-4 py-3 text-sm">
+                              <span className="inline-flex items-center px-2 py-1 rounded-md bg-blue-100 text-blue-800 text-xs font-medium">
+                                {invoice.product_ids && invoice.product_ids.length > 0 
+                                  ? invoice.product_ids.map((id: string) => 
+                                      id.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())
+                                    ).join(', ')
+                                  : 'N/A'
+                                }
+                              </span>
                             </td>
                             <td className="px-4 py-3 text-sm font-medium">
                               ${invoice.total} {invoice.currency?.toUpperCase()}
