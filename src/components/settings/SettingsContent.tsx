@@ -45,7 +45,7 @@ import { SimpleFileUpload } from '@/components/upload/file-upload'
 import { uploadAccountImage } from '@/lib/actions/avatar-upload'
 
 interface User {
-  role: 'learner' | 'admin' | 'executive' | 'ceo' | 'worker' | 'frontliner'
+  role: 'learner' | 'admin' | 'executive' | 'ceo' | 'worker' | 'frontliner' | 'admin-executive'
   name: string
   email: string
   id: string
@@ -76,10 +76,8 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
   const { customer } = useCustomer({ expand: ["invoices"] });
-  console.log("Customer data:", customer);
   // Get theme from next-themes
   const { theme: currentTheme, setTheme: setNextTheme } = useTheme()
-
   // Form states - initialized with server data
   const [displayName, setDisplayName] = useState(initialSettings.displayName)
   const [workplace, setWorkplace] = useState(initialSettings.workplace)
@@ -262,18 +260,20 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
               <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary rounded-t-sm" />
             )}
           </TabsTrigger>
-          <TabsTrigger
-            value="billing"
-            className="relative py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
-          >
-            <span className="flex items-center gap-2">
-              <CreditCard className="h-4 w-4" />
-              Billing
-            </span>
-            {activeTab === 'billing' && (
-              <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary rounded-t-sm" />
-            )}
-          </TabsTrigger>
+          {user?.role === 'admin-executive' &&
+            <TabsTrigger
+              value="billing"
+              className="relative py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+            >
+              <span className="flex items-center gap-2">
+                <CreditCard className="h-4 w-4" />
+                Billing
+              </span>
+              {activeTab === 'billing' && (
+                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary rounded-t-sm" />
+              )}
+            </TabsTrigger>
+          }
           <TabsTrigger
             value="notifications"
             className="relative py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
@@ -617,16 +617,16 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
                       </thead>
                       <tbody>
                         {customer.invoices.map((invoice: any, index: number) => (
-                          <tr key={invoice.stripe_id || index} className="border-b">
+                          <tr key={invoice.stripe_id || index} className={index !== 0 ? `border-b` : ''}>
                             <td className="px-4 py-3 text-sm">
                               {new Date(invoice.created_at).toLocaleDateString()}
                             </td>
                             <td className="px-4 py-3 text-sm">
                               <span className="inline-flex items-center px-2 py-1 rounded-md bg-blue-100 text-blue-800 text-xs font-medium">
-                                {invoice.product_ids && invoice.product_ids.length > 0 
-                                  ? invoice.product_ids.map((id: string) => 
-                                      id.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())
-                                    ).join(', ')
+                                {invoice.product_ids && invoice.product_ids.length > 0
+                                  ? invoice.product_ids.map((id: string) =>
+                                    id.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())
+                                  ).join(', ')
                                   : 'N/A'
                                 }
                               </span>
@@ -635,13 +635,12 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
                               ${invoice.total} {invoice.currency?.toUpperCase()}
                             </td>
                             <td className="px-4 py-3 text-sm">
-                              <span className={`inline-flex items-center capitalize px-2 py-1 rounded-full text-xs font-medium ${
-                                invoice.status === 'paid' 
-                                  ? 'bg-green-100 text-green-800' 
-                                  : invoice.status === 'pending'
+                              <span className={`inline-flex items-center capitalize px-2 py-1 rounded-full text-xs font-medium ${invoice.status === 'paid'
+                                ? 'bg-green-100 text-green-800'
+                                : invoice.status === 'pending'
                                   ? 'bg-yellow-100 text-yellow-800'
                                   : 'bg-red-100 text-red-800'
-                              }`}>
+                                }`}>
                                 {invoice.status}
                               </span>
                             </td>
