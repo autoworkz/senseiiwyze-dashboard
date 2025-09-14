@@ -13,19 +13,19 @@ import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { useCustomer } from "autumn-js/react";
 
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from '@/components/ui/select'
-import { 
-  User, 
-  Palette, 
-  CreditCard, 
-  Bell, 
-  Shield, 
+import {
+  User,
+  Palette,
+  CreditCard,
+  Bell,
+  Shield,
   Globe,
   Mail,
   Briefcase,
@@ -75,8 +75,8 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
   const [isPending, startTransition] = useTransition()
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
-  const { customer } = useCustomer();
-
+  const { customer } = useCustomer({ expand: ["invoices"] });
+  console.log("Customer data:", customer);
   // Get theme from next-themes
   const { theme: currentTheme, setTheme: setNextTheme } = useTheme()
 
@@ -86,7 +86,7 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
   const [jobTitle, setJobTitle] = useState(initialSettings.jobTitle)
   const [bio, setBio] = useState(initialSettings.bio)
   const [language, setLanguage] = useState(initialSettings.language)
-  
+
   // Notification states
   const [emailNotifications, setEmailNotifications] = useState(initialSettings.emailNotifications)
   const [pushNotifications, setPushNotifications] = useState(initialSettings.pushNotifications)
@@ -98,7 +98,6 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
   const handleTabChange = (value: string) => {
     router.push(`?tab=${value}`)
   }
-    console.log("Customer data:", customer);
   const handleProfileSave = () => {
     startTransition(async () => {
       let hasProfileChanges = false
@@ -106,10 +105,10 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
 
       // Check if profile fields have changed
       if (displayName !== initialSettings.displayName ||
-          workplace !== initialSettings.workplace ||
-          jobTitle !== initialSettings.jobTitle ||
-          bio !== initialSettings.bio) {
-        
+        workplace !== initialSettings.workplace ||
+        jobTitle !== initialSettings.jobTitle ||
+        bio !== initialSettings.bio) {
+
         hasProfileChanges = true
         const formData = new FormData()
         formData.append('displayName', displayName)
@@ -118,7 +117,7 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
         formData.append('bio', bio)
 
         profileResult = await updateProfileAction(formData)
-        
+
         if (!profileResult.success) {
           setMessage({ type: 'error', text: profileResult.error || 'Profile update failed' })
           setTimeout(() => setMessage(null), 3000)
@@ -130,7 +129,7 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
       if (selectedAvatarFile) {
         try {
           const publicUrl = await uploadAccountImage(selectedAvatarFile);
-          
+
           setAvatarUrl(publicUrl)
           setSelectedAvatarFile(null)
         } catch (err: any) {
@@ -162,7 +161,7 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
       formData.append('marketingEmails', marketingEmails.toString())
 
       const result = await updateNotificationPreferencesAction(formData)
-      
+
       if (result.success) {
         setMessage({ type: 'success', text: result.message || 'Preferences updated' })
         setHasUnsavedChanges(false)
@@ -181,7 +180,7 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
       formData.append('language', language)
 
       const result = await updateAppearanceAction(formData)
-      
+
       if (result.success) {
         setMessage({ type: 'success', text: result.message || 'Settings updated' })
         setHasUnsavedChanges(false)
@@ -238,9 +237,9 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
 
       {/* Tabs - Preserving your exact design */}
       <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 h-auto p-1 bg-muted/50">
-          <TabsTrigger 
-            value="general" 
+        <TabsList className="grid w-full grid-cols-5 h-auto p-1 bg-muted/50">
+          <TabsTrigger
+            value="general"
             className="relative py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
           >
             <span className="flex items-center gap-2">
@@ -251,7 +250,7 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
               <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary rounded-t-sm" />
             )}
           </TabsTrigger>
-          <TabsTrigger 
+          <TabsTrigger
             value="profile"
             className="relative py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
           >
@@ -263,7 +262,7 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
               <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary rounded-t-sm" />
             )}
           </TabsTrigger>
-          <TabsTrigger 
+          <TabsTrigger
             value="billing"
             className="relative py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
           >
@@ -275,7 +274,7 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
               <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary rounded-t-sm" />
             )}
           </TabsTrigger>
-          <TabsTrigger 
+          <TabsTrigger
             value="notifications"
             className="relative py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
           >
@@ -315,7 +314,7 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
                   className="focus:ring-2 focus:ring-primary"
                 />
               </div>
-              
+
               <div className="grid gap-2">
                 <Label htmlFor="email">Email Address</Label>
                 <Input
@@ -330,7 +329,7 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
                   Your email address from authentication: {user.email}
                 </p>
               </div>
-              
+
               <div className="grid gap-2">
                 <Label htmlFor="workplace">Workplace</Label>
                 <Input
@@ -344,7 +343,7 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
                   className="focus:ring-2 focus:ring-primary"
                 />
               </div>
-              
+
               <div className="grid gap-2">
                 <Label htmlFor="jobTitle">Job Title</Label>
                 <Input
@@ -360,7 +359,7 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
               </div>
 
               <div className="flex gap-2 pt-4">
-                <Button 
+                <Button
                   onClick={handleProfileSave}
                   disabled={isPending || !hasUnsavedChanges}
                   className="flex items-center gap-2"
@@ -386,16 +385,16 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
             <CardContent className="space-y-6">
               <div className="space-y-3">
                 <Label>Theme</Label>
-                <RadioGroup 
-                  value={currentTheme || 'system'} 
+                <RadioGroup
+                  value={currentTheme || 'system'}
                   onValueChange={(value) => {
                     setNextTheme(value)
                     setHasUnsavedChanges(true)
                   }}
                   className="grid grid-cols-3 gap-4"
                 >
-                  <Label 
-                    htmlFor="light" 
+                  <Label
+                    htmlFor="light"
                     className={cn(
                       "flex flex-col items-center justify-center rounded-md border-2 p-4 hover:bg-accent cursor-pointer transition-all",
                       currentTheme === 'light' && "border-primary bg-accent"
@@ -405,9 +404,9 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
                     <div className="mb-2 h-16 w-16 rounded-md bg-white border shadow-sm" />
                     <span className="text-sm font-medium">Light</span>
                   </Label>
-                  
-                  <Label 
-                    htmlFor="dark" 
+
+                  <Label
+                    htmlFor="dark"
                     className={cn(
                       "flex flex-col items-center justify-center rounded-md border-2 p-4 hover:bg-accent cursor-pointer transition-all",
                       currentTheme === 'dark' && "border-primary bg-accent"
@@ -417,9 +416,9 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
                     <div className="mb-2 h-16 w-16 rounded-md bg-slate-900 border shadow-sm" />
                     <span className="text-sm font-medium">Dark</span>
                   </Label>
-                  
-                  <Label 
-                    htmlFor="system" 
+
+                  <Label
+                    htmlFor="system"
                     className={cn(
                       "flex flex-col items-center justify-center rounded-md border-2 p-4 hover:bg-accent cursor-pointer transition-all",
                       currentTheme === 'system' && "border-primary bg-accent"
@@ -434,8 +433,8 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
 
               <div className="grid gap-2">
                 <Label htmlFor="language">Language</Label>
-                <Select 
-                  value={language} 
+                <Select
+                  value={language}
                   onValueChange={(value) => {
                     setLanguage(value)
                     setHasUnsavedChanges(true)
@@ -455,7 +454,7 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
               </div>
 
               <div className="flex gap-2 pt-4">
-                <Button 
+                <Button
                   onClick={handleAppearanceSave}
                   disabled={isPending || !hasUnsavedChanges}
                   className="flex items-center gap-2"
@@ -603,12 +602,68 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground text-center py-4">
-                No billing history available
-              </p>
+              {customer && customer.invoices && customer.invoices.length > 0 ? (
+                <div className="rounded-md border">
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b bg-muted/50">
+                          <th className="px-4 py-3 text-left text-sm font-medium">Date</th>
+                          <th className="px-4 py-3 text-left text-sm font-medium">Amount</th>
+                          <th className="px-4 py-3 text-left text-sm font-medium">Status</th>
+                          <th className="px-4 py-3 text-left text-sm font-medium">Invoice</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {customer.invoices.map((invoice: any, index: number) => (
+                          <tr key={invoice.stripe_id || index} className="border-b">
+                            <td className="px-4 py-3 text-sm">
+                              {new Date(invoice.created_at).toLocaleDateString()}
+                            </td>
+                            <td className="px-4 py-3 text-sm font-medium">
+                              ${invoice.total} {invoice.currency?.toUpperCase()}
+                            </td>
+                            <td className="px-4 py-3 text-sm">
+                              <span className={`inline-flex items-center capitalize px-2 py-1 rounded-full text-xs font-medium ${
+                                invoice.status === 'paid' 
+                                  ? 'bg-green-100 text-green-800' 
+                                  : invoice.status === 'pending'
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : 'bg-red-100 text-red-800'
+                              }`}>
+                                {invoice.status}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 text-sm">
+                              {invoice.hosted_invoice_url ? (
+                                <a
+                                  href={invoice.hosted_invoice_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-primary hover:underline flex items-center gap-1"
+                                >
+                                  View Invoice
+                                  <Globe className="h-3 w-3" />
+                                </a>
+                              ) : (
+                                <span className="text-muted-foreground">N/A</span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  No billing history available
+                </p>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
+
 
         {/* Notifications Tab */}
         <TabsContent value="notifications" className="space-y-6">
@@ -630,7 +685,7 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
                     Get notified about course updates and deadlines
                   </p>
                 </div>
-                <Switch 
+                <Switch
                   checked={emailNotifications}
                   onCheckedChange={(checked) => {
                     setEmailNotifications(checked)
@@ -654,7 +709,7 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
                     Updates about new features and promotions
                   </p>
                 </div>
-                <Switch 
+                <Switch
                   checked={marketingEmails}
                   onCheckedChange={(checked) => {
                     setMarketingEmails(checked)
@@ -664,7 +719,7 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
               </div>
 
               <div className="flex gap-2 pt-4">
-                <Button 
+                <Button
                   onClick={handleNotificationSave}
                   disabled={isPending || !hasUnsavedChanges}
                   className="flex items-center gap-2"
@@ -694,7 +749,7 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
                     Receive notifications on your browser
                   </p>
                 </div>
-                <Switch 
+                <Switch
                   checked={pushNotifications}
                   onCheckedChange={(checked) => {
                     setPushNotifications(checked)
