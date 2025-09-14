@@ -75,7 +75,7 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
   const [isPending, startTransition] = useTransition()
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
-  const { customer } = useCustomer({ expand: ["invoices"] });
+  const { customer, openBillingPortal } = useCustomer({ expand: ["invoices"] });
   // Get theme from next-themes
   const { theme: currentTheme, setTheme: setNextTheme } = useTheme()
   // Form states - initialized with server data
@@ -574,7 +574,7 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
                   <h3 className="font-semibold">{getUserPlan()}</h3>
                   {/* <p className="text-sm text-muted-foreground">Basic features with limited access</p> */}
                 </div>
-                <Button>Upgrade</Button>
+                <Button onClick={()=>openBillingPortal()}>Manage Subscription</Button>
               </div>
             </CardContent>
           </Card>
