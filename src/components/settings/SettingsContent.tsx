@@ -11,6 +11,8 @@ import { Button } from '@/components/ui/button'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
+import { useCustomer } from "autumn-js/react";
+
 import { 
   Select, 
   SelectContent, 
@@ -73,10 +75,11 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
   const [isPending, startTransition] = useTransition()
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
-  
+  const { customer } = useCustomer();
+
   // Get theme from next-themes
   const { theme: currentTheme, setTheme: setNextTheme } = useTheme()
-  
+
   // Form states - initialized with server data
   const [displayName, setDisplayName] = useState(initialSettings.displayName)
   const [workplace, setWorkplace] = useState(initialSettings.workplace)
@@ -95,7 +98,7 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
   const handleTabChange = (value: string) => {
     router.push(`?tab=${value}`)
   }
-
+    console.log("Customer data:", customer);
   const handleProfileSave = () => {
     startTransition(async () => {
       let hasProfileChanges = false
@@ -215,6 +218,10 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
       setMessage({ type: 'error', text: 'Failed to preview image' })
       setTimeout(() => setMessage(null), 3000)
     }
+  }
+
+  const getUserPlan = () => {
+    return customer?.products.filter((p: any) => p.status === 'active')[0]?.name
   }
 
   return (
@@ -565,8 +572,8 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
             <CardContent>
               <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/50">
                 <div>
-                  <h3 className="font-semibold">Free Plan</h3>
-                  <p className="text-sm text-muted-foreground">Basic features with limited access</p>
+                  <h3 className="font-semibold">{getUserPlan()}</h3>
+                  {/* <p className="text-sm text-muted-foreground">Basic features with limited access</p> */}
                 </div>
                 <Button>Upgrade</Button>
               </div>
