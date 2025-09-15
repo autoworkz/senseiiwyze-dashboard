@@ -44,7 +44,7 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
   const { data: session } = useSession()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const router = useRouter()
-  // Use server user prop if available, fallback to client session
+  const { data: organizations } = authClient.useListOrganizations()
   const user = serverUser || session?.user
   const userInitials =
     user?.name
@@ -57,13 +57,13 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
   const handleSignOut = async () => {
     // Clear onboarding status from localStorage
     onboardingUtils.clearOnboardingStatus()
-    
+
     await authClient.signOut({
       fetchOptions: {
         onSuccess: () => {
           router.push("/auth/login"); // redirect to login page
         },
-      },  
+      },
     });
   }
 
@@ -155,7 +155,17 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
       </Link>
     )
   }
-
+  const setOrganization = async (orgId: string, orgSlug: string) => {
+    const { data, error } = await authClient.organization.setActive({
+      organizationId: orgId,
+      organizationSlug: orgSlug,
+    });
+    if (error) {
+      console.error("Failed to set active organization:", error);
+      return;
+    }
+    router.refresh();
+  }
   return (
     <header
       className={cn('bg-background/80 backdrop-blur-md border-b sticky top-0 z-50', className)}
@@ -211,7 +221,7 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
           <ThemeToggle />
 
           {/* Upgrade button */}
-          <InteractiveButton
+          {/* <InteractiveButton
             size="sm"
             variant="default"
             className="hidden sm:flex gap-2 shadow-sm"
@@ -220,8 +230,7 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
           >
             <Sparkles className="h-4 w-4 animate-pulse" />
             <span className="hidden lg:inline">Upgrade</span>
-          </InteractiveButton>
-
+          </InteractiveButton> */}
           {/* User menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -261,6 +270,16 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
               </DropdownMenuGroup>
               {user?.role === 'admin-executive' && (
                 <>
+                  <DropdownMenuSeparator />
+                  {organizations && organizations.length > 0 && (
+                    organizations.map((org) => (
+                      <DropdownMenuItem asChild key={org.id}>
+                        <Link href={`#`}>
+                          {org.name}
+                        </Link>
+                      </DropdownMenuItem>
+                    ))
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link href="/app/onboarding">Create Organization</Link>
