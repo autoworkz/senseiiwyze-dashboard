@@ -2,9 +2,9 @@ import {
 	feature,
 	product,
 	featureItem,
-	pricedFeatureItem,
 	priceItem,
 } from "atmn";
+import { Autumn as autumn } from "autumn-js";
 
 // Features
 export const organizationSeats = feature({
@@ -51,3 +51,12 @@ export const enterpriseProduct = product({
 		}),
 	],
 });
+
+export async function checkFeatureUsage(customerId: string, featureId: string) {
+	const { data } = await autumn.check({
+	  customer_id: customerId,
+	  feature_id: featureId,
+	});
+  
+	return data;
+  }	

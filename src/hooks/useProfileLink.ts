@@ -85,29 +85,6 @@ export function useProfileLink() {
       setIsLinking(false)
     }
   }, [])
-
-  const completeOnboarding = useCallback(async (profileId: string) => {
-    setIsLinking(true)
-    setError(null)
-
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ is_onboarding: false })
-        .eq('id', profileId)
-
-      if (error) {
-        throw error
-      }
-
-      console.log('✅ Onboarding completed for profile:', profileId)
-    } catch (err: any) {
-      setError(err?.message || 'Failed to complete onboarding')
-      throw err
-    } finally {
-      setIsLinking(false)
-    }
-  }, [])
-
+  
   return { isLinking, error, ensureProfileLinked }
 } 

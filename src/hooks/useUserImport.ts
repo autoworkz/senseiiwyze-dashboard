@@ -9,6 +9,7 @@ import {
   validateFileSize 
 } from '@/utils/user-import';
 import { useCustomer } from "autumn-js/react";
+
 export function useUserImport() {
   const [selectedMethod, setSelectedMethod] = useState<ImportMethod | ''>('');
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -34,7 +35,6 @@ export function useUserImport() {
       return null;
     }
   };
-  console.log('checkSeats', checkSeats);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -94,6 +94,14 @@ export function useUserImport() {
   }, [selectedMethod]);
 
   const inviteBatch = useCallback(async (rows: InviteRow[]): Promise<ImportResult[]> => {
+    // Get the active organization ID from the session
+    const session = await authClient.getSession();
+    const activeOrganizationId = session.data?.session?.activeOrganizationId;
+    
+    if (!activeOrganizationId) {
+      throw new Error("No active organization found. Please select an organization first.");
+    }
+
     const CONCURRENCY = 8;
     let idx = 0;
     const results: ImportResult[] = [];
@@ -103,13 +111,19 @@ export function useUserImport() {
         const i = idx++;
         const row = rows[i];
         try {
-          const { error } = await authClient.organization.inviteMember({
-            email: row.email,
-            role: row.role ?? "admin-manager",
-            resend: true,
+          const res = await fetch(`/api/organization/${activeOrganizationId}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: row.email,
+              role: row.role ?? "admin-manager",
+              name: row.first_name, // optional, pass what you have
+            }),
           });
-          if (error) {
-            results.push({ row, ok: false, error: error.message ?? String(error) });
+  
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            results.push({ row, ok: false, error: err.error ?? res.statusText });
           } else {
             results.push({ row, ok: true });
           }
