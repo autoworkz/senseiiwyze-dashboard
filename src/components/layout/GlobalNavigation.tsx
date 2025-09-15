@@ -35,6 +35,7 @@ interface GlobalNavigationProps {
     name?: string | null
     email?: string | null
     image?: string | null
+    role?: string | null
   }
 }
 
@@ -258,6 +259,14 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
                   <Link href="/app/settings">Settings</Link>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
+              {user?.role === 'admin-executive' && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/app/onboarding">Create Organization</Link>
+                  </DropdownMenuItem>
+                </>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link href="/support">Support</Link>
