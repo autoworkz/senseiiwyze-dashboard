@@ -274,7 +274,7 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
                   {organizations && organizations.length > 0 && (
                     organizations.map((org) => (
                       <DropdownMenuItem asChild key={org.id}>
-                        <Link href={`#`} onClick={() => setOrganization(org.id, org.slug)}>
+                        <Link href={`#`}>
                           {org.name}
                         </Link>
                       </DropdownMenuItem>
