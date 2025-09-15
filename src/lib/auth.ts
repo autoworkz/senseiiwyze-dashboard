@@ -21,8 +21,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "../../lib/db";
 import * as schema from "../../lib/db/schema";
 import { authLogger } from "@/lib/logger";
-import { sendPasswordResetEmail } from "@/lib/email";
-// import { autumn } from "autumn-js/better-auth";
+import { sendPasswordResetEmail, sendMagicLinkEmail } from "@/lib/email";
 
 // Import our B2B2C access control system
 import {
@@ -33,7 +32,7 @@ import {
 import { eq } from "drizzle-orm";
 import { profiles } from "../../lib/db/schema";
 import { users } from "../../lib/db/schema";
-import { sendOrganizationInviteEmail } from "@/lib/email";
+// import { sendOrganizationInviteEmail } from "@/lib/email"; // Disabled - using magic links instead
 
 export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET!,
@@ -125,19 +124,11 @@ export const auth = betterAuth({
       invitationLimit: 50,
       invitationExpiresIn: 48 * 60 * 60,
       cancelPendingInvitationsOnReInvite: true,
-      async sendInvitationEmail(data) {
-        // Build your accept link (route handles acceptInvitation by invitationId)
-        const acceptUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/organization/accept-invite/${data.id}`;
-        await sendOrganizationInviteEmail({
-          email: data.email,  
-          invitedByUsername: data.inviter.user.name,
-          invitedByEmail: data.inviter.user.email,
-          organizationName: data.organization.name,
-          inviteLink: acceptUrl,
-        })
-  
-       
-      },
+      // Disabled - we handle email sending manually with magic links
+      // async sendInvitationEmail(data) {
+      //   // This callback is disabled because we send magic links manually
+      //   // in the organization invitation API route
+      // },
     }),
 
     // Admin plugin with B2B2C access control
@@ -163,9 +154,12 @@ export const auth = betterAuth({
       },
     }),
     magicLink({
-      sendMagicLink({ email, token, url }, request) {
-        // Send email with magic link
-        authLogger.info("Sending magic link via email", { email, url });
+      expiresIn: 15 * 60,
+      storeToken: "hashed",
+      sendMagicLink: async ({ email, token, url }, _request) => {
+        // Send email with magic link using our email service
+        await sendMagicLinkEmail({ email, magicLink: url });
+        authLogger.info("Magic link sent via email", { email, url });
       },
     }),
     anonymous(),

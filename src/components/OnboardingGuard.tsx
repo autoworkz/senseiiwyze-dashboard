@@ -16,8 +16,11 @@ export function OnboardingGuard({ children }: OnboardingGuardProps) {
 
   // Handle redirects with useEffect at the top level
   useEffect(() => {
-    // Don't redirect if we're on the payment success page
-    if (pathname === '/app/onboarding/payment/success') {
+    // Don't redirect if we're on the payment success page or invitation accept page
+    if (
+      pathname === '/app/onboarding/payment/success' ||
+      pathname.startsWith('/app/organization/accept-invite')
+    ) {
       return
     }
     
