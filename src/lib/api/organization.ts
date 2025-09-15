@@ -28,7 +28,7 @@ function coerceMeta(meta: unknown): Record<string, any> {
 // Check if organization exists and create if it doesn't
 export async function createOrganization(data: CreateOrganizationData): Promise<OrganizationResponse> {
   try {
-    const response = await fetch('/api/orgs/create', {
+    const response = await fetch('/api/organization/create', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
