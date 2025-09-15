@@ -45,6 +45,7 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const router = useRouter()
   const { data: organizations } = authClient.useListOrganizations()
+  const { data: activeOrganization } = authClient.useActiveOrganization()
   const user = serverUser || session?.user
   const userInitials =
     user?.name
@@ -181,6 +182,17 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
               </InteractiveButton>
             </PopoverTrigger>
             <PopoverContent align="start" className="w-[300px] p-4 md:hidden" sideOffset={12}>
+              {/* Current Organization in Mobile */}
+              {activeOrganization && (
+                <div className="mb-4 p-3 bg-muted/50 rounded-md border">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                    <span className="text-sm font-medium">{activeOrganization.name}</span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">Current Organization</span>
+                </div>
+              )}
+              
               <nav className="flex flex-col gap-1">
                 {dashboardNavigation.map((item) => (
                   <div key={item.href}>
@@ -216,10 +228,17 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
         </div>
 
         {/* Right side - User menu and actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {/* Theme toggle */}
           <ThemeToggle />
-
+          
+          {/* Current Organization Display */}
+          {activeOrganization && (
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-md border">
+              <div className="w-2 h-2 rounded-full bg-green-500"></div>
+              <span className="text-sm font-medium text-foreground">{activeOrganization.name}</span>
+            </div>
+          )}
           {/* Upgrade button */}
           {/* <InteractiveButton
             size="sm"
@@ -268,21 +287,44 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
                   <Link href="/app/settings">Settings</Link>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
+              
+              {/* Organizations Section */}
+              {organizations && organizations.length > 0 && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    All Organizations
+                  </DropdownMenuLabel>
+                  {organizations.map((org) => (
+                    <DropdownMenuItem 
+                      key={org.id}
+                      onClick={() => setOrganization(org.id, org.slug)}
+                      className="cursor-pointer"
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <div className="flex items-center gap-2">
+                          <div className={`w-2 h-2 rounded-full ${
+                            activeOrganization?.id === org.id ? 'bg-green-500' : 'bg-gray-300'
+                          }`}></div>
+                          <span>{org.name}</span>
+                        </div>
+                        {activeOrganization?.id === org.id && (
+                          <span className="text-xs text-muted-foreground">Current</span>
+                        )}
+                      </div>
+                    </DropdownMenuItem>
+                  ))}
+                </>
+              )}
+              
+              {/* Create Organization for admin users */}
               {user?.role === 'admin-executive' && (
                 <>
                   <DropdownMenuSeparator />
-                  {organizations && organizations.length > 0 && (
-                    organizations.map((org) => (
-                      <DropdownMenuItem asChild key={org.id}>
-                        <Link href={`#`}>
-                          {org.name}
-                        </Link>
-                      </DropdownMenuItem>
-                    ))
-                  )}
-                  <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href="/app/onboarding">Create Organization</Link>
+                    <Link href="/app/onboarding" className="text-primary">
+                      + Create Organization
+                    </Link>
                   </DropdownMenuItem>
                 </>
               )}
