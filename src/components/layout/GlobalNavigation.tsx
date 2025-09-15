@@ -45,7 +45,6 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const router = useRouter()
   const { data: organizations } = authClient.useListOrganizations()
-  // Use server user prop if available, fallback to client session
   const user = serverUser || session?.user
   const userInitials =
     user?.name
@@ -156,7 +155,17 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
       </Link>
     )
   }
-
+  const setOrganization = async (orgId: string, orgSlug: string) => {
+    const { data, error } = await authClient.organization.setActive({
+      organizationId: orgId,
+      organizationSlug: orgSlug,
+    });
+    if (error) {
+      console.error("Failed to set active organization:", error);
+      return;
+    }
+    router.refresh();
+  }
   return (
     <header
       className={cn('bg-background/80 backdrop-blur-md border-b sticky top-0 z-50', className)}
@@ -212,7 +221,7 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
           <ThemeToggle />
 
           {/* Upgrade button */}
-          <InteractiveButton
+          {/* <InteractiveButton
             size="sm"
             variant="default"
             className="hidden sm:flex gap-2 shadow-sm"
@@ -221,8 +230,7 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
           >
             <Sparkles className="h-4 w-4 animate-pulse" />
             <span className="hidden lg:inline">Upgrade</span>
-          </InteractiveButton>
-
+          </InteractiveButton> */}
           {/* User menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -266,7 +274,7 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
                   {organizations && organizations.length > 0 && (
                     organizations.map((org) => (
                       <DropdownMenuItem asChild key={org.id}>
-                        <Link href={`#`}>
+                        <Link href={`#`} onClick={() => setOrganization(org.id, org.slug)}>
                           {org.name}
                         </Link>
                       </DropdownMenuItem>
