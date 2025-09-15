@@ -99,7 +99,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       }
       console.log("combinedUser", combinedUser);
 
+      // Handle active organization setting
       if (combinedUser.onboardingStep >= 2 && combinedUser.onboardingOrgId) {
+        // User is in onboarding - set the onboarding organization as active
         if (combinedUser.organizationId !== combinedUser.onboardingOrgId) {
           await authClient.organization.setActive({
             organizationId: combinedUser.onboardingOrgId,
@@ -107,9 +109,23 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
           combinedUser.organizationId = combinedUser.onboardingOrgId;
         }
+      } else {
+        // User is not in onboarding but has no active organization
+        // Set the first available organization as active
+        try {
+          const { data: orgs } = await authClient.organization.list();
+          if (orgs && orgs.length > 0) {
+            await authClient.organization.setActive({
+              organizationId: orgs[0].id,
+            });
+            combinedUser.organizationId = orgs[0].id;
+            console.log("✅ Set active organization for user:", orgs[0].id);
+          }
+        } catch (orgError) {
+          console.warn("Could not set active organization:", orgError);
+        }
       }
-      console.log("activeOrganizationId after", (await authClient.getSession()).data?.session.activeOrganizationId);
-      
+
       setUser(combinedUser)
     
       // Update onboarding status
