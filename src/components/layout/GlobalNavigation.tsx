@@ -44,6 +44,7 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
   const { data: session } = useSession()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const router = useRouter()
+  const { data: organizations } = authClient.useListOrganizations()
   // Use server user prop if available, fallback to client session
   const user = serverUser || session?.user
   const userInitials =
@@ -57,13 +58,13 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
   const handleSignOut = async () => {
     // Clear onboarding status from localStorage
     onboardingUtils.clearOnboardingStatus()
-    
+
     await authClient.signOut({
       fetchOptions: {
         onSuccess: () => {
           router.push("/auth/login"); // redirect to login page
         },
-      },  
+      },
     });
   }
 
@@ -261,6 +262,16 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
               </DropdownMenuGroup>
               {user?.role === 'admin-executive' && (
                 <>
+                  <DropdownMenuSeparator />
+                  {organizations && organizations.length > 0 && (
+                    organizations.map((org) => (
+                      <DropdownMenuItem asChild key={org.id}>
+                        <Link href={`#`}>
+                          {org.name}
+                        </Link>
+                      </DropdownMenuItem>
+                    ))
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link href="/app/onboarding">Create Organization</Link>
