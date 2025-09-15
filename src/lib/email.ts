@@ -5,6 +5,7 @@ import {
   MagicLinkEmail,
   NewDeviceEmail,
   OrganizationInviteEmail,
+  OrganizationMagicLinkEmail,
   SecurityAlertEmail,
   VerifyEmail,
   WelcomeEmail,
@@ -32,6 +33,14 @@ export interface OrganizationInviteEmailOptions {
   invitedByEmail: string;
   organizationName: string;
   inviteLink: string;
+}
+export interface OrganizationMagicLinkEmailOptions {
+  email: string;
+  magicLink: string;
+  organizationName: string;
+  invitedByUsername: string;
+  invitedByEmail: string;
+  inviteeEmail: string;
 }
 
 export async function sendPasswordResetEmail({
@@ -169,6 +178,26 @@ export async function sendOrganizationInviteEmail(opts: OrganizationInviteEmailO
     emailLogger.info("Organization invite email sent", { to: opts.email, organizationName: opts.organizationName });
     return { data };
   } catch (e: any) { return logCatch("organization invite", e); }
+}
+
+export async function sendOrganizationMagicLinkEmail(opts: OrganizationMagicLinkEmailOptions): Promise<EmailResponse> {
+  try {
+    const { data, error } = await resend.emails.send({
+      from: FROM, to: opts.email, subject: `You're invited to join ${opts.organizationName}`,
+      react: OrganizationMagicLinkEmail({
+        magicLink: opts.magicLink,
+        organizationName: opts.organizationName,
+        invitedByUsername: opts.invitedByUsername,
+        invitedByEmail: opts.invitedByEmail,
+        inviteeEmail: opts.inviteeEmail,
+      }),
+      replyTo: REPLY_TO_EMAIL,
+      headers: { "X-Entity-Ref-ID": crypto.randomUUID() },
+    });
+    if (error) return logErr("organization magic link", error);
+    emailLogger.info("Organization magic link email sent", { to: opts.email, organizationName: opts.organizationName });
+    return { data };
+  } catch (e: any) { return logCatch("organization magic link", e); }
 }
 
 export async function sendBatchEmails(
