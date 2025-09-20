@@ -35,6 +35,22 @@ export const adminManager = ac.newRole({
   reports: ["view"],
 });
 
+// Platform super admin - access to all organizations, for developers/owners only
+export const superAdmin = ac.newRole({
+  organization: ["view", "update", "manage"],
+  team: ["view", "manage"],
+  billing: ["view", "manage", "invoice", "subscription"],
+  reports: ["view"],
+  enterprise: ["sso", "scim", "contracts", "security"],
+  assessment: ["assign", "view"],
+  user: ["view", "create", "update", "delete"],
+  invitation: ["create"],
+});
+
 // 3) (Optional) legacy aliases if any old code still references them
-export const roles = { "admin-executive": adminExecutive, "admin-manager": adminManager };
+export const roles = { 
+  "admin-executive": adminExecutive, 
+  "admin-manager": adminManager,
+  "super-admin": superAdmin 
+};
 export type RoleKey = keyof typeof roles;

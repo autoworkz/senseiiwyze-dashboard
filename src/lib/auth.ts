@@ -28,10 +28,12 @@ import {
   ac,
   adminManager,
   adminExecutive,
+  superAdmin,
 } from "./permissions";
 import { eq } from "drizzle-orm";
 import { profiles } from "../../lib/db/schema";
 import { users } from "../../lib/db/schema";
+import { canUserCreateOrganization } from "./organization-limits";
 // import { sendOrganizationInviteEmail } from "@/lib/email"; // Disabled - using magic links instead
 
 export const auth = betterAuth({
@@ -111,15 +113,14 @@ export const auth = betterAuth({
       roles: {
         "admin-executive": adminExecutive,
         "admin-manager": adminManager,
+        "super-admin": superAdmin,
       },
-      allowUserToCreateOrganization: async (user:any) => {  // only admins sign up; employees get invited
-        const roles = String(user.role ?? "") 
-          .split(",")
-          .map((r) => r.trim());
-        return roles.includes("admin-executive");
+      allowUserToCreateOrganization: async (user:any) => {  // Use dedicated function
+        const result = await canUserCreateOrganization(user.id, user.role);
+        return result.canCreate;
       },       
-      creatorRole: "admin-executive",               // creator must be able to edit org & billing
-      organizationLimit: 5,
+      creatorRole: "admin-executive", // Default - will be updated post-creation for super-admins
+      organizationLimit: 1, // Default limit for regular users
       membershipLimit: 100,
       invitationLimit: 50,
       invitationExpiresIn: 48 * 60 * 60,
@@ -137,9 +138,10 @@ export const auth = betterAuth({
       roles: {
         "admin-executive": adminExecutive,
         "admin-manager": adminManager,
+        "super-admin": superAdmin,
       },
       defaultRole: "admin-executive",               // only admins self-serve sign-up
-      adminRoles: ["admin-executive", "admin-manager"],
+      adminRoles: ["admin-executive", "admin-manager", "super-admin"],
     }),
 
     apiKey(),
@@ -170,6 +172,54 @@ export const auth = betterAuth({
   ],
 });
 
+
+/**
+ * Check if user is a super admin
+ */
+export async function isSuperAdmin(userId?: string): Promise<boolean> {
+  try {
+    if (!userId) {
+      const session = await auth.api.getSession({
+        headers: await headers(),
+      });
+      userId = session?.user?.id;
+    }
+    
+    if (!userId) return false;
+
+    const baUser = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    if (baUser.length === 0) return false;
+    
+    const userRoles = String(baUser[0].role ?? "")
+      .split(",")
+      .map((r) => r.trim());
+    
+    return userRoles.includes("super-admin");
+  } catch (error) {
+    authLogger.error("Error checking super admin status", error instanceof Error ? error : new Error(String(error)));
+    return false;
+  }
+}
+
+/**
+ * Get all organizations for super admin
+ */
+export async function getAllOrganizations() {
+  try {
+    const organizations = await auth.api.listOrganizations({
+      headers: await headers(),
+    });
+    return organizations;
+  } catch (error) {
+    authLogger.error("Error getting all organizations", error instanceof Error ? error : new Error(String(error)));
+    return [];
+  }
+}
 
 /**
  * Get the current authenticated user with their role and organization context
@@ -208,6 +258,9 @@ export async function getCurrentUser() {
       }
     }
 
+    // Check if user is super admin
+    const isSuper = await isSuperAdmin(session.user.id);
+
     // Map Better Auth user to our application's user interface
     return {
       id: session.user.id,
@@ -227,6 +280,9 @@ export async function getCurrentUser() {
       onboardingStep: profileData?.onboardingStep ?? -1,
       // Organization context (if available)
       organizationId: session.session.activeOrganizationId,
+      // Super admin flags
+      isSuperAdmin: isSuper,
+      canAccessAllOrganizations: isSuper,
     };
   } catch (error) {
     authLogger.error(
@@ -295,6 +351,11 @@ export const roleRouteMapping = {
   "admin-manager": [
     "/team", "/reports"
   ],
+  "super-admin": [
+    "/org", "/org/settings", "/org/billing",
+    "/team", "/reports", "/enterprise",
+    "/admin", "/admin/organizations", "/admin/users" // Additional super-admin routes
+  ],
 } as const;
 
 /**
@@ -336,6 +397,9 @@ export async function canAccessRoute(pathname: string): Promise<boolean> {
     const path = normalizePath(pathname);
     const user = await getCurrentUser();
     if (!user) return false;
+
+    // Super admins have access to all routes
+    if (user.isSuperAdmin) return true;
 
     // If the page is clearly org-scoped, require an active org on the session/user.
     const looksOrgScoped =
