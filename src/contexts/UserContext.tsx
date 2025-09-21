@@ -23,6 +23,8 @@ interface User {
   // Organization context
   organizationId?: string | null
   onboardingOrgId?: string | null
+  // Super admin flag
+  isSuperAdmin: boolean
 }
 
 interface UserContextType {
@@ -96,6 +98,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         // Organization context
         organizationId: session.data.session?.activeOrganizationId,
         onboardingOrgId: profileData?.onboarding_org_id,
+        // Super admin flag
+        isSuperAdmin: baUser.role==="super-admin",
       }
       console.log("combinedUser", combinedUser);
 
@@ -166,6 +170,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     fetchUserData()
   }, [])
 
+  console.log("user", user);
   return (
     <UserContext.Provider value={{
       user,
