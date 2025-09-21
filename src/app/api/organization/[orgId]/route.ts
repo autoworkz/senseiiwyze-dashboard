@@ -6,11 +6,11 @@ import { checkFeatureUsage } from "@/lib/autumn";
 
 export async function POST(
   req: Request,
-  { params }: { params: { orgId: string } }
+  { params }: { params: Promise<{ orgId: string }> }
 ) {
   try {
     const { email, role, name } = await req.json();
-    const organizationId = params.orgId;
+    const organizationId = (await params).orgId;
 
     // Check organization seat limits via Autumn API
     const seatUsage = await checkFeatureUsage(organizationId, "organization_seats");

@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { withAuth } from "@/lib/api/with-auth";
 import { createOrUpdateProfile, type DbUserRole } from "@/lib/profile-creation";
+import { supabase } from "@/lib/supabase";
 
 export const GET = withAuth(async (
   request: NextRequest,
@@ -63,13 +64,6 @@ export const GET = withAuth(async (
         organizationId: invitation.organizationId,
       });
 
-      console.log('✅ Profile created/updated for invitation acceptance:', {
-        userId: session.user.id,
-        profileId,
-        role: invitation.role,
-        organizationId: invitation.organizationId,
-        isNewProfile
-      });
     } catch (error) {
       console.error("Failed to create/update profile:", error);
     }
@@ -82,8 +76,39 @@ export const GET = withAuth(async (
       });
     }
     
-    // Redirect to app dashboard
-    return NextResponse.redirect(new URL('/app', request.nextUrl.origin));
+    // Check if user has a password account (entry in ba_accounts table)
+    const { data: accounts, error: accountsError } = await supabase
+      .from('ba_accounts')
+      .select('*')
+      .eq('user_id', session.user.id);
+
+    if (accountsError) {
+      console.error("Failed to check user accounts:", accountsError);
+    }
+
+    const hasPasswordAccount = accounts && accounts.length > 0;
+
+    if (hasPasswordAccount) {
+      // User already has a password, redirect to app
+      return NextResponse.redirect(new URL('/app', request.nextUrl.origin));
+    } else {
+      // User doesn't have a password account, redirect to create password
+      // Get organization name for the redirect
+      let organizationName = '';
+      try {
+        const organization = await auth.api.getFullOrganization({
+          query: { organizationId: invitation.organizationId },
+          headers: await headers(),
+        });
+        organizationName = organization?.name || '';
+      } catch (orgError) {
+        console.error("Failed to get organization name:", orgError);
+      }
+      
+      // Redirect to create password page with user email and organization name
+      const createPasswordUrl = `/create-password?email=${encodeURIComponent(session.user.email)}&organization=${encodeURIComponent(organizationName)}`;
+      return NextResponse.redirect(new URL(createPasswordUrl, request.nextUrl.origin));
+    }
 
   } catch (error) {
     console.error("Accept invitation error:", error);

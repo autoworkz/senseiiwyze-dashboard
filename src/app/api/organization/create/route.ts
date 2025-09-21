@@ -60,9 +60,14 @@ export const POST = withAuth(async (req: Request, { session }: { session: any })
     }
 
     console.error("Error creating organization via Better Auth:", e);
+    
+    // Return the actual error message from Better Auth
+    const errorMessage = e?.message || e?.body?.message || "Failed to create organization";
+    const statusCode = e?.statusCode || 500;
+    
     return NextResponse.json(
-      { error: "Failed to create organization" },
-      { status: 500 }
+      { error: errorMessage },
+      { status: statusCode }
     );
   }
 });

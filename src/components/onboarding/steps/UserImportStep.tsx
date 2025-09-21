@@ -57,6 +57,7 @@ export function UserImportStep({ data, onComplete, onBack }: UserImportStepProps
       } else {
         // Process file import and send invitations
         const result = await processImport();
+        return;
         onComplete({ 
           importMethod: selectedMethod, 
           userCount: result.userCount || 0

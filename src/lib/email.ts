@@ -182,8 +182,17 @@ export async function sendOrganizationInviteEmail(opts: OrganizationInviteEmailO
 
 export async function sendOrganizationMagicLinkEmail(opts: OrganizationMagicLinkEmailOptions): Promise<EmailResponse> {
   try {
+    console.log('📧 [Email] Sending organization magic link email:', {
+      to: opts.email,
+      organizationName: opts.organizationName,
+      from: FROM,
+      replyTo: REPLY_TO_EMAIL
+    });
+
     const { data, error } = await resend.emails.send({
-      from: FROM, to: opts.email, subject: `You're invited to join ${opts.organizationName}`,
+      from: FROM, 
+      to: opts.email, 
+      subject: `You're invited to join ${opts.organizationName}`,
       react: OrganizationMagicLinkEmail({
         magicLink: opts.magicLink,
         organizationName: opts.organizationName,
@@ -191,13 +200,35 @@ export async function sendOrganizationMagicLinkEmail(opts: OrganizationMagicLink
         invitedByEmail: opts.invitedByEmail,
         inviteeEmail: opts.inviteeEmail,
       }),
-      replyTo: REPLY_TO_EMAIL,
+      // Remove replyTo temporarily to test if this is the issue
+      // replyTo: REPLY_TO_EMAIL,
       headers: { "X-Entity-Ref-ID": crypto.randomUUID() },
     });
-    if (error) return logErr("organization magic link", error);
+
+    console.log('📊 [Email] Resend API response:', {
+      hasData: !!data,
+      hasError: !!error,
+      emailId: data?.id,
+      error: error
+    });
+
+    if (error) {
+      console.error('❌ [Email] Resend API error:', error);
+      return logErr("organization magic link", error);
+    }
+
+    console.log('✅ [Email] Organization magic link email sent successfully:', {
+      emailId: data?.id,
+      to: opts.email,
+      organizationName: opts.organizationName
+    });
+
     emailLogger.info("Organization magic link email sent", { to: opts.email, organizationName: opts.organizationName });
     return { data };
-  } catch (e: any) { return logCatch("organization magic link", e); }
+  } catch (e: any) { 
+    console.error('💥 [Email] Unexpected error:', e);
+    return logCatch("organization magic link", e); 
+  }
 }
 
 export async function sendBatchEmails(

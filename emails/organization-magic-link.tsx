@@ -35,21 +35,27 @@ export const OrganizationMagicLinkEmail = ({
         <Heading style={logo}>SenseiiWyze</Heading>
         <Heading style={heading}>You're invited to join {organizationName}</Heading>
         <Text style={paragraph}>
+          Hello!
+        </Text>
+        <Text style={paragraph}>
           <strong>{invitedByUsername}</strong> ({invitedByEmail}) has invited you to join <strong>{organizationName}</strong> on SenseiiWyze.
         </Text>
         <Text style={paragraph}>
-          Click the button below to accept your invitation and get started. This link will expire in 10 minutes.
+          Click the button below to accept your invitation and get started. This link will expire in 15 minutes.
         </Text>
         <Section style={buttonContainer}>
           <Button style={button} href={magicLink}>
-            Join {organizationName}
+            Accept Invitation
           </Button>
         </Section>
         <Text style={paragraph}>
-          If you didn't expect this invitation, you can safely ignore this email.
+          Or copy and paste this link into your browser:
         </Text>
-        <Text style={smallText}>
-          For {inviteeEmail} only. Link expires in 10 minutes.
+        <Text style={linkText}>
+          {magicLink}
+        </Text>
+        <Text style={paragraph}>
+          If you didn't expect this invitation, you can safely ignore this email.
         </Text>
         <Hr style={hr} />
         <Text style={footer}>
@@ -101,11 +107,15 @@ const paragraph = {
   color: '#3c4149',
 };
 
-const smallText = {
+const linkText = {
   margin: '0 0 15px',
   fontSize: '13px',
   lineHeight: '1.4',
-  color: '#8898aa',
+  color: '#007bff',
+  wordBreak: 'break-all' as const,
+  backgroundColor: '#f8f9fa',
+  padding: '10px',
+  borderRadius: '3px',
 };
 
 const buttonContainer = {

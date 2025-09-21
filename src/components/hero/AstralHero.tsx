@@ -118,7 +118,7 @@ const AstralHero = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            SenseiiWyze's AI-powered platform transforms corporate learning with predictive assessments, 
+            SenseiiWyze's AI-powered Behviour Informatics Engine platform transforms corporate learning with predictive assessments, 
             delivering <span className="text-foreground font-semibold">2-3x faster skill acquisition</span> and 
             <span className="text-foreground font-semibold"> 40% better certification pass rates</span>.
           </motion.p>

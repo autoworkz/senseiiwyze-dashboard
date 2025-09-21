@@ -38,12 +38,14 @@ export async function createOrganization(data: CreateOrganizationData): Promise<
 
     if (!response.ok) {
       const errorData = await response.json();
+      // Throw the exact error message from the server
       throw new Error(errorData.error || 'Failed to create organization');
     }
 
     return await response.json();
   } catch (error) {
     console.error('Error creating organization:', error);
+    // Re-throw the error so the component can display the exact message
     throw error;
   }
 }

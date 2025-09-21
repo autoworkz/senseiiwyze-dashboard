@@ -21,7 +21,8 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "../../lib/db";
 import * as schema from "../../lib/db/schema";
 import { authLogger } from "@/lib/logger";
-import { sendPasswordResetEmail, sendMagicLinkEmail } from "@/lib/email";
+import { sendPasswordResetEmail, sendMagicLinkEmail, sendOrganizationMagicLinkEmail } from "@/lib/email";
+import { getOrganizationInviteContext } from "@/lib/organization-invite-context";
 
 // Import our B2B2C access control system
 import {
@@ -158,9 +159,86 @@ export const auth = betterAuth({
     magicLink({
       expiresIn: 15 * 60,
       storeToken: "hashed",
-      sendMagicLink: async ({ email, token, url }, _request) => {
-        // Send email with magic link using our email service
+      sendMagicLink: async ({ email, token, url }, request) => {        
+        // Extract callback URL from magic link URL query parameters
+        const urlObj = new URL(url);
+        const callbackURL = urlObj.searchParams.get('callbackURL') || urlObj.searchParams.get('newUserCallbackURL');
+        
+        
+        // Check if this is an organization invitation by examining the callback URL
+        const isOrganizationInvite = callbackURL && (
+          callbackURL.includes('/organization/accept-invite/') || 
+          callbackURL.includes('/api/organization/accept-invite/')
+        );
+        
+        
+        if (isOrganizationInvite && callbackURL) {
+          // Extract invitation ID from callback URL
+          const inviteIdMatch = callbackURL.match(/accept-invite\/([^/?]+)/);
+          const invitationId = inviteIdMatch?.[1];
+          
+          console.log('📋 [MagicLink] Processing organization invitation:', {
+            invitationId,
+            callbackURL,
+            email
+          });
+          
+          try {
+            console.log('🔍 [MagicLink] Getting organization invitation context...');
+            // Get organization invitation context using utility function
+            const inviteContext = invitationId ? await getOrganizationInviteContext(invitationId) : null;
+            
+            console.log('📊 [MagicLink] Context retrieval result:', {
+              hasContext: !!inviteContext,
+              context: inviteContext
+            });
+            
+            if (inviteContext) {
+              console.log('📧 [MagicLink] Sending organization-specific magic link email...');
+              // Send organization-specific magic link email
+              await sendOrganizationMagicLinkEmail({
+                email,
+                magicLink: url,
+                organizationName: inviteContext.organizationName,
+                invitedByUsername: inviteContext.inviterName,
+                invitedByEmail: inviteContext.inviterEmail,
+                inviteeEmail: inviteContext.inviteeEmail,
+              });
+              
+              console.log('✅ [MagicLink] Organization magic link email sent successfully!');
+              authLogger.info("Organization magic link email sent", { 
+                email, 
+                organizationName: inviteContext.organizationName,
+                invitationId,
+              });
+              return;
+            } else {
+              console.log('⚠️ [MagicLink] No context found, will fall back to generic email');
+            }
+          } catch (error) {
+            console.error("💥 [MagicLink] Organization magic link error details:", {
+              error,
+              invitationId,
+              callbackURL,
+              email,
+              errorMessage: error instanceof Error ? error.message : String(error),
+              errorStack: error instanceof Error ? error.stack : undefined
+            });
+            authLogger.warn("Failed to send organization magic link email, falling back to generic", {
+              email,
+              invitationId,
+              callbackURL,
+              error: error instanceof Error ? error.message : String(error),
+            });
+          }
+        } else {
+          console.log('📧 [MagicLink] Not an organization invitation, sending generic magic link email');
+        }
+        
+        // Fallback to regular magic link email
+        console.log('📧 [MagicLink] Sending generic magic link email...');
         await sendMagicLinkEmail({ email, magicLink: url });
+        console.log('✅ [MagicLink] Generic magic link email sent successfully!');
         authLogger.info("Magic link sent via email", { email, url });
       },
     }),
