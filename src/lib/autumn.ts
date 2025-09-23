@@ -25,7 +25,7 @@ export const starterProduct = product({
 
 		featureItem({
 			feature_id: organizationSeats.id,
-			included_usage: 5,
+			included_usage: 1,
 		}),
 	],
 });
@@ -38,6 +38,10 @@ export const professionalProduct = product({
 			price: 59,
 			interval: "month",
 		}),
+		featureItem({
+			feature_id: organizationSeats.id,
+			included_usage: 1,
+		}),
 	],
 });
 
@@ -48,6 +52,10 @@ export const enterpriseProduct = product({
 		priceItem({
 			price: 100,
 			interval: "month",
+		}),
+		featureItem({
+			feature_id: organizationSeats.id,
+			included_usage: 1,
 		}),
 	],
 });

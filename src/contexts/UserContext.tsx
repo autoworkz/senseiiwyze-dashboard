@@ -23,6 +23,7 @@ interface User {
   // Organization context
   organizationId?: string | null
   onboardingOrgId?: string | null
+  onboardingOrgMetadata?: any
   // Super admin flag
   isSuperAdmin: boolean
 }
@@ -78,6 +79,22 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         profileData = data
       }
 
+      // Fetch organization metadata if user has an organization
+      let onboardingOrgMetadata = null;
+      if (profileData?.onboarding_org_id) {
+        try {
+          const { data: orgData } = await authClient.organization.getFullOrganization({
+            query: { organizationId: profileData.onboarding_org_id }
+          });
+          // Parse metadata if it's a JSON string, otherwise use as-is
+          onboardingOrgMetadata = typeof orgData?.metadata === 'string' 
+            ? JSON.parse(orgData.metadata) 
+            : orgData?.metadata;
+        } catch (error) {
+          console.warn('Failed to fetch organization metadata:', error);
+        }
+      }
+
       // Combine Better Auth user with profile data
       const combinedUser: User = {
         id: baUser.id,
@@ -98,6 +115,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         // Organization context
         organizationId: session.data.session?.activeOrganizationId,
         onboardingOrgId: profileData?.onboarding_org_id,
+        onboardingOrgMetadata,
         // Super admin flag
         isSuperAdmin: baUser.role==="super-admin",
       }

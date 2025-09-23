@@ -19,14 +19,6 @@ interface OrganizationStepProps {
   onBack: () => void;
 }
 
-const employeeCountOptions = [
-  { value: '1-10', label: '1-10 employees' },
-  { value: '11-50', label: '11-50 employees' },
-  { value: '51-200', label: '51-200 employees' },
-  { value: '201-500', label: '201-500 employees' },
-  { value: '501-1000', label: '501-1000 employees' },
-  { value: '1000+', label: '1000+ employees' },
-];
 
 export function OrganizationStep({data, onComplete }: OrganizationStepProps) {
   const [formData, setFormData] = useState({
@@ -45,7 +37,14 @@ export function OrganizationStep({data, onComplete }: OrganizationStepProps) {
     }
     
     if (!formData.employeeCount) {
-      newErrors.employeeCount = 'Employee count is required';
+      newErrors.employeeCount = 'Number of users is required';
+    } else {
+      const userCount = parseInt(formData.employeeCount);
+      if (isNaN(userCount) || userCount < 1) {
+        newErrors.employeeCount = 'Please enter a valid number of users (minimum 1)';
+      } else if (userCount > 10000) {
+        newErrors.employeeCount = 'Maximum 10,000 users allowed. Contact sales for larger organizations.';
+      }
     }
     
     setErrors(newErrors);
@@ -165,24 +164,22 @@ export function OrganizationStep({data, onComplete }: OrganizationStepProps) {
               <div className="space-y-2">
                 <Label htmlFor="employeeCount" className="text-sm font-medium flex items-center gap-2">
                   <Users className="w-4 h-4" />
-                  Company Size *
+                  Number of Users *
                 </Label>
-                <Select
+                <Input
+                  id="employeeCount"
+                  type="number"
+                  min="1"
+                  max="10000"
                   value={formData.employeeCount}
-                  onValueChange={(value) => handleInputChange('employeeCount', value)}
+                  onChange={(e) => handleInputChange('employeeCount', e.target.value)}
+                  placeholder="Enter number of users"
                   disabled={isLoading}
-                >
-                  <SelectTrigger className={errors.employeeCount ? 'border-destructive' : ''}>
-                    <SelectValue placeholder="Select number of employees" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {employeeCountOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  className={errors.employeeCount ? 'border-destructive' : ''}
+                />
+                <p className="text-xs text-muted-foreground">
+                  This is the number of users you will be allowed to invite into the organization. Pricing is calculated based on this number.
+                </p>
                 {errors.employeeCount && (
                   <p className="text-sm text-destructive">{errors.employeeCount}</p>
                 )}
