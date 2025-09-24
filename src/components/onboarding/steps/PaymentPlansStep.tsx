@@ -28,70 +28,29 @@ interface PaymentPlansStepProps {
   onBack: () => void;
 }
 
-const plans = [
-  {
-    id: 'starter_product', // Autumn product id
-    name: 'Starter',
-    description: 'Perfect for small teams getting started',
-    price: '$29',
-    period: 'per user/month',
-    popular: false,
-    features: [
-      'Up to 25 users',
-      'Basic skill assessments',
-      'Standard AI coaching',
-      'Email support',
-      'Basic analytics',
-      'Mobile app access'
-    ],
-    color: 'border-border',
-    buttonText: 'Start with Starter'
-  },
-  {
-    id: 'professional_product',
-    name: 'Professional',
-    description: 'Most popular for growing organizations',
-    price: '$59',
-    period: 'per user/month',
-    popular: true,
-    features: [
-      'Up to 100 users',
-      'Advanced skill assessments',
-      'Premium AI coaching',
-      'Priority support',
-      'Advanced analytics & reporting',
-      'Custom learning paths',
-      'API access',
-      'Team collaboration tools'
-    ],
-    color: 'border-primary',
-    buttonText: 'Choose Professional'
-  },
-  {
-    id: 'enterprise_product',
-    name: 'Enterprise',
-    description: 'For large organizations with custom needs',
-    price: 'Custom',
-    period: 'contact for pricing',
-    popular: false,
-    features: [
-      'Unlimited users',
-      'Custom skill frameworks',
-      'Dedicated AI coaching',
-      '24/7 dedicated support',
-      'Enterprise analytics',
-      'Custom integrations',
-      'White-label options',
-      'On-premise deployment',
-      'Success guarantee'
-    ],
-    color: 'border-custom-blue',
-    buttonText: 'Choose Enterprise'
-  }
-];
+const plan = {
+  id: 'starter', // Autumn product id
+  name: 'Professional Plan',
+  description: 'Complete learning solution for your organization',
+  basePrice: 20, // $20 per user
+  popular: true,
+  features: [
+    'Advanced skill assessments',
+    'Premium AI coaching',
+    'Priority support',
+    'Advanced analytics & reporting',
+    'Custom learning paths',
+    'API access',
+    'Team collaboration tools',
+    'Mobile app access',
+    'Custom integrations'
+  ],
+  color: 'border-primary',
+  buttonText: 'Choose Plan'
+};
 
 export function PaymentPlansStep({ data, onComplete, onBack }: PaymentPlansStepProps) {
-  const [selectedPlan, setSelectedPlan] = useState<string>(data.selectedPlan || '');
+  const [selectedPlan, setSelectedPlan] = useState<string>(data.selectedPlan || plan.id);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
   const router = useRouter();
@@ -157,36 +116,31 @@ export function PaymentPlansStep({ data, onComplete, onBack }: PaymentPlansStepP
     }
   };
 
-  const displayPlans = useMemo(() => {
-    return plans.map((p) => {
-      const autumnProduct = products?.find((product: any) => p.id === product.id);
-      if (!autumnProduct) {
-        // Fallback calculation for static plans
-        const basePrice = parseFloat(p.price.replace('$', '')) || 0;
-        const totalPrice = basePrice * userCount;
-        console.log("totalPrice", totalPrice);
-        return {
-          ...p,
-          price: `$${totalPrice}`,
-          period: `per month ($${basePrice}/user × ${userCount} user${userCount !== 1 ? 's' : ''})`,
-        };
-      }
-
-      const chosen = findRecurringPrice(autumnProduct, "month");
-      const perUserPrice = chosen?.amount || 0;
-      console.log("perUserPrice", perUserPrice);
-      console.log("userCount", userCount);
-      const totalPrice = perUserPrice * userCount;
-      console.log("totalPrice", totalPrice);
+  const displayPlan = useMemo(() => {
+    const autumnProduct = products?.find((product: any) => plan.id === product.id);
+    
+    if (!autumnProduct) {
+      // Fallback calculation for static plan
+      const totalPrice = plan.basePrice * userCount;
       return {
-        ...p,
-        // Prefer Autumn's name (keeps your 'Enterprise' etc. in sync with Dashboard/CLI)
-        name: autumnProduct.name ?? p.name,
-        // Show total price and per-user breakdown
+        ...plan,
         price: `$${totalPrice}`,
-        period: `per month ($${perUserPrice}/user × ${userCount} user${userCount !== 1 ? 's' : ''})`,
+        period: `per year ($${plan.basePrice}/user × ${userCount} user${userCount !== 1 ? 's' : ''})`,
       };
-    });
+    }
+
+    const chosen = findRecurringPrice(autumnProduct, "year");
+    const perUserPrice = chosen?.amount || plan.basePrice;
+    const totalPrice = perUserPrice * userCount;
+    
+    return {
+      ...plan,
+      // Prefer Autumn's name (keeps your plan name in sync with Dashboard/CLI)
+      name: autumnProduct.name ?? plan.name,
+      // Show total price and per-user breakdown
+      price: `$${totalPrice}`,
+      period: `per year ($${perUserPrice}/user × ${userCount} user${userCount !== 1 ? 's' : ''})`,
+    };
   }, [products, userCount]);
 
   // Loading / error states
@@ -225,100 +179,97 @@ export function PaymentPlansStep({ data, onComplete, onBack }: PaymentPlansStepP
           <div className="mx-auto w-16 h-16 bg-gradient-to-br from-primary to-custom-blue rounded-full flex items-center justify-center mb-4">
             <CreditCard className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold mb-2">Choose your plan</h1>
+          <h1 className="text-3xl font-bold mb-2">Confirm your plan</h1>
           <p className="text-muted-foreground text-lg">
-            Select the perfect plan for your organization's learning journey
+            Review your organization's learning plan pricing
           </p>
         </div>
 
-        {/* Plans Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto mb-8">
-          {displayPlans.map((plan, index) => (
-            <motion.div
-              key={plan.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+        {/* Plan Card */}
+        <div className="max-w-md mx-auto mb-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Card
+              className={cn(
+                "relative cursor-pointer transition-all duration-300 hover:shadow-lg",
+                displayPlan.color,
+                selectedPlan === displayPlan.id && "ring-2 ring-primary shadow-lg scale-105",
+                displayPlan.popular && "border-primary shadow-md",
+                isLoading && "opacity-60 cursor-not-allowed"
+              )}
+              onClick={() => !isLoading && handlePlanSelect(displayPlan.id)}
             >
-              <Card
-                className={cn(
-                  "relative cursor-pointer transition-all duration-300 hover:shadow-lg",
-                  plan.color,
-                  selectedPlan === plan.id && "ring-2 ring-primary shadow-lg scale-105",
-                  plan.popular && "border-primary shadow-md",
-                  isLoading && "opacity-60 cursor-not-allowed"
-                )}
-                onClick={() => !isLoading && handlePlanSelect(plan.id)}
-              >
-                {/* Popular Badge */}
-                {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <Badge className="bg-gradient-to-r from-primary to-custom-blue text-white px-4 py-1">
-                      <Star className="w-3 h-3 mr-1" />
-                      Most Popular
-                    </Badge>
+              {/* Popular Badge */}
+              {/* {displayPlan.popular && (
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <Badge className="bg-gradient-to-r from-primary to-custom-blue text-white px-4 py-1">
+                    <Star className="w-3 h-3 mr-1" />
+                    Recommended
+                  </Badge>
+                </div>
+              )} */}
+
+              <CardHeader className="text-center pb-4">
+                {/* <CardTitle className="text-xl font-bold">{displayPlan.name}</CardTitle>
+                <CardDescription className="text-sm">{displayPlan.description}</CardDescription> */}
+
+                {/* Price */}
+                <div className="mt-4">
+                  <div className="flex items-baseline justify-center gap-1">
+                    <span className="text-3xl font-bold">{displayPlan.price}</span>
                   </div>
-                )}
+                  <p className="text-xs text-muted-foreground mt-1">{displayPlan.period}</p>
+                </div>
+              </CardHeader>
 
-                <CardHeader className="text-center pb-4">
-                  <CardTitle className="text-xl font-bold">{plan.name}</CardTitle>
-                  <CardDescription className="text-sm">{plan.description}</CardDescription>
+              <CardContent className="space-y-4">
+                {/* Features List */}
+                <ul className="space-y-2">
+                  {displayPlan.features.map((feature: string, featureIndex: number) => (
+                    <motion.li
+                      key={featureIndex}
+                      className="flex items-start gap-2 text-sm"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.3 + featureIndex * 0.05 }}
+                    >
+                      <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                      <span>{feature}</span>
+                    </motion.li>
+                  ))}
+                </ul>
 
-                  {/* Price */}
-                  <div className="mt-4">
-                    <div className="flex items-baseline justify-center gap-1">
-                      <span className="text-3xl font-bold">{plan.price}</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">{plan.period}</p>
-                  </div>
-                </CardHeader>
-
-                <CardContent className="space-y-4">
-                  {/* Features List */}
-                  <ul className="space-y-2">
-                    {plan.features.map((feature, featureIndex) => (
-                      <motion.li
-                        key={featureIndex}
-                        className="flex items-start gap-2 text-sm"
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.3 + featureIndex * 0.05 }}
-                      >
-                        <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                        <span>{feature}</span>
-                      </motion.li>
-                    ))}
-                  </ul>
-
-                  {/* Select Button */}
-                  <Button
-                    className={cn(
-                      "w-full mt-6 text-white",
-                      "bg-primary hover:bg-primary/90",
-                      selectedPlan === plan.id && "ring-2 ring-primary/50"
-                    )}
-                    variant={selectedPlan === plan.id ? "default" : "outline"}
-                    disabled={isLoading}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (!isLoading) {
-                        handlePlanSelect(plan.id);
-                      }
-                    }}
-                  >
-                    {selectedPlan === plan.id ? (
-                      <>
-                        <Check className="w-4 h-4 mr-2" />
-                        Selected
-                      </>
-                    ) : (
-                      plan.buttonText
-                    )}
-                  </Button>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
+                {/* Select Button */}
+                <Button
+                  className={cn(
+                    "w-full mt-6 text-white",
+                    "bg-primary hover:bg-primary/90",
+                    selectedPlan === displayPlan.id && "ring-2 ring-primary/50"
+                  )}
+                  variant={selectedPlan === displayPlan.id ? "default" : "outline"}
+                  disabled={isLoading}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (!isLoading) {
+                      handlePlanSelect(displayPlan.id);
+                    }
+                  }}
+                >
+                  {selectedPlan === displayPlan.id ? (
+                    <>
+                      <Check className="w-4 h-4 mr-2" />
+                      Selected
+                    </>
+                  ) : (
+                    displayPlan.buttonText
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
         </div>
 
         {/* Error Alert */}
@@ -349,7 +300,7 @@ export function PaymentPlansStep({ data, onComplete, onBack }: PaymentPlansStepP
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-muted-foreground">
                   <div className="flex items-center gap-2">
                     <Check className="w-3 h-3 text-custom-blue" />
-                    <span>14-day free trial</span>
+                    <span>7-day free trial</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Check className="w-3 h-3 text-custom-blue" />
@@ -401,7 +352,7 @@ export function PaymentPlansStep({ data, onComplete, onBack }: PaymentPlansStepP
           <Button
             size="lg"
             onClick={handleContinue}
-            disabled={!selectedPlan || isLoading}
+            disabled={isLoading}
             className="bg-primary text-white hover:bg-primary/90 min-w-32"
           >
             {isLoading ? (
