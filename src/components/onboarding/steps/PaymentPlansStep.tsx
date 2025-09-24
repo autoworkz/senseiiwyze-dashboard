@@ -20,7 +20,7 @@ import authClient from '@/lib/auth-client';
 
 interface PaymentPlansStepProps {
   data: OnboardingData & { selectedPlan?: string };
-  onComplete: (data: Partial<OnboardingData & { 
+  onComplete: (data: Partial<OnboardingData & {
     selectedPlan: string;
     paymentSessionId?: string;
     customerId?: string;
@@ -136,12 +136,12 @@ export function PaymentPlansStep({ data, onComplete, onBack }: PaymentPlansStepP
     if (!selectedPlan) return;
     setIsLoading(true); setError("");
     console.log("selectedPlan", selectedPlan);
-  
+
     try {
       // Save the selected plan before redirecting
       await savePlan(selectedPlan);
       await checkout({
-        productId: selectedPlan,
+        productId: 'starter',
         dialog: CheckoutDialog,
         options: [{ quantity: userCount, featureId: "organization_seats" }],
         // some SDK versions support these; harmless if ignored:
@@ -178,40 +178,40 @@ export function PaymentPlansStep({ data, onComplete, onBack }: PaymentPlansStepP
       console.log("userCount", userCount);
       const totalPrice = perUserPrice * userCount;
       console.log("totalPrice", totalPrice);
-        return {
-          ...p,
-          // Prefer Autumn's name (keeps your 'Enterprise' etc. in sync with Dashboard/CLI)
-          name: autumnProduct.name ?? p.name,
-          // Show total price and per-user breakdown
-          price: `$${totalPrice}`,
-          period: `per month ($${perUserPrice}/user × ${userCount} user${userCount !== 1 ? 's' : ''})`,
-        };
+      return {
+        ...p,
+        // Prefer Autumn's name (keeps your 'Enterprise' etc. in sync with Dashboard/CLI)
+        name: autumnProduct.name ?? p.name,
+        // Show total price and per-user breakdown
+        price: `$${totalPrice}`,
+        period: `per month ($${perUserPrice}/user × ${userCount} user${userCount !== 1 ? 's' : ''})`,
+      };
     });
   }, [products, userCount]);
 
-    // Loading / error states
-    if (isProductsLoading) {
-      return (
-        <div className="p-8">
-          <div className="text-center mb-8">
-            <div className="mx-auto w-16 h-16 bg-muted rounded-full animate-pulse mb-4" />
-            <h1 className="text-3xl font-bold mb-2">Loading plans…</h1>
-            <p className="text-muted-foreground">Fetching live pricing from Autumn</p>
-          </div>
+  // Loading / error states
+  if (isProductsLoading) {
+    return (
+      <div className="p-8">
+        <div className="text-center mb-8">
+          <div className="mx-auto w-16 h-16 bg-muted rounded-full animate-pulse mb-4" />
+          <h1 className="text-3xl font-bold mb-2">Loading plans…</h1>
+          <p className="text-muted-foreground">Fetching live pricing from Autumn</p>
         </div>
-      );
-    }
-    if (productsError) {
-      return (
-        <div className="p-8">
-          <Alert className="max-w-3xl mx-auto">
-            <AlertDescription>
-              Couldn’t load pricing. Please check your Autumn setup and try again.
-            </AlertDescription>
-          </Alert>
-        </div>
-      );
-    }
+      </div>
+    );
+  }
+  if (productsError) {
+    return (
+      <div className="p-8">
+        <Alert className="max-w-3xl mx-auto">
+          <AlertDescription>
+            Couldn’t load pricing. Please check your Autumn setup and try again.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   return (
     <div className="p-8">
@@ -240,7 +240,7 @@ export function PaymentPlansStep({ data, onComplete, onBack }: PaymentPlansStepP
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
-              <Card 
+              <Card
                 className={cn(
                   "relative cursor-pointer transition-all duration-300 hover:shadow-lg",
                   plan.color,
@@ -263,7 +263,7 @@ export function PaymentPlansStep({ data, onComplete, onBack }: PaymentPlansStepP
                 <CardHeader className="text-center pb-4">
                   <CardTitle className="text-xl font-bold">{plan.name}</CardTitle>
                   <CardDescription className="text-sm">{plan.description}</CardDescription>
-                  
+
                   {/* Price */}
                   <div className="mt-4">
                     <div className="flex items-baseline justify-center gap-1">
