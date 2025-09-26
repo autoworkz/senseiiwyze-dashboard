@@ -137,40 +137,79 @@ export function useUserImport() {
     return results;
   }, []);
 
-  const processImport = useCallback(async (): Promise<{ success: boolean; userCount: number; results?: ImportResult[] }> => {
+  const processImport = useCallback(async (): Promise<{ success: boolean; userCount: number; results?: ImportResult[]; needsPlanUpgrade?: boolean; availableSeats?: number; requiredSeats?: number; totalSeats?: number; currentUsage?: number; hasPartialFailures?: boolean; failureCount?: number }> => {
     if (!uploadedFile || !selectedMethod || selectedMethod === 'manual' || selectedMethod === 'skip') {
       return { success: true, userCount: 0 };
     }
 
     setIsProcessing(true);
     try {
-      // Check organization seats limit via Autumn API
-      const seatsData = await checkSeats();
-      console.log('Seats data from Autumn:', seatsData);
-      
-      // Parse the uploaded file
+      // Parse the uploaded file first to get the number of users
       const rows = await parseFile(uploadedFile);
-      
+      console.log('rows', rows);
       // Dedupe and filter valid emails
       const validRows = dedupeRows(rows).filter(row => row.email && row.email.includes('@'));
-      
+      console.log('validRows', validRows);
+ 
       if (validRows.length === 0) {
         throw new Error('No valid email addresses found in the file');
       }
 
       console.log('validRows', validRows);
       
-      // TODO: Apply user limit cap based on Autumn data
-      // For now, just log the data we get from Autumn
+      // Check organization seats limit via Autumn API
+      const seatsData = await checkSeats();
+      console.log('Seats data from Autumn:', seatsData);
+      
+      // Extract available seats from Autumn response
+      // balance = total seats available, usage = current usage, so available = balance - usage
+      const totalSeats = seatsData?.included_usage || 0;
+      const currentUsage = seatsData?.usage || 0;
+      const availableSeats = totalSeats - currentUsage;
+      const requiredSeats = validRows.length;
+      
+      // Check if we have enough seats
+      if (availableSeats < requiredSeats) {
+        return {
+          success: false,
+          userCount: 0,
+          results: [],
+          needsPlanUpgrade: true,
+          availableSeats,
+          requiredSeats,
+          totalSeats,
+          currentUsage
+        };
+      }
       
       // Send invitations
-      const results = await inviteBatch(validRows);
+      let results: ImportResult[] = [];
+      try {
+        results = await inviteBatch(validRows);
+      } catch (inviteError) {
+        console.error('Failed to send invitations:', inviteError);
+        throw new Error(`Failed to send invitations: ${inviteError instanceof Error ? inviteError.message : 'Unknown error'}`);
+      }
       
       const successCount = results.filter(r => r.ok).length;
+      const failureCount = results.filter(r => !r.ok).length;
+      
+      // Check if all invitations failed
+      if (successCount === 0 && failureCount > 0) {
+        throw new Error(`All invitations failed. Please check your file and try again.`);
+      }
+      
+      // If some invitations failed, we can still proceed but warn the user
+      if (failureCount > 0) {
+        console.warn(`${failureCount} invitations failed out of ${validRows.length} total`);
+      }
+      
       return { 
         success: true, 
         userCount: successCount, 
-        results 
+        results,
+        hasPartialFailures: failureCount > 0,
+        failureCount
       };
       
     } catch (error) {

@@ -12,6 +12,8 @@ export default function PaymentSuccessPage() {
   const [isVerifyingPayment, setIsVerifyingPayment] = useState(false);
   const searchParams = useSearchParams();
   const selectedPlan = searchParams.get("plan");
+  const fromStep = searchParams.get("from");
+  const upgraded = searchParams.get("upgraded");
 
   useEffect(() => {
     if (isVerifyingPayment) return;
@@ -24,15 +26,22 @@ export default function PaymentSuccessPage() {
           (p.id === selectedPlan) &&
           (p.scenario === "active" || p.scenario === "renew" || p.scenario === "scheduled")
       );
+      
       if (paid) {
-        await advanceStep();
-        router.replace("/app/onboarding");
-      }else{
+        // If user came from user-import step after upgrading, redirect back to step 3
+        if (fromStep === "user-import" && upgraded === "true") {
+          router.replace("/app/onboarding&upgraded=true");
+        } else {
+          // Normal flow: advance to next step
+          await advanceStep();
+          router.replace("/app/onboarding");
+        }
+      } else {
         router.replace("/app/onboarding");
       }
     }
     checkPayment();
-  }, [router, refetchProducts, selectedPlan]);
+  }, [router, refetchProducts, selectedPlan, fromStep, upgraded]);
 
   return (
     <div className="flex min-h-[60vh] items-center justify-center">

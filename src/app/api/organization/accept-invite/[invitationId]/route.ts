@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { withAuth } from "@/lib/api/with-auth";
 import { createOrUpdateProfile, type DbUserRole } from "@/lib/profile-creation";
 import { supabase } from "@/lib/supabase";
+import { Autumn as autumn } from "autumn-js";
 
 export const GET = withAuth(async (
   request: NextRequest,
@@ -49,6 +50,17 @@ export const GET = withAuth(async (
         body: { invitationId },
         headers: await headers(),
       });
+      //track seat usage
+      try {
+        await autumn.track({
+          customer_id: invitation.organizationId, // Organization is the customer
+          feature_id: "organization_seats",
+          value: 1 // Increment by 1 seat
+        });
+        console.log(`Tracked seat usage for org: ${invitation.organizationId}`);
+      } catch (trackingError) {
+        console.error('Autumn tracking failed:', trackingError);
+      }
     } catch (error) {
       console.error("Failed to accept invitation:", error);
       return NextResponse.redirect(new URL("/app", request.nextUrl.origin));

@@ -9,6 +9,8 @@ import { Toaster } from '@/components/ui/sonner'
 import { FilteredUsersProvider } from '@/contexts/FilteredUsersContext'
 import { OnboardingGuard } from '@/components/OnboardingGuard'
 import { UserProvider } from '@/contexts/UserContext'
+import { ModalProvider } from '@/contexts/ModalContext'
+import { InviteMembersModal } from '@/components/organization/InviteMembersModal'
 
 interface AppLayoutProps {
   children: ReactNode
@@ -41,22 +43,25 @@ export default async function AppLayout({ children }: AppLayoutProps) {
   return (
     <>
       <UserProvider>
-        <OnboardingGuard>
-          <div className="min-h-screen bg-background">
-            <Suspense fallback={<NavigationSkeleton />}>
-              <ConditionalNavigation user={session.user} />
-            </Suspense>
-            <main className="min-h-0">
-              <DashboardErrorBoundary>
-                <Suspense fallback={<AuthLoadingFallback />}>
-                  <FilteredUsersProvider>
-                    {children}
-                  </FilteredUsersProvider>
-                </Suspense>
-              </DashboardErrorBoundary>
-            </main>
+        <ModalProvider>
+          <OnboardingGuard>
+            <div className="min-h-screen bg-background">
+              <Suspense fallback={<NavigationSkeleton />}>
+                <ConditionalNavigation user={session.user} />
+              </Suspense>
+              <main className="min-h-0">
+                <DashboardErrorBoundary>
+                  <Suspense fallback={<AuthLoadingFallback />}>
+                    <FilteredUsersProvider>
+                      {children}
+                    </FilteredUsersProvider>
+                  </Suspense>
+                </DashboardErrorBoundary>
+              </main>
           </div>
-        </OnboardingGuard>
+          </OnboardingGuard>
+          <InviteMembersModal />
+        </ModalProvider>
       </UserProvider>
       <Toaster />
     </>

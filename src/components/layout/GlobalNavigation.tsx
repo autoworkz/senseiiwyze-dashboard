@@ -1,6 +1,6 @@
 'use client'
 
-import { ChevronDown, Menu, Sparkles, X } from 'lucide-react'
+import { ChevronDown, Menu, Sparkles, X, UserPlus } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
@@ -28,6 +28,7 @@ import {
 } from '@/lib/navigation-config'
 import { cn } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
+import { useModal } from '@/contexts/ModalContext'
 interface GlobalNavigationProps {
   className?: string
   user?: {
@@ -47,6 +48,7 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
   const { data: organizations } = authClient.useListOrganizations()
   const { data: activeOrganization } = authClient.useActiveOrganization()
   const user = serverUser || session?.user
+  const { inviteMembersModal } = useModal()
   const userInitials =
     user?.name
       ?.split(' ')
@@ -317,14 +319,25 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
                 </>
               )}
               
-              {/* Create Organization for admin users */}
-              {user?.role === 'admin-executive' && (
+              {/* Create Organization for admin users - Commented out for now */}
+              {/* {user?.role === 'admin-executive' && (
                 <>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link href="/app/onboarding" className="text-primary">
                       + Create Organization
                     </Link>
+                  </DropdownMenuItem>
+                </>
+              )} */}
+
+              {/* Invite Members */}
+              {activeOrganization && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={inviteMembersModal.open} className="flex items-center gap-2 cursor-pointer">
+                    <UserPlus className="h-4 w-4" />
+                    <span>Invite Members</span>
                   </DropdownMenuItem>
                 </>
               )}

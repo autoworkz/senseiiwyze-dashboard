@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Upload, 
@@ -12,7 +13,9 @@ import {
   ArrowRight,
   AlertCircle,
   UserPlus,
-  Loader2
+  Loader2,
+  CreditCard,
+  RefreshCw
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,6 +26,9 @@ import { OnboardingData } from '../OnboardingFlow';
 import { useUserImport } from '@/hooks/useUserImport';
 import { importMethods, requiredColumns } from '@/config/import-methods';
 import { downloadTemplate } from '@/utils/user-import';
+import { CheckoutDialog, useCustomer } from 'autumn-js/react';
+import { useSearchParams } from 'next/navigation';
+import { toast } from 'sonner';
 
 interface UserImportStepProps {
   data: OnboardingData & { importMethod?: string; userCount?: number };
@@ -45,8 +51,39 @@ export function UserImportStep({ data, onComplete, onBack }: UserImportStepProps
     removeFile,
   } = useUserImport();
 
+  // Autumn customer hook for plan updates
+  const { checkout, check } = useCustomer();
+  
+  // Check if user returned from payment success after upgrading
+  const searchParams = useSearchParams();
+  const upgraded = searchParams.get("upgraded");
+
+  const [seatError, setSeatError] = useState<{
+    needsPlanUpgrade: boolean;
+    availableSeats: number;
+    requiredSeats: number;
+    totalSeats: number;
+    currentUsage?: number;
+  } | null>(null);
+
+  const [importResult, setImportResult] = useState<{
+    success: boolean;
+    userCount: number;
+    hasPartialFailures?: boolean;
+    failureCount?: number;
+  } | null>(null);
+
+  const [isUpdatingPlan, setIsUpdatingPlan] = useState(false);
+
+  // Show upgrade success message if user returned from payment
+  const showUpgradeSuccess = upgraded === "true";
+
   const handleContinue = async () => {
     if (!selectedMethod) return;
+
+    // Clear any previous errors
+    setSeatError(null);
+    setImportResult(null);
 
     try {
       if (selectedMethod === 'manual' || selectedMethod === 'skip') {
@@ -57,15 +94,44 @@ export function UserImportStep({ data, onComplete, onBack }: UserImportStepProps
       } else {
         // Process file import and send invitations
         const result = await processImport();
-        return;
-        onComplete({ 
-          importMethod: selectedMethod, 
-          userCount: result.userCount || 0
+        
+        // Check if we need a plan upgrade
+        if (result.needsPlanUpgrade) {
+          setSeatError({
+            needsPlanUpgrade: true,
+            availableSeats: result.availableSeats || 0,
+            requiredSeats: result.requiredSeats || 0,
+            totalSeats: result.totalSeats || 0,
+            currentUsage: result.currentUsage
+          });
+          return;
+        }
+        
+        // Set import result for display
+        setImportResult({
+          success: result.success,
+          userCount: result.userCount || 0,
+          hasPartialFailures: result.hasPartialFailures,
+          failureCount: result.failureCount
         });
+        
+        // Only proceed to completion if import was successful
+        if (result.success) {
+          onComplete({ 
+            importMethod: selectedMethod, 
+            userCount: result.userCount || 0
+          });
+        }
       }
     } catch (error) {
       console.error('Import failed:', error);
-      // Handle error - could show a toast or error state
+      // Set error result for display
+      setImportResult({
+        success: false,
+        userCount: 0,
+        hasPartialFailures: false,
+        failureCount: 0
+      });
     }
   };
 
@@ -80,6 +146,114 @@ export function UserImportStep({ data, onComplete, onBack }: UserImportStepProps
     setSelectedMethod(methodId as any);
     removeFile(); // Clear any previously uploaded file
   };
+
+  const handleUpgradePlan = async () => {
+    if (!seatError) return;
+    
+    setIsUpdatingPlan(true);
+    try {
+      // Calculate how many additional seats we need
+      const additionalSeats = seatError.requiredSeats - seatError.availableSeats;
+      const newTotalSeats = seatError.totalSeats + additionalSeats;
+      
+      // Create a checkout session for additional seats
+      const result = await checkout({
+        productId: 'starter',
+        dialog: CheckoutDialog,
+        options: [{ quantity: newTotalSeats, featureId: "organization_seats" }],
+        // some SDK versions support these; harmless if ignored:
+        successUrl: `${window.location.origin}/app/onboarding/payment/success?plan=starter&users=${newTotalSeats}&from=user-import&upgraded=true`,
+        // cancelUrl: `${window.location.origin}/app/onboarding?step=2`,
+      });
+
+      console.log('Checkout result:', result);
+      
+      // For dialog scenario, we need to check if payment was successful
+      // Since we can't rely on callbacks, we'll use a polling approach
+      if (result?.data && result.data.product) {
+        // This means checkout was successful (we got product data back)
+        // Start polling to verify the seats were updated correctly
+        await pollForPaymentSuccess();
+      }
+      
+    } catch (error) {
+      console.error('Failed to upgrade plan:', error);
+      // You could show an error message here
+    } finally {
+      setIsUpdatingPlan(false);
+    }
+  };
+
+  // Poll for payment success when using dialog checkout
+  const pollForPaymentSuccess = async () => {
+    const maxAttempts = 30; // 30 seconds max
+    let attempts = 0;
+    
+    const poll = async () => {
+      try {
+        // Check if the payment was successful by verifying seats
+        const seatsData = await checkSeats();
+        if (!seatsData) {
+          attempts++;
+          if (attempts < maxAttempts) {
+            setTimeout(poll, 1000); // Poll every second
+          }
+          return;
+        }
+        
+        const totalSeats = seatsData?.balance || 0;
+        
+        if (totalSeats >= (seatError?.requiredSeats || 0)) {
+          // Payment was successful!
+          setSeatError(null);
+          setImportResult({
+            success: true,
+            userCount: 0,
+            hasPartialFailures: false,
+            failureCount: 0
+          });
+          
+          // Show success message
+          toast.success('Plan upgraded successfully!', {
+            description: 'You can now proceed with importing your team members.',
+            duration: 5000,
+          });
+          return;
+        }
+        
+        attempts++;
+        if (attempts < maxAttempts) {
+          setTimeout(poll, 1000); // Poll every second
+        } else {
+          console.error('Payment verification timeout');
+          toast.error('Payment verification timeout', {
+            description: 'Could not verify payment. Please try again.',
+            duration: 5000,
+          });
+        }
+      } catch (error) {
+        console.error('Error polling for payment success:', error);
+        toast.error('Error verifying payment', {
+          description: 'Please try refreshing the page.',
+          duration: 5000,
+        });
+      }
+    };
+    
+    poll();
+  };
+
+  // Helper function to check seats
+  const checkSeats = async () => {
+    try {
+      const { data } = await check({ featureId: "organization_seats" });
+      return data;
+    } catch (error) {
+      console.error('Error checking organization seats:', error);
+      return null;
+    }
+  };
+
 
   return (
     <div className="p-8">
@@ -98,6 +272,27 @@ export function UserImportStep({ data, onComplete, onBack }: UserImportStepProps
             Add your team members to get started with personalized learning paths
           </p>
         </div>
+
+        {/* Upgrade Success Message */}
+        {showUpgradeSuccess && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-4xl mx-auto mb-6"
+          >
+            <Alert className="border-green-500 bg-green-50">
+              <Check className="h-4 w-4 text-green-600" />
+              <AlertDescription className="text-green-700">
+                <div className="space-y-2">
+                  <div className="font-semibold">✅ Plan upgraded successfully!</div>
+                  <div className="text-sm">
+                    Your plan has been updated with additional seats. You can now proceed with importing your team members.
+                  </div>
+                </div>
+              </AlertDescription>
+            </Alert>
+          </motion.div>
+        )}
 
         {/* Import Method Selection */}
         <div className="max-w-4xl mx-auto mb-8">
@@ -227,6 +422,83 @@ export function UserImportStep({ data, onComplete, onBack }: UserImportStepProps
                   </Alert>
                 )}
 
+                {/* Seat Validation Error */}
+                {seatError && (
+                  <Alert className="mt-4 border-destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription className="text-destructive">
+                      <div className="space-y-3">
+                        <div>
+                          <strong>Insufficient seats for your team:</strong>
+                        </div>
+                        <div className="text-sm space-y-1">
+                          <div>• Your plan includes: <strong>{seatError.totalSeats || 0} total seats</strong></div>
+                          <div>• Currently used: <strong>{seatError.currentUsage || 0} seats</strong></div>
+                          <div>• Available seats: <strong>{seatError.availableSeats} seats</strong></div>
+                          <div>• You're trying to import: <strong>{seatError.requiredSeats} users</strong></div>
+                          <div>• Additional seats needed: <strong>{seatError.requiredSeats - seatError.availableSeats} seats</strong></div>
+                        </div>
+                        <div className="pt-2">
+                          <Button 
+                            onClick={handleUpgradePlan}
+                            disabled={isUpdatingPlan}
+                            className="bg-primary text-primary-foreground hover:bg-primary/90"
+                            size="sm"
+                          >
+                            {isUpdatingPlan ? (
+                              <>
+                                <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                                Updating Plan...
+                              </>
+                            ) : (
+                              <>
+                                <CreditCard className="w-4 h-4 mr-2" />
+                                Update Plan
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {/* Import Results */}
+                {importResult && (
+                  <Alert className={`mt-4 ${importResult.success ? 'border-green-500' : 'border-destructive'}`}>
+                    {importResult.success ? (
+                      <Check className="h-4 w-4 text-green-600" />
+                    ) : (
+                      <AlertCircle className="h-4 w-4" />
+                    )}
+                    <AlertDescription className={importResult.success ? 'text-green-700' : 'text-destructive'}>
+                      <div className="space-y-2">
+                        {importResult.success ? (
+                          <div>
+                            <div className="font-semibold">✅ Import completed successfully!</div>
+                            <div className="text-sm">
+                              • Successfully invited: <strong>{importResult.userCount} users</strong>
+                              {importResult.hasPartialFailures && (
+                                <>
+                                  <br/>• Failed invitations: <strong>{importResult.failureCount} users</strong>
+                                  <br/>• <em>Some invitations may have failed due to invalid emails or existing users</em>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        ) : (
+                          <div>
+                            <div className="font-semibold">❌ Import failed</div>
+                            <div className="text-sm">
+                              All invitations failed. Please check your file format and try again.
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </AlertDescription>
+                  </Alert>
+                )}
+
                 {/* Required Columns Info */}
                 <div className="mt-6 p-4 bg-custom-blue/5 border border-custom-blue/20 rounded-lg">
                   <h4 className="font-medium text-custom-blue mb-2">Required columns:</h4>
@@ -311,7 +583,7 @@ export function UserImportStep({ data, onComplete, onBack }: UserImportStepProps
               variant="ghost"
               size="lg"
               onClick={handleSkip}
-              disabled={isProcessing}
+              disabled={isProcessing || isUpdatingPlan}
               className="text-muted-foreground hover:text-foreground"
             >
               Skip for now
@@ -320,7 +592,7 @@ export function UserImportStep({ data, onComplete, onBack }: UserImportStepProps
             <Button
               size="lg"
               onClick={handleContinue}
-              disabled={!selectedMethod || (selectedMethod !== 'manual' && selectedMethod !== 'skip' && !uploadedFile) || isProcessing}
+              disabled={!selectedMethod || (selectedMethod !== 'manual' && selectedMethod !== 'skip' && !uploadedFile) || isProcessing || isUpdatingPlan}
               className="bg-primary text-white hover:bg-primary/90 min-w-32"
             >
               {isProcessing ? (
