@@ -185,8 +185,9 @@ export const GET = withAuth(async (_request: NextRequest) => {
 
       return {
         id: index + 1,
+        profile_id: profile.id,
         name: profile.name || `User ${profile.id.slice(0, 8)}`,
-        role: profile.user_role === 'admin' ? 'Administrator' : 'User',
+        role: profile.user_role === 'admin-executive' || profile.user_role === 'admin-manager' ? 'Administrator' : 'User',
         level: Math.floor(overallReadiness/10) + 1,
         skills,
         overallReadiness,

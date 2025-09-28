@@ -7,6 +7,7 @@ import { DataVisualizations } from './DataVisualizations'
 import { ProgramReadinessCards } from './ProgramReadinessCards'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useFilteredDashboardData, useFilteredUsers } from '@/hooks/useFilteredUsers'
+import { useOrganizationFilteredData } from '@/hooks/useOrganizationFilteredUsers'
 import { DashboardData, UserTableData } from '@/types/dashboard'
 import { useFilteredUsersContext } from '@/contexts/FilteredUsersContext'
 
@@ -19,8 +20,20 @@ export default function ExecutiveDashboard({ dashboardData, userTableData }: Exe
   const [activeTab, setActiveTab] = useState('all')
   
   // Move ALL hooks to the top, before any conditional logic
-  const { filteredData, hasData, totalFilteredUsers } = useFilteredDashboardData(dashboardData)
-  const { filteredUsers: filteredTableUsers } = useFilteredUsers(userTableData)
+  // Step 1: Apply organization filtering to both dashboard and user table data (middleware)
+  const {
+    filteredDashboardData,
+    filteredUserTableData,
+    isLoading: isOrgLoading,
+    error: orgError
+  } = useOrganizationFilteredData(dashboardData, userTableData)
+
+  // Step 2: Apply meaningful data filtering to organization-filtered dashboard data
+  const { filteredData, hasData, totalFilteredUsers } = useFilteredDashboardData(filteredDashboardData)
+  
+  // Step 3: Apply meaningful data filtering to organization-filtered user table data
+  const { filteredUsers: filteredTableUsers } = useFilteredUsers(filteredUserTableData)
+  
   const { setFilteredUserIds, setAvgReadiness, avgReadiness } = useFilteredUsersContext()
 
   // Set the filtered user IDs in context whenever the data changes
@@ -51,7 +64,34 @@ export default function ExecutiveDashboard({ dashboardData, userTableData }: Exe
     )
   }
 
-  if (!hasData) {
+  if (isOrgLoading) {
+    return (
+      <div className="min-h-screen w-full bg-background p-6">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-2xl font-bold mb-2">Executive Dashboard</h1>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <p className="text-blue-600">Loading organization data...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (orgError) {
+    return (
+      <div className="min-h-screen w-full bg-background p-6">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-2xl font-bold mb-2">Executive Dashboard</h1>
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <p className="text-yellow-600">Warning: Could not load organization data. Showing all users.</p>
+            <p className="text-yellow-500 text-sm mt-1">Error: {orgError}</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!hasData || !filteredData) {
     return (
       <div className="min-h-screen w-full bg-background p-6">
         <div className="max-w-7xl mx-auto">
@@ -71,7 +111,7 @@ export default function ExecutiveDashboard({ dashboardData, userTableData }: Exe
         <p className="text-muted-foreground mb-6">
           Track and manage user skills and program readiness ({totalFilteredUsers} users with data)
         </p>
-        <UserMetrics data={dashboardData} avgReadiness={avgReadiness} />
+        <UserMetrics data={filteredData} avgReadiness={avgReadiness} />
         <Tabs defaultValue="all" className="mb-6" onValueChange={setActiveTab}>
           <TabsList className="w-full justify-start">
             <TabsTrigger value="all">All Users</TabsTrigger>
@@ -80,7 +120,7 @@ export default function ExecutiveDashboard({ dashboardData, userTableData }: Exe
             <TabsTrigger value="programs">Program Readiness</TabsTrigger>
           </TabsList>
           <TabsContent value="all">
-            <DataVisualizations data={dashboardData} />
+            <DataVisualizations data={filteredData} />
             <UserTable activeTab={activeTab} data={userTableData} />
           </TabsContent>
           <TabsContent value="ready">
@@ -117,7 +157,7 @@ export default function ExecutiveDashboard({ dashboardData, userTableData }: Exe
                 many users meet the threshold requirements.
               </p>
             </div>
-            <ProgramReadinessCards data={dashboardData} />
+            <ProgramReadinessCards data={filteredData} />
             <UserTable activeTab={activeTab} data={userTableData} />
           </TabsContent>
         </Tabs>

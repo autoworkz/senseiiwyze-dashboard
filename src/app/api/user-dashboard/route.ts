@@ -78,7 +78,7 @@ export const GET = withAuth(async (_request: NextRequest) => {
       return {
         id: profile.id,
         name: userName,
-        role: profile.user_role === 'admin' ? 'Administrator' : 'User',
+        role: profile.user_role === 'admin-executive' || profile.user_role === 'admin-manager' ? 'Administrator' : 'User',
         level,
         skills,
         overallReadiness,

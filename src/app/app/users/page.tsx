@@ -19,10 +19,7 @@ import {
 import { InteractiveKPICard } from '@/components/interactive/standardized-interactive'
 import { PageContainer, PageHeader } from '@/components/layout/PageContainer'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { RoleBadge, ScoreBadge, StatusBadge } from '@/components/ui/standardized/badge-variants'
 import { useSession } from '@/lib/auth-client'
@@ -41,7 +38,6 @@ export default function UsersPage() {
 
   // Get filtered user IDs from context
   const { filteredUserIds, hasFilteredUsers, avgReadiness } = useFilteredUsersContext()
-  console.log("filteredUserIds", filteredUserIds);
 
   useEffect(() => {
     async function fetchUsers() {

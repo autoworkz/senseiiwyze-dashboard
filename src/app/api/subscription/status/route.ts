@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { autumnHelpers } from '@/lib/autumn';
 
 export async function GET(request: NextRequest) {
   try {

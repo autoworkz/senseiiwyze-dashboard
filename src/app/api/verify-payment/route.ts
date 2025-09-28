@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { autumn, autumnHelpers } from '@/lib/autumn';
 import { paymentSessionStorage } from '@/lib/payment-session-storage';
 import { auth } from '@/lib/auth';
 

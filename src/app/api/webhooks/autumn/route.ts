@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { autumn } from '@/lib/autumn';
 import { paymentSessionStorage } from '@/lib/payment-session-storage';
 
 export async function POST(request: NextRequest) {
