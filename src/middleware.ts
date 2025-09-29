@@ -4,7 +4,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
   // Check if user has a session by looking at Better Auth session cookie
-  const sessionCookie = request.cookies.get('better-auth.session_token');
+  const sessionCookie = request.cookies.get('__Secure-better-auth.session_token');
   
   if (!sessionCookie) {
     // No session, redirect to login for protected paths
