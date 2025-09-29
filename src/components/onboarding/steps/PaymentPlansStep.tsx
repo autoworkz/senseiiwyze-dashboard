@@ -32,7 +32,7 @@ const plan = {
   id: 'starter', // Autumn product id
   name: 'Professional Plan',
   description: 'Complete learning solution for your organization',
-  basePrice: 20, // $20 per user
+  basePrice: 100, // $100 per user
   popular: true,
   features: [
     'Advanced skill assessments',
