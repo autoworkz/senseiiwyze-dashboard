@@ -10,9 +10,15 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle, XCircle, Loader2, Users } from "lucide-react";
 
 
+interface AcceptInvitePageProps {
+  params: {
+    invitationId: string;
+  };
+}
+
 export default function AcceptInvitePage({
   params,
-}: { params: { invitationId: string } }) {
+}: AcceptInvitePageProps) {
   const router = useRouter();
   const { data: session } = authClient.useSession();
   const { refreshUser } = useUser();
