@@ -57,7 +57,11 @@ export const auth = betterAuth({
     },
   }),
   appName: "senseiiwyze-dashboard",
- 
+  redirectUrls: [
+    "http://localhost:3000/auth/reset-password",
+    "http://localhost:5173/auth/reset-password",
+    "https://senseiiwyze.com/auth/reset-password"
+  ],
   hooks: {
     after: createAuthMiddleware(async (ctx) => {
         
