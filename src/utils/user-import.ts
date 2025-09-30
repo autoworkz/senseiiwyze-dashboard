@@ -7,6 +7,8 @@ export function toRole(v: string | undefined | null): InviteRow["role"] {
   if (s === "admin-executive") return "admin-executive";
   if (s === "admin-manager" || s === "manager" || s === "admin")
     return "admin-manager";
+  if (s === "member" || s === "mobile" || s === "user")
+    return "member";
   return "admin-executive";
 }
 
