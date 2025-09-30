@@ -316,6 +316,30 @@ export const jobZoneReference = pgTable("job_zone_reference", {
 	svpRange: varchar("svp_range", { length: 25 }).notNull(),
 });
 
+// Invite codes for mobile member onboarding
+export const inviteCodes = pgTable("invite_codes", {
+  id: uuid().defaultRandom().primaryKey().notNull(),
+  invitationId: text("invitation_id").notNull(),
+  orgId: text("org_id").notNull(),
+  email: text().notNull(),
+  codeHash: text("code_hash").notNull(),
+  expiresAt: timestamp("expires_at", { mode: 'string' }).notNull(),
+  consumedAt: timestamp("consumed_at", { mode: 'string' }),
+  createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+  foreignKey({
+    columns: [table.invitationId],
+    foreignColumns: [baInvitations.id],
+    name: "invite_codes_invitation_id_fkey",
+  }).onDelete("cascade"),
+  foreignKey({
+    columns: [table.orgId],
+    foreignColumns: [baOrganizations.id],
+    name: "invite_codes_org_id_fkey",
+  }).onDelete("cascade"),
+  unique("invite_codes_unique_invitation").on(table.invitationId),
+]);
+
 export const baMembers = pgTable("ba_members", {
 	id: text().primaryKey().notNull(),
 	organizationId: text("organization_id").notNull(),

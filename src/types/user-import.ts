@@ -1,6 +1,6 @@
 export type InviteRow = {
   email: string;
-  role?: "admin-executive" | "admin-manager";
+  role?: "admin-executive" | "admin-manager" | "member";
   first_name?: string;
   last_name?: string;
   title?: string;

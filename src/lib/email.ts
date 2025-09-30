@@ -9,6 +9,7 @@ import {
   SecurityAlertEmail,
   VerifyEmail,
   WelcomeEmail,
+  MemberInviteCodeEmail,
 } from "../../emails";
 
 const FROM = process.env.EMAIL_OTP_FROM!;             
@@ -41,6 +42,12 @@ export interface OrganizationMagicLinkEmailOptions {
   invitedByUsername: string;
   invitedByEmail: string;
   inviteeEmail: string;
+}
+
+export interface MemberInviteCodeEmailOptions {
+  email: string;
+  organizationName: string;
+  code: string;
 }
 
 export async function sendPasswordResetEmail({
@@ -229,6 +236,21 @@ export async function sendOrganizationMagicLinkEmail(opts: OrganizationMagicLink
     console.error('💥 [Email] Unexpected error:', e);
     return logCatch("organization magic link", e); 
   }
+}
+
+export async function sendMemberInviteCodeEmail(opts: MemberInviteCodeEmailOptions): Promise<EmailResponse> {
+  try {
+    const { data, error } = await resend.emails.send({
+      from: FROM,
+      to: opts.email,
+      subject: `Your invite code for ${opts.organizationName}`,
+      react: MemberInviteCodeEmail({ organizationName: opts.organizationName, code: opts.code }),
+      headers: { "X-Entity-Ref-ID": crypto.randomUUID() },
+    });
+    if (error) return logErr("member invite code", error);
+    emailLogger.info("Member invite code email sent", { to: opts.email, organizationName: opts.organizationName });
+    return { data };
+  } catch (e: any) { return logCatch("member invite code", e); }
 }
 
 export async function sendBatchEmails(

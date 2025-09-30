@@ -111,7 +111,12 @@ export function useUserImport() {
         const i = idx++;
         const row = rows[i];
         try {
-          const res = await fetch(`/api/organization/${activeOrganizationId}`, {
+          const isMember = row.role && row.role.includes('member') && !row.role.includes('admin');
+          const endpoint = isMember
+            ? `/api/mobile/organization/${activeOrganizationId}`
+            : `/api/organization/${activeOrganizationId}`;
+
+          const res = await fetch(endpoint, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
