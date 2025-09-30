@@ -291,34 +291,6 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
               </DropdownMenuGroup>
               
               {/* Organizations Section */}
-              {organizations && organizations.length > 0 && (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    All Organizations
-                  </DropdownMenuLabel>
-                  {organizations.map((org) => (
-                    <DropdownMenuItem 
-                      key={org.id}
-                      onClick={() => setOrganization(org.id, org.slug)}
-                      className="cursor-pointer"
-                    >
-                      <div className="flex items-center justify-between w-full">
-                        <div className="flex items-center gap-2">
-                          <div className={`w-2 h-2 rounded-full ${
-                            activeOrganization?.id === org.id ? 'bg-green-500' : 'bg-gray-300'
-                          }`}></div>
-                          <span>{org.name}</span>
-                        </div>
-                        {activeOrganization?.id === org.id && (
-                          <span className="text-xs text-muted-foreground">Current</span>
-                        )}
-                      </div>
-                    </DropdownMenuItem>
-                  ))}
-                </>
-              )}
-              
               {/* Create Organization for admin users - Commented out for now */}
               {/* {user?.role === 'admin-executive' && (
                 <>
