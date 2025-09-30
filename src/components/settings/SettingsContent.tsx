@@ -559,24 +559,13 @@ export function SettingsContent({ user, initialSettings }: SettingsContentProps)
         {/* Billing Tab */}
         <TabsContent value="billing" className="space-y-6">
           <Card>
-            <CardHeader>
+            <CardHeader className='flex items-center justify-between'>
               <CardTitle className="flex items-center gap-2">
                 <CreditCard className="h-5 w-5" />
-                Current Plan
+                Subscription
               </CardTitle>
-              <CardDescription>
-                Manage your subscription and billing details
-              </CardDescription>
+              <Button onClick={()=>openBillingPortal()}>Manage Subscription</Button>
             </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/50">
-                <div>
-                  <h3 className="font-semibold">{getUserPlan()}</h3>
-                  {/* <p className="text-sm text-muted-foreground">Basic features with limited access</p> */}
-                </div>
-                <Button onClick={()=>openBillingPortal()}>Manage Subscription</Button>
-              </div>
-            </CardContent>
           </Card>
 
           {/* <Card>

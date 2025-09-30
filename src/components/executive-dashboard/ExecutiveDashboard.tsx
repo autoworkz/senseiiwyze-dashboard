@@ -7,7 +7,7 @@ import { DataVisualizations } from './DataVisualizations'
 import { ProgramReadinessCards } from './ProgramReadinessCards'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useFilteredDashboardData, useFilteredUsers } from '@/hooks/useFilteredUsers'
-import { useOrganizationFilteredData } from '@/hooks/useOrganizationFilteredUsers'
+// import { useOrganizationFilteredData } from '@/hooks/useOrganizationFilteredUsers'
 import { DashboardData, UserTableData } from '@/types/dashboard'
 import { useFilteredUsersContext } from '@/contexts/FilteredUsersContext'
 
@@ -19,20 +19,16 @@ interface ExecutiveDashboardProps {
 export default function ExecutiveDashboard({ dashboardData, userTableData }: ExecutiveDashboardProps){
   const [activeTab, setActiveTab] = useState('all')
   
-  // Move ALL hooks to the top, before any conditional logic
-  // Step 1: Apply organization filtering to both dashboard and user table data (middleware)
-  const {
-    filteredDashboardData,
-    filteredUserTableData,
-    isLoading: isOrgLoading,
-    error: orgError
-  } = useOrganizationFilteredData(dashboardData, userTableData)
+  // const {
+  //   filteredDashboardData,
+  //   filteredUserTableData,
+  //   isLoading: isOrgLoading,
+  //   error: orgError
+  // } = useOrganizationFilteredData(dashboardData, userTableData)
 
-  // Step 2: Apply meaningful data filtering to organization-filtered dashboard data
-  const { filteredData, hasData, totalFilteredUsers } = useFilteredDashboardData(filteredDashboardData)
+  const { filteredData, hasData, totalFilteredUsers } = useFilteredDashboardData(dashboardData)
   
-  // Step 3: Apply meaningful data filtering to organization-filtered user table data
-  const { filteredUsers: filteredTableUsers } = useFilteredUsers(filteredUserTableData)
+  const { filteredUsers: filteredTableUsers } = useFilteredUsers(userTableData)
   
   const { setFilteredUserIds, setAvgReadiness, avgReadiness } = useFilteredUsersContext()
 
@@ -51,7 +47,7 @@ export default function ExecutiveDashboard({ dashboardData, userTableData }: Exe
   }, [filteredTableUsers, setFilteredUserIds, setAvgReadiness])
 
   // Now we can have conditional logic after all hooks
-  if (!dashboardData || !dashboardData.success || !userTableData || !userTableData.success) {
+  if (!filteredData || !filteredData.success || !filteredTableUsers) {
     return (
       <div className="min-h-screen w-full bg-background p-6">
         <div className="max-w-7xl mx-auto">
@@ -64,32 +60,32 @@ export default function ExecutiveDashboard({ dashboardData, userTableData }: Exe
     )
   }
 
-  if (isOrgLoading) {
-    return (
-      <div className="min-h-screen w-full bg-background p-6">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-2xl font-bold mb-2">Executive Dashboard</h1>
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p className="text-blue-600">Loading organization data...</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  // if (isOrgLoading) {
+  //   return (
+  //     <div className="min-h-screen w-full bg-background p-6">
+  //       <div className="max-w-7xl mx-auto">
+  //         <h1 className="text-2xl font-bold mb-2">Executive Dashboard</h1>
+  //         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+  //           <p className="text-blue-600">Loading organization data...</p>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   )
+  // }
 
-  if (orgError) {
-    return (
-      <div className="min-h-screen w-full bg-background p-6">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-2xl font-bold mb-2">Executive Dashboard</h1>
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-            <p className="text-yellow-600">Warning: Could not load organization data. Showing all users.</p>
-            <p className="text-yellow-500 text-sm mt-1">Error: {orgError}</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  // if (orgError) {
+  //   return (
+  //     <div className="min-h-screen w-full bg-background p-6">
+  //       <div className="max-w-7xl mx-auto">
+  //         <h1 className="text-2xl font-bold mb-2">Executive Dashboard</h1>
+  //         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+  //           <p className="text-yellow-600">Warning: Could not load organization data. Showing all users.</p>
+  //           <p className="text-yellow-500 text-sm mt-1">Error: {orgError}</p>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   )
+  // }
 
   if (!hasData || !filteredData) {
     return (
