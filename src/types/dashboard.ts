@@ -1,6 +1,7 @@
 export interface User {
   id: number
   user_id: string
+  profile_id: string
   name: string
   role: string
   level: number

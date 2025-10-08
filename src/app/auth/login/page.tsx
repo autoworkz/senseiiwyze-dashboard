@@ -21,6 +21,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { authClient, useSession } from '@/lib/auth-client';
+import { supabase } from '@/lib/supabase';
 import { SearchParamsHandler } from '@/components/auth/search-params-handler';
 
 
@@ -73,6 +74,17 @@ export default function LoginPage() {
     setError('');
 
     try {
+      // Block mobile-only accounts (is_dashboard_user = false)
+      const { data: userRow } = await (supabase as any)
+        .from('ba_users')
+        .select('is_dashboard_user')
+        .eq('email', values.email)
+        .maybeSingle();
+
+      if (userRow && userRow.is_dashboard_user === false) {
+        setError('Unauthorized');
+        return;
+      }
       // Use Better Auth to sign in with both client and server approach
       const { data: _data, error: authError } = await authClient.signIn.email({
         email: values.email,

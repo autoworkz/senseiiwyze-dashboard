@@ -18,12 +18,8 @@ import { authLogger } from '@/lib/logger-client';
 // Import B2B2C access control system for client-side usage
 import { 
     ac, 
-    ceo, 
-    worker, 
-    frontliner, 
-    learner, 
-    admin as adminRole, 
-    executive 
+    adminExecutive,
+    adminManager,
 } from "./permissions";
 
 /**
@@ -88,14 +84,8 @@ export const authClient = createAuthClient({
         organizationClient({
             ac,
             roles: {
-                // B2B2C primary roles
-                ceo,
-                worker,
-                frontliner,
-                // Legacy compatibility roles
-                learner,
-                admin: adminRole,
-                executive
+                "admin-executive": adminExecutive,
+                "admin-manager": adminManager,
             }
         }),
         
@@ -103,14 +93,8 @@ export const authClient = createAuthClient({
         adminClient({
             ac,
             roles: {
-                // B2B2C primary roles
-                ceo,
-                worker,
-                frontliner,
-                // Legacy compatibility roles
-                learner,
-                admin: adminRole,
-                executive
+                "admin-executive": adminExecutive,
+                "admin-manager": adminManager,
             }
         }),
         

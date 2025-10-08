@@ -4,14 +4,16 @@ import {
   LoginCodeEmail,
   MagicLinkEmail,
   NewDeviceEmail,
+  OrganizationInviteEmail,
+  OrganizationMagicLinkEmail,
   SecurityAlertEmail,
   VerifyEmail,
   WelcomeEmail,
+  MemberInviteCodeEmail,
 } from "../../emails";
 
 const FROM = process.env.EMAIL_OTP_FROM!;             
 const REPLY_TO_EMAIL = "support@senseiwyze.com"; 
-
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
@@ -26,6 +28,27 @@ export interface SecurityAlertEmailOptions {
   ipAddress?: string; location?: string; device?: string; timestamp?: string; securityLink?: string;
 }
 export interface MagicLinkEmailOptions { email: string; magicLink: string }
+export interface OrganizationInviteEmailOptions {
+  email: string;
+  invitedByUsername: string;
+  invitedByEmail: string;
+  organizationName: string;
+  inviteLink: string;
+}
+export interface OrganizationMagicLinkEmailOptions {
+  email: string;
+  magicLink: string;
+  organizationName: string;
+  invitedByUsername: string;
+  invitedByEmail: string;
+  inviteeEmail: string;
+}
+
+export interface MemberInviteCodeEmailOptions {
+  email: string;
+  organizationName: string;
+  code: string;
+}
 
 export async function sendPasswordResetEmail({
   to,
@@ -143,6 +166,91 @@ export async function sendMagicLinkEmail({ email, magicLink }: MagicLinkEmailOpt
     emailLogger.info("Magic link email sent", { to: email });
     return { data };
   } catch (e: any) { return logCatch("magic link", e); }
+}
+
+export async function sendOrganizationInviteEmail(opts: OrganizationInviteEmailOptions): Promise<EmailResponse> {
+  try {
+    const { data, error } = await resend.emails.send({
+      from: FROM, to: opts.email, subject: `Join ${opts.organizationName} on SenseiiWyze`,
+      react: OrganizationInviteEmail({
+        invitedByUsername: opts.invitedByUsername,
+        invitedByEmail: opts.invitedByEmail,
+        organizationName: opts.organizationName,
+        inviteLink: opts.inviteLink,
+      }),
+      replyTo: REPLY_TO_EMAIL,
+      headers: { "X-Entity-Ref-ID": crypto.randomUUID() },
+    });
+    if (error) return logErr("organization invite", error);
+    emailLogger.info("Organization invite email sent", { to: opts.email, organizationName: opts.organizationName });
+    return { data };
+  } catch (e: any) { return logCatch("organization invite", e); }
+}
+
+export async function sendOrganizationMagicLinkEmail(opts: OrganizationMagicLinkEmailOptions): Promise<EmailResponse> {
+  try {
+    console.log('📧 [Email] Sending organization magic link email:', {
+      to: opts.email,
+      organizationName: opts.organizationName,
+      from: FROM,
+      replyTo: REPLY_TO_EMAIL
+    });
+
+    const { data, error } = await resend.emails.send({
+      from: FROM, 
+      to: opts.email, 
+      subject: `You're invited to join ${opts.organizationName}`,
+      react: OrganizationMagicLinkEmail({
+        magicLink: opts.magicLink,
+        organizationName: opts.organizationName,
+        invitedByUsername: opts.invitedByUsername,
+        invitedByEmail: opts.invitedByEmail,
+        inviteeEmail: opts.inviteeEmail,
+      }),
+      // Remove replyTo temporarily to test if this is the issue
+      // replyTo: REPLY_TO_EMAIL,
+      headers: { "X-Entity-Ref-ID": crypto.randomUUID() },
+    });
+
+    console.log('📊 [Email] Resend API response:', {
+      hasData: !!data,
+      hasError: !!error,
+      emailId: data?.id,
+      error: error
+    });
+
+    if (error) {
+      console.error('❌ [Email] Resend API error:', error);
+      return logErr("organization magic link", error);
+    }
+
+    console.log('✅ [Email] Organization magic link email sent successfully:', {
+      emailId: data?.id,
+      to: opts.email,
+      organizationName: opts.organizationName
+    });
+
+    emailLogger.info("Organization magic link email sent", { to: opts.email, organizationName: opts.organizationName });
+    return { data };
+  } catch (e: any) { 
+    console.error('💥 [Email] Unexpected error:', e);
+    return logCatch("organization magic link", e); 
+  }
+}
+
+export async function sendMemberInviteCodeEmail(opts: MemberInviteCodeEmailOptions): Promise<EmailResponse> {
+  try {
+    const { data, error } = await resend.emails.send({
+      from: FROM,
+      to: opts.email,
+      subject: `Your invite code for ${opts.organizationName}`,
+      react: MemberInviteCodeEmail({ organizationName: opts.organizationName, code: opts.code }),
+      headers: { "X-Entity-Ref-ID": crypto.randomUUID() },
+    });
+    if (error) return logErr("member invite code", error);
+    emailLogger.info("Member invite code email sent", { to: opts.email, organizationName: opts.organizationName });
+    return { data };
+  } catch (e: any) { return logCatch("member invite code", e); }
 }
 
 export async function sendBatchEmails(

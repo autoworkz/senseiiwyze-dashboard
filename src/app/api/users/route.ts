@@ -1,16 +1,8 @@
 import { supabase } from '@/lib/supabase'
-import { NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
-import { headers } from 'next/headers'
+import { NextRequest, NextResponse } from 'next/server'
+import { withAuth } from '@/lib/api/with-auth'
 
-export async function GET() {
-  const session = await auth.api.getSession({
-      headers: await headers()
-    })
-  if (!session?.user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
+export const GET = withAuth(async (_request: NextRequest) => {
   try {
     const { data: users, error } = await supabase
       .from('profiles')
@@ -46,4 +38,4 @@ export async function GET() {
     console.error('Error fetching users:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
-}
+})

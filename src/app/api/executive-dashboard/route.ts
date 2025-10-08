@@ -1,7 +1,8 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { withAuth } from '@/lib/api/with-auth'
 
-export async function GET() {
+export const GET = withAuth(async (_request: NextRequest) => {
   try {
     // Fetch all necessary data in parallel from our new tables
     const [
@@ -184,8 +185,9 @@ export async function GET() {
 
       return {
         id: index + 1,
+        profile_id: profile.id,
         name: profile.name || `User ${profile.id.slice(0, 8)}`,
-        role: profile.user_role === 'admin' ? 'Administrator' : 'User',
+        role: profile.user_role === 'admin-executive' || profile.user_role === 'admin-manager' ? 'Administrator' : 'User',
         level: Math.floor(overallReadiness/10) + 1,
         skills,
         overallReadiness,
@@ -278,4 +280,4 @@ export async function GET() {
     console.error('Executive dashboard API error:', error)
     return NextResponse.json({ error: error.message || 'Unknown error' }, { status: 500 })
   }
-} 
+}) 

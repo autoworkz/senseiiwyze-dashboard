@@ -1,6 +1,6 @@
 'use client'
 
-import { ChevronDown, Menu, Sparkles, X } from 'lucide-react'
+import { ChevronDown, Menu, Sparkles, X, UserPlus } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
@@ -9,6 +9,7 @@ import { InteractiveButton } from '@/components/interactive'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import { onboardingUtils } from '@/utils/onboarding'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,6 +28,7 @@ import {
 } from '@/lib/navigation-config'
 import { cn } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
+import { useModal } from '@/contexts/ModalContext'
 interface GlobalNavigationProps {
   className?: string
   user?: {
@@ -34,6 +36,7 @@ interface GlobalNavigationProps {
     name?: string | null
     email?: string | null
     image?: string | null
+    role?: string | null
   }
 }
 
@@ -42,8 +45,10 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
   const { data: session } = useSession()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const router = useRouter()
-  // Use server user prop if available, fallback to client session
+  const { data: organizations } = authClient.useListOrganizations()
+  const { data: activeOrganization } = authClient.useActiveOrganization()
   const user = serverUser || session?.user
+  const { inviteMembersModal } = useModal()
   const userInitials =
     user?.name
       ?.split(' ')
@@ -53,12 +58,15 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
       .slice(0, 2) || 'U'
 
   const handleSignOut = async () => {
+    // Clear onboarding status from localStorage
+    onboardingUtils.clearOnboardingStatus()
+
     await authClient.signOut({
       fetchOptions: {
         onSuccess: () => {
           router.push("/auth/login"); // redirect to login page
         },
-      },  
+      },
     });
   }
 
@@ -150,7 +158,17 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
       </Link>
     )
   }
-
+  const setOrganization = async (orgId: string, orgSlug: string) => {
+    const { data, error } = await authClient.organization.setActive({
+      organizationId: orgId,
+      organizationSlug: orgSlug,
+    });
+    if (error) {
+      console.error("Failed to set active organization:", error);
+      return;
+    }
+    router.refresh();
+  }
   return (
     <header
       className={cn('bg-background/80 backdrop-blur-md border-b sticky top-0 z-50', className)}
@@ -166,6 +184,17 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
               </InteractiveButton>
             </PopoverTrigger>
             <PopoverContent align="start" className="w-[300px] p-4 md:hidden" sideOffset={12}>
+              {/* Current Organization in Mobile */}
+              {activeOrganization && (
+                <div className="mb-4 p-3 bg-muted/50 rounded-md border">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                    <span className="text-sm font-medium">{activeOrganization.name}</span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">Current Organization</span>
+                </div>
+              )}
+              
               <nav className="flex flex-col gap-1">
                 {dashboardNavigation.map((item) => (
                   <div key={item.href}>
@@ -201,12 +230,19 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
         </div>
 
         {/* Right side - User menu and actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {/* Theme toggle */}
           <ThemeToggle />
-
+          
+          {/* Current Organization Display */}
+          {activeOrganization && (
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-md border">
+              <div className="w-2 h-2 rounded-full bg-green-500"></div>
+              <span className="text-sm font-medium text-foreground">{activeOrganization.name}</span>
+            </div>
+          )}
           {/* Upgrade button */}
-          <InteractiveButton
+          {/* <InteractiveButton
             size="sm"
             variant="default"
             className="hidden sm:flex gap-2 shadow-sm"
@@ -215,8 +251,7 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
           >
             <Sparkles className="h-4 w-4 animate-pulse" />
             <span className="hidden lg:inline">Upgrade</span>
-          </InteractiveButton>
-
+          </InteractiveButton> */}
           {/* User menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -254,6 +289,30 @@ export function GlobalNavigation({ className, user: serverUser }: GlobalNavigati
                   <Link href="/app/settings">Settings</Link>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
+              
+              {/* Organizations Section */}
+              {/* Create Organization for admin users - Commented out for now */}
+              {/* {user?.role === 'admin-executive' && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/app/onboarding" className="text-primary">
+                      + Create Organization
+                    </Link>
+                  </DropdownMenuItem>
+                </>
+              )} */}
+
+              {/* Invite Members */}
+              {activeOrganization && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={inviteMembersModal.open} className="flex items-center gap-2 cursor-pointer">
+                    <UserPlus className="h-4 w-4" />
+                    <span>Invite Members</span>
+                  </DropdownMenuItem>
+                </>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link href="/support">Support</Link>

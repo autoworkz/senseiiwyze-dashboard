@@ -21,7 +21,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { authClient, useSession } from '@/lib/auth-client';
 import { useProfileLink } from '@/hooks/useProfileLink';
 
@@ -42,7 +41,6 @@ const formSchema = z.object({
     .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
     .regex(/[0-9]/, 'Password must contain at least one number')
     .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character'),
-  role: z.enum(['admin', 'team']),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -70,7 +68,6 @@ export default function SignUpPage() {
       fullName: '',
       email: '',
       password: '',
-      role: undefined,
     },
   });
 
@@ -92,12 +89,10 @@ export default function SignUpPage() {
       }
 
       if (_data?.user) {
-        const dbUserRole = values.role === 'team' ? 'user' : 'admin';
         await ensureProfileLinked({
           userId: _data.user.id,
           email: values.email,
           name: values.fullName,
-          role: dbUserRole,
         });
       }
 
@@ -220,7 +215,7 @@ export default function SignUpPage() {
                     )}
                   />
                 </div>
-                <div className="flex w-full flex-col gap-2">
+                {/* <div className="flex w-full flex-col gap-2">
                   <Label>Role</Label>
                   <FormField
                     control={form.control}
@@ -242,7 +237,7 @@ export default function SignUpPage() {
                       </FormItem>
                     )}
                   />
-                </div>
+                </div> */}
                 <div className="flex w-full flex-col gap-2">
                   <Label>Password</Label>
                   <FormField

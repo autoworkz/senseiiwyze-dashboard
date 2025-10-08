@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from 'next/server'
 import {
   sendLoginCodeEmail,
   sendMagicLinkEmail,
+  sendOrganizationMagicLinkEmail,
   sendNewDeviceEmail,
   sendPasswordResetEmail,
   sendSecurityAlertEmail,
@@ -11,7 +12,7 @@ import {
 } from '@/lib/email'
 
 interface EmailTestBody {
-  type: 'password-reset' | 'login-code' | 'verification' | 'welcome' | 'new-device' | 'security-alert' | 'magic-link'
+  type: 'password-reset' | 'login-code' | 'verification' | 'welcome' | 'new-device' | 'security-alert' | 'magic-link' | 'organization-magic-link' | 'organization-magic-link-context'
   email: string
   resetLink?: string
   code?: string
@@ -29,6 +30,10 @@ interface EmailTestBody {
   timestamp?: string
   securityLink?: string
   magicLink?: string
+  organizationName?: string
+  invitedByUsername?: string
+  invitedByEmail?: string
+  invitationId?: string
 }
 
 export async function POST(request: NextRequest) {
@@ -101,6 +106,36 @@ export async function POST(request: NextRequest) {
           email,
           magicLink: emailData.magicLink!,
         })
+        break
+
+      case 'organization-magic-link':
+        result = await sendOrganizationMagicLinkEmail({
+          email,
+          magicLink: emailData.magicLink!,
+          organizationName: emailData.organizationName || 'Test Organization',
+          invitedByUsername: emailData.invitedByUsername || 'Test Inviter',
+          invitedByEmail: emailData.invitedByEmail || 'inviter@test.com',
+          inviteeEmail: email,
+        })
+        break
+
+      case 'organization-magic-link-context':
+        // Test the organization invite context utility
+        const { getOrganizationInviteContext } = await import('@/lib/organization-invite-context');
+        const context = await getOrganizationInviteContext(emailData.invitationId || 'test-id');
+        
+        if (context) {
+          result = await sendOrganizationMagicLinkEmail({
+            email,
+            magicLink: emailData.magicLink!,
+            organizationName: context.organizationName,
+            invitedByUsername: context.inviterName,
+            invitedByEmail: context.inviterEmail,
+            inviteeEmail: context.inviteeEmail,
+          });
+        } else {
+          return NextResponse.json({ error: 'Failed to get organization invite context' }, { status: 400 });
+        }
         break
 
       default:

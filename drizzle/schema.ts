@@ -14,7 +14,7 @@ export const notificationType = pgEnum("notification_type", ['info', 'warning', 
 export const paymentStatus = pgEnum("payment_status", ['pending', 'succeeded', 'failed'])
 export const pricingPlanInterval = pgEnum("pricing_plan_interval", ['day', 'week', 'month', 'year'])
 export const pricingType = pgEnum("pricing_type", ['one_time', 'recurring'])
-export const roleStatus = pgEnum("role_status", ['admin', 'user'])
+export const roleStatus = pgEnum("role_status", ['admin', 'user', 'admin-executive', 'admin-manager'])
 export const subscriptionItemType = pgEnum("subscription_item_type", ['flat', 'per_seat', 'metered'])
 export const subscriptionStatus = pgEnum("subscription_status", ['active', 'trialing', 'past_due', 'canceled', 'unpaid', 'incomplete', 'incomplete_expired', 'paused'])
 export const taskstate = pgEnum("taskstate", ['UNTOUCHED', 'ONGOING', 'COMPLETED'])
@@ -316,6 +316,30 @@ export const jobZoneReference = pgTable("job_zone_reference", {
 	svpRange: varchar("svp_range", { length: 25 }).notNull(),
 });
 
+// Invite codes for mobile member onboarding
+export const inviteCodes = pgTable("invite_codes", {
+  id: uuid().defaultRandom().primaryKey().notNull(),
+  invitationId: text("invitation_id").notNull(),
+  orgId: text("org_id").notNull(),
+  email: text().notNull(),
+  codeHash: text("code_hash").notNull(),
+  expiresAt: timestamp("expires_at", { mode: 'string' }).notNull(),
+  consumedAt: timestamp("consumed_at", { mode: 'string' }),
+  createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
+}, (table) => [
+  foreignKey({
+    columns: [table.invitationId],
+    foreignColumns: [baInvitations.id],
+    name: "invite_codes_invitation_id_fkey",
+  }).onDelete("cascade"),
+  foreignKey({
+    columns: [table.orgId],
+    foreignColumns: [baOrganizations.id],
+    name: "invite_codes_org_id_fkey",
+  }).onDelete("cascade"),
+  unique("invite_codes_unique_invitation").on(table.invitationId),
+]);
+
 export const baMembers = pgTable("ba_members", {
 	id: text().primaryKey().notNull(),
 	organizationId: text("organization_id").notNull(),
@@ -519,6 +543,8 @@ export const profiles = pgTable("profiles", {
 	employmentStatus: text("employment_status"),
 	isDeleted: boolean("is_deleted").default(false),
 	jobTitle: text("job_title"),
+	isOnboarding: boolean("is_onboarding").default(true).notNull(),
+	onboardingStep: smallint("onboarding_step").default(-1).notNull(),
 }, (table) => [
 	foreignKey({
 			columns: [table.institutionRef],

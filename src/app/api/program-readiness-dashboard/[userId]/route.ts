@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { generateInitials } from '@/utils/initials'
+import { withAuth } from '@/lib/api/with-auth'
 
-export async function GET(
+export const GET = withAuth(async (
   request: Request,
   { params }: { params: Promise<{ userId: string }> }
-) { 
+) => { 
   const userId = (await params).userId
   try {
     // Fetch all necessary data in parallel
@@ -171,7 +172,7 @@ export async function GET(
     const userData = {
       id: selectedUser.id,
       name: userName,
-      role: selectedUser.user_role === 'admin' ? 'Administrator' : 'User',
+      role: selectedUser.user_role === 'admin-executive' ? 'Administrator' : 'User',
       level,
       skills,
       overallReadiness,
@@ -196,4 +197,4 @@ export async function GET(
     console.error('Program readiness dashboard API error:', error)
     return NextResponse.json({ error: error.message || 'Unknown error' }, { status: 500 })
   }
-} 
+}) 

@@ -1,7 +1,8 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { withAuth } from '@/lib/api/with-auth'
 
-export async function GET() {
+export const GET = withAuth(async (_request: NextRequest) => {
   try {
     const [
       profilesRes, 
@@ -77,7 +78,7 @@ export async function GET() {
       return {
         id: profile.id,
         name: userName,
-        role: profile.user_role === 'admin' ? 'Administrator' : 'User',
+        role: profile.user_role === 'admin-executive' || profile.user_role === 'admin-manager' ? 'Administrator' : 'User',
         level,
         skills,
         overallReadiness,
@@ -95,4 +96,4 @@ export async function GET() {
     console.error('User dashboard API error:', error)
     return NextResponse.json({ error: error.message || 'Unknown error' }, { status: 500 })
   }
-} 
+}) 

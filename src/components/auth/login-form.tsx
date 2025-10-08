@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Loader2 } from 'lucide-react'
 import { authClient } from '@/lib/auth-client'
+import { supabase } from '@/lib/supabase'
 
 export function LoginForm() {
   const [isPending, setIsPending] = useState(false)
@@ -16,9 +17,24 @@ export function LoginForm() {
     setError(null)
     
     try {
+      const email = formData.get('email') as string
+      const password = formData.get('password') as string
+
+      // Guard: block mobile-only accounts from dashboard sign-in
+      const { data: userRow } = await (supabase as any)
+        .from('ba_users')
+        .select('*')
+        .eq('email', email)
+        .maybeSingle()
+      console.log("userRow", userRow)
+      if (userRow && userRow.is_dashboard_user === false) {
+        setError('Unauthorized')
+        return
+      }
+
       const result = await authClient.signIn.email({
-        email: formData.get('email') as string,
-        password: formData.get('password') as string,
+        email,
+        password,
       })
       if (result?.error) {
         setError(result.error.message || 'Authentication failed')

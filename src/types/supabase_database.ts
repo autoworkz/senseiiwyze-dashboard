@@ -2708,6 +2708,9 @@ export type Database = {
           user_role: Database["public"]["Enums"]["role_status"]
           workplace: string | null
           workplace_ref: string | null
+          is_onboarding?: boolean | null
+          onboarding_step?: number | null
+          onboarding_org_id?: string | null
         }
         Insert: {
           bio?: string | null
@@ -2729,6 +2732,9 @@ export type Database = {
           user_role?: Database["public"]["Enums"]["role_status"]
           workplace?: string | null
           workplace_ref?: string | null
+          is_onboarding?: boolean | null
+          onboarding_step?: number | null
+          onboarding_org_id?: string | null
         }
         Update: {
           bio?: string | null
@@ -2750,6 +2756,9 @@ export type Database = {
           user_role?: Database["public"]["Enums"]["role_status"]
           workplace?: string | null
           workplace_ref?: string | null
+          is_onboarding?: boolean | null
+          onboarding_step?: number | null
+          onboarding_org_id?: string | null
         }
         Relationships: [
           {
@@ -4919,7 +4928,7 @@ export type Database = {
       payment_status: "pending" | "succeeded" | "failed"
       pricing_plan_interval: "day" | "week" | "month" | "year"
       pricing_type: "one_time" | "recurring"
-      role_status: "admin" | "user"
+      role_status: "admin-executive" | "admin-manager"
       subscription_item_type: "flat" | "per_seat" | "metered"
       subscription_status:
         | "active"
