@@ -51,9 +51,9 @@ export async function POST(request: Request) {
     const orgId = invite.organization_id as string;
     const seatData = await checkFeatureUsage(orgId, organizationSeats.id);
 
-    if (!seatData || !seatData?.allowed) {
-      return NextResponse.json({ error: "insufficient_seats" }, { status: 402 });
-    }
+    // if (!seatData || !seatData?.allowed) {
+    //   return NextResponse.json({ error: "insufficient_seats" }, { status: 402 });
+    // }
 
     // 4) Ensure user exists (mobile-only flag)
     const { data: existing, error: userErr } = await (supabase)
