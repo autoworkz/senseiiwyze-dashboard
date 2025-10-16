@@ -125,7 +125,9 @@ export const useOrganizationFilteredData = (
         )
       }
     }
-
+    console.log('userTableData', userTableData)
+    console.log('organizationProfileIds', organizationProfileIds)
+    console.log('filteredUserTableData', filteredUserTableData)
     return {
       filteredDashboardData,
       filteredUserTableData,

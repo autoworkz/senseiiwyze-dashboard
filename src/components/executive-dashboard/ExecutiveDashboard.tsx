@@ -10,6 +10,7 @@ import { useFilteredDashboardData, useFilteredUsers } from '@/hooks/useFilteredU
 // import { useOrganizationFilteredData } from '@/hooks/useOrganizationFilteredUsers'
 import { DashboardData, UserTableData } from '@/types/dashboard'
 import { useFilteredUsersContext } from '@/contexts/FilteredUsersContext'
+import { useOrganizationFilteredData } from '@/hooks/useOrganizationFilteredUsers'
 
 interface ExecutiveDashboardProps {
   dashboardData: DashboardData
@@ -19,22 +20,21 @@ interface ExecutiveDashboardProps {
 export default function ExecutiveDashboard({ dashboardData, userTableData }: ExecutiveDashboardProps){
   const [activeTab, setActiveTab] = useState('all')
   
-  // const {
-  //   filteredDashboardData,
-  //   filteredUserTableData,
-  //   isLoading: isOrgLoading,
-  //   error: orgError
-  // } = useOrganizationFilteredData(dashboardData, userTableData)
+  const {
+    filteredDashboardData,
+    filteredUserTableData,
+    isLoading: isOrgLoading,
+    error: orgError
+  } = useOrganizationFilteredData(dashboardData, userTableData)
 
-  const { filteredData, hasData, totalFilteredUsers } = useFilteredDashboardData(dashboardData)
+  const { filteredData, hasData, totalFilteredUsers } = useFilteredDashboardData(filteredDashboardData)
   
-  const { filteredUsers: filteredTableUsers } = useFilteredUsers(userTableData)
+  const { filteredUsers: filteredTableUsers } = useFilteredUsers(filteredUserTableData)
   
   const { setFilteredUserIds, setAvgReadiness, avgReadiness } = useFilteredUsersContext()
-
   // Set the filtered user IDs in context whenever the data changes
   useEffect(() => {
-    if (filteredTableUsers && filteredTableUsers.length > 0) {
+    if (filteredUserTableData && filteredUserTableData.success) {
       const userIds = filteredTableUsers.map(user => user.user_id)
       setFilteredUserIds(userIds)
       
@@ -46,46 +46,34 @@ export default function ExecutiveDashboard({ dashboardData, userTableData }: Exe
     }
   }, [filteredTableUsers, setFilteredUserIds, setAvgReadiness])
 
-  // Now we can have conditional logic after all hooks
-  if (!filteredData || !filteredData.success || !filteredTableUsers) {
+  
+
+  if (isOrgLoading) {
     return (
       <div className="min-h-screen w-full bg-background p-6">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-2xl font-bold mb-2">Executive Dashboard</h1>
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-red-600">Failed to load dashboard data</p>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <p className="text-blue-600">Loading organization data...</p>
           </div>
         </div>
       </div>
     )
   }
 
-  // if (isOrgLoading) {
-  //   return (
-  //     <div className="min-h-screen w-full bg-background p-6">
-  //       <div className="max-w-7xl mx-auto">
-  //         <h1 className="text-2xl font-bold mb-2">Executive Dashboard</h1>
-  //         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-  //           <p className="text-blue-600">Loading organization data...</p>
-  //         </div>
-  //       </div>
-  //     </div>
-  //   )
-  // }
-
-  // if (orgError) {
-  //   return (
-  //     <div className="min-h-screen w-full bg-background p-6">
-  //       <div className="max-w-7xl mx-auto">
-  //         <h1 className="text-2xl font-bold mb-2">Executive Dashboard</h1>
-  //         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-  //           <p className="text-yellow-600">Warning: Could not load organization data. Showing all users.</p>
-  //           <p className="text-yellow-500 text-sm mt-1">Error: {orgError}</p>
-  //         </div>
-  //       </div>
-  //     </div>
-  //   )
-  // }
+  if (orgError) {
+    return (
+      <div className="min-h-screen w-full bg-background p-6">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-2xl font-bold mb-2">Executive Dashboard</h1>
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <p className="text-yellow-600">Warning: Could not load organization data. Showing all users.</p>
+            <p className="text-yellow-500 text-sm mt-1">Error: {orgError}</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   if (!hasData || !filteredData) {
     return (
@@ -94,6 +82,20 @@ export default function ExecutiveDashboard({ dashboardData, userTableData }: Exe
           <h1 className="text-2xl font-bold mb-2">Executive Dashboard</h1>
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
             <p className="text-yellow-600">No users with data found. Users need to complete assessments and activities to appear in the dashboard.</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Now we can have conditional logic after all hooks
+  if (!filteredDashboardData || !filteredDashboardData.success || !filteredUserTableData || !filteredUserTableData.success) {
+    return (
+      <div className="min-h-screen w-full bg-background p-6">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-2xl font-bold mb-2">Executive Dashboard</h1>
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <p className="text-red-600">Failed to load dashboard data</p>
           </div>
         </div>
       </div>
